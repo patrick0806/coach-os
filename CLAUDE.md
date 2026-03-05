@@ -7,7 +7,7 @@ The SaaS will be paid monthly and will have different tiers based on the number 
 
 ## Stack
 - **Frontend:** Next.js, TailwindCSS, shadcn/ui, TypesScript, React Query
-- **Backend:** NestJS, Fastify, TypesScript, Drizzle ORM, Zod, vitest, swc compiler
+- **Backend:** NestJS, Fastify, TypesScript, Drizzle ORM, Zod, vitest, swc compiler, Passport Auth
 - **Banco:** PostgreSQL
 - **Storage:** AWS S3
 - **Emails:** Resend API
@@ -132,6 +132,22 @@ Rules:
     totalElements: number,
     totalPages: number,
 }
+
+# Frontend standarts
+- Responsive design
+- Mobile first
+- Accessibility
+- Performance
+- SEO
+- Use shadcn/ui components
+- Use tailwindcss for styling
+- Use typescript for type safety
+- Use react query for data fetching
+- Use zod for validation
+- Use react hook form for form handling
+- Avoid using local colors, use the theme colors
+- Avoid using local fonts, use the theme fonts
+- Avoid using local icons, use the theme icons
 
 # Testing  standarts
 
