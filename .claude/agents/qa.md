@@ -42,3 +42,6 @@ Key cases to test.
 
 ### QA Recommendations
 Testing improvements.
+
+## What to do if find a bug
+Create a bug report in the issues section of the repository.

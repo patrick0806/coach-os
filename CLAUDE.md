@@ -70,6 +70,7 @@ src/
       - interceptors/
       - filters/ (error handling)
       - interfaces/
+      - repositories/
       - utils/
       app.module.ts
       main.ts
@@ -210,3 +211,5 @@ All AI agents must:
 - Security by Default (Every feature must consider security. Always validate input and protect sensitive data.)
 - Performance Awareness (Be mindful of performance implications, but don't optimize prematurely.)
 - Respect the Architecture
+- If are fixing a bug create a new tests to prevent the bug from happening again.
+- For database queries always use the repository pattern.
