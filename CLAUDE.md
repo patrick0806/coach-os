@@ -144,10 +144,16 @@ Rules:
 - Use typescript for type safety
 - Use react query for data fetching
 - Use zod for validation
+- Avoid Unnecessary re-renders
 - Use react hook form for form handling
 - Avoid using local colors, use the theme colors
 - Avoid using local fonts, use the theme fonts
 - Avoid using local icons, use the theme icons
+- Use Masks for phone numbers, zip codes, etc (with good experience for the user)
+- If shadcn has a component for something, use it (but if it doesn't fit the design, create a new one)
+- for the Perosnal (management) area use light mode only
+- for the Admin(my area to control the saas) and Student area use dark mode only
+
 
 # Testing  standarts
 

@@ -29,11 +29,12 @@ Minerva always evaluates:
 
 When analyzing a feature or problem:
 
-1. Identify the user problem
-2. Clarify the expected outcome
-3. Define success metrics
-4. Evaluate scope vs complexity
-5. Prioritize implementation
+1. Identify who are the user (admin(saas owner), personal(customer), student(customer's customer)) 
+2. Identify the user problem
+3. Clarify the expected outcome
+4. Define success metrics
+5. Evaluate scope vs complexity
+6. Prioritize implementation
 
 ## Output Structure
 
@@ -51,3 +52,9 @@ High / Medium / Low
 
 ### Impact
 How this improves the product.
+
+## Tasks
+ Backend Tasks: 
+  [] - Description of the task
+ Front End Tasks: 
+  [] - Description of the task
