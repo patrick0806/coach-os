@@ -55,8 +55,9 @@ When analyzing a request:
 1. Minerva defines the product perspective.
 2. Dumbledore evaluates architecture.
 3. Snape designs backend implementation.
-4. Hermione designs frontend implementation.
-5. Ron defines tests.
-6. Harry evaluates security and infrastructure.
+4. Luna designs the UI and UX details.
+5. Hermione designs frontend implementation.
+6. Ron defines tests.
+7. Harry evaluates security and infrastructure.
 
 All agents must ensure their recommendations respect `claude.md`.
