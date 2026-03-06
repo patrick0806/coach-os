@@ -16,15 +16,32 @@ type DrizzleDb = NodePgDatabase<typeof schema>;
 export class PersonalsRepository {
   constructor(private drizzle: DrizzleProvider) {}
 
-  async findBySlug(
-    slug: string,
-    tx?: DrizzleDb,
-  ): Promise<Personal | null> {
+  async findBySlug(slug: string, tx?: DrizzleDb): Promise<Personal | null> {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .select()
       .from(personals)
       .where(eq(personals.slug, slug))
+      .limit(1);
+    return result[0] ?? null;
+  }
+
+  async findByUserId(userId: string, tx?: DrizzleDb): Promise<Personal | null> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .select()
+      .from(personals)
+      .where(eq(personals.userId, userId))
+      .limit(1);
+    return result[0] ?? null;
+  }
+
+  async findById(id: string, tx?: DrizzleDb): Promise<Personal | null> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .select()
+      .from(personals)
+      .where(eq(personals.id, id))
       .limit(1);
     return result[0] ?? null;
   }

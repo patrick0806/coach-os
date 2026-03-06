@@ -22,6 +22,16 @@ export class UsersRepository {
     return result[0] ?? null;
   }
 
+  async findById(id: string, tx?: DrizzleDb): Promise<User | null> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+    return result[0] ?? null;
+  }
+
   async create(data: NewUser, tx?: DrizzleDb): Promise<User> {
     const db = tx ?? this.drizzle.db;
     const result = await db.insert(users).values(data).returning();

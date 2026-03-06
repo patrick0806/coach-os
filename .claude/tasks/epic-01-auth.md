@@ -83,7 +83,7 @@ Como profissional de educacao fisica, quero me registrar na plataforma para cria
 
 ## US-002 — Login Unificado (Personal, Student e Admin)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 1
 **Dependencias:** US-001
 
@@ -112,19 +112,19 @@ Como usuario cadastrado (personal, student ou admin), quero fazer login na plata
 - Rotas de login e register usam `@Public()` (ja existe em `shared/decorators/`)
 
 ### Subtasks Backend
-- [ ] Instalar: `@nestjs/passport`, `passport`, `passport-local`, `passport-jwt`, `@nestjs/jwt`, `argon2`
-- [ ] `POST /auth/login` — controller + service + DTOs
-- [ ] `POST /auth/refresh` — renovar `accessToken` via `refreshToken` do cookie
-- [ ] `POST /auth/logout` — limpar cookie do `refreshToken`
-- [ ] `LocalStrategy` — busca user em `users` por email, verifica senha com argon2
-- [ ] `JwtStrategy` — valida token e popula `request.user` com `IAccessToken` completo
+- [x] Instalar: `@nestjs/passport`, `passport`, `passport-local`, `passport-jwt`, `@nestjs/jwt`, `argon2`
+- [x] `POST /auth/login` — controller + service + DTOs
+- [x] `POST /auth/refresh` — renovar `accessToken` via `refreshToken` do cookie
+- [x] `POST /auth/logout` — limpar cookie do `refreshToken`
+- [x] `LocalStrategy` — busca user em `users` por email, verifica senha com argon2
+- [x] `JwtStrategy` — valida token e popula `request.user` com `IAccessToken` completo
   - Para PERSONAL: faz JOIN com `personals` para pegar `profileId` e `personalId`
   - Para STUDENT: faz JOIN com `students` e `personals` para pegar `profileId` e `personalId` do tenant
   - Para ADMIN: faz JOIN com `admins` para pegar `profileId`
-- [ ] `AuthModule` exportando strategies, registrado no `app.module.ts`
-- [ ] `login.controller.spec.ts` (happy path personal, student, admin + 401 + 403)
-- [ ] `login.service.spec.ts`
-- [ ] `refresh.controller.spec.ts` + `refresh.service.spec.ts`
+- [x] `AuthModule` exportando strategies, registrado no `app.module.ts`
+- [x] `login.controller.spec.ts` (happy path personal, student, admin + 401 + 403)
+- [x] `login.service.spec.ts`
+- [x] `refresh.controller.spec.ts` + `refresh.service.spec.ts`
 
 ### Subtasks Frontend
 - [ ] Rota: `/login`
