@@ -101,7 +101,8 @@ export class ServicePlansRepository {
     const db = tx ?? this.drizzle.db;
     await db
       .update(servicePlans)
-      .set({ isActive: false })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .set({ isActive: false } as any)
       .where(and(eq(servicePlans.id, id), eq(servicePlans.personalId, personalId)));
   }
 }

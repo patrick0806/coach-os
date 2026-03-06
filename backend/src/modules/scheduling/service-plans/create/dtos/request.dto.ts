@@ -13,9 +13,9 @@ export const CreateServicePlanSchema = z.object({
   price: z.number().nonnegative("Preço deve ser maior ou igual a zero"),
 });
 
-export type CreateServicePlanInput = z.infer<typeof CreateServicePlanSchema>;
+export type CreateServicePlanInput = z.input<typeof CreateServicePlanSchema>;
 
-export class CreateServicePlanDTO implements Omit<CreateServicePlanInput, "durationMinutes"> {
+export class CreateServicePlanDTO implements CreateServicePlanInput {
   @ApiProperty({ example: "Plano Básico" })
   name: string;
 

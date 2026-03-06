@@ -31,14 +31,18 @@ export interface SendBookingNotificationParams {
 
 @Injectable()
 export class ResendProvider {
-  private readonly client: Resend;
+  private readonly client: Resend | null;
   private readonly logger = new Logger(ResendProvider.name);
 
   constructor() {
-    this.client = new Resend(env.RESEND_API_KEY);
+    this.client = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
+    if (!this.client) {
+      this.logger.warn("RESEND_API_KEY not set — email sending is disabled");
+    }
   }
 
   async sendStudentInvite(params: SendInviteEmailParams): Promise<void> {
+    if (!this.client) return;
     const { to, studentName, personalName, setupPasswordUrl } = params;
 
     try {
@@ -89,6 +93,7 @@ export class ResendProvider {
   }
 
   async sendBookingConfirmation(params: SendBookingConfirmationParams): Promise<void> {
+    if (!this.client) return;
     const { to, studentName, personalName, scheduledDate, startTime, endTime, servicePlanName } =
       params;
 
@@ -116,6 +121,7 @@ export class ResendProvider {
   }
 
   async sendBookingNotification(params: SendBookingNotificationParams): Promise<void> {
+    if (!this.client) return;
     const { to, personalName, studentName, scheduledDate, startTime, endTime } = params;
 
     try {
