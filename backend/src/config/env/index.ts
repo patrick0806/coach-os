@@ -16,4 +16,6 @@ export const env = {
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD || "123",
   DATABASE_NAME: process.env.DATABASE_NAME || "my-personal-db",
   DATABASE_SSL: process.env.DATABASE_SSL === "true",
+
+  HASH_PEPPER: process.env.HASH_PEPPER || "hash_pepper_change_in_production",
 };

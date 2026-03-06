@@ -33,7 +33,7 @@ Status: `[ ]` todo
 
 ## US-001 — Registro de Personal Trainer
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 1
 **Dependencias:** PRE-REQUISITO (schema)
 
@@ -41,29 +41,29 @@ Status: `[ ]` todo
 Como profissional de educacao fisica, quero me registrar na plataforma para criar minha conta e comecar a usar o sistema.
 
 ### Criterios de Aceite
-- [ ] Campos: nome, e-mail, senha, confirmacao de senha
-- [ ] E-mail unico na tabela `users`
-- [ ] Senha com minimo 8 caracteres
-- [ ] Criacao atomica (transaction): `users` + `personals` (slug gerado do nome)
-- [ ] Slug unico; se conflito, adicionar sufixo numerico (ex: `joao-silva-2`)
-- [ ] Role definida como `PERSONAL` automaticamente
-- [ ] Retorna 201 com dados do usuario e perfil (sem senha)
+- [x] Campos: nome, e-mail, senha, confirmacao de senha
+- [x] E-mail unico na tabela `users`
+- [x] Senha com minimo 8 caracteres
+- [x] Criacao atomica (transaction): `users` + `personals` (slug gerado do nome)
+- [x] Slug unico; se conflito, adicionar sufixo numerico (ex: `joao-silva-2`)
+- [x] Role definida como `PERSONAL` automaticamente
+- [x] Retorna 201 com dados do usuario e perfil (sem senha)
 
 ### Diretivas de Implementacao
 - Modulo: `src/modules/auth/`
 - Context: `register/`
 - TDD: escrever testes antes da implementacao
-- Hash com `argon2id` — instalar `argon2` package
+- Hash com `argon2id` — instalar `argon2` package and pepper env var (HASH_PEPPER)
 - Remover `bcrypt` do projeto se existir
 
 ### Subtasks Backend
-- [ ] `POST /auth/register` — controller, service, request DTO, response DTO
-- [ ] `UsersRepository.create(data)` — insere em `users`
-- [ ] `PersonalsRepository.create(data)` — insere em `personals`
-- [ ] Funcao `generateUniqueSlug(name, db)` em `shared/utils/`
-- [ ] Transaction englobando criacao de `users` + `personals`
-- [ ] `register.controller.spec.ts` (happy path + email duplicado + senha fraca)
-- [ ] `register.service.spec.ts` (happy path + erro de slug + erro de db)
+- [x] `POST /auth/register` — controller, service, request DTO, response DTO
+- [x] `UsersRepository.create(data)` — insere em `users`
+- [x] `PersonalsRepository.create(data)` — insere em `personals`
+- [x] Funcao `generateUniqueSlug(name, db)` em `shared/utils/`
+- [x] Transaction englobando criacao de `users` + `personals`
+- [x] `register.controller.spec.ts` (happy path + email duplicado + senha fraca)
+- [x] `register.service.spec.ts` (happy path + erro de slug + erro de db)
 
 ### Subtasks Frontend
 - [ ] Rota: `/register`

@@ -4,6 +4,7 @@ import { RouterModule } from "@nestjs/core";
 import { JWTAuthGuard, RolesGuard } from "@shared/guards";
 
 import { HealthModule } from "@modules/health/health.module";
+import { AuthModule } from "@modules/auth/auth.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -11,10 +12,15 @@ import { DatabaseModule } from "@config/database/database.module";
   imports: [
     DatabaseModule,
     HealthModule,
+    AuthModule,
     RouterModule.register([
       {
         path: "health",
         module: HealthModule,
+      },
+      {
+        path: "auth",
+        module: AuthModule,
       },
     ]),
   ],
