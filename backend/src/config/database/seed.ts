@@ -49,32 +49,31 @@ async function seed() {
   try {
     // --- USERS ---
     console.log("Inserting users...");
-    const [adminUser, personalUser, studentUser] = await db
-      .insert(users)
-      .values([
-        {
-          name: "Admin User",
-          email: "admin@example.com",
-          password: await hash("testPassword"),
-          role: ApplicationRoles.ADMIN,
-          isActive: true,
-        },
-        {
-          name: "Personal Trainer",
-          email: "personal@example.com",
-          password: await hash("testPassword"),
-          role: ApplicationRoles.PERSONAL,
-          isActive: true,
-        },
-        {
-          name: "Joao Silva",
-          email: "joao.silva@example.com",
-          password: await hash("studentPassword"),
-          role: ApplicationRoles.STUDENT,
-          isActive: true,
-        },
-      ])
-      .returning();
+    const usersToInsert = [
+      {
+        name: "Admin User",
+        email: "admin@example.com",
+        password: await hash("testPassword"),
+        role: ApplicationRoles.ADMIN,
+        isActive: true,
+      },
+      {
+        name: "Personal Trainer",
+        email: "personal@example.com",
+        password: await hash("testPassword"),
+        role: ApplicationRoles.PERSONAL,
+        isActive: true,
+      },
+      {
+        name: "Joao Silva",
+        email: "joao.silva@example.com",
+        password: await hash("studentPassword"),
+        role: ApplicationRoles.STUDENT,
+        isActive: true,
+      },
+    ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [adminUser, personalUser, studentUser] = await db.insert(users).values(usersToInsert as any).returning();
 
     // --- ADMINS ---
     console.log("Inserting admin profile...");
@@ -82,31 +81,30 @@ async function seed() {
 
     // --- PERSONALS ---
     console.log("Inserting personal profile...");
-    const [insertedPersonal] = await db
-      .insert(personals)
-      .values({
-        userId: personalUser.id,
-        slug: "personal-trainer",
-        bio: "Personal trainer certificado com mais de 10 anos de experiencia em treinamento funcional e musculacao.",
-        profilePhoto: "https://i.pravatar.cc/300?img=12",
-        themeColor: "#10b981",
-        phoneNumber: "+5511999887766",
-        lpTitle: "Transforme seu corpo, transforme sua vida!",
-        lpSubtitle:
-          "Treinos personalizados e acompanhamento profissional para voce alcancar seus objetivos.",
-        lpHeroImage:
-          "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200",
-        lpAboutTitle: "Sobre Mim",
-        lpAboutText:
-          "Sou formado em Educacao Fisica e especializado em treinamento funcional. Minha missao e ajudar voce a conquistar seus objetivos de forma saudavel e sustentavel.",
-        lpImage1:
-          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
-        lpImage2:
-          "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800",
-        lpImage3:
-          "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
-      })
-      .returning();
+    const personalToInsert = {
+      userId: personalUser.id,
+      slug: "personal-trainer",
+      bio: "Personal trainer certificado com mais de 10 anos de experiencia em treinamento funcional e musculacao.",
+      profilePhoto: "https://i.pravatar.cc/300?img=12",
+      themeColor: "#10b981",
+      phoneNumber: "+5511999887766",
+      lpTitle: "Transforme seu corpo, transforme sua vida!",
+      lpSubtitle:
+        "Treinos personalizados e acompanhamento profissional para voce alcancar seus objetivos.",
+      lpHeroImage:
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200",
+      lpAboutTitle: "Sobre Mim",
+      lpAboutText:
+        "Sou formado em Educacao Fisica e especializado em treinamento funcional. Minha missao e ajudar voce a conquistar seus objetivos de forma saudavel e sustentavel.",
+      lpImage1:
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+      lpImage2:
+        "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800",
+      lpImage3:
+        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [insertedPersonal] = await db.insert(personals).values(personalToInsert as any).returning();
 
     // --- STUDENTS ---
     console.log("Inserting student profile...");
@@ -117,7 +115,7 @@ async function seed() {
 
     // --- SAAS PLANS ---
     console.log("Inserting SaaS plans...");
-    await db.insert(plans).values([
+    const plansToInsert = [
       {
         name: "Basico",
         description: "O plano perfeito para quem esta comecando",
@@ -145,11 +143,13 @@ async function seed() {
         highlighted: false,
         isActive: true,
       },
-    ]);
+    ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await db.insert(plans).values(plansToInsert as any);
 
     // --- EXERCISES ---
     console.log("Inserting global exercises...");
-    await db.insert(exercises).values([
+    const exercisesToInsert = [
       // Peito
       { name: "Supino Reto", description: "Supino reto com barra para desenvolvimento do peitoral", muscleGroup: "peito", personalId: null },
       { name: "Supino Inclinado", description: "Supino inclinado com barra ou halteres", muscleGroup: "peito", personalId: null },
@@ -208,7 +208,9 @@ async function seed() {
       { name: "Abdominal Infra", description: "Abdominal inferior", muscleGroup: "core", personalId: null },
       { name: "Bicicleta", description: "Abdominal obliquo em movimento", muscleGroup: "core", personalId: null },
       { name: "Russian Twist", description: "Torcao de tronco sentado", muscleGroup: "core", personalId: null },
-    ]);
+    ];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await db.insert(exercises).values(exercisesToInsert as any);
 
     console.log("Seed data inserted successfully!");
     console.log("\n--- Seed Credentials ---");

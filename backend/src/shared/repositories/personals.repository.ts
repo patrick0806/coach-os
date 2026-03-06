@@ -12,6 +12,23 @@ import {
 
 type DrizzleDb = NodePgDatabase<typeof schema>;
 
+// Explicit input type — avoids relying on Partial<NewPersonal> which in
+// Drizzle v0.39 only surfaces the two NOT NULL / no-default columns (userId, slug).
+export interface UpdatePersonalInput {
+  bio?: string | null;
+  profilePhoto?: string | null;
+  themeColor?: string;
+  phoneNumber?: string | null;
+  lpTitle?: string | null;
+  lpSubtitle?: string | null;
+  lpHeroImage?: string | null;
+  lpAboutTitle?: string | null;
+  lpAboutText?: string | null;
+  lpImage1?: string | null;
+  lpImage2?: string | null;
+  lpImage3?: string | null;
+}
+
 @Injectable()
 export class PersonalsRepository {
   constructor(private drizzle: DrizzleProvider) {}
@@ -54,15 +71,13 @@ export class PersonalsRepository {
 
   async update(
     id: string,
-    data: Partial<NewPersonal>,
+    data: UpdatePersonalInput,
     tx?: DrizzleDb,
   ): Promise<Personal> {
     const db = tx ?? this.drizzle.db;
-    const result = await db
-      .update(personals)
-      .set(data)
-      .where(eq(personals.id, id))
-      .returning();
+    // Cast needed: Drizzle v0.39 $inferUpdate narrowing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await db.update(personals).set(data as any).where(eq(personals.id, id)).returning();
     return result[0];
   }
 }
