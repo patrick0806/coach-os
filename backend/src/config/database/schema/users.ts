@@ -7,8 +7,10 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
-import { personals } from "./personals";
 import { relations } from "drizzle-orm";
+import { personals } from "./personals";
+import { students } from "./students";
+import { admins } from "./admins";
 
 export const users = pgTable(
   "users",
@@ -19,7 +21,7 @@ export const users = pgTable(
     name: varchar("name", { length: 150 }).notNull(),
     email: varchar("email", { length: 150 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),
-    isActive: boolean("is_active").default(true),
+    isActive: boolean("is_active").default(true).notNull(),
     role: varchar("role", { length: 50 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -40,6 +42,14 @@ export const usersRelations = relations(users, ({ one }) => ({
   personal: one(personals, {
     fields: [users.id],
     references: [personals.userId],
+  }),
+  student: one(students, {
+    fields: [users.id],
+    references: [students.userId],
+  }),
+  admin: one(admins, {
+    fields: [users.id],
+    references: [admins.userId],
   }),
 }));
 

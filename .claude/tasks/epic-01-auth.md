@@ -9,30 +9,25 @@ Status: `[ ]` todo
 
 ## PRE-REQUISITO — Reinicio do Schema
 
-**Status:** `[ ]` todo
-**Deve ser feito antes de qualquer US deste epic**
+**Status:** `[x]` done
 
 ### Subtasks
-- [ ] Deletar todos os arquivos em `src/config/database/migrations/` e `meta/`
-- [ ] Reescrever `src/config/database/schema/users.ts` (sem mudancas estruturais, confirmar campos)
-- [ ] Reescrever `src/config/database/schema/personals.ts` (sem mudancas)
-- [ ] Reescrever `src/config/database/schema/students.ts` — remover `name`, `email`, `password`; adicionar `userId` (FK unico para `users.id`)
-- [ ] Criar `src/config/database/schema/admins.ts` — tabela nova com `id`, `userId` (FK unico)
-- [ ] Atualizar `src/config/database/schema/index.ts` para exportar `admins`
-- [ ] Rodar `drizzle-kit generate` para gerar migration limpa
-- [ ] Rodar `drizzle-kit migrate` para aplicar
-- [ ] Atualizar `seed.ts`:
-  - [ ] Criar admin via `users` + `admins`
-  - [ ] Criar student via `users` + `students` (sem email/password proprios na tabela students)
-- [ ] Atualizar `src/shared/interfaces/accessToken.interface.ts`:
-  ```typescript
-  export interface IAccessToken {
-    sub: string;           // users.id
-    role: ApplicationRoles;
-    profileId: string;     // personals.id | students.id | admins.id
-    personalId: string | null; // tenant context (null para ADMIN)
-  }
-  ```
+- [x] Deletar todos os arquivos em `src/config/database/migrations/`
+- [x] Reescrever `src/config/database/schema/users.ts` — relacoes atualizadas (personal, student, admin)
+- [x] Reescrever `src/config/database/schema/personals.ts` — relacoes atualizadas
+- [x] Reescrever `src/config/database/schema/students.ts` — removido name/email/password; adicionado `userId` (FK unico)
+- [x] Criar `src/config/database/schema/admins.ts` — nova tabela com `id`, `userId`
+- [x] Reescrever `src/config/database/schema/workout.ts` — adicionado references() e relations()
+- [x] Reescrever `src/config/database/schema/availability.ts` — adicionado references() e relations()
+- [x] Reescrever `src/config/database/schema/plans.ts` — `benefits` migrado de varchar para `json`
+- [x] Atualizar `src/config/database/schema/index.ts` para exportar `admins`
+- [x] Instalar `argon2` (substituindo bcrypt do seed)
+- [x] Atualizar `src/config/env/index.ts` — adicionado JWT_REFRESH_SECRET e JWT_REFRESH_EXPIRATION
+- [x] Rodar `drizzle-kit generate` — migration `0000_regular_legion.sql` gerada (12 tabelas, FK constraints reais)
+- [x] Rodar `db:migrate` — aplicada com sucesso no banco limpo
+- [x] Atualizar `seed.ts` — admin via users+admins, student via users+students, argon2 hash, benefits como array
+- [x] Rodar `db:seed` — 3 users, 1 personal, 1 student, 1 admin, 3 planos SaaS, 50 exercicios globais
+- [x] Atualizar `src/shared/interfaces/accessToken.interface.ts` — sub, role, profileId, personalId, personalSlug
 
 ---
 

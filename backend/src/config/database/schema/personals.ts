@@ -4,13 +4,12 @@ import {
   timestamp,
   index,
   uniqueIndex,
-  boolean,
   text,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
+import { relations } from "drizzle-orm";
 import { users } from "./users";
 import { students } from "./students";
-import { relations } from "drizzle-orm";
 
 export const personals = pgTable(
   "personals",

@@ -2,22 +2,19 @@ import {
   pgTable,
   varchar,
   timestamp,
-  index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
-import { personals } from "./personals";
 
-export const students = pgTable(
-  "students",
+export const admins = pgTable(
+  "admins",
   {
     id: varchar("id", { length: 36 })
       .primaryKey()
       .$defaultFn(() => randomUUID()),
     userId: varchar("user_id", { length: 36 }).notNull().unique(),
-    personalId: varchar("personal_id", { length: 36 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -26,22 +23,15 @@ export const students = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [
-    uniqueIndex("students_user_id_idx").on(table.userId),
-    index("students_personal_id_idx").on(table.personalId),
-  ]
+  (table) => [uniqueIndex("admins_user_id_idx").on(table.userId)]
 );
 
-export const studentsRelations = relations(students, ({ one }) => ({
+export const adminsRelations = relations(admins, ({ one }) => ({
   user: one(users, {
-    fields: [students.userId],
+    fields: [admins.userId],
     references: [users.id],
-  }),
-  personal: one(personals, {
-    fields: [students.personalId],
-    references: [personals.id],
   }),
 }));
 
-export type Student = typeof students.$inferSelect;
-export type NewStudent = typeof students.$inferInsert;
+export type Admin = typeof admins.$inferSelect;
+export type NewAdmin = typeof admins.$inferInsert;

@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1761828111097,
-      "tag": "0000_easy_wrecker",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1761830306882,
-      "tag": "0001_fine_lady_ursula",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1761843478664,
-      "tag": "0002_boring_puck",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1761931151995,
-      "tag": "0003_nebulous_northstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1762006120710,
-      "tag": "0004_colorful_crystal",
+      "when": 1772749027687,
+      "tag": "0000_regular_legion",
       "breakpoints": true
     }
   ]

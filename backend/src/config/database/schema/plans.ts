@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  json,
   numeric,
   pgTable,
   timestamp,
@@ -17,7 +18,7 @@ export const plans = pgTable("plans", {
   price: numeric({ precision: 10, scale: 2 }).notNull(),
   highlighted: boolean("highlighted").notNull().default(false),
   order: integer("order").notNull().default(0),
-  benefits: varchar("benefits").notNull(),
+  benefits: json("benefits").$type<string[]>().notNull(),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -29,8 +30,4 @@ export const plans = pgTable("plans", {
 });
 
 export type Plans = typeof plans.$inferSelect;
-export type CreatePlan = typeof plans.$inferInsert & {
-  order?: number;
-  highlighted?: boolean;
-  isActive?: boolean;
-};
+export type CreatePlan = typeof plans.$inferInsert;

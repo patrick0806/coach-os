@@ -1,8 +1,14 @@
 export const env = {
   PORT: process.env.PORT || 3001,
   NODE_ENV: process.env.NODE_ENV || "development",
-  JWT_SECRET: process.env.JWT_SECRET || "secret",
-  JWT_EXPIRATION: (process.env.JWT_EXPIRATION || "1d") as string,
+
+  JWT_SECRET: process.env.JWT_SECRET || "jwt_secret_change_in_production",
+  JWT_EXPIRATION: (process.env.JWT_EXPIRATION || "15m") as string,
+  JWT_REFRESH_SECRET:
+    process.env.JWT_REFRESH_SECRET || "jwt_refresh_secret_change_in_production",
+  JWT_REFRESH_EXPIRATION: (
+    process.env.JWT_REFRESH_EXPIRATION || "7d"
+  ) as string,
 
   DATABASE_HOST: process.env.DATABASE_HOST || "localhost",
   DATABASE_PORT: parseInt(process.env.DATABASE_PORT || "5432", 10),

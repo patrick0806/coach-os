@@ -8,6 +8,9 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
+import { relations } from "drizzle-orm";
+import { personals } from "./personals";
+import { students } from "./students";
 
 export const exercises = pgTable(
   "exercises",
@@ -18,9 +21,13 @@ export const exercises = pgTable(
     name: varchar("name", { length: 150 }).notNull(),
     description: text("description"),
     muscleGroup: varchar("muscle_group", { length: 100 }).notNull(),
+    // null = global exercise (available to all); set = personal's custom exercise
     personalId: varchar("personal_id", { length: 36 }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
@@ -36,11 +43,16 @@ export const workoutPlans = pgTable(
     id: varchar("id", { length: 36 })
       .primaryKey()
       .$defaultFn(() => randomUUID()),
-    personalId: varchar("personal_id", { length: 36 }).notNull(),
+    personalId: varchar("personal_id", { length: 36 })
+      .notNull()
+      .references(() => personals.id),
     name: varchar("name", { length: 150 }).notNull(),
     description: text("description"),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
@@ -53,8 +65,12 @@ export const workoutPlanStudents = pgTable(
     id: varchar("id", { length: 36 })
       .primaryKey()
       .$defaultFn(() => randomUUID()),
-    workoutPlanId: varchar("workout_plan_id", { length: 36 }).notNull(),
-    studentId: varchar("student_id", { length: 36 }).notNull(),
+    workoutPlanId: varchar("workout_plan_id", { length: 36 })
+      .notNull()
+      .references(() => workoutPlans.id, { onDelete: "cascade" }),
+    studentId: varchar("student_id", { length: 36 })
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
   },
   (table) => [
     uniqueIndex("uniq_workout_plan_student").on(
@@ -71,18 +87,62 @@ export const workoutExercises = pgTable(
     id: varchar("id", { length: 36 })
       .primaryKey()
       .$defaultFn(() => randomUUID()),
-    workoutPlanId: varchar("workout_plan_id", { length: 36 }).notNull(),
-    exerciseId: varchar("exercise_id", { length: 36 }).notNull(),
+    workoutPlanId: varchar("workout_plan_id", { length: 36 })
+      .notNull()
+      .references(() => workoutPlans.id, { onDelete: "cascade" }),
+    exerciseId: varchar("exercise_id", { length: 36 })
+      .notNull()
+      .references(() => exercises.id),
     sets: integer("sets").notNull(),
     repetitions: integer("repetitions").notNull(),
-    load: varchar("load", { length: 50 }), // opcional, pode ser "20kg" ou "bodyweight"
-    order: integer("order").default(0),
+    load: varchar("load", { length: 50 }),
+    order: integer("order").notNull().default(0),
     notes: text("notes"),
   },
   (table) => [
     index("idx_workout_exercises_workout_plan_id").on(table.workoutPlanId),
     index("idx_workout_exercises_exercise_id").on(table.exerciseId),
   ]
+);
+
+export const workoutPlansRelations = relations(
+  workoutPlans,
+  ({ one, many }) => ({
+    personal: one(personals, {
+      fields: [workoutPlans.personalId],
+      references: [personals.id],
+    }),
+    exercises: many(workoutExercises),
+    students: many(workoutPlanStudents),
+  })
+);
+
+export const workoutExercisesRelations = relations(
+  workoutExercises,
+  ({ one }) => ({
+    workoutPlan: one(workoutPlans, {
+      fields: [workoutExercises.workoutPlanId],
+      references: [workoutPlans.id],
+    }),
+    exercise: one(exercises, {
+      fields: [workoutExercises.exerciseId],
+      references: [exercises.id],
+    }),
+  })
+);
+
+export const workoutPlanStudentsRelations = relations(
+  workoutPlanStudents,
+  ({ one }) => ({
+    workoutPlan: one(workoutPlans, {
+      fields: [workoutPlanStudents.workoutPlanId],
+      references: [workoutPlans.id],
+    }),
+    student: one(students, {
+      fields: [workoutPlanStudents.studentId],
+      references: [students.id],
+    }),
+  })
 );
 
 // Types
