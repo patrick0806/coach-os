@@ -5,3 +5,4 @@ export * from "./students";
 export * from "./admins";
 export * from "./workout";
 export * from "./availability";
+export * from "./password-setup-tokens";

@@ -6,6 +6,7 @@ import { UsersRepository } from "@shared/repositories/users.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { AdminsRepository } from "@shared/repositories/admins.repository";
+import { PasswordSetupTokensRepository } from "@shared/repositories/password-setup-tokens.repository";
 import { env } from "@config/env";
 
 import { JwtStrategy, LocalStrategy } from "./strategies";
@@ -17,6 +18,8 @@ import { LoginService } from "./contexts/login/login.service";
 import { RefreshController } from "./contexts/refresh/refresh.controller";
 import { RefreshService } from "./contexts/refresh/refresh.service";
 import { LogoutController } from "./contexts/logout/logout.controller";
+import { SetupPasswordController } from "./contexts/setup-password/setup-password.controller";
+import { SetupPasswordService } from "./contexts/setup-password/setup-password.service";
 
 @Module({
   imports: [
@@ -31,11 +34,13 @@ import { LogoutController } from "./contexts/logout/logout.controller";
     LoginController,
     RefreshController,
     LogoutController,
+    SetupPasswordController,
   ],
   providers: [
     RegisterService,
     LoginService,
     RefreshService,
+    SetupPasswordService,
     AuthTokenService,
     JwtStrategy,
     LocalStrategy,
@@ -43,6 +48,7 @@ import { LogoutController } from "./contexts/logout/logout.controller";
     PersonalsRepository,
     StudentsRepository,
     AdminsRepository,
+    PasswordSetupTokensRepository,
   ],
   exports: [
     UsersRepository,

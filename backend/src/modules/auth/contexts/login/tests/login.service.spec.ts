@@ -139,6 +139,18 @@ describe("LoginService", () => {
       expect(authTokenService.buildPayload).not.toHaveBeenCalled();
     });
 
+    it("should throw UnauthorizedException when user has no password set", async () => {
+      usersRepository.findByEmail.mockResolvedValue(
+        makeUser({ password: null }),
+      );
+
+      await expect(
+        service.execute({ email: "john@example.com", password: "any" }),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(authTokenService.buildPayload).not.toHaveBeenCalled();
+    });
+
     it("should throw UnauthorizedException when password is wrong", async () => {
       usersRepository.findByEmail.mockResolvedValue(makeUser());
       vi.mocked(argon2.verify).mockResolvedValue(false);

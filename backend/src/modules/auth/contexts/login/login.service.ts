@@ -33,6 +33,12 @@ export class LoginService {
       throw new UnauthorizedException("Credenciais inválidas");
     }
 
+    if (!user.password) {
+      throw new UnauthorizedException(
+        "Senha não definida. Verifique seu e-mail de convite.",
+      );
+    }
+
     const isValid = await argon2.verify(
       user.password,
       dto.password + env.HASH_PEPPER,

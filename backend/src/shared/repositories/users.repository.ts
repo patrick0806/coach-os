@@ -40,7 +40,7 @@ export class UsersRepository {
 
   async update(
     id: string,
-    data: Pick<NewUser, "name">,
+    data: Pick<NewUser, "name" | "email" | "password" | "isActive">,
     tx?: DrizzleDb,
   ): Promise<User> {
     const db = tx ?? this.drizzle.db;

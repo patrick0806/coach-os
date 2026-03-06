@@ -20,7 +20,7 @@ export const users = pgTable(
       .$defaultFn(() => randomUUID()),
     name: varchar("name", { length: 150 }).notNull(),
     email: varchar("email", { length: 150 }).notNull().unique(),
-    password: varchar("password", { length: 255 }).notNull(),
+    password: varchar("password", { length: 255 }),
     isActive: boolean("is_active").default(true).notNull(),
     role: varchar("role", { length: 50 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
