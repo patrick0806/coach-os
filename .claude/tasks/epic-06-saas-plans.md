@@ -80,7 +80,7 @@ Como personal trainer, quero assinar um plano de uso da plataforma para liberar 
 ### Subtasks Frontend
 - [ ] Rota: `/dashboard/subscription`
 - [ ] Card com: plano atual, status, data de renovacao/expiracao
-- [ ] Botao "Assinar" / "Trocar Plano" (redireciona para Stripe Checkout)
+- [ ] Botao "Assinar" (redireciona para Stripe Checkout para quem nao tem plano)
 - [ ] Pagina de retorno apos checkout: `/dashboard/subscription/success` e `/dashboard/subscription/cancel`
 - [ ] Exibir alerta quando assinatura esta proxima do vencimento ou expirada
 
@@ -89,3 +89,44 @@ Como personal trainer, quero assinar um plano de uso da plataforma para liberar 
 - Nunca expor a secret key no frontend — toda integracao Stripe via backend
 - O webhook precisa receber o body raw (nao parseado) para validar a assinatura — configurar no Fastify/NestJS
 - Stripe Price IDs mapeados por nome de plano em variaveis de ambiente: `STRIPE_PRICE_BASICO`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_EMPRESARIAL`
+
+---
+
+## US-017 — Gerenciar assinatura e uso (Personal)
+
+**Status:** `[ ]` todo
+**Sprint:** 6
+**Dependencias:** US-016
+
+**Descricao:**
+Como personal trainer, quero gerenciar minha assinatura e visualizar o uso dos meus limites para decidir sobre upgrades ou cancelamentos.
+
+### Criterios de Aceite
+- [ ] Visualizar indicadores de uso atual vs. limite do plano (ex: "4 de 10 alunos utilizados")
+- [ ] Listar planos superiores disponiveis para upgrade imediato
+- [ ] Integracao com Stripe Customer Portal para gestao de metodos de pagamento e historico de faturas
+- [ ] Fluxo de cancelamento de assinatura com confirmacao (mantendo acesso ate o fim do ciclo pago)
+- [ ] Upgrade de plano com calculo de prorata automatico pelo Stripe
+
+### Diretivas de Implementacao
+- Contexts: `subscriptions/usage/`, `subscriptions/portal/`, `subscriptions/upgrade/`
+- Adicionar logica de contagem de alunos ativos no `StudentsRepository`
+
+### Subtasks Backend
+- [ ] `GET /subscriptions/usage` — retorna dados de uso (alunos cadastrados vs limite do plano atual)
+- [ ] `POST /subscriptions/portal` — gera URL para o Stripe Customer Portal (gestao de cartao/faturas)
+- [ ] `POST /subscriptions/upgrade` — endpoint para trocar para um plano superior (atualiza no Stripe com `proration_behavior: 'always_invoice'`)
+- [ ] `DELETE /subscriptions/cancel` — cancela a renovacao automatica no Stripe (`cancel_at_period_end: true`)
+- [ ] Atualizar `subscriptions.webhook` para tratar `customer.subscription.updated` em casos de upgrade/downgrade
+
+### Subtasks Frontend
+- [ ] Tela de Gestao: `/dashboard/subscription/manage`
+- [ ] Componente de Barra de Progresso para limite de alunos
+- [ ] Lista de cards para Upgrade (exibindo apenas planos superiores ao atual)
+- [ ] Botao "Gerenciar Pagamentos" que abre o link do Stripe Portal em nova aba
+- [ ] Modal de confirmacao para cancelamento de assinatura
+
+### Notas Tecnicas
+- O limite de alunos deve ser validado no Backend ao tentar criar um novo aluno (US-007)
+- Utilizar `stripe.billingPortal.sessions.create` para o link de gestao externa
+- No upgrade, o Stripe cobra a diferenca proporcional imediatamente ou na proxima fatura conforme configuracao do produto.

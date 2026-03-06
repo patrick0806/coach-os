@@ -10,6 +10,25 @@ export interface SendInviteEmailParams {
   setupPasswordUrl: string;
 }
 
+export interface SendBookingConfirmationParams {
+  to: string;
+  studentName: string;
+  personalName: string;
+  scheduledDate: string;
+  startTime: string;
+  endTime: string;
+  servicePlanName: string;
+}
+
+export interface SendBookingNotificationParams {
+  to: string;
+  personalName: string;
+  studentName: string;
+  scheduledDate: string;
+  startTime: string;
+  endTime: string;
+}
+
 @Injectable()
 export class ResendProvider {
   private readonly client: Resend;
@@ -66,6 +85,57 @@ export class ResendProvider {
     } catch (error) {
       this.logger.error("Failed to send student invite email", error);
       // Email failure must not roll back the student creation
+    }
+  }
+
+  async sendBookingConfirmation(params: SendBookingConfirmationParams): Promise<void> {
+    const { to, studentName, personalName, scheduledDate, startTime, endTime, servicePlanName } =
+      params;
+
+    try {
+      await this.client.emails.send({
+        from: "no-reply@coachos.app",
+        to,
+        subject: "Agendamento confirmado!",
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Olá, ${studentName}!</h2>
+            <p>Seu agendamento foi confirmado com sucesso.</p>
+            <ul>
+              <li><strong>Personal:</strong> ${personalName}</li>
+              <li><strong>Plano:</strong> ${servicePlanName}</li>
+              <li><strong>Data:</strong> ${scheduledDate}</li>
+              <li><strong>Horário:</strong> ${startTime} — ${endTime}</li>
+            </ul>
+          </div>
+        `,
+      });
+    } catch (error) {
+      this.logger.error("Failed to send booking confirmation email", error);
+    }
+  }
+
+  async sendBookingNotification(params: SendBookingNotificationParams): Promise<void> {
+    const { to, personalName, studentName, scheduledDate, startTime, endTime } = params;
+
+    try {
+      await this.client.emails.send({
+        from: "no-reply@coachos.app",
+        to,
+        subject: `Novo agendamento de ${studentName}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Olá, ${personalName}!</h2>
+            <p><strong>${studentName}</strong> agendou uma sessão com você.</p>
+            <ul>
+              <li><strong>Data:</strong> ${scheduledDate}</li>
+              <li><strong>Horário:</strong> ${startTime} — ${endTime}</li>
+            </ul>
+          </div>
+        `,
+      });
+    } catch (error) {
+      this.logger.error("Failed to send booking notification email", error);
     }
   }
 }

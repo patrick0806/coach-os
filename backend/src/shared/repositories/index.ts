@@ -8,3 +8,6 @@ export { ExercisesRepository } from "./exercises.repository";
 export { WorkoutPlansRepository } from "./workout-plans.repository";
 export { WorkoutExercisesRepository, WorkoutExerciseRow } from "./workout-exercises.repository";
 export { WorkoutPlanStudentsRepository } from "./workout-plan-students.repository";
+export { AvailabilityRepository } from "./availability.repository";
+export { ServicePlansRepository } from "./service-plans.repository";
+export { BookingsRepository } from "./bookings.repository";
