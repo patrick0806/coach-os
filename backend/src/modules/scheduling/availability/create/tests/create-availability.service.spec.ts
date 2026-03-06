@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 
 import { ApplicationRoles } from "@shared/enums";
 import { CreateAvailabilityService } from "../create-availability.service";
@@ -25,10 +25,16 @@ const mockSlot = {
 
 describe("CreateAvailabilityService", () => {
   let service: CreateAvailabilityService;
-  let availabilityRepository: { create: ReturnType<typeof vi.fn> };
+  let availabilityRepository: {
+    create: ReturnType<typeof vi.fn>;
+    findConflicting: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
-    availabilityRepository = { create: vi.fn() };
+    availabilityRepository = {
+      create: vi.fn(),
+      findConflicting: vi.fn().mockResolvedValue(null),
+    };
     service = new CreateAvailabilityService(availabilityRepository as any);
   });
 
@@ -78,6 +84,27 @@ describe("CreateAvailabilityService", () => {
       await expect(
         service.execute({ dayOfWeek: 1, startTime: "8:00", endTime: "09:00" }, mockCurrentUser),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should throw ConflictException when an overlapping slot exists for the same day", async () => {
+      availabilityRepository.findConflicting.mockResolvedValue(mockSlot);
+
+      await expect(
+        service.execute({ dayOfWeek: 1, startTime: "08:30", endTime: "09:30" }, mockCurrentUser),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it("should check for conflicts with the correct parameters", async () => {
+      availabilityRepository.create.mockResolvedValue(mockSlot);
+
+      await service.execute({ dayOfWeek: 1, startTime: "08:00", endTime: "09:00" }, mockCurrentUser);
+
+      expect(availabilityRepository.findConflicting).toHaveBeenCalledWith(
+        "personal-id",
+        1,
+        "08:00",
+        "09:00",
+      );
     });
   });
 });

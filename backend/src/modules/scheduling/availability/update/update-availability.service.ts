@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { AvailabilityRepository } from "@shared/repositories/availability.repository";
 import { IAccessToken } from "@shared/interfaces";
@@ -37,6 +37,19 @@ export class UpdateAvailabilityService {
       effectiveStart >= effectiveEnd
     ) {
       throw new BadRequestException("startTime deve ser anterior a endTime");
+    }
+
+    if (parsed.data.startTime !== undefined || parsed.data.endTime !== undefined) {
+      const conflict = await this.availabilityRepository.findConflicting(
+        currentUser.personalId as string,
+        slot.dayOfWeek,
+        effectiveStart,
+        effectiveEnd,
+        id,
+      );
+      if (conflict) {
+        throw new ConflictException("Já existe um slot de disponibilidade neste horário para este dia");
+      }
     }
 
     const updated = await this.availabilityRepository.update(

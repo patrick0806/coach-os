@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
 
 import { AvailabilityRepository } from "@shared/repositories/availability.repository";
 import { IAccessToken } from "@shared/interfaces";
@@ -16,8 +16,20 @@ export class CreateAvailabilityService {
       throw new BadRequestException(parsed.error.issues[0].message);
     }
 
+    const personalId = currentUser.personalId as string;
+
+    const conflict = await this.availabilityRepository.findConflicting(
+      personalId,
+      parsed.data.dayOfWeek,
+      parsed.data.startTime,
+      parsed.data.endTime,
+    );
+    if (conflict) {
+      throw new ConflictException("Já existe um slot de disponibilidade neste horário para este dia");
+    }
+
     return this.availabilityRepository.create({
-      personalId: currentUser.personalId as string,
+      personalId,
       dayOfWeek: parsed.data.dayOfWeek,
       startTime: parsed.data.startTime,
       endTime: parsed.data.endTime,

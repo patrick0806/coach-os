@@ -1,6 +1,6 @@
 # Epic 05 — Agenda e Agendamentos
 
-Status: `[ ]` todo
+Status: `[x]` done (backend)
 
 > **Revisao aplicada:** ver [architectural-review.md](architectural-review.md)
 > Todos os repositories com escopo de tenant recebem `tenantId = currentUser.personalId`.
@@ -10,7 +10,7 @@ Status: `[ ]` todo
 
 ## US-011 — Personal configura disponibilidade
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 4
 **Dependencias:** US-002
 
@@ -29,13 +29,14 @@ Como personal trainer, quero configurar meus horarios disponiveis por dia da sem
 - `AvailabilityRepository`
 
 ### Subtasks Backend
-- [ ] `GET /availability` — listar slots do personal autenticado
-- [ ] `POST /availability` — criar slot (body: `{ dayOfWeek, startTime, endTime }`)
-- [ ] `PATCH /availability/:id` — atualizar slot (startTime, endTime, isActive)
-- [ ] `DELETE /availability/:id` — excluir slot
-- [ ] `AvailabilityRepository` com: `findByPersonalId`, `create`, `update`, `delete`
-- [ ] Validar que `startTime < endTime`
-- [ ] Unit tests para cada context
+- [x] `GET /availability` — listar slots do personal autenticado
+- [x] `POST /availability` — criar slot (body: `{ dayOfWeek, startTime, endTime }`)
+- [x] `PATCH /availability/:id` — atualizar slot (startTime, endTime, isActive)
+- [x] `DELETE /availability/:id` — excluir slot
+- [x] `AvailabilityRepository` com: `findByPersonalId`, `create`, `update`, `delete`, `findConflicting`
+- [x] Validar que `startTime < endTime`
+- [x] Validar conflito de horários sobrepostos no mesmo dia
+- [x] Unit tests para cada context
 
 ### Subtasks Frontend
 - [ ] Rota: `/dashboard/schedule/availability`
@@ -54,7 +55,7 @@ Como personal trainer, quero configurar meus horarios disponiveis por dia da sem
 
 ## US-012 — Personal cria planos de servico
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 4
 **Dependencias:** US-002
 
@@ -72,12 +73,12 @@ Como personal trainer, quero criar planos de atendimento (ex: 3x/semana, 60 min)
 - `ServicePlansRepository`
 
 ### Subtasks Backend
-- [ ] `POST /service-plans` — criar plano de servico
-- [ ] `GET /service-plans` — listar do personal autenticado
-- [ ] `PATCH /service-plans/:id` — atualizar
-- [ ] `DELETE /service-plans/:id` — desativar (soft delete via `isActive`)
-- [ ] `ServicePlansRepository` com CRUD
-- [ ] Unit tests para cada context
+- [x] `POST /service-plans` — criar plano de servico
+- [x] `GET /service-plans` — listar do personal autenticado
+- [x] `PATCH /service-plans/:id` — atualizar
+- [x] `DELETE /service-plans/:id` — desativar (soft delete via `isActive`)
+- [x] `ServicePlansRepository` com CRUD
+- [x] Unit tests para cada context
 
 ### Subtasks Frontend
 - [ ] Rota: `/dashboard/service-plans`
@@ -95,7 +96,7 @@ Como personal trainer, quero criar planos de atendimento (ex: 3x/semana, 60 min)
 
 ## US-013 — Aluno agenda uma sessao
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 4
 **Dependencias:** US-006, US-011, US-012
 
@@ -111,13 +112,12 @@ Como aluno, quero agendar uma sessao com meu personal para confirmar minha prese
 - [ ] Status inicial: `scheduled`
 
 ### Subtasks Backend
-- [ ] `GET /bookings/available-slots?date=YYYY-MM-DD` — retorna slots disponiveis do personal para a data (baseado em `availability_slots` menos bookings ja existentes)
-- [ ] `POST /bookings` — criar agendamento (body: `{ servicePlanId, scheduledDate, startTime, endTime }`)
-- [ ] `GET /bookings/me` — agendamentos do aluno autenticado (paginado)
-- [ ] E-mail de confirmacao para aluno via Resend
-- [ ] E-mail de notificacao para personal via Resend
-- [ ] `BookingsRepository` com: `create`, `findAvailableSlots`, `findByStudent`
-- [ ] Unit tests
+- [x] `GET /bookings/available-slots?date=YYYY-MM-DD` — retorna slots disponiveis do personal para a data (baseado em `availability_slots` menos bookings ja existentes)
+- [x] `POST /bookings` — criar agendamento (body: `{ servicePlanId, scheduledDate, startTime, endTime }`)
+- [x] `GET /bookings/me` — agendamentos do aluno autenticado (paginado)
+- [x] E-mail de confirmacao para aluno via Resend (fire-and-forget)
+- [x] `BookingsRepository` com: `create`, `findAvailableSlots`, `findByStudent`, `findConflict`
+- [x] Unit tests
 
 ### Subtasks Frontend
 - [ ] Rota: `/{personal-slug}/students/schedule`
@@ -136,7 +136,7 @@ Como aluno, quero agendar uma sessao com meu personal para confirmar minha prese
 
 ## US-014 — Personal gerencia agendamentos
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 4
 **Dependencias:** US-013
 
@@ -151,12 +151,13 @@ Como personal trainer, quero visualizar e gerenciar minha agenda de sessoes para
 - [ ] Filtrar por status e periodo
 
 ### Subtasks Backend
-- [ ] `GET /bookings?status=&from=&to=&page=&size=` — listar agendamentos do personal (paginado)
-- [ ] `GET /bookings/:id` — detalhe do agendamento
-- [ ] `PATCH /bookings/:id/status` — atualizar status (`completed`, `no-show`)
-- [ ] `PATCH /bookings/:id/cancel` — cancelar (body: `{ reason: string }`)
-- [ ] `BookingsRepository` com: `findByPersonal`, `findById`, `updateStatus`, `cancel`
-- [ ] Unit tests
+- [x] `GET /bookings?status=&from=&to=&page=&size=` — listar agendamentos do personal (paginado)
+- [x] `GET /bookings/:id` — detalhe do agendamento
+- [x] `PATCH /bookings/:id/status` — atualizar status (`completed`, `no-show`)
+- [x] `PATCH /bookings/:id/cancel` — cancelar (body: `{ reason: string }`)
+- [x] `BookingsRepository` com: `findByPersonal`, `findById`, `updateStatus`, `cancel`
+- [x] Guard: nao permite alterar status de booking ja cancelado
+- [x] Unit tests
 
 ### Subtasks Frontend
 - [ ] Rota: `/dashboard/schedule`

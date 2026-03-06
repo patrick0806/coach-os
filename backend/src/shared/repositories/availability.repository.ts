@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, eq } from "drizzle-orm";
+import { and, eq, lt, gt, ne } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -24,6 +24,33 @@ export interface UpdateAvailabilitySlotInput {
 @Injectable()
 export class AvailabilityRepository {
   constructor(private drizzle: DrizzleProvider) {}
+
+  async findConflicting(
+    personalId: string,
+    dayOfWeek: number,
+    startTime: string,
+    endTime: string,
+    excludeId?: string,
+    tx?: DrizzleDb,
+  ): Promise<AvailabilitySlot | null> {
+    const db = tx ?? this.drizzle.db;
+    const conditions = [
+      eq(availabilitySlots.personalId, personalId),
+      eq(availabilitySlots.dayOfWeek, dayOfWeek),
+      // Two intervals [a1,a2] and [b1,b2] overlap when: a1 < b2 AND b1 < a2
+      lt(availabilitySlots.startTime, endTime),
+      gt(availabilitySlots.endTime, startTime),
+    ];
+    if (excludeId) {
+      conditions.push(ne(availabilitySlots.id, excludeId));
+    }
+    const result = await db
+      .select()
+      .from(availabilitySlots)
+      .where(and(...conditions))
+      .limit(1);
+    return result[0] ?? null;
+  }
 
   async findByPersonalId(personalId: string, tx?: DrizzleDb): Promise<AvailabilitySlot[]> {
     const db = tx ?? this.drizzle.db;
