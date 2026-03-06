@@ -11,7 +11,7 @@ Status: `[ ]` todo
 
 ## US-007 — Personal gerencia exercicios
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 3
 **Dependencias:** US-002
 
@@ -19,12 +19,12 @@ Status: `[ ]` todo
 Como personal trainer, quero visualizar a biblioteca de exercicios e criar exercicios personalizados para montar treinos para meus alunos.
 
 ### Criterios de Aceite
-- [ ] Listar exercicios globais (`personalId IS NULL`) + exercicios proprios (`personalId = me`)
-- [ ] Criar exercicio customizado: nome, descricao, grupo muscular
-- [ ] Filtrar por grupo muscular
-- [ ] Busca por nome
-- [ ] Excluir exercicios proprios (nao pode excluir os globais)
-- [ ] Grupos musculares disponiveis: peito, costas, ombro, biceps, triceps, perna, gluteo, core
+- [x] Listar exercicios globais (`personalId IS NULL`) + exercicios proprios (`personalId = me`)
+- [x] Criar exercicio customizado: nome, descricao, grupo muscular
+- [x] Filtrar por grupo muscular
+- [x] Busca por nome
+- [x] Excluir exercicios proprios (nao pode excluir os globais)
+- [x] Grupos musculares disponiveis: peito, costas, ombro, biceps, triceps, perna, gluteo, core
 
 ### Diretivas de Implementacao
 - Modulo: `src/modules/workouts/`
@@ -32,13 +32,13 @@ Como personal trainer, quero visualizar a biblioteca de exercicios e criar exerc
 - `ExercisesRepository`
 
 ### Subtasks Backend
-- [ ] `GET /exercises?muscleGroup=&search=` — listar com filtros (globais + proprios)
-- [ ] `POST /exercises` — criar exercicio proprio
-- [ ] `DELETE /exercises/:id` — excluir exercicio proprio (valida ownership)
-- [ ] `ExercisesRepository` com: `findAll`, `create`, `delete`
-- [ ] `list-exercises.controller.spec.ts` + `list-exercises.service.spec.ts`
-- [ ] `create-exercise.controller.spec.ts` + `create-exercise.service.spec.ts`
-- [ ] `delete-exercise.controller.spec.ts` + `delete-exercise.service.spec.ts`
+- [x] `GET /exercises?muscleGroup=&search=` — listar com filtros (globais + proprios)
+- [x] `POST /exercises` — criar exercicio proprio
+- [x] `DELETE /exercises/:id` — excluir exercicio proprio (valida ownership)
+- [x] `ExercisesRepository` com: `findAll`, `create`, `delete`
+- [x] `list-exercises.controller.spec.ts` + `list-exercises.service.spec.ts`
+- [x] `create-exercise.controller.spec.ts` + `create-exercise.service.spec.ts`
+- [x] `delete-exercise.controller.spec.ts` + `delete-exercise.service.spec.ts`
 
 ### Subtasks Frontend
 - [ ] Os exercicios sao gerenciados dentro do builder de treino (US-008)

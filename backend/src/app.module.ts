@@ -7,6 +7,7 @@ import { HealthModule } from "@modules/health/health.module";
 import { AuthModule } from "@modules/auth/auth.module";
 import { PersonalsModule } from "@modules/personals/personals.module";
 import { StudentsModule } from "@modules/students/students.module";
+import { WorkoutsModule } from "@modules/workouts/workouts.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -17,6 +18,7 @@ import { DatabaseModule } from "@config/database/database.module";
     AuthModule,
     PersonalsModule,
     StudentsModule,
+    WorkoutsModule,
     RouterModule.register([
       {
         path: "health",
@@ -33,6 +35,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "students",
         module: StudentsModule,
+      },
+      {
+        path: "exercises",
+        module: WorkoutsModule,
       },
     ]),
   ],
