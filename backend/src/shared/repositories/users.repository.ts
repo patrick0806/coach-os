@@ -37,4 +37,18 @@ export class UsersRepository {
     const result = await db.insert(users).values(data).returning();
     return result[0];
   }
+
+  async update(
+    id: string,
+    data: Pick<NewUser, "name">,
+    tx?: DrizzleDb,
+  ): Promise<User> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .update(users)
+      .set(data)
+      .where(eq(users.id, id))
+      .returning();
+    return result[0];
+  }
 }

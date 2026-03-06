@@ -5,6 +5,7 @@ import { JWTAuthGuard, RolesGuard } from "@shared/guards";
 
 import { HealthModule } from "@modules/health/health.module";
 import { AuthModule } from "@modules/auth/auth.module";
+import { PersonalsModule } from "@modules/personals/personals.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -13,6 +14,7 @@ import { DatabaseModule } from "@config/database/database.module";
     DatabaseModule,
     HealthModule,
     AuthModule,
+    PersonalsModule,
     RouterModule.register([
       {
         path: "health",
@@ -21,6 +23,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "auth",
         module: AuthModule,
+      },
+      {
+        path: "personals",
+        module: PersonalsModule,
       },
     ]),
   ],

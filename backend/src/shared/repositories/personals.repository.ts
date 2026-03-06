@@ -51,4 +51,18 @@ export class PersonalsRepository {
     const result = await db.insert(personals).values(data).returning();
     return result[0];
   }
+
+  async update(
+    id: string,
+    data: Partial<NewPersonal>,
+    tx?: DrizzleDb,
+  ): Promise<Personal> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .update(personals)
+      .set(data)
+      .where(eq(personals.id, id))
+      .returning();
+    return result[0];
+  }
 }

@@ -6,7 +6,7 @@ Status: `[ ]` todo
 
 ## US-003 — Personal configura seu perfil
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 2
 **Dependencias:** US-002
 
@@ -28,15 +28,15 @@ Como personal trainer, quero configurar meu perfil profissional para personaliza
 - S3 provider em `shared/providers/`
 
 ### Subtasks Backend
-- [ ] `GET /personals/me/profile` — buscar perfil do personal autenticado
-- [ ] `PATCH /personals/me/profile` — atualizar dados do perfil
-- [ ] `POST /personals/me/profile/upload` — upload de imagem para S3 (retorna URL)
-- [ ] `PersonalsRepository` com metodos `findByUserId`, `update`
-- [ ] S3 provider (`shared/providers/s3.provider.ts`)
-- [ ] Guard: apenas role `PERSONAL`
-- [ ] `get-profile.controller.spec.ts` + `get-profile.service.spec.ts`
-- [ ] `update-profile.controller.spec.ts` + `update-profile.service.spec.ts`
-- [ ] `upload-image.controller.spec.ts` + `upload-image.service.spec.ts`
+- [x] `GET /personals/me/profile` — buscar perfil do personal autenticado
+- [x] `PATCH /personals/me/profile` — atualizar dados do perfil
+- [x] `POST /personals/me/profile/upload` — upload de imagem para S3 (retorna URL)
+- [x] `PersonalsRepository` com metodos `findByUserId`, `update`
+- [x] S3 provider (`shared/providers/s3.provider.ts`)
+- [x] Guard: apenas role `PERSONAL`
+- [x] `get-profile.controller.spec.ts` + `get-profile.service.spec.ts`
+- [x] `update-profile.controller.spec.ts` + `update-profile.service.spec.ts`
+- [x] `upload-image.controller.spec.ts` + `upload-image.service.spec.ts`
 
 ### Subtasks Frontend
 - [ ] Rota: `/dashboard/profile`
