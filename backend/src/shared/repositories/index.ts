@@ -7,3 +7,4 @@ export { PasswordSetupTokensRepository } from "./password-setup-tokens.repositor
 export { ExercisesRepository } from "./exercises.repository";
 export { WorkoutPlansRepository } from "./workout-plans.repository";
 export { WorkoutExercisesRepository, WorkoutExerciseRow } from "./workout-exercises.repository";
+export { WorkoutPlanStudentsRepository } from "./workout-plan-students.repository";

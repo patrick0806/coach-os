@@ -111,7 +111,7 @@ Como personal trainer, quero criar planos de treino para prescrevia-los aos meus
 
 ## US-009 — Personal atribui treino a um aluno
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 3
 **Dependencias:** US-005, US-008
 
@@ -126,12 +126,12 @@ Como personal trainer, quero atribuir um plano de treino a um aluno para que ele
 - [ ] Revogar atribuicao de treino
 
 ### Subtasks Backend
-- [ ] `POST /workout-plans/:id/students` — atribuir plano a aluno(s) (body: `{ studentIds: string[] }`)
-- [ ] `DELETE /workout-plans/:id/students/:studentId` — revogar atribuicao
-- [ ] `GET /students/:id/workout-plans` — planos de um aluno especifico
-- [ ] `WorkoutPlanStudentsRepository` com: `assign`, `revoke`, `findByStudent`
-- [ ] Validar que o aluno pertence ao personal autenticado
-- [ ] Unit tests para cada context
+- [x] `POST /workout-plans/:id/students` — atribuir plano a aluno(s) (body: `{ studentIds: string[] }`)
+- [x] `DELETE /workout-plans/:id/students/:studentId` — revogar atribuicao
+- [x] `GET /students/:id/workout-plans` — planos de um aluno especifico
+- [x] `WorkoutPlanStudentsRepository` com: `assign`, `revoke`, `findByStudent`
+- [x] Validar que o aluno pertence ao personal autenticado
+- [x] Unit tests para cada context
 
 ### Subtasks Frontend
 - [ ] Na pagina de detalhe do aluno: secao "Treinos Atribuidos"
@@ -148,7 +148,7 @@ Como personal trainer, quero atribuir um plano de treino a um aluno para que ele
 
 ## US-010 — Aluno visualiza seus treinos
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 3
 **Dependencias:** US-006, US-009
 
@@ -162,10 +162,10 @@ Como aluno, quero visualizar os treinos prescritos pelo meu personal para saber 
 - [ ] Rota acessivel apenas pelo proprio aluno (role STUDENT)
 
 ### Subtasks Backend
-- [ ] `GET /students/me/workout-plans` — treinos do aluno autenticado
-- [ ] `GET /students/me/workout-plans/:id` — detalhe do treino com exercicios
-- [ ] Guard: role `STUDENT`
-- [ ] Unit tests
+- [x] `GET /students/me/workout-plans` — treinos do aluno autenticado
+- [x] `GET /students/me/workout-plans/:planId` — detalhe do treino com exercicios
+- [x] Guard: role `STUDENT`
+- [x] Unit tests
 
 ### Subtasks Frontend
 - [ ] Rota: `/{personal-slug}/students/workouts`

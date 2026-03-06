@@ -2,6 +2,8 @@ import { Module } from "@nestjs/common";
 
 import { WorkoutPlansRepository } from "@shared/repositories/workout-plans.repository";
 import { WorkoutExercisesRepository } from "@shared/repositories/workout-exercises.repository";
+import { WorkoutPlanStudentsRepository } from "@shared/repositories/workout-plan-students.repository";
+import { StudentsRepository } from "@shared/repositories/students.repository";
 
 import { CreateWorkoutPlanController } from "./workout-plans/create/create-workout-plan.controller";
 import { CreateWorkoutPlanService } from "./workout-plans/create/create-workout-plan.service";
@@ -19,6 +21,10 @@ import { RemoveExerciseController } from "./workout-plans/remove-exercise/remove
 import { RemoveExerciseService } from "./workout-plans/remove-exercise/remove-exercise.service";
 import { ReorderExercisesController } from "./workout-plans/reorder-exercises/reorder-exercises.controller";
 import { ReorderExercisesService } from "./workout-plans/reorder-exercises/reorder-exercises.service";
+import { AssignStudentsController } from "./workout-plans/assign-students/assign-students.controller";
+import { AssignStudentsService } from "./workout-plans/assign-students/assign-students.service";
+import { RevokeStudentController } from "./workout-plans/revoke-student/revoke-student.controller";
+import { RevokeStudentService } from "./workout-plans/revoke-student/revoke-student.service";
 
 @Module({
   controllers: [
@@ -30,6 +36,8 @@ import { ReorderExercisesService } from "./workout-plans/reorder-exercises/reord
     AddExerciseController,
     RemoveExerciseController,
     ReorderExercisesController,
+    AssignStudentsController,
+    RevokeStudentController,
   ],
   providers: [
     CreateWorkoutPlanService,
@@ -40,8 +48,12 @@ import { ReorderExercisesService } from "./workout-plans/reorder-exercises/reord
     AddExerciseService,
     RemoveExerciseService,
     ReorderExercisesService,
+    AssignStudentsService,
+    RevokeStudentService,
     WorkoutPlansRepository,
     WorkoutExercisesRepository,
+    WorkoutPlanStudentsRepository,
+    StudentsRepository,
   ],
 })
 export class WorkoutPlansModule {}

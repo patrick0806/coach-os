@@ -4,6 +4,8 @@ import { UsersRepository } from "@shared/repositories/users.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PasswordSetupTokensRepository } from "@shared/repositories/password-setup-tokens.repository";
+import { WorkoutPlanStudentsRepository } from "@shared/repositories/workout-plan-students.repository";
+import { WorkoutPlansRepository } from "@shared/repositories/workout-plans.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { CreateStudentController } from "./contexts/create-student/create-student.controller";
@@ -16,6 +18,12 @@ import { UpdateStudentController } from "./contexts/update-student/update-studen
 import { UpdateStudentService } from "./contexts/update-student/update-student.service";
 import { DeactivateStudentController } from "./contexts/deactivate-student/deactivate-student.controller";
 import { DeactivateStudentService } from "./contexts/deactivate-student/deactivate-student.service";
+import { GetStudentWorkoutPlansController } from "./contexts/get-student-workout-plans/get-student-workout-plans.controller";
+import { GetStudentWorkoutPlansService } from "./contexts/get-student-workout-plans/get-student-workout-plans.service";
+import { MyWorkoutPlansController } from "./contexts/my-workout-plans/my-workout-plans.controller";
+import { MyWorkoutPlansService } from "./contexts/my-workout-plans/my-workout-plans.service";
+import { MyWorkoutPlanDetailController } from "./contexts/my-workout-plan-detail/my-workout-plan-detail.controller";
+import { MyWorkoutPlanDetailService } from "./contexts/my-workout-plan-detail/my-workout-plan-detail.service";
 
 @Module({
   controllers: [
@@ -24,6 +32,11 @@ import { DeactivateStudentService } from "./contexts/deactivate-student/deactiva
     GetStudentController,
     UpdateStudentController,
     DeactivateStudentController,
+    // US-009 — personal views student plans
+    GetStudentWorkoutPlansController,
+    // US-010 — student views own plans (static path must come before :id routes)
+    MyWorkoutPlansController,
+    MyWorkoutPlanDetailController,
   ],
   providers: [
     CreateStudentService,
@@ -31,10 +44,15 @@ import { DeactivateStudentService } from "./contexts/deactivate-student/deactiva
     GetStudentService,
     UpdateStudentService,
     DeactivateStudentService,
+    GetStudentWorkoutPlansService,
+    MyWorkoutPlansService,
+    MyWorkoutPlanDetailService,
     UsersRepository,
     StudentsRepository,
     PersonalsRepository,
     PasswordSetupTokensRepository,
+    WorkoutPlanStudentsRepository,
+    WorkoutPlansRepository,
     ResendProvider,
   ],
 })
