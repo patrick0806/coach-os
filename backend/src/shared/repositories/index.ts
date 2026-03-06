@@ -5,3 +5,5 @@ export { AdminsRepository } from "./admins.repository";
 export { ServicePlansRepository } from "./service-plans.repository";
 export { PasswordSetupTokensRepository } from "./password-setup-tokens.repository";
 export { ExercisesRepository } from "./exercises.repository";
+export { WorkoutPlansRepository } from "./workout-plans.repository";
+export { WorkoutExercisesRepository, WorkoutExerciseRow } from "./workout-exercises.repository";

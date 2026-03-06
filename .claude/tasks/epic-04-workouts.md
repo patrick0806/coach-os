@@ -57,7 +57,7 @@ Como personal trainer, quero visualizar a biblioteca de exercicios e criar exerc
 
 ## US-008 — Personal cria plano de treino
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 3
 **Dependencias:** US-007
 
@@ -78,17 +78,17 @@ Como personal trainer, quero criar planos de treino para prescrevia-los aos meus
 - `WorkoutPlansRepository`, `WorkoutExercisesRepository`
 
 ### Subtasks Backend
-- [ ] `POST /workout-plans` — criar plano
-- [ ] `GET /workout-plans?page=&size=` — listar planos do personal (paginado)
-- [ ] `GET /workout-plans/:id` — buscar plano com exercicios ordenados
-- [ ] `PATCH /workout-plans/:id` — atualizar nome/descricao
-- [ ] `DELETE /workout-plans/:id` — excluir plano (e exercicios vinculados)
-- [ ] `POST /workout-plans/:id/exercises` — adicionar exercicio ao plano
-- [ ] `DELETE /workout-plans/:id/exercises/:workoutExerciseId` — remover exercicio
-- [ ] `PATCH /workout-plans/:id/exercises/reorder` — reordenar (body: array de {id, order})
-- [ ] `WorkoutPlansRepository` com CRUD
-- [ ] `WorkoutExercisesRepository` com CRUD
-- [ ] Unit tests para cada context
+- [x] `POST /workout-plans` — criar plano
+- [x] `GET /workout-plans?page=&size=` — listar planos do personal (paginado)
+- [x] `GET /workout-plans/:id` — buscar plano com exercicios ordenados
+- [x] `PATCH /workout-plans/:id` — atualizar nome/descricao
+- [x] `DELETE /workout-plans/:id` — excluir plano (e exercicios vinculados)
+- [x] `POST /workout-plans/:id/exercises` — adicionar exercicio ao plano
+- [x] `DELETE /workout-plans/:id/exercises/:workoutExerciseId` — remover exercicio
+- [x] `PATCH /workout-plans/:id/exercises/reorder` — reordenar (body: array de {id, order})
+- [x] `WorkoutPlansRepository` com CRUD
+- [x] `WorkoutExercisesRepository` com CRUD
+- [x] Unit tests para cada context
 
 ### Subtasks Frontend
 - [ ] Rota: `/dashboard/workouts`
