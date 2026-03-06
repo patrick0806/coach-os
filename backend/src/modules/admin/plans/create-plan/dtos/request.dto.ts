@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { createZodDto } from "nestjs-zod";
 
-const CreatePlanSchema = z.object({
+export const CreatePlanSchema = z.object({
   name: z.string().min(1).max(150),
   description: z.string().min(1).max(255),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Formato de preço inválido (ex: 29.90)"),
@@ -14,7 +13,7 @@ const CreatePlanSchema = z.object({
 
 export type CreatePlanInput = z.input<typeof CreatePlanSchema>;
 
-export class CreatePlanDTO extends createZodDto(CreatePlanSchema) {
+export class CreatePlanDTO implements CreatePlanInput {
   @ApiProperty({ example: "Enterprise" })
   name: string;
 

@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { ApiProperty } from "@nestjs/swagger";
-import { createZodDto } from "nestjs-zod";
 
-const TogglePersonalStatusSchema = z.object({
+export const TogglePersonalStatusSchema = z.object({
   isActive: z.boolean(),
 });
 
-export class TogglePersonalStatusDTO extends createZodDto(TogglePersonalStatusSchema) {
+export type TogglePersonalStatusInput = z.infer<typeof TogglePersonalStatusSchema>;
+
+export class TogglePersonalStatusDTO implements TogglePersonalStatusInput {
   @ApiProperty({ example: false })
   isActive: boolean;
 }

@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { ApiProperty } from "@nestjs/swagger";
-import { createZodDto } from "nestjs-zod";
 
-const ReorderPlansSchema = z.object({
+export const ReorderPlansSchema = z.object({
   items: z
     .array(
       z.object({
@@ -15,7 +14,7 @@ const ReorderPlansSchema = z.object({
 
 export type ReorderPlansInput = z.infer<typeof ReorderPlansSchema>;
 
-export class ReorderPlansDTO extends createZodDto(ReorderPlansSchema) {
+export class ReorderPlansDTO implements ReorderPlansInput {
   @ApiProperty({
     example: [
       { id: "uuid-plan-1", order: 2 },

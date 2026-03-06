@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { ApiProperty } from "@nestjs/swagger";
-import { createZodDto } from "nestjs-zod";
 
-const TogglePlanStatusSchema = z.object({
+export const TogglePlanStatusSchema = z.object({
   isActive: z.boolean(),
 });
 
-export class TogglePlanStatusDTO extends createZodDto(TogglePlanStatusSchema) {
+export type TogglePlanStatusInput = z.infer<typeof TogglePlanStatusSchema>;
+
+export class TogglePlanStatusDTO implements TogglePlanStatusInput {
   @ApiProperty({ example: false })
   isActive: boolean;
 }

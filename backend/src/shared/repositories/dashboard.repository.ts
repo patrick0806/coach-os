@@ -121,7 +121,7 @@ export class DashboardRepository {
       `,
     );
 
-    return (rows as { month: string; mrr: string }[]).map((r) => ({
+    return (rows as unknown as { month: string; mrr: string }[]).map((r) => ({
       month: r.month,
       mrr: parseFloat(r.mrr),
     }));

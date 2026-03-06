@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { createZodDto } from "nestjs-zod";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
-const ListPersonalsQuerySchema = z.object({
+export const ListPersonalsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   size: z.coerce.number().int().min(1).max(100).default(10),
   search: z.string().optional(),
@@ -10,7 +9,7 @@ const ListPersonalsQuerySchema = z.object({
 
 export type ListPersonalsQuery = z.input<typeof ListPersonalsQuerySchema>;
 
-export class ListPersonalsQueryDTO extends createZodDto(ListPersonalsQuerySchema) {
+export class ListPersonalsQueryDTO {
   @ApiPropertyOptional({ example: 1 })
   page?: number;
 
