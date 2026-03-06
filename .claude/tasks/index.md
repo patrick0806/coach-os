@@ -11,16 +11,16 @@
 
 ## Epics
 
-| Epic | Arquivo | Status |
-|------|---------|--------|
-| Revisao Arquitetural | [architectural-review.md](architectural-review.md) | [x] |
-| 01 - Autenticacao e Fundacao | [epic-01-auth.md](epic-01-auth.md) | [ ] |
-| 02 - Perfil e Landing Page | [epic-02-profile-landing.md](epic-02-profile-landing.md) | [ ] |
-| 03 - Gestao de Alunos | [epic-03-students.md](epic-03-students.md) | [ ] |
-| 04 - Gestao de Treinos | [epic-04-workouts.md](epic-04-workouts.md) | [ ] |
-| 05 - Agenda e Agendamentos | [epic-05-scheduling.md](epic-05-scheduling.md) | [ ] |
-| 06 - Planos SaaS e Assinatura | [epic-06-saas-plans.md](epic-06-saas-plans.md) | [ ] |
-| 07 - Area do Admin | [epic-07-admin.md](epic-07-admin.md) | [ ] |
+| Epic | Arquivo | Backend | Frontend |
+|------|---------|---------|----------|
+| Revisao Arquitetural | [architectural-review.md](architectural-review.md) | [x] | [x] |
+| 01 - Autenticacao e Fundacao | [epic-01-auth.md](epic-01-auth.md) | [x] | [ ] |
+| 02 - Perfil e Landing Page | [epic-02-profile-landing.md](epic-02-profile-landing.md) | [x] | [ ] |
+| 03 - Gestao de Alunos | [epic-03-students.md](epic-03-students.md) | [x] | [ ] |
+| 04 - Gestao de Treinos | [epic-04-workouts.md](epic-04-workouts.md) | [x] | [ ] |
+| 05 - Agenda e Agendamentos | [epic-05-scheduling.md](epic-05-scheduling.md) | [x] | [ ] |
+| 06 - Planos SaaS e Assinatura | [epic-06-saas-plans.md](epic-06-saas-plans.md) | [x] | [ ] |
+| 07 - Area do Admin | [epic-07-admin.md](epic-07-admin.md) | [x] | [ ] |
 
 ## Roadmap por Sprint
 
@@ -75,17 +75,22 @@ US-015 (Planos SaaS publicos) — independente do auth
   └── US-016 (Stripe) — depende de US-001
 ```
 
-## Estado do Projeto na Data de Criacao (2026-03-05)
+## Estado do Projeto (atualizado 2026-03-06)
 
-### Backend — implementado
-- Infraestrutura base: guards JWT/Roles, filters, interceptors, decorators, providers Drizzle
-- Schema completo com migrations (users, personals, students, exercises, workout_plans, workout_exercises, availability_slots, service_plans, bookings, plans)
-- Modulo `health` (unico endpoint real)
-- Seed com dados iniciais
+### Backend — 100% implementado (todos os épicos 01–07)
+- Infraestrutura: guards JWT/Roles, filters, interceptors, decorators, providers Drizzle, S3, Stripe, Resend
+- Schema com 4 migrations aplicadas (users, personals, students, admins, exercises, workout_plans,
+  workout_exercises, workout_plan_students, availability_slots, service_plans, bookings, plans, password_setup_tokens)
+- 98 arquivos de teste, 278 testes — 100% passando
+- Seed com dados iniciais (3 usuários, 3 planos SaaS, 50 exercícios globais)
+- Swagger disponível em http://localhost:3000/api/docs
 
-### Frontend — implementado
-- Next.js configurado com shadcn/ui base
-- Componentes: button, card, input, select, textarea, alert-dialog, badge, combobox, dropdown-menu, field, input-group, label, separator
-- Layout raiz e pagina inicial vazia
+### Frontend — pendente (0% implementado)
+- Next.js 16 + React 19 + Tailwind 4 configurados
+- shadcn/ui base: button, card, input, select, textarea, alert-dialog, badge, combobox,
+  dropdown-menu, field, input-group, label, separator
+- Layout raiz e página inicial vazios
+- **Contrato de API documentado em:** `docs/frontend.md`
 
-### Nenhum modulo de negocio implementado ainda
+### Próximo passo
+Acionar o agente frontend com `docs/frontend.md` como contexto principal + epic files correspondentes.

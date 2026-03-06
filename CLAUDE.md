@@ -154,6 +154,10 @@ Rules:
 - If shadcn has a component for something, use it (but if it doesn't fit the design, create a new one)
 - for the Perosnal (management) area use light mode only
 - for the Admin(my area to control the saas) and Student area use dark mode only
+- Routes of front end the path must be in portuguese(insted register -> cadastro,  except for login is login) the same value for SEO data
+- The texts labels and messages must be in portuguese
+- For our product pages like pricing, faq, etc use dark mode only
+- For personal product pages like management area use light mode only
 
 
 # Testing  standarts
