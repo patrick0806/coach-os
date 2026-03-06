@@ -4,7 +4,7 @@ Status: `[ ]` todo
 
 ---
 
-## US-017 — Admin gerencia personals
+## US-018 — Admin gerencia personals
 
 **Status:** `[ ]` todo
 **Sprint:** 6
@@ -40,18 +40,13 @@ Como administrador da plataforma, quero visualizar e gerenciar os profissionais 
 - [ ] Pagina de detalhe: `/admin/personals/:id`
 - [ ] Dark mode (diretiva do CLAUDE.md para area admin)
 
-### Notas Tecnicas
-- O `RolesGuard` ja existe em `shared/guards/roles.guard.ts`
-- O decorator `@Roles()` ja existe em `shared/decorators/roles.decorator.ts`
-- Area admin usa dark mode (diferente da area personal que usa light mode)
-
 ---
 
-## US-018 — Admin gerencia planos SaaS
+## US-019 — Admin gerencia planos SaaS
 
 **Status:** `[ ]` todo
 **Sprint:** 6
-**Dependencias:** US-017
+**Dependencias:** US-018
 
 **Descricao:**
 Como administrador, quero criar e gerenciar os planos de assinatura da plataforma para controlar a oferta de planos e precos.
@@ -69,19 +64,56 @@ Como administrador, quero criar e gerenciar os planos de assinatura da plataform
 - [ ] `PATCH /admin/plans/:id` — atualizar plano
 - [ ] `PATCH /admin/plans/:id/status` — ativar/desativar
 - [ ] `PATCH /admin/plans/reorder` — reordenar (body: `[{ id, order }]`)
-- [ ] `PlansRepository` com CRUD completo (criar metodos adicionais alem do `findAllActive`)
+- [ ] `PlansRepository` com CRUD completo
 - [ ] Guard: role `ADMIN`
-- [ ] Unit tests para cada context
 
 ### Subtasks Frontend
 - [ ] Rota: `/admin/plans`
-- [ ] Tabela de planos com todas as colunas
 - [ ] Drag & drop para reordenar
-- [ ] Modal de criacao/edicao com React Hook Form + Zod
+- [ ] Modal de criacao/edicao
 - [ ] Toggle ativo/inativo inline
-- [ ] Campo beneficios como lista dinamica (adicionar/remover itens)
+
+---
+
+## US-020 — Dashboard Admin (Business Intelligence)
+
+**Status:** `[ ]` todo
+**Sprint:** 7
+**Dependencias:** US-016, US-018
+
+**Descricao:**
+Como administrador do negócio, quero visualizar indicadores de desempenho da plataforma para tomar decisões estratégicas baseadas em dados reais.
+
+### Criterios de Aceite
+- [ ] Dashboard com métricas principais (KPIs):
+  - **MRR (Monthly Recurring Revenue):** Soma dos planos ativos.
+  - **Total de Assinantes:** Quantidade de personals com assinatura ativa.
+  - **Novos Assinantes:** Crescimento nos últimos 30 dias.
+  - **Churn Rate:** Taxa de cancelamento no período.
+- [ ] Gráfico de Distribuição de Planos (quais planos são mais assinados).
+- [ ] Gráfico de Crescimento de Receita (linha do tempo mensal).
+- [ ] Visão de Saúde do Sistema: Total de alunos cadastrados em toda a plataforma.
+- [ ] Filtro de período (7 dias, 30 dias, 90 dias, Todo o período).
+
+### Diretivas de Implementacao
+- Modulo: `src/modules/admin/dashboard/`
+- Context: `get-stats/`
+- Centralizar queries de agregação em um serviço específico para performance.
+
+### Subtasks Backend
+- [ ] `GET /admin/dashboard/stats` — retorna KPIs financeiros e de usuários.
+- [ ] `GET /admin/dashboard/charts` — retorna dados formatados para gráficos de série temporal.
+- [ ] Implementar queries de contagem e soma com `Drizzle ORM` (`count`, `sum`, `groupBy`).
+- [ ] Logica de cálculo de porcentagem de crescimento comparado ao mês anterior.
+
+### Subtasks Frontend
+- [ ] Rota: `/admin/dashboard` (Página inicial do Admin).
+- [ ] Layout de Grid com Cards de estatísticas.
+- [ ] Integração com `Recharts` para gráficos de Área (Crescimento) e Pizza (Planos).
+- [ ] Select de período para atualizar os dados do Dashboard.
+- [ ] Skeletton loaders para transição de filtros.
 
 ### Notas Tecnicas
-- O endpoint `PATCH /admin/plans/reorder` precisa ser registrado ANTES de `PATCH /admin/plans/:id` para evitar conflito de rotas no NestJS
-- Campo `benefits` no banco e varchar com itens separados por virgula — serializar/deserializar no repository
-- Ao desativar plano, verificar se ha personals com assinatura ativa nesse plano (apenas avisar, nao bloquear)
+- Calcular MRR multiplicando a contagem de assinaturas ativas pelo `price` de cada plano.
+- Para o Churn, monitorar o webhook do Stripe (`customer.subscription.deleted`) e registrar a data de cancelamento se ainda não houver um campo para isso.
+- O Dashboard Admin deve ser a página padrão ao logar com perfil `ADMIN`.
