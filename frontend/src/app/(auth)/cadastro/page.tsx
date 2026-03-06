@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -9,10 +10,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
 import { getApiErrorMessage, getApiFieldErrors } from "@/lib/api-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { register as registerUser } from "@/services/auth.service";
+import { login, register as registerUser } from "@/services/auth.service";
 
 const registerSchema = z
   .object({
@@ -30,7 +32,10 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function CadastroPage() {
   const router = useRouter();
+  const { signIn } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -52,7 +57,13 @@ export default function CadastroPage() {
 
     try {
       await registerUser(values);
-      router.push("/login?sucesso=cadastro");
+      const loginResponse = await login({
+        email: values.email,
+        password: values.password,
+      });
+
+      signIn(loginResponse);
+      router.push("/painel");
     } catch (error) {
       const fieldErrors = getApiFieldErrors(error);
       const validFields: Array<keyof RegisterFormValues> = [
@@ -99,14 +110,44 @@ export default function CadastroPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" placeholder="********" {...register("password")} />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  {...register("password")}
+                />
+                <button
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  onClick={() => setShowPassword((previous) => !previous)}
+                  type="button"
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
               {errors.password ? (
                 <p className="text-sm text-destructive">{errors.password.message}</p>
               ) : null}
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar senha</Label>
-              <Input id="confirmPassword" type="password" placeholder="********" {...register("confirmPassword")} />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="********"
+                  {...register("confirmPassword")}
+                />
+                <button
+                  aria-label={showConfirmPassword ? "Ocultar confirmacao de senha" : "Mostrar confirmacao de senha"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  onClick={() => setShowConfirmPassword((previous) => !previous)}
+                  type="button"
+                >
+                  {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
               {errors.confirmPassword ? (
                 <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
               ) : null}

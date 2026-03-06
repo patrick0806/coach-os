@@ -66,13 +66,13 @@ Como profissional de educacao fisica, quero me registrar na plataforma para cria
 - [x] `register.service.spec.ts` (happy path + erro de slug + erro de db)
 
 ### Subtasks Frontend
-- [ ] Rota: `/register`
-- [ ] Formulario com React Hook Form + Zod
-- [ ] Campos: nome, e-mail, senha, confirmacao de senha
-- [ ] Validacao de senha: minimo 8 caracteres, senha === confirmacao
-- [ ] Toggle show/hide senha
-- [ ] Exibir erros por campo (resposta 400 da API)
-- [ ] Redirect para `/dashboard` apos sucesso
+- [x] Rota: `/cadastro` (equivalente a `/register`)
+- [x] Formulario com React Hook Form + Zod
+- [x] Campos: nome, e-mail, senha, confirmacao de senha
+- [x] Validacao de senha: minimo 8 caracteres, senha === confirmacao
+- [x] Toggle show/hide senha
+- [x] Exibir erros por campo (resposta 400 da API)
+- [x] Redirect para `/painel` apos sucesso (equivalente a `/dashboard`)
 
 ### Notas Tecnicas
 - O slug e gerado automaticamente no backend (nao e input do usuario)
@@ -127,17 +127,17 @@ Como usuario cadastrado (personal, student ou admin), quero fazer login na plata
 - [x] `refresh.controller.spec.ts` + `refresh.service.spec.ts`
 
 ### Subtasks Frontend
-- [ ] Rota: `/login`
-- [ ] Formulario com React Hook Form + Zod
-- [ ] `AuthProvider` (`src/providers/auth.provider.tsx`) com estado: `user`, `isAuthenticated`, `login`, `logout`
-- [ ] Armazenar `accessToken` em memoria (nao localStorage — evita XSS)
-- [ ] `refreshToken` gerenciado automaticamente via cookie (httpOnly)
-- [ ] `middleware.ts` — proteger rotas por role:
-  - `/dashboard/*` → requer PERSONAL
-  - `/{slug}/students/*` → requer STUDENT
+- [x] Rota: `/login`
+- [x] Formulario com React Hook Form + Zod
+- [x] `AuthProvider` (`src/providers/auth.provider.tsx`) com estado: `user`, `isAuthenticated`, `login`, `logout`
+- [x] Armazenar `accessToken` em memoria (nao localStorage — evita XSS)
+- [x] `refreshToken` gerenciado automaticamente via cookie (httpOnly)
+- [x] `middleware.ts` — proteger rotas por role:
+  - `/painel/*` → requer PERSONAL
+  - `/{slug}/alunos/*` → requer STUDENT
   - `/admin/*` → requer ADMIN
-- [ ] Interceptor Axios para renovar `accessToken` automaticamente (401 → refresh → retry)
-- [ ] Redirect pos-login por role
+- [x] Interceptor Axios para renovar `accessToken` automaticamente (401 → refresh → retry)
+- [x] Redirect pos-login por role
 
 ### Notas Tecnicas
 - `JWTAuthGuard` e `RolesGuard` ja existem e funcionam — o `AuthModule` so precisa registrar as strategies Passport
