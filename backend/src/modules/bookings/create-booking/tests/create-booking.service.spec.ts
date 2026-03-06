@@ -12,8 +12,10 @@ const mockCurrentUser = {
   profileId: "student-id",
 };
 
+const VALID_PLAN_UUID = "550e8400-e29b-41d4-a716-446655440000";
+
 const mockServicePlan = {
-  id: "plan-id",
+  id: VALID_PLAN_UUID,
   personalId: "personal-id",
   name: "Plano Básico",
   description: null,
@@ -29,7 +31,7 @@ const mockBooking = {
   id: "booking-id",
   personalId: "personal-id",
   studentId: "student-id",
-  servicePlanId: "plan-id",
+  servicePlanId: VALID_PLAN_UUID,
   scheduledDate: new Date("2024-01-15"),
   startTime: "08:00",
   endTime: "09:00",
@@ -80,7 +82,7 @@ describe("CreateBookingService", () => {
 
       const result = await service.execute(
         {
-          servicePlanId: "plan-id",
+          servicePlanId: VALID_PLAN_UUID,
           scheduledDate: "2024-01-15",
           startTime: "08:00",
           endTime: "09:00",
@@ -88,7 +90,7 @@ describe("CreateBookingService", () => {
         mockCurrentUser,
       );
 
-      expect(servicePlansRepository.findById).toHaveBeenCalledWith("plan-id");
+      expect(servicePlansRepository.findById).toHaveBeenCalledWith(VALID_PLAN_UUID);
       expect(bookingsRepository.findConflict).toHaveBeenCalledWith(
         "personal-id",
         "2024-01-15",
@@ -98,7 +100,7 @@ describe("CreateBookingService", () => {
         expect.objectContaining({
           personalId: "personal-id",
           studentId: "student-id",
-          servicePlanId: "plan-id",
+          servicePlanId: VALID_PLAN_UUID,
           startTime: "08:00",
           endTime: "09:00",
         }),
@@ -114,7 +116,7 @@ describe("CreateBookingService", () => {
 
       await expect(
         service.execute(
-          { servicePlanId: "plan-id", scheduledDate: "2024-01-15", startTime: "08:00", endTime: "09:00" },
+          { servicePlanId: VALID_PLAN_UUID, scheduledDate: "2024-01-15", startTime: "08:00", endTime: "09:00" },
           mockCurrentUser,
         ),
       ).rejects.toThrow(BadRequestException);
@@ -125,7 +127,7 @@ describe("CreateBookingService", () => {
 
       await expect(
         service.execute(
-          { servicePlanId: "plan-id", scheduledDate: "2024-01-15", startTime: "08:00", endTime: "09:00" },
+          { servicePlanId: VALID_PLAN_UUID, scheduledDate: "2024-01-15", startTime: "08:00", endTime: "09:00" },
           mockCurrentUser,
         ),
       ).rejects.toThrow(BadRequestException);
@@ -137,7 +139,7 @@ describe("CreateBookingService", () => {
 
       await expect(
         service.execute(
-          { servicePlanId: "plan-id", scheduledDate: "2024-01-15", startTime: "08:00", endTime: "09:00" },
+          { servicePlanId: VALID_PLAN_UUID, scheduledDate: "2024-01-15", startTime: "08:00", endTime: "09:00" },
           mockCurrentUser,
         ),
       ).rejects.toThrow(ConflictException);
