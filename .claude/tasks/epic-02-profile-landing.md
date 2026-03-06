@@ -77,10 +77,10 @@ Como visitante, quero acessar a pagina publica de um personal trainer pelo seu s
 - Tema dinamico via `themeColor` do personal (CSS custom properties no layout)
 
 ### Subtasks Backend
-- [ ] `GET /personals/:slug/public` — dados publicos do personal + service plans ativos
-- [ ] Decorator `@Public()` na rota
-- [ ] Response DTO apenas com campos publicos (sem dados sensiveis: userId, senha, etc)
-- [ ] `get-public-profile.controller.spec.ts` + `get-public-profile.service.spec.ts`
+- [x] `GET /personals/:slug/public` — dados publicos do personal + service plans ativos
+- [x] Decorator `@Public()` na rota
+- [x] Response DTO apenas com campos publicos (sem dados sensiveis: userId, senha, etc)
+- [x] `get-public-profile.controller.spec.ts` + `get-public-profile.service.spec.ts`
 
 ### Subtasks Frontend
 - [ ] `app/[personal-slug]/(personal)/page.tsx` com SSR
