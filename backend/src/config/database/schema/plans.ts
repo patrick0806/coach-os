@@ -19,6 +19,7 @@ export const plans = pgTable("plans", {
   highlighted: boolean("highlighted").notNull().default(false),
   order: integer("order").notNull().default(0),
   benefits: json("benefits").$type<string[]>().notNull(),
+  maxStudents: integer("max_students"), // null = unlimited
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

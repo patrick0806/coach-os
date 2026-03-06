@@ -1,6 +1,6 @@
 # Epic 06 — Planos SaaS e Assinatura
 
-Status: `[ ]` todo
+Status: `[~]` in progress
 
 ---
 
@@ -45,7 +45,7 @@ Como visitante ou profissional nao cadastrado, quero visualizar os planos de ass
 
 ## US-016 — Personal assina um plano (Stripe)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 5
 **Dependencias:** US-001, US-015
 
@@ -67,14 +67,14 @@ Como personal trainer, quero assinar um plano de uso da plataforma para liberar 
 - Webhook deve ser rota `@Public()` com validacao de `stripe-signature` header
 
 ### Subtasks Backend
-- [ ] Migration para adicionar campos de assinatura em `personals`
-- [ ] `POST /subscriptions/checkout` — criar sessao Stripe Checkout (retorna `checkoutUrl`)
-- [ ] `POST /subscriptions/webhook` — processar eventos Stripe (rota publica, validar assinatura)
+- [x] Migration para adicionar campos de assinatura em `personals`
+- [x] `POST /subscriptions/checkout` — criar sessao Stripe Checkout (retorna `checkoutUrl`)
+- [x] `POST /subscriptions/webhook` — processar eventos Stripe (rota publica, validar assinatura)
   - Eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
-- [ ] `GET /subscriptions/me` — status da assinatura atual do personal autenticado
-- [ ] `POST /subscriptions/cancel` — solicitar cancelamento ao fim do periodo
-- [ ] Atualizar `PersonalsRepository` com metodos de assinatura
-- [ ] Unit tests para checkout e get
+- [x] `GET /subscriptions/me` — status da assinatura atual do personal autenticado
+- [x] `POST /subscriptions/cancel` — solicitar cancelamento ao fim do periodo
+- [x] Atualizar `PersonalsRepository` com metodos de assinatura
+- [x] Unit tests para checkout, webhook, get e cancel
 - [ ] Integration test para webhook (simular evento Stripe)
 
 ### Subtasks Frontend
@@ -94,7 +94,7 @@ Como personal trainer, quero assinar um plano de uso da plataforma para liberar 
 
 ## US-017 — Gerenciar assinatura e uso (Personal)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 6
 **Dependencias:** US-016
 
@@ -113,11 +113,13 @@ Como personal trainer, quero gerenciar minha assinatura e visualizar o uso dos m
 - Adicionar logica de contagem de alunos ativos no `StudentsRepository`
 
 ### Subtasks Backend
-- [ ] `GET /subscriptions/usage` — retorna dados de uso (alunos cadastrados vs limite do plano atual)
-- [ ] `POST /subscriptions/portal` — gera URL para o Stripe Customer Portal (gestao de cartao/faturas)
-- [ ] `POST /subscriptions/upgrade` — endpoint para trocar para um plano superior (atualiza no Stripe com `proration_behavior: 'always_invoice'`)
-- [ ] `DELETE /subscriptions/cancel` — cancela a renovacao automatica no Stripe (`cancel_at_period_end: true`)
-- [ ] Atualizar `subscriptions.webhook` para tratar `customer.subscription.updated` em casos de upgrade/downgrade
+- [x] `GET /subscriptions/usage` — retorna dados de uso (alunos cadastrados vs limite do plano atual)
+- [x] `POST /subscriptions/portal` — gera URL para o Stripe Customer Portal (gestao de cartao/faturas)
+- [x] `POST /subscriptions/upgrade` — endpoint para trocar para um plano superior (atualiza no Stripe com `proration_behavior: 'always_invoice'`)
+- [x] `DELETE /subscriptions/cancel` — coberto pelo `POST /subscriptions/cancel` ja implementado na US-016
+- [x] `maxStudents` adicionado ao schema de `plans` (migration 0003) + seed atualizado
+- [x] `countActiveByPersonal` adicionado ao `StudentsRepository`
+- [x] Unit tests para usage, portal e upgrade
 
 ### Subtasks Frontend
 - [ ] Tela de Gestao: `/dashboard/subscription/manage`

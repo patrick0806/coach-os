@@ -124,6 +124,7 @@ async function seed() {
         order: 0,
         highlighted: false,
         isActive: true,
+        maxStudents: 3,
       },
       {
         name: "Pro",
@@ -133,6 +134,7 @@ async function seed() {
         order: 1,
         highlighted: true,
         isActive: true,
+        maxStudents: 10,
       },
       {
         name: "Empresarial",
@@ -142,6 +144,7 @@ async function seed() {
         order: 2,
         highlighted: false,
         isActive: true,
+        maxStudents: null,
       },
     ];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -111,6 +111,16 @@ export class StudentsRepository {
     };
   }
 
+  async countActiveByPersonal(personalId: string, tx?: DrizzleDb): Promise<number> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .select({ total: count() })
+      .from(students)
+      .innerJoin(users, eq(students.userId, users.id))
+      .where(and(eq(students.personalId, personalId), eq(users.isActive, true)));
+    return Number(result[0].total);
+  }
+
   async findById(
     id: string,
     tenantId: string,
