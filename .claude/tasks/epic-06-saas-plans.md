@@ -1,6 +1,6 @@
 # Epic 06 — Planos SaaS e Assinatura
 
-Status: `[~]` in progress
+Status: `[x]` done (backend)
 
 ---
 

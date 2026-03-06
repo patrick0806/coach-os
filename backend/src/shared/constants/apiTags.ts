@@ -10,4 +10,5 @@ export const API_TAGS = {
   BOOKINGS: 'Bookings',
   PLANS: 'Plans',
   SUBSCRIPTIONS: 'Subscriptions',
+  ADMIN: 'Admin',
 };

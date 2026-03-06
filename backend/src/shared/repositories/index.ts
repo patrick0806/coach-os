@@ -11,3 +11,6 @@ export { WorkoutPlanStudentsRepository } from "./workout-plan-students.repositor
 export { AvailabilityRepository } from "./availability.repository";
 export { BookingsRepository } from "./bookings.repository";
 export { PlansRepository } from "./plans.repository";
+export { AdminPersonalsRepository } from "./admin-personals.repository";
+export { DashboardRepository } from "./dashboard.repository";
+export type { PersonalWithUser, PersonalWithUserDetail, PaginatedPersonals } from "./admin-personals.repository";

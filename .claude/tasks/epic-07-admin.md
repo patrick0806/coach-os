@@ -1,12 +1,12 @@
 # Epic 07 — Area do Admin
 
-Status: `[ ]` todo
+Status: `[x]` done (backend)
 
 ---
 
 ## US-018 — Admin gerencia personals
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 6
 **Dependencias:** US-002
 
@@ -26,11 +26,12 @@ Como administrador da plataforma, quero visualizar e gerenciar os profissionais 
 - Guard de role `ADMIN` em todas as rotas
 
 ### Subtasks Backend
-- [ ] `GET /admin/personals?page=&size=&search=` — listar todos (paginado)
-- [ ] `GET /admin/personals/:id` — detalhe do personal
-- [ ] `PATCH /admin/personals/:id/status` — ativar/desativar (body: `{ isActive: boolean }`)
-- [ ] Guard: role `ADMIN` (usar `@Roles(ApplicationRoles.ADMIN)` e `RolesGuard` ja existente)
-- [ ] Unit tests para cada context
+- [x] `GET /admin/personals?page=&size=&search=` — listar todos (paginado)
+- [x] `GET /admin/personals/:id` — detalhe do personal
+- [x] `PATCH /admin/personals/:id/status` — ativar/desativar (body: `{ isActive: boolean }`)
+- [x] `AdminPersonalsRepository` com queries paginadas e join com users e plans
+- [x] Guard: role `ADMIN` (usar `@Roles(ApplicationRoles.ADMIN)` e `RolesGuard` ja existente)
+- [x] Unit tests para cada context
 
 ### Subtasks Frontend
 - [ ] Rota: `/admin/personals`
@@ -44,7 +45,7 @@ Como administrador da plataforma, quero visualizar e gerenciar os profissionais 
 
 ## US-019 — Admin gerencia planos SaaS
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 6
 **Dependencias:** US-018
 
@@ -59,13 +60,14 @@ Como administrador, quero criar e gerenciar os planos de assinatura da plataform
 - [ ] Acesso restrito a role `ADMIN`
 
 ### Subtasks Backend
-- [ ] `POST /admin/plans` — criar plano
-- [ ] `GET /admin/plans` — listar todos (incluindo inativos)
-- [ ] `PATCH /admin/plans/:id` — atualizar plano
-- [ ] `PATCH /admin/plans/:id/status` — ativar/desativar
-- [ ] `PATCH /admin/plans/reorder` — reordenar (body: `[{ id, order }]`)
-- [ ] `PlansRepository` com CRUD completo
-- [ ] Guard: role `ADMIN`
+- [x] `POST /admin/plans` — criar plano
+- [x] `GET /admin/plans` — listar todos (incluindo inativos)
+- [x] `PATCH /admin/plans/:id` — atualizar plano
+- [x] `PATCH /admin/plans/:id/status` — ativar/desativar
+- [x] `PATCH /admin/plans/reorder` — reordenar (body: `{ items: [{ id, order }] }`)
+- [x] `PlansRepository` expandido: `findAll`, `create`, `update`, `updateStatus`, `updateOrder`
+- [x] Guard: role `ADMIN`
+- [x] Unit tests para cada context
 
 ### Subtasks Frontend
 - [ ] Rota: `/admin/plans`
@@ -77,7 +79,7 @@ Como administrador, quero criar e gerenciar os planos de assinatura da plataform
 
 ## US-020 — Dashboard Admin (Business Intelligence)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 7
 **Dependencias:** US-016, US-018
 
@@ -101,10 +103,11 @@ Como administrador do negócio, quero visualizar indicadores de desempenho da pl
 - Centralizar queries de agregação em um serviço específico para performance.
 
 ### Subtasks Backend
-- [ ] `GET /admin/dashboard/stats` — retorna KPIs financeiros e de usuários.
-- [ ] `GET /admin/dashboard/charts` — retorna dados formatados para gráficos de série temporal.
-- [ ] Implementar queries de contagem e soma com `Drizzle ORM` (`count`, `sum`, `groupBy`).
-- [ ] Logica de cálculo de porcentagem de crescimento comparado ao mês anterior.
+- [x] `GET /admin/dashboard/stats` — retorna KPIs financeiros e de usuários.
+- [x] `GET /admin/dashboard/charts` — retorna dados formatados para gráficos de série temporal.
+- [x] `DashboardRepository` com queries de agregação (`count`, `sum`, `groupBy`, `generate_series`).
+- [x] Lógica de cálculo de growthRate vs período anterior.
+- [x] Filtro de período: `?period=7d|30d|90d|all`.
 
 ### Subtasks Frontend
 - [ ] Rota: `/admin/dashboard` (Página inicial do Admin).
