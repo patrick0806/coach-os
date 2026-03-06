@@ -2,6 +2,7 @@
 
 import { type ReactNode } from "react";
 
+import { AuthProvider } from "@/providers/auth.provider";
 import { QueryProvider } from "@/providers/query.provider";
 
 interface AppProviderProps {
@@ -9,5 +10,9 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  return <QueryProvider>{children}</QueryProvider>;
+  return (
+    <QueryProvider>
+      <AuthProvider>{children}</AuthProvider>
+    </QueryProvider>
+  );
 }
