@@ -8,4 +8,6 @@ export const API_TAGS = {
   SERVICE_PLANS: 'Service Plans',
   AVAILABILITY: 'Availability',
   BOOKINGS: 'Bookings',
+  PLANS: 'Plans',
+  SUBSCRIPTIONS: 'Subscriptions',
 };

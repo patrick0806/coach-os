@@ -26,4 +26,10 @@ export const env = {
 
   RESEND_API_KEY: process.env.RESEND_API_KEY || "",
   APP_URL: process.env.APP_URL || "http://localhost:3000",
+
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
+  STRIPE_PRICE_BASICO: process.env.STRIPE_PRICE_BASICO || "",
+  STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO || "",
+  STRIPE_PRICE_EMPRESARIAL: process.env.STRIPE_PRICE_EMPRESARIAL || "",
 };

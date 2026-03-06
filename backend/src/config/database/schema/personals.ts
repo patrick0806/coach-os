@@ -6,6 +6,7 @@ import {
   uniqueIndex,
   text,
 } from "drizzle-orm/pg-core";
+import { plans } from "./plans";
 import { randomUUID } from "crypto";
 import { relations } from "drizzle-orm";
 import { users } from "./users";
@@ -33,6 +34,12 @@ export const personals = pgTable(
     lpImage1: varchar("lp_image1", { length: 500 }),
     lpImage2: varchar("lp_image2", { length: 500 }),
     lpImage3: varchar("lp_image3", { length: 500 }),
+    // Stripe subscription fields
+    stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).unique(),
+    stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).unique(),
+    subscriptionStatus: varchar("subscription_status", { length: 50 }),
+    subscriptionPlanId: varchar("subscription_plan_id", { length: 36 }).references(() => plans.id),
+    subscriptionExpiresAt: timestamp("subscription_expires_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -45,6 +52,7 @@ export const personals = pgTable(
     uniqueIndex("personals_slug_idx").on(table.slug),
     uniqueIndex("personals_user_id_idx").on(table.userId),
     index("personals_created_at_idx").on(table.createdAt),
+    index("personals_stripe_customer_idx").on(table.stripeCustomerId),
   ]
 );
 

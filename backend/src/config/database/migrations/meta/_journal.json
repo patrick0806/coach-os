@@ -15,6 +15,13 @@
       "when": 1772758804201,
       "tag": "0001_jazzy_romulus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772817304955,
+      "tag": "0002_legal_goliath",
+      "breakpoints": true
     }
   ]
 }

@@ -29,6 +29,14 @@ export interface UpdatePersonalInput {
   lpImage3?: string | null;
 }
 
+export interface UpdateSubscriptionInput {
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: string | null;
+  subscriptionPlanId?: string | null;
+  subscriptionExpiresAt?: Date | null;
+}
+
 @Injectable()
 export class PersonalsRepository {
   constructor(private drizzle: DrizzleProvider) {}
@@ -76,6 +84,30 @@ export class PersonalsRepository {
   ): Promise<Personal> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: Drizzle v0.39 $inferUpdate narrowing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await db.update(personals).set(data as any).where(eq(personals.id, id)).returning();
+    return result[0];
+  }
+
+  async findByStripeCustomerId(
+    customerId: string,
+    tx?: DrizzleDb,
+  ): Promise<Personal | null> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .select()
+      .from(personals)
+      .where(eq(personals.stripeCustomerId, customerId))
+      .limit(1);
+    return result[0] ?? null;
+  }
+
+  async updateSubscription(
+    id: string,
+    data: UpdateSubscriptionInput,
+    tx?: DrizzleDb,
+  ): Promise<Personal> {
+    const db = tx ?? this.drizzle.db;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await db.update(personals).set(data as any).where(eq(personals.id, id)).returning();
     return result[0];

@@ -18,6 +18,13 @@ import { BuildResponseInterceptor } from "@shared/interceptors";
 
 import { AppModule } from "./app.module";
 
+// Extend FastifyRequest to carry the raw body buffer for webhook signature validation
+declare module "fastify" {
+  interface FastifyRequest {
+    rawBody?: Buffer;
+  }
+}
+
 async function bootstrap() {
   const isDev = process.env.NODE_ENV !== "production";
 
@@ -40,6 +47,22 @@ async function bootstrap() {
   );
 
   app.enableShutdownHooks();
+
+  // Preserve raw body buffer on every request so the Stripe webhook handler
+  // can validate the stripe-signature header against the original bytes.
+  app.getHttpAdapter().getInstance().addHook(
+    "preParsing",
+    async (_req, _reply, payload) => {
+      const chunks: Buffer[] = [];
+      for await (const chunk of payload as AsyncIterable<Buffer>) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      const rawBody = Buffer.concat(chunks);
+      (_req as import("fastify").FastifyRequest).rawBody = rawBody;
+      const { Readable } = await import("stream");
+      return Readable.from(rawBody);
+    },
+  );
 
   app.setGlobalPrefix(API_BASE_PATH);
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" });

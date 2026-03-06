@@ -12,6 +12,8 @@ import { WorkoutPlansModule } from "@modules/workouts/workout-plans.module";
 import { SchedulingModule } from "@modules/scheduling/scheduling.module";
 import { ServicePlansModule } from "@modules/scheduling/service-plans.module";
 import { BookingsModule } from "@modules/bookings/bookings.module";
+import { PlansModule } from "@modules/plans/plans.module";
+import { SubscriptionsModule } from "@modules/subscriptions/subscriptions.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -27,6 +29,8 @@ import { DatabaseModule } from "@config/database/database.module";
     SchedulingModule,
     ServicePlansModule,
     BookingsModule,
+    PlansModule,
+    SubscriptionsModule,
     RouterModule.register([
       {
         path: "health",
@@ -63,6 +67,14 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "",
         module: BookingsModule,
+      },
+      {
+        path: "plans",
+        module: PlansModule,
+      },
+      {
+        path: "subscriptions",
+        module: SubscriptionsModule,
       },
     ]),
   ],

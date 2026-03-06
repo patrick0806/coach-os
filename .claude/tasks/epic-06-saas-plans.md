@@ -6,7 +6,7 @@ Status: `[ ]` todo
 
 ## US-015 — Visualizar planos SaaS (publico)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done (backend)
 **Sprint:** 5
 **Dependencias:** nenhuma (dados ja existem no seed)
 
@@ -25,10 +25,10 @@ Como visitante ou profissional nao cadastrado, quero visualizar os planos de ass
 - `PlansRepository`
 
 ### Subtasks Backend
-- [ ] `GET /plans` — listar planos ativos (rota publica com `@Public()`)
-- [ ] `PlansRepository` com metodo `findAllActive`
-- [ ] Response DTO com campo `benefits` como `string[]` (deserializar do formato varchar)
-- [ ] `list-plans.controller.spec.ts` + `list-plans.service.spec.ts`
+- [x] `GET /plans` — listar planos ativos (rota publica com `@Public()`)
+- [x] `PlansRepository` com metodo `findAllActive`
+- [x] Response DTO com campo `benefits` como `string[]` (json nativo no schema)
+- [x] `list-plans.controller.spec.ts` + `list-plans.service.spec.ts`
 
 ### Subtasks Frontend
 - [ ] Secao na home (`/`) ou rota dedicada `/plans`
