@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import Link from "next/link";
 
 import {
   AlertDialog,
@@ -227,6 +229,13 @@ export default function DisponibilidadePage() {
     <>
       <div className="mx-auto max-w-3xl p-4 sm:p-8">
         <div className="mb-6">
+          <Link
+            href="/painel/agenda"
+            className="-ml-1 mb-4 flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
+          >
+            <ArrowLeft className="size-4" />
+            Agenda
+          </Link>
           <h1 className="text-2xl font-semibold text-gray-900">Disponibilidade</h1>
           <p className="mt-1 text-sm text-gray-500">
             Configure os horários em que você atende por dia da semana.

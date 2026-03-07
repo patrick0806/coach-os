@@ -31,11 +31,11 @@ Como visitante ou profissional nao cadastrado, quero visualizar os planos de ass
 - [x] `list-plans.controller.spec.ts` + `list-plans.service.spec.ts`
 
 ### Subtasks Frontend
-- [ ] Secao na home (`/`) ou rota dedicada `/plans`
-- [ ] Cards de pricing table responsivos
-- [ ] Destaque visual (borda, badge "Recomendado") para `highlighted: true`
-- [ ] Lista de beneficios com icone de check
-- [ ] Botao CTA redirecionando para `/register`
+- [x] Secao na home (`/`) com pricing table
+- [x] Cards de pricing table responsivos
+- [x] Destaque visual (badge "Recomendado") para `highlighted: true`
+- [x] Lista de beneficios com icone de check
+- [x] Botao CTA redirecionando para `/cadastro`
 
 ### Notas Tecnicas
 - O campo `benefits` no banco e um varchar com itens separados por virgula (toString() do seed) — parsear no backend antes de retornar
@@ -78,11 +78,11 @@ Como personal trainer, quero assinar um plano de uso da plataforma para liberar 
 - [ ] Integration test para webhook (simular evento Stripe)
 
 ### Subtasks Frontend
-- [ ] Rota: `/dashboard/subscription`
-- [ ] Card com: plano atual, status, data de renovacao/expiracao
-- [ ] Botao "Assinar" (redireciona para Stripe Checkout para quem nao tem plano)
-- [ ] Pagina de retorno apos checkout: `/dashboard/subscription/success` e `/dashboard/subscription/cancel`
-- [ ] Exibir alerta quando assinatura esta proxima do vencimento ou expirada
+- [x] Rota: `/painel/assinatura`
+- [x] Card com: plano atual, status badge, data de renovacao/expiracao
+- [x] Botao "Assinar" (redireciona para Stripe Checkout para quem nao tem plano)
+- [x] Paginas de retorno: `/painel/assinatura/sucesso` e `/painel/assinatura/cancelado`
+- [x] Alerta quando assinatura esta expirada ou com pagamento pendente
 
 ### Notas Tecnicas
 - Configurar `STRIPE_SECRET_KEY` e `STRIPE_WEBHOOK_SECRET` via `.env`
@@ -122,11 +122,11 @@ Como personal trainer, quero gerenciar minha assinatura e visualizar o uso dos m
 - [x] Unit tests para usage, portal e upgrade
 
 ### Subtasks Frontend
-- [ ] Tela de Gestao: `/dashboard/subscription/manage`
-- [ ] Componente de Barra de Progresso para limite de alunos
-- [ ] Lista de cards para Upgrade (exibindo apenas planos superiores ao atual)
-- [ ] Botao "Gerenciar Pagamentos" que abre o link do Stripe Portal em nova aba
-- [ ] Modal de confirmacao para cancelamento de assinatura
+- [x] Integrado em `/painel/assinatura`
+- [x] Barra de progresso para limite de alunos (com alerta vermelho em 90%+)
+- [x] Cards de upgrade (apenas planos superiores ao atual)
+- [x] Botao "Gerenciar pagamentos" abre Stripe Portal em nova aba
+- [x] Modal de confirmacao de cancelamento e upgrade
 
 ### Notas Tecnicas
 - O limite de alunos deve ser validado no Backend ao tentar criar um novo aluno (US-007)
