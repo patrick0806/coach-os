@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { MUSCLE_GROUP_LABELS, type MuscleGroup } from "@/services/exercises.service";
+import { MUSCLE_GROUP_COLORS, MUSCLE_GROUP_LABELS, type MuscleGroup } from "@/services/exercises.service";
 import { removeExerciseFromPlan, type WorkoutExercise } from "@/services/workout-plans.service";
 
 interface ExerciseRowProps {
@@ -76,7 +76,9 @@ export function ExerciseRow({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-gray-900">{exercise.exerciseName}</span>
-            <Badge variant="secondary" className="text-xs">
+            <Badge
+              className={`text-xs font-medium ${MUSCLE_GROUP_COLORS[exercise.muscleGroup as MuscleGroup] ?? "bg-gray-100 text-gray-600"}`}
+            >
               {MUSCLE_GROUP_LABELS[exercise.muscleGroup as MuscleGroup] ?? exercise.muscleGroup}
             </Badge>
           </div>

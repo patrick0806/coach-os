@@ -17,7 +17,7 @@
 | 01 - Autenticacao e Fundacao | [epic-01-auth.md](epic-01-auth.md) | [x] | [x] |
 | 02 - Perfil e Landing Page | [epic-02-profile-landing.md](epic-02-profile-landing.md) | [x] | [x] |
 | 03 - Gestao de Alunos | [epic-03-students.md](epic-03-students.md) | [x] | [x] |
-| 04 - Gestao de Treinos | [epic-04-workouts.md](epic-04-workouts.md) | [x] | [ ] |
+| 04 - Gestao de Treinos | [epic-04-workouts.md](epic-04-workouts.md) | [x] | [x] |
 | 05 - Agenda e Agendamentos | [epic-05-scheduling.md](epic-05-scheduling.md) | [x] | [ ] |
 | 06 - Planos SaaS e Assinatura | [epic-06-saas-plans.md](epic-06-saas-plans.md) | [x] | [ ] |
 | 07 - Area do Admin | [epic-07-admin.md](epic-07-admin.md) | [x] | [ ] |
@@ -105,7 +105,9 @@ US-015 (Planos SaaS publicos) — independente do auth
   - Feedback de sucesso/erro inline
 - US-004 `[x]` — Landing page publica `/{slug}` implementada (SSR, generateMetadata, 4 seções, 404 customizado)
 
-**Epics 03–07:** `[ ]` pendentes
+**Epic 03:** `[x]` completo
+**Epic 04 — Gestao de Treinos:** `[x]` completo
+**Epics 05–07:** `[ ]` pendentes
 
 **Estrutura base do painel:**
 - `PainelShell` — layout responsivo com sidebar desktop + drawer mobile
@@ -113,4 +115,4 @@ US-015 (Planos SaaS publicos) — independente do auth
 - Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
 
 ### Proximo passo
-US-007/008/009 — Gestao de Treinos: exercicios, planos de treino com builder e atribuicao a alunos
+US-011/012/013/014 — Agenda e Agendamentos (Epic 05)

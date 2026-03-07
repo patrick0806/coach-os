@@ -32,6 +32,17 @@ export const MUSCLE_GROUPS: MuscleGroup[] = [
   "core",
 ];
 
+export const MUSCLE_GROUP_COLORS: Record<MuscleGroup, string> = {
+  peito: "bg-blue-100 text-blue-700",
+  costas: "bg-purple-100 text-purple-700",
+  ombro: "bg-cyan-100 text-cyan-700",
+  biceps: "bg-green-100 text-green-700",
+  triceps: "bg-emerald-100 text-emerald-700",
+  perna: "bg-orange-100 text-orange-700",
+  gluteo: "bg-pink-100 text-pink-700",
+  core: "bg-yellow-100 text-yellow-700",
+};
+
 export interface Exercise {
   id: string;
   name: string;

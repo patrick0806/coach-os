@@ -1,7 +1,17 @@
+import { StudentShell } from "./_components/student-shell";
+
 interface AlunosLayoutProps {
   children: React.ReactNode;
+  params: Promise<{ "slug-personal": string }>;
 }
 
-export default function AlunosLayout({ children }: AlunosLayoutProps) {
-  return <div className="dark min-h-screen bg-background text-foreground">{children}</div>;
+export default async function AlunosLayout({ children, params }: AlunosLayoutProps) {
+  const resolvedParams = await params;
+  const slug = resolvedParams["slug-personal"];
+
+  return (
+    <div className="dark min-h-screen bg-background text-foreground">
+      <StudentShell slug={slug}>{children}</StudentShell>
+    </div>
+  );
 }

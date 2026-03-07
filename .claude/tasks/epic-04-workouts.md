@@ -1,6 +1,6 @@
 # Epic 04 — Gestao de Treinos
 
-Status: `[ ]` todo
+Status: `[x]` done
 
 > **Revisao aplicada:** ver [architectural-review.md](architectural-review.md)
 > Todos os repositories com escopo de tenant DEVEM receber `tenantId` como parametro.
@@ -41,10 +41,10 @@ Como personal trainer, quero visualizar a biblioteca de exercicios e criar exerc
 - [x] `delete-exercise.controller.spec.ts` + `delete-exercise.service.spec.ts`
 
 ### Subtasks Frontend
-- [ ] Os exercicios sao gerenciados dentro do builder de treino (US-008)
-- [ ] Componente de busca/selecao de exercicios reutilizavel
-- [ ] Badge colorido por grupo muscular
-- [ ] Formulario de criacao de exercicio customizado
+- [x] Os exercicios sao gerenciados dentro do builder de treino (US-008)
+- [x] Componente de busca/selecao de exercicios reutilizavel
+- [x] Badge colorido por grupo muscular (MUSCLE_GROUP_COLORS em exercises.service.ts)
+- [x] Formulario de criacao de exercicio customizado (dentro do AddExerciseDialog)
 
 ### Notas Tecnicas
 - O seed ja popula ~50 exercicios globais em varios grupos musculares
@@ -91,15 +91,15 @@ Como personal trainer, quero criar planos de treino para prescrevia-los aos meus
 - [x] Unit tests para cada context
 
 ### Subtasks Frontend
-- [ ] Rota: `/dashboard/workouts`
-- [ ] Lista de planos criados com cards
-- [ ] Rota de criacao/edicao: `/dashboard/workouts/new` e `/dashboard/workouts/:id`
-- [ ] Builder com:
-  - [ ] Campo nome e descricao
-  - [ ] Busca e adicao de exercicios da biblioteca
-  - [ ] Lista de exercicios com drag & drop para reordenar
-  - [ ] Campos inline por exercicio: series, reps, carga, notas
-  - [ ] Botao de remover exercicio
+- [x] Rota: `/painel/treinos`
+- [x] Lista de planos criados com cards
+- [x] Rota de criacao/edicao: `/painel/treinos` (dialog) e `/painel/treinos/:id`
+- [x] Builder com:
+  - [x] Campo nome e descricao
+  - [x] Busca e adicao de exercicios da biblioteca
+  - [x] Lista de exercicios com reordenacao (botoes up/down)
+  - [x] Campos inline por exercicio: series, reps, carga, notas
+  - [x] Botao de remover exercicio
 
 ### Notas Tecnicas
 - Drag & drop: usar biblioteca leve (ex: `@dnd-kit/core`) sem overhead excessivo
@@ -134,10 +134,10 @@ Como personal trainer, quero atribuir um plano de treino a um aluno para que ele
 - [x] Unit tests para cada context
 
 ### Subtasks Frontend
-- [ ] Na pagina de detalhe do aluno: secao "Treinos Atribuidos"
-- [ ] Modal para selecionar e atribuir planos existentes do personal
-- [ ] Botao de remover atribuicao
-- [ ] Indicador visual de quais planos estao atribuidos ao aluno
+- [x] Na pagina de detalhe do aluno: secao "Treinos Atribuidos"
+- [x] Modal para selecionar e atribuir planos existentes do personal
+- [x] Botao de remover atribuicao
+- [x] Indicador visual de quais planos estao atribuidos ao aluno
 
 ### Notas Tecnicas
 - **Tenant isolation:** `WorkoutPlanStudentsRepository.assign(planId, studentId, tenantId)` valida que tanto o plano quanto o aluno pertencem ao mesmo tenant antes de inserir
@@ -168,11 +168,11 @@ Como aluno, quero visualizar os treinos prescritos pelo meu personal para saber 
 - [x] Unit tests
 
 ### Subtasks Frontend
-- [ ] Rota: `/{personal-slug}/students/workouts`
-- [ ] Cards de treino (Treino A, B, C...)
-- [ ] Rota de detalhe: `/{personal-slug}/students/workouts/:id`
-- [ ] Lista de exercicios com: nome, grupo muscular, series x reps, carga, notas
-- [ ] Dark mode (diretiva do CLAUDE.md para area de students)
+- [x] Rota: `/{slug}/alunos/treinos`
+- [x] Cards de treino (lista com link para detalhe)
+- [x] Rota de detalhe: `/{slug}/alunos/treinos/:planId`
+- [x] Lista de exercicios com: nome, grupo muscular, series x reps, carga, notas
+- [x] Dark mode (via layout (alunos))
 
 ### Notas Tecnicas
 - O endpoint usa `currentUser.profileId` (studentId) e `currentUser.personalId` (tenantId) extraidos do JWT

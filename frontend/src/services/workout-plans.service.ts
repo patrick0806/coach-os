@@ -124,3 +124,13 @@ export async function getStudentWorkoutPlans(studentId: string): Promise<Workout
   const { data } = await api.get<WorkoutPlan[]>(`/students/${studentId}/workout-plans`);
   return data;
 }
+
+export async function getMeWorkoutPlans(): Promise<WorkoutPlan[]> {
+  const { data } = await api.get<WorkoutPlan[]>("/students/me/workout-plans");
+  return data;
+}
+
+export async function getMeWorkoutPlan(planId: string): Promise<WorkoutPlanDetail> {
+  const { data } = await api.get<WorkoutPlanDetail>(`/students/me/workout-plans/${planId}`);
+  return data;
+}

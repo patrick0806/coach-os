@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Search, X } from "lucide-react";
+import { ArrowLeft, Plus, Search, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,11 +30,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
   type Exercise,
+  createExercise,
   listExercises,
+  MUSCLE_GROUP_COLORS,
   MUSCLE_GROUP_LABELS,
   MUSCLE_GROUPS,
+  type MuscleGroup,
 } from "@/services/exercises.service";
 import { addExerciseToPlan } from "@/services/workout-plans.service";
+
+// ─── Add exercise to plan form ────────────────────────────────────────────────
 
 const addExerciseSchema = z.object({
   sets: z.coerce.number().int().min(1, "Mínimo 1 série"),
@@ -44,6 +49,22 @@ const addExerciseSchema = z.object({
 });
 
 type AddExerciseValues = z.infer<typeof addExerciseSchema>;
+
+// ─── Create custom exercise form ──────────────────────────────────────────────
+
+const createExerciseSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
+  muscleGroup: z.enum(["peito", "costas", "ombro", "biceps", "triceps", "perna", "gluteo", "core"], {
+    message: "Grupo muscular é obrigatório",
+  }),
+  description: z.string().optional(),
+});
+
+type CreateExerciseValues = z.infer<typeof createExerciseSchema>;
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+type View = "search" | "create" | "configure";
 
 interface AddExerciseDialogProps {
   open: boolean;
@@ -60,6 +81,8 @@ export function AddExerciseDialog({
   onOpenChange,
   onAdded,
 }: AddExerciseDialogProps) {
+  const queryClient = useQueryClient();
+  const [view, setView] = useState<View>("search");
   const [search, setSearch] = useState("");
   const [muscleFilter, setMuscleFilter] = useState<string>("all");
   const [selected, setSelected] = useState<Exercise | null>(null);
@@ -71,15 +94,21 @@ export function AddExerciseDialog({
         search: search || undefined,
         muscleGroup: muscleFilter !== "all" ? muscleFilter : undefined,
       }),
-    enabled: open,
+    enabled: open && view === "search",
   });
 
-  const form = useForm<AddExerciseValues>({
-    resolver: zodResolver(addExerciseSchema),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const addForm = useForm<AddExerciseValues, any, AddExerciseValues>({
+    resolver: zodResolver(addExerciseSchema) as any,
     defaultValues: { sets: 3, repetitions: 12, load: "", notes: "" },
   });
 
-  const mutation = useMutation({
+  const createForm = useForm<CreateExerciseValues>({
+    resolver: zodResolver(createExerciseSchema),
+    defaultValues: { name: search, muscleGroup: undefined, description: "" },
+  });
+
+  const addMutation = useMutation({
     mutationFn: (values: AddExerciseValues) =>
       addExerciseToPlan(planId, {
         exerciseId: selected!.id,
@@ -99,11 +128,41 @@ export function AddExerciseDialog({
     },
   });
 
+  const createMutation = useMutation({
+    mutationFn: (values: CreateExerciseValues) =>
+      createExercise({
+        name: values.name,
+        muscleGroup: values.muscleGroup as MuscleGroup,
+        description: values.description || undefined,
+      }),
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: ["exercises"] });
+      toast.success("Exercício criado.");
+      setSelected(created);
+      setView("configure");
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível criar o exercício."));
+    },
+  });
+
+  function handleSelectExercise(exercise: Exercise) {
+    setSelected(exercise);
+    setView("configure");
+  }
+
+  function handleOpenCreateForm() {
+    createForm.reset({ name: search, muscleGroup: undefined, description: "" });
+    setView("create");
+  }
+
   function handleClose() {
     setSearch("");
     setMuscleFilter("all");
     setSelected(null);
-    form.reset({ sets: 3, repetitions: 12, load: "", notes: "" });
+    setView("search");
+    addForm.reset({ sets: 3, repetitions: 12, load: "", notes: "" });
+    createForm.reset({ name: "", muscleGroup: undefined, description: "" });
     onOpenChange(false);
   }
 
@@ -111,20 +170,32 @@ export function AddExerciseDialog({
     <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Adicionar exercício</DialogTitle>
+          <DialogTitle>
+            {view === "create" ? "Criar exercício customizado" : "Adicionar exercício"}
+          </DialogTitle>
         </DialogHeader>
 
-        {selected ? (
+        {/* ── Configure (set sets/reps after selecting exercise) ── */}
+        {view === "configure" && selected ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border bg-gray-50 px-4 py-3">
               <div>
                 <p className="font-medium text-gray-900">{selected.name}</p>
-                <p className="text-sm text-gray-500">{MUSCLE_GROUP_LABELS[selected.muscleGroup]}</p>
+                <span
+                  className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                    MUSCLE_GROUP_COLORS[selected.muscleGroup] ?? "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {MUSCLE_GROUP_LABELS[selected.muscleGroup]}
+                </span>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setSelected(null)}
+                onClick={() => {
+                  setSelected(null);
+                  setView("search");
+                }}
                 className="size-8 p-0 text-gray-400"
               >
                 <X className="size-4" />
@@ -132,24 +203,31 @@ export function AddExerciseDialog({
             </div>
 
             <form
-              onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+              onSubmit={addForm.handleSubmit((values) => addMutation.mutate(values))}
               className="space-y-4"
               noValidate
             >
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="ex-sets">Séries</Label>
-                  <Input id="ex-sets" type="number" min={1} {...form.register("sets")} />
-                  {form.formState.errors.sets ? (
-                    <p className="text-sm text-destructive">{form.formState.errors.sets.message}</p>
+                  <Input id="ex-sets" type="number" min={1} {...addForm.register("sets")} />
+                  {addForm.formState.errors.sets ? (
+                    <p className="text-sm text-destructive">
+                      {addForm.formState.errors.sets.message}
+                    </p>
                   ) : null}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ex-reps">Repetições</Label>
-                  <Input id="ex-reps" type="number" min={1} {...form.register("repetitions")} />
-                  {form.formState.errors.repetitions ? (
+                  <Input
+                    id="ex-reps"
+                    type="number"
+                    min={1}
+                    {...addForm.register("repetitions")}
+                  />
+                  {addForm.formState.errors.repetitions ? (
                     <p className="text-sm text-destructive">
-                      {form.formState.errors.repetitions.message}
+                      {addForm.formState.errors.repetitions.message}
                     </p>
                   ) : null}
                 </div>
@@ -160,7 +238,7 @@ export function AddExerciseDialog({
                 <Input
                   id="ex-load"
                   placeholder="ex: 20kg, peso corporal"
-                  {...form.register("load")}
+                  {...addForm.register("load")}
                 />
               </div>
 
@@ -170,7 +248,7 @@ export function AddExerciseDialog({
                   id="ex-notes"
                   placeholder="ex: Manter escápulas retraídas"
                   rows={2}
-                  {...form.register("notes")}
+                  {...addForm.register("notes")}
                 />
               </div>
 
@@ -178,13 +256,90 @@ export function AddExerciseDialog({
                 <Button type="button" variant="outline" onClick={handleClose}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Adicionando..." : "Adicionar"}
+                <Button type="submit" disabled={addMutation.isPending}>
+                  {addMutation.isPending ? "Adicionando..." : "Adicionar"}
                 </Button>
               </DialogFooter>
             </form>
           </div>
-        ) : (
+        ) : null}
+
+        {/* ── Create custom exercise form ── */}
+        {view === "create" ? (
+          <form
+            onSubmit={createForm.handleSubmit((values) => createMutation.mutate(values))}
+            className="space-y-4"
+            noValidate
+          >
+            <div className="space-y-2">
+              <Label htmlFor="ce-name">Nome do exercício</Label>
+              <Input
+                id="ce-name"
+                placeholder="ex: Rosca concentrada"
+                {...createForm.register("name")}
+              />
+              {createForm.formState.errors.name ? (
+                <p className="text-sm text-destructive">
+                  {createForm.formState.errors.name.message}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ce-muscle">Grupo muscular</Label>
+              <Select
+                onValueChange={(val) =>
+                  createForm.setValue("muscleGroup", val as MuscleGroup, { shouldValidate: true })
+                }
+                value={createForm.watch("muscleGroup")}
+              >
+                <SelectTrigger id="ce-muscle">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {MUSCLE_GROUPS.map((g) => (
+                    <SelectItem key={g} value={g}>
+                      {MUSCLE_GROUP_LABELS[g]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {createForm.formState.errors.muscleGroup ? (
+                <p className="text-sm text-destructive">
+                  {createForm.formState.errors.muscleGroup.message}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ce-desc">Descrição (opcional)</Label>
+              <Textarea
+                id="ce-desc"
+                placeholder="Descreva a execução do exercício..."
+                rows={2}
+                {...createForm.register("description")}
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                className="gap-1.5"
+                onClick={() => setView("search")}
+              >
+                <ArrowLeft className="size-4" />
+                Voltar
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? "Criando..." : "Criar e selecionar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        ) : null}
+
+        {/* ── Search / browse exercises ── */}
+        {view === "search" ? (
           <div className="space-y-3">
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -215,8 +370,18 @@ export function AddExerciseDialog({
               {loadingExercises ? (
                 <div className="py-8 text-center text-sm text-gray-400">Carregando...</div>
               ) : exercises.length === 0 ? (
-                <div className="py-8 text-center text-sm text-gray-400">
-                  Nenhum exercício encontrado.
+                <div className="flex flex-col items-center py-8 text-center text-sm text-gray-400">
+                  <p>Nenhum exercício encontrado.</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 gap-1.5"
+                    onClick={handleOpenCreateForm}
+                  >
+                    <Plus className="size-3.5" />
+                    Criar exercício customizado
+                  </Button>
                 </div>
               ) : (
                 <ul className="divide-y">
@@ -224,14 +389,18 @@ export function AddExerciseDialog({
                     <li key={ex.id}>
                       <button
                         type="button"
-                        onClick={() => setSelected(ex)}
+                        onClick={() => handleSelectExercise(ex)}
                         className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-gray-50"
                       >
                         <div>
                           <p className="text-sm font-medium text-gray-900">{ex.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <span
+                            className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                              MUSCLE_GROUP_COLORS[ex.muscleGroup] ?? "bg-gray-100 text-gray-600"
+                            }`}
+                          >
                             {MUSCLE_GROUP_LABELS[ex.muscleGroup]}
-                          </p>
+                          </span>
                         </div>
                         {ex.isGlobal ? null : (
                           <Badge variant="secondary" className="text-xs">
@@ -245,13 +414,23 @@ export function AddExerciseDialog({
               )}
             </div>
 
-            <DialogFooter>
+            <div className="flex items-center justify-between">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-gray-500"
+                onClick={handleOpenCreateForm}
+              >
+                <Plus className="size-3.5" />
+                Criar exercício customizado
+              </Button>
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
-            </DialogFooter>
+            </div>
           </div>
-        )}
+        ) : null}
       </DialogContent>
     </Dialog>
   );
