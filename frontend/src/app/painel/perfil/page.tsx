@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -222,11 +224,38 @@ export default function PerfilPage() {
 
   return (
     <div className="p-4 sm:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Meu Perfil</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Gerencie suas informações e a aparência da sua página de apresentação.
-        </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Meu Perfil</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Gerencie suas informações e a aparência da sua página de apresentação.
+          </p>
+        </div>
+
+        {profile?.slug ? (
+          <Link
+            href={`/${profile.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button type="button" variant="outline" size="sm" className="gap-2">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-4"
+              >
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+              Ver minha página
+            </Button>
+          </Link>
+        ) : null}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
