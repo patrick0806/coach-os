@@ -58,7 +58,14 @@ function getRoleHome(role: UserRole, personalSlug: string | null | undefined) {
   return "/login";
 }
 
-async function getSessionFromRefreshToken(request: NextRequest) {
+interface Session {
+  accessToken: string;
+  role: UserRole;
+  personalSlug: string | null;
+  setCookieHeader: string | null;
+}
+
+async function getSessionFromRefreshToken(request: NextRequest): Promise<Session | null> {
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
   if (!refreshToken) {
@@ -91,10 +98,19 @@ async function getSessionFromRefreshToken(request: NextRequest) {
       accessToken: data.accessToken,
       role: payload.role,
       personalSlug: payload.personalSlug ?? null,
+      // Forward any new refresh token cookie the backend may have issued (rotation)
+      setCookieHeader: response.headers.get("set-cookie"),
     };
   } catch {
     return null;
   }
+}
+
+function applySessionCookies(response: NextResponse, session: Session): NextResponse {
+  if (session.setCookieHeader) {
+    response.headers.set("set-cookie", session.setCookieHeader);
+  }
+  return response;
 }
 
 export async function middleware(request: NextRequest) {
@@ -144,7 +160,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Forward any rotated refresh token cookie so the client stays authenticated
+  return applySessionCookies(NextResponse.next(), session);
 }
 
 export const config = {

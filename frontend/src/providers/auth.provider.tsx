@@ -8,7 +8,7 @@ import {
   setAccessToken,
   subscribeToAccessToken,
 } from "@/lib/auth-token";
-import { logout, type LoginResponse, type UserRole } from "@/services/auth.service";
+import { logout, refreshSession, type LoginResponse, type UserRole } from "@/services/auth.service";
 
 interface AuthState {
   role: UserRole | null;
@@ -39,6 +39,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     return subscribeToAccessToken(setToken);
+  }, []);
+
+  // Silently restore the session on mount (e.g. after a page refresh)
+  useEffect(() => {
+    if (getAccessToken()) return;
+
+    refreshSession()
+      .then((payload) => {
+        setAccessToken(payload.accessToken);
+        setAuthState({
+          role: payload.role,
+          personalSlug: payload.personalSlug,
+        });
+      })
+      .catch(() => {
+        // No valid refresh cookie — user must log in
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const value = useMemo<AuthContextValue>(

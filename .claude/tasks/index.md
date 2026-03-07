@@ -20,7 +20,7 @@
 | 04 - Gestao de Treinos | [epic-04-workouts.md](epic-04-workouts.md) | [x] | [x] |
 | 05 - Agenda e Agendamentos | [epic-05-scheduling.md](epic-05-scheduling.md) | [x] | [x] |
 | 06 - Planos SaaS e Assinatura | [epic-06-saas-plans.md](epic-06-saas-plans.md) | [x] | [x] |
-| 07 - Area do Admin | [epic-07-admin.md](epic-07-admin.md) | [x] | [ ] |
+| 07 - Area do Admin | [epic-07-admin.md](epic-07-admin.md) | [x] | [x] |
 
 ## Roadmap por Sprint
 
@@ -109,7 +109,13 @@ US-015 (Planos SaaS publicos) — independente do auth
 **Epic 04 — Gestao de Treinos:** `[x]` completo
 **Epic 05 — Agenda e Agendamentos:** `[x]` completo
 **Epic 06 — Planos SaaS e Assinatura:** `[x]` completo
-**Epic 07:** `[ ]` pendente
+**Epic 07 — Area do Admin:** `[x]` completo
+- Admin shell com sidebar responsiva (desktop fixa + mobile drawer)
+- `/admin/dashboard` — KPIs (MRR, assinantes, churn), AreaChart e PieChart com Recharts, filtro de período
+- `/admin/personals` — tabela paginada com busca, toggle de status inline
+- `/admin/personals/:id` — detalhe com dados de perfil e assinatura (link Stripe)
+- `/admin/plans` — CRUD de planos SaaS, reordenação com botões up/down, toggle ativo/inativo
+- `/admin` → redirect para `/admin/dashboard`
 
 **Estrutura base do painel:**
 - `PainelShell` — layout responsivo com sidebar desktop + drawer mobile
@@ -117,4 +123,4 @@ US-015 (Planos SaaS publicos) — independente do auth
 - Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
 
 ### Proximo passo
-Epic 07 — Area do Admin (US-017, US-018)
+Todos os épicos 01–07 estão completos (frontend e backend). Projeto pronto para QA/testes integrados.

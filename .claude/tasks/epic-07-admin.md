@@ -34,12 +34,12 @@ Como administrador da plataforma, quero visualizar e gerenciar os profissionais 
 - [x] Unit tests para cada context
 
 ### Subtasks Frontend
-- [ ] Rota: `/admin/personals`
-- [ ] Tabela com: nome, e-mail, plano atual, status, data de cadastro
-- [ ] Paginacao e busca por nome/e-mail
-- [ ] Toggle de status inline
-- [ ] Pagina de detalhe: `/admin/personals/:id`
-- [ ] Dark mode (diretiva do CLAUDE.md para area admin)
+- [x] Rota: `/admin/personals`
+- [x] Tabela com: nome, e-mail, plano atual, status, data de cadastro
+- [x] Paginacao e busca por nome/e-mail
+- [x] Toggle de status inline
+- [x] Pagina de detalhe: `/admin/personals/:id`
+- [x] Dark mode (diretiva do CLAUDE.md para area admin)
 
 ---
 
@@ -70,10 +70,10 @@ Como administrador, quero criar e gerenciar os planos de assinatura da plataform
 - [x] Unit tests para cada context
 
 ### Subtasks Frontend
-- [ ] Rota: `/admin/plans`
-- [ ] Drag & drop para reordenar
-- [ ] Modal de criacao/edicao
-- [ ] Toggle ativo/inativo inline
+- [x] Rota: `/admin/plans`
+- [x] Reordenacao com botoes up/down (sem drag & drop)
+- [x] Modal de criacao/edicao
+- [x] Toggle ativo/inativo inline
 
 ---
 
@@ -110,11 +110,11 @@ Como administrador do negócio, quero visualizar indicadores de desempenho da pl
 - [x] Filtro de período: `?period=7d|30d|90d|all`.
 
 ### Subtasks Frontend
-- [ ] Rota: `/admin/dashboard` (Página inicial do Admin).
-- [ ] Layout de Grid com Cards de estatísticas.
-- [ ] Integração com `Recharts` para gráficos de Área (Crescimento) e Pizza (Planos).
-- [ ] Select de período para atualizar os dados do Dashboard.
-- [ ] Skeletton loaders para transição de filtros.
+- [x] Rota: `/admin/dashboard` (Página inicial do Admin).
+- [x] Layout de Grid com Cards de estatísticas.
+- [x] Integração com `Recharts` para gráficos de Área (Crescimento) e Pizza (Planos).
+- [x] Select de período para atualizar os dados do Dashboard.
+- [x] Skeleton loaders para transição de filtros.
 
 ### Notas Tecnicas
 - Calcular MRR multiplicando a contagem de assinaturas ativas pelo `price` de cada plano.
