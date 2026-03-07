@@ -1,6 +1,6 @@
 # Epic 03 — Gestao de Alunos
 
-Status: `[ ]` todo
+Status: `[x]` done
 
 ---
 
@@ -19,7 +19,7 @@ Status: `[ ]` todo
 
 ## US-005 — Personal cadastra um aluno
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 2
 **Dependencias:** US-002
 
@@ -87,17 +87,17 @@ O aluno recebera um e-mail com um link para ele mesmo definir sua senha de acess
   - [x] Incluir caso de teste: tentar acessar student de outro tenant → 404
 
 ### Subtasks Frontend
-- [ ] Rota: `/dashboard/students`
-- [ ] Tabela de alunos com paginacao, busca e colunas: nome, e-mail, status, data de cadastro
-- [ ] Rota de criacao: modal ou `/dashboard/students/new`
-- [ ] Formulario com React Hook Form + Zod (nome, e-mail — sem campo de senha)
-- [ ] Feedback apos criacao: "Convite enviado para {email}. O aluno recebera um link para definir sua senha."
-- [ ] Badge de status (ativo/inativo)
-- [ ] Acoes por linha: ver detalhe, editar, desativar
-- [ ] Pagina de detalhe: `/dashboard/students/:id`
-  - Dados do aluno
-  - Treinos atribuidos (US-009)
-  - Proximos agendamentos (US-014)
+- [x] Rota: `/painel/alunos`
+- [x] Tabela de alunos com paginacao, busca e colunas: nome, e-mail, status, data de cadastro
+- [x] Rota de criacao: modal (Dialog) com formulario
+- [x] Formulario com React Hook Form + Zod (nome, e-mail — sem campo de senha)
+- [x] Feedback apos criacao: toast "Convite enviado para {email}..."
+- [x] Badge de status (ativo/inativo)
+- [x] Acoes por linha: ver detalhe, editar (dialog), desativar (AlertDialog)
+- [x] Pagina de detalhe: `/painel/alunos/:id`
+  - Dados do aluno com formulario de edicao inline
+  - Treinos atribuidos (placeholder — US-009)
+  - Proximos agendamentos (placeholder — US-014)
 
 ### Notas Tecnicas
 - O `name` e `email` do aluno vivem em `users` — as queries de listagem fazem JOIN
@@ -118,7 +118,7 @@ O aluno recebera um e-mail com um link para ele mesmo definir sua senha de acess
 
 ## US-005b — Aluno define sua senha via link de convite
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 2
 **Dependencias:** US-005
 
@@ -155,15 +155,15 @@ Como aluno, quero receber um link por e-mail e definir minha propria senha para 
   - Caso: passwords nao coincidem → 400
 
 ### Subtasks Frontend
-- [ ] Pagina publica: `app/[personal-slug]/(personal)/set-password/page.tsx`
-  - Parametro `token` extraido da URL via `searchParams`
-  - Formulario: campo "Nova senha" + campo "Confirmar senha"
+- [x] Pagina publica: `app/[slug-personal]/(personal)/set-password/page.tsx`
+  - Parametro `token` extraido da URL via `useSearchParams()`
+  - Formulario: campo "Nova senha" + campo "Confirmar senha" (com toggle show/hide)
   - Validacao client-side com Zod (min 8 chars, passwords iguais)
   - Submit chama `POST /auth/setup-password`
-  - Estado: loading, erro (token invalido/expirado), sucesso
-- [ ] Apos sucesso: exibir mensagem "Senha definida! Voce ja pode fazer login." + botao para `/{slug}/login`
-- [ ] Token invalido ou expirado: mensagem de erro com orientacao de contato com o personal
-- [ ] Responsivo, mobile-first, usa themeColor do personal (herda do layout do slug)
+  - Estado: loading, erro (token invalido/expirado com orientacao), sucesso
+- [x] Apos sucesso: mensagem + botao para `/{slug}/login`
+- [x] Token ausente na URL: estado de erro especifico
+- [x] Responsivo, mobile-first, usa themeColor do personal (herda do layout)
 
 ### Notas Tecnicas
 - A pagina fica sob `[personal-slug]` para herdar o layout/tema do personal do aluno

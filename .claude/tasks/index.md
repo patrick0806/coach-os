@@ -16,7 +16,7 @@
 | Revisao Arquitetural | [architectural-review.md](architectural-review.md) | [x] | [x] |
 | 01 - Autenticacao e Fundacao | [epic-01-auth.md](epic-01-auth.md) | [x] | [x] |
 | 02 - Perfil e Landing Page | [epic-02-profile-landing.md](epic-02-profile-landing.md) | [x] | [x] |
-| 03 - Gestao de Alunos | [epic-03-students.md](epic-03-students.md) | [x] | [ ] |
+| 03 - Gestao de Alunos | [epic-03-students.md](epic-03-students.md) | [x] | [x] |
 | 04 - Gestao de Treinos | [epic-04-workouts.md](epic-04-workouts.md) | [x] | [ ] |
 | 05 - Agenda e Agendamentos | [epic-05-scheduling.md](epic-05-scheduling.md) | [x] | [ ] |
 | 06 - Planos SaaS e Assinatura | [epic-06-saas-plans.md](epic-06-saas-plans.md) | [x] | [ ] |
@@ -113,4 +113,4 @@ US-015 (Planos SaaS publicos) — independente do auth
 - Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
 
 ### Proximo passo
-US-005 — Gestao de Alunos: tabela paginada, criacao de aluno, convite por e-mail, detalhe e desativacao
+US-007/008/009 — Gestao de Treinos: exercicios, planos de treino com builder e atribuicao a alunos
