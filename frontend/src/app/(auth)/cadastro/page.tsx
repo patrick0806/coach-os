@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Eye, EyeOff, ShieldCheck, TimerReset } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, ShieldCheck, TimerReset } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -86,6 +86,13 @@ export default function CadastroPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 p-4">
+      <Link
+        href="/"
+        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/20"
+      >
+        <ArrowLeft className="size-4" />
+        Voltar para home
+      </Link>
       <div className="absolute left-1/2 top-8 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
       <div className="mx-auto grid min-h-screen w-full max-w-5xl items-center gap-6 py-8 lg:grid-cols-2">
         <section className="hidden lg:block">
