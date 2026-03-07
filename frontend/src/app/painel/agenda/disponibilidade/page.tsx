@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import Link from "next/link";
 
+import { TimeSelect } from "@/components/ui/time-select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +30,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
@@ -103,7 +103,13 @@ function AddSlotDialog({ dayOfWeek, open, onOpenChange, onAdded }: AddSlotDialog
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="slot-start">Início</Label>
-              <Input id="slot-start" type="time" {...form.register("startTime")} />
+              <Controller
+                name="startTime"
+                control={form.control}
+                render={({ field }) => (
+                  <TimeSelect id="slot-start" value={field.value} onChange={field.onChange} />
+                )}
+              />
               {form.formState.errors.startTime ? (
                 <p className="text-sm text-destructive">
                   {form.formState.errors.startTime.message}
@@ -112,7 +118,13 @@ function AddSlotDialog({ dayOfWeek, open, onOpenChange, onAdded }: AddSlotDialog
             </div>
             <div className="space-y-2">
               <Label htmlFor="slot-end">Término</Label>
-              <Input id="slot-end" type="time" {...form.register("endTime")} />
+              <Controller
+                name="endTime"
+                control={form.control}
+                render={({ field }) => (
+                  <TimeSelect id="slot-end" value={field.value} onChange={field.onChange} />
+                )}
+              />
               {form.formState.errors.endTime ? (
                 <p className="text-sm text-destructive">
                   {form.formState.errors.endTime.message}

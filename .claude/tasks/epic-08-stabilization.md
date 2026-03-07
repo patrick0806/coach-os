@@ -35,10 +35,10 @@ Criar um componente `TimeSelect` reutilizável com dois `<Select>` (shadcn): um 
 - [ ] Aparência consistente com os demais selects shadcn do sistema
 
 ### Subtasks
-- [ ] Criar `TimeSelect` component com lista de horas 00–23 e minutos com step 5
-- [ ] Integrar `TimeSelect` no `AddSlotDialog` (disponibilidade/page.tsx)
+- [x] Criar `TimeSelect` component com lista de horas 00–23 e minutos com step 5
+- [x] Integrar `TimeSelect` no `AddSlotDialog` (disponibilidade/page.tsx)
 - [ ] Testar no Chrome/macOS — confirmar ausência de AM/PM
-- [ ] Garantir que o schema Zod `slotSchema` ainda valida `startTime < endTime`
+- [x] Garantir que o schema Zod `slotSchema` ainda valida `startTime < endTime`
 
 ---
 
