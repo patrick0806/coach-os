@@ -7,6 +7,7 @@ import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { AdminsRepository } from "@shared/repositories/admins.repository";
 import { PasswordSetupTokensRepository } from "@shared/repositories/password-setup-tokens.repository";
+import { PlansRepository } from "@shared/repositories/plans.repository";
 import { env } from "@config/env";
 
 import { JwtStrategy, LocalStrategy } from "./strategies";
@@ -49,6 +50,7 @@ import { SetupPasswordService } from "./contexts/setup-password/setup-password.s
     StudentsRepository,
     AdminsRepository,
     PasswordSetupTokensRepository,
+    PlansRepository,
   ],
   exports: [
     UsersRepository,

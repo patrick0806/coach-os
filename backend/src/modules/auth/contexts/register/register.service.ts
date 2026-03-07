@@ -1,9 +1,10 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import * as argon2 from "argon2";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
+import { PlansRepository } from "@shared/repositories/plans.repository";
 import { generateUniqueSlug } from "@shared/utils";
 import { ApplicationRoles } from "@shared/enums";
 import { env } from "@config/env";
@@ -15,6 +16,7 @@ export class RegisterService {
   constructor(
     private usersRepository: UsersRepository,
     private personalsRepository: PersonalsRepository,
+    private plansRepository: PlansRepository,
     private drizzle: DrizzleProvider,
   ) {}
 
@@ -25,6 +27,12 @@ export class RegisterService {
     }
 
     const slug = await generateUniqueSlug(dto.name, this.personalsRepository);
+    const activePlans = await this.plansRepository.findAllActive();
+    const basicPlan =
+      activePlans.find((plan) => plan.name.toLowerCase() === "basico") ?? activePlans[0];
+    if (!basicPlan) {
+      throw new NotFoundException("Nenhum plano ativo disponível para cadastro");
+    }
 
     const hashedPassword = await argon2.hash(
       dto.password + env.HASH_PEPPER,
@@ -53,6 +61,9 @@ export class RegisterService {
           trialStartedAt: now,
           trialEndsAt,
           accessStatus: "trialing",
+          subscriptionPlanId: basicPlan.id,
+          subscriptionStatus: "trialing",
+          subscriptionExpiresAt: trialEndsAt,
         },
         tx,
       );

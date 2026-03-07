@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ConflictException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from "@nestjs/common";
 
 import { RegisterService } from "../register.service";
 
@@ -44,6 +44,9 @@ describe("RegisterService", () => {
     findBySlug: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
   };
+  let plansRepository: {
+    findAllActive: ReturnType<typeof vi.fn>;
+  };
   let drizzleProvider: {
     db: { transaction: ReturnType<typeof vi.fn> };
   };
@@ -57,6 +60,9 @@ describe("RegisterService", () => {
       findBySlug: vi.fn(),
       create: vi.fn(),
     };
+    plansRepository = {
+      findAllActive: vi.fn(),
+    };
     drizzleProvider = {
       db: {
         transaction: vi.fn(),
@@ -66,6 +72,7 @@ describe("RegisterService", () => {
     service = new RegisterService(
       usersRepository as any,
       personalsRepository as any,
+      plansRepository as any,
       drizzleProvider as any,
     );
   });
@@ -80,6 +87,9 @@ describe("RegisterService", () => {
 
       usersRepository.findByEmail.mockResolvedValue(null);
       personalsRepository.findBySlug.mockResolvedValue(null);
+      plansRepository.findAllActive.mockResolvedValue([
+        { id: "plan-basico-id", name: "Basico" },
+      ]);
 
       drizzleProvider.db.transaction.mockImplementation(async (cb: any) => {
         usersRepository.create.mockResolvedValue(mockUser);
@@ -131,6 +141,9 @@ describe("RegisterService", () => {
       personalsRepository.findBySlug
         .mockResolvedValueOnce({ slug: "john-doe" })
         .mockResolvedValueOnce(null);
+      plansRepository.findAllActive.mockResolvedValue([
+        { id: "plan-basico-id", name: "Basico" },
+      ]);
 
       drizzleProvider.db.transaction.mockImplementation(async (cb: any) => {
         usersRepository.create.mockResolvedValue(mockUser);
@@ -156,11 +169,29 @@ describe("RegisterService", () => {
 
       usersRepository.findByEmail.mockResolvedValue(null);
       personalsRepository.findBySlug.mockResolvedValue(null);
+      plansRepository.findAllActive.mockResolvedValue([
+        { id: "plan-basico-id", name: "Basico" },
+      ]);
       drizzleProvider.db.transaction.mockRejectedValue(
         new Error("Database error"),
       );
 
       await expect(service.execute(dto)).rejects.toThrow("Database error");
+    });
+
+    it("should throw NotFoundException when there is no active plan", async () => {
+      const dto = {
+        name: "John Doe",
+        email: "john@example.com",
+        password: "password123",
+      };
+
+      usersRepository.findByEmail.mockResolvedValue(null);
+      personalsRepository.findBySlug.mockResolvedValue(null);
+      plansRepository.findAllActive.mockResolvedValue([]);
+
+      await expect(service.execute(dto)).rejects.toThrow(NotFoundException);
+      expect(drizzleProvider.db.transaction).not.toHaveBeenCalled();
     });
   });
 });

@@ -94,42 +94,6 @@ async function seed() {
     console.log("Inserting admin profile...");
     await db.insert(admins).values({ userId: adminUser.id });
 
-    // --- PERSONALS ---
-    console.log("Inserting personal profile...");
-    const personalData = {
-      userId: personalUser.id,
-      slug: "personal-trainer",
-      bio: "Personal trainer certificado com mais de 10 anos de experiencia em treinamento funcional e musculacao.",
-      profilePhoto: "https://i.pravatar.cc/300?img=12",
-      themeColor: "#10b981",
-      phoneNumber: "+5511999887766",
-      lpTitle: "Transforme seu corpo, transforme sua vida!",
-      lpSubtitle:
-        "Treinos personalizados e acompanhamento profissional para voce alcancar seus objetivos.",
-      lpHeroImage:
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200",
-      lpAboutTitle: "Sobre Mim",
-      lpAboutText:
-        "Sou formado em Educacao Fisica e especializado em treinamento funcional. Minha missao e ajudar voce a conquistar seus objetivos de forma saudavel e sustentavel.",
-      lpImage1:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
-      lpImage2:
-        "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800",
-      lpImage3:
-        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
-    };
-    const [insertedPersonal] = await db
-      .insert(personals)
-      .values(personalData)
-      .returning();
-
-    // --- STUDENTS ---
-    console.log("Inserting student profile...");
-    await db.insert(students).values({
-      userId: studentUser.id,
-      personalId: insertedPersonal.id,
-    });
-
     // --- SAAS PLANS ---
     console.log("Inserting SaaS plans...");
     const plansData = [
@@ -164,7 +128,56 @@ async function seed() {
         maxStudents: null,
       },
     ];
-    await db.insert(plans).values(plansData);
+    const insertedPlans = await db.insert(plans).values(plansData).returning();
+    const basicPlan = insertedPlans.find((plan) => plan.name.toLowerCase() === "basico");
+    if (!basicPlan) {
+      throw new Error("Plano Basico não encontrado no seed");
+    }
+
+    // --- PERSONALS ---
+    console.log("Inserting personal profile...");
+    const now = new Date();
+    const trialEndsAt = new Date(now);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+    const personalData = {
+      userId: personalUser.id,
+      slug: "personal-trainer",
+      bio: "Personal trainer certificado com mais de 10 anos de experiencia em treinamento funcional e musculacao.",
+      profilePhoto: "https://i.pravatar.cc/300?img=12",
+      themeColor: "#10b981",
+      phoneNumber: "+5511999887766",
+      lpTitle: "Transforme seu corpo, transforme sua vida!",
+      lpSubtitle:
+        "Treinos personalizados e acompanhamento profissional para voce alcancar seus objetivos.",
+      lpHeroImage:
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200",
+      lpAboutTitle: "Sobre Mim",
+      lpAboutText:
+        "Sou formado em Educacao Fisica e especializado em treinamento funcional. Minha missao e ajudar voce a conquistar seus objetivos de forma saudavel e sustentavel.",
+      lpImage1:
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800",
+      lpImage2:
+        "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800",
+      lpImage3:
+        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
+      trialStartedAt: now,
+      trialEndsAt,
+      accessStatus: "trialing",
+      subscriptionPlanId: basicPlan.id,
+      subscriptionStatus: "trialing",
+      subscriptionExpiresAt: trialEndsAt,
+    };
+    const [insertedPersonal] = await db
+      .insert(personals)
+      .values(personalData)
+      .returning();
+
+    // --- STUDENTS ---
+    console.log("Inserting student profile...");
+    await db.insert(students).values({
+      userId: studentUser.id,
+      personalId: insertedPersonal.id,
+    });
 
     // --- EXERCISES ---
     console.log("Inserting global exercises...");
@@ -246,8 +259,11 @@ async function seed() {
 
 async function main() {
   const args = process.argv.slice(2);
-  const shouldClean = args.includes("--clean") || args.includes("-c");
-  const onlyClean = args.includes("--only-clean");
+  const npmCleanFlag = process.env.npm_config_clean === "true";
+  const npmOnlyCleanFlag = process.env.npm_config_only_clean === "true";
+
+  const shouldClean = args.includes("--clean") || args.includes("-c") || npmCleanFlag;
+  const onlyClean = args.includes("--only-clean") || npmOnlyCleanFlag;
 
   try {
     if (onlyClean) {

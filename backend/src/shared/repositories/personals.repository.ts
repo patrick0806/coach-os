@@ -45,6 +45,9 @@ export interface CreatePersonalInput {
   trialStartedAt?: Date;
   trialEndsAt?: Date;
   accessStatus?: string;
+  subscriptionPlanId?: string;
+  subscriptionStatus?: string;
+  subscriptionExpiresAt?: Date;
 }
 
 @Injectable()
