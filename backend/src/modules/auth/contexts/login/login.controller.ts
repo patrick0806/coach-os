@@ -23,7 +23,7 @@ const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60;
 @ApiTags(API_TAGS.AUTH)
 @Controller({ version: "1", path: "login" })
 export class LoginController {
-  constructor(private readonly loginService: LoginService) {}
+  constructor(private readonly loginService: LoginService) { }
 
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -33,6 +33,7 @@ export class LoginController {
     @Body() body: unknown,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<LoginResponseDTO> {
+    console.log("Here we go")
     const dto = validate(LoginRequestSchema, body);
     const result = await this.loginService.execute(dto);
 

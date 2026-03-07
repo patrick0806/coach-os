@@ -11,12 +11,14 @@ import { SwaggerConfig } from "@config/swagger/swagger.config";
 import { API_BASE_PATH } from "@shared/constants";
 import { logger } from "@config/pino.config";
 import {
+  AllExceptionsFilter,
   HttpExceptionFilter,
   ValidationExceptionFilter,
 } from "@shared/filters";
 import { BuildResponseInterceptor } from "@shared/interceptors";
 
 import { AppModule } from "./app.module";
+import { env } from "@config/env";
 
 // Extend FastifyRequest to carry the raw body buffer for webhook signature validation
 declare module "fastify" {
@@ -72,13 +74,14 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new BuildResponseInterceptor());
   app.useGlobalFilters(
+    new AllExceptionsFilter(),
     new ValidationExceptionFilter(),
-    new HttpExceptionFilter()
+    new HttpExceptionFilter(),
   );
 
   app.enableCors({
-    origin: isDev ? "*" : "https://referer.com",
-    //credentials: true,
+    origin: isDev ? env.CORS_ORIGINS.split(",") : "https://referer.com",
+    credentials: true,
     exposedHeaders: ["Access-Token", "Refresh-Token"],
   });
 
