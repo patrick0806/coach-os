@@ -1,6 +1,6 @@
 # Epic 01 — Autenticacao e Fundacao
 
-Status: `[ ]` todo
+Status: `[x]` done
 
 > **Revisao aplicada:** ver [architectural-review.md](architectural-review.md)
 > US-006 (Login do Aluno) foi absorvida por US-002. Um unico endpoint de login atende todos os roles.

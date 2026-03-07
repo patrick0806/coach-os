@@ -14,8 +14,8 @@
 | Epic | Arquivo | Backend | Frontend |
 |------|---------|---------|----------|
 | Revisao Arquitetural | [architectural-review.md](architectural-review.md) | [x] | [x] |
-| 01 - Autenticacao e Fundacao | [epic-01-auth.md](epic-01-auth.md) | [x] | [ ] |
-| 02 - Perfil e Landing Page | [epic-02-profile-landing.md](epic-02-profile-landing.md) | [x] | [ ] |
+| 01 - Autenticacao e Fundacao | [epic-01-auth.md](epic-01-auth.md) | [x] | [x] |
+| 02 - Perfil e Landing Page | [epic-02-profile-landing.md](epic-02-profile-landing.md) | [x] | [x] |
 | 03 - Gestao de Alunos | [epic-03-students.md](epic-03-students.md) | [x] | [ ] |
 | 04 - Gestao de Treinos | [epic-04-workouts.md](epic-04-workouts.md) | [x] | [ ] |
 | 05 - Agenda e Agendamentos | [epic-05-scheduling.md](epic-05-scheduling.md) | [x] | [ ] |
@@ -85,12 +85,32 @@ US-015 (Planos SaaS publicos) — independente do auth
 - Seed com dados iniciais (3 usuários, 3 planos SaaS, 50 exercícios globais)
 - Swagger disponível em http://localhost:3000/api/docs
 
-### Frontend — pendente (0% implementado)
-- Next.js 16 + React 19 + Tailwind 4 configurados
-- shadcn/ui base: button, card, input, select, textarea, alert-dialog, badge, combobox,
-  dropdown-menu, field, input-group, label, separator
-- Layout raiz e página inicial vazios
-- **Contrato de API documentado em:** `docs/frontend.md`
+### Frontend — em andamento (atualizado 2026-03-07)
 
-### Próximo passo
-Acionar o agente frontend com `docs/frontend.md` como contexto principal + epic files correspondentes.
+**Epic 01 — Autenticacao e Fundacao:** `[x]` completo
+- `/cadastro` — registro de personal (React Hook Form + Zod, toggle senha, erros por campo)
+- `/login` — login unificado com redirect por role
+- `AuthProvider` — accessToken em memoria, signIn/signOut
+- `middleware.ts` — protecao de rotas por role (PERSONAL/STUDENT/ADMIN)
+- `api.ts` — axios com interceptor de refresh token automatico (401 → refresh → retry)
+- `QueryProvider`, `AppProvider` configurados
+
+**Epic 02 — Perfil e Landing Page:** `[~]` em andamento
+- US-003 `[x]` — `/painel/perfil` implementado:
+  - Layout com sidebar responsiva (desktop: sidebar fixa, mobile: drawer com hamburger)
+  - Formulario completo: dados pessoais, cor do tema, upload de foto, campos da LP
+  - Color picker nativo + input hex sincronizados
+  - Upload de imagens via `POST /personals/me/profile/upload` com preview
+  - React Query para fetch/mutacao + invalidacao de cache
+  - Feedback de sucesso/erro inline
+- US-004 `[x]` — Landing page publica `/{slug}` implementada (SSR, generateMetadata, 4 seções, 404 customizado)
+
+**Epics 03–07:** `[ ]` pendentes
+
+**Estrutura base do painel:**
+- `PainelShell` — layout responsivo com sidebar desktop + drawer mobile
+- `PainelSidebar` — navegacao com active state e logout
+- Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
+
+### Proximo passo
+US-005 — Gestao de Alunos: tabela paginada, criacao de aluno, convite por e-mail, detalhe e desativacao

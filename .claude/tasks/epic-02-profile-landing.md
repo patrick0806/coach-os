@@ -1,6 +1,6 @@
 # Epic 02 — Perfil do Personal e Landing Page
 
-Status: `[ ]` todo
+Status: `[x]` done
 
 ---
 
@@ -39,12 +39,12 @@ Como personal trainer, quero configurar meu perfil profissional para personaliza
 - [x] `upload-image.controller.spec.ts` + `upload-image.service.spec.ts`
 
 ### Subtasks Frontend
-- [ ] Rota: `/dashboard/profile`
-- [ ] Formulario de edicao de perfil com preview de imagem
-- [ ] Color picker para `themeColor`
-- [ ] Upload de imagens com preview (foto, hero, imagens da LP)
-- [ ] React Query para buscar e atualizar perfil (invalidar cache apos update)
-- [ ] Feedback de sucesso/erro
+- [x] Rota: `/painel/perfil` (equivalente a `/dashboard/profile`, em portugues conforme padrao do projeto)
+- [x] Formulario de edicao de perfil com preview de imagem
+- [x] Color picker para `themeColor`
+- [x] Upload de imagens com preview (foto, hero, imagens da LP)
+- [x] React Query para buscar e atualizar perfil (invalidar cache apos update)
+- [x] Feedback de sucesso/erro
 
 ### Notas Tecnicas
 - Configurar AWS SDK com credenciais via `ConfigService` (nunca hardcoded)
@@ -55,7 +55,7 @@ Como personal trainer, quero configurar meu perfil profissional para personaliza
 
 ## US-004 — Landing Page publica do Personal
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 2
 **Dependencias:** US-003
 
@@ -83,15 +83,15 @@ Como visitante, quero acessar a pagina publica de um personal trainer pelo seu s
 - [x] `get-public-profile.controller.spec.ts` + `get-public-profile.service.spec.ts`
 
 ### Subtasks Frontend
-- [ ] `app/[personal-slug]/(personal)/page.tsx` com SSR
-- [ ] `app/[personal-slug]/(personal)/layout.tsx` com CSS variable de themeColor
-- [ ] Secao Hero (titulo, subtitulo, hero image, CTA)
-- [ ] Secao About (about title, about text, galeria de fotos)
-- [ ] Secao Plans (cards dos service plans)
-- [ ] Secao Contact (botao WhatsApp)
-- [ ] `generateMetadata` dinamico
-- [ ] Responsivo mobile-first
-- [ ] Pagina 404 customizada para slug inexistente
+- [x] `app/[slug-personal]/(personal)/page.tsx` com SSR
+- [x] `app/[slug-personal]/(personal)/layout.tsx` com CSS variable de themeColor
+- [x] Secao Hero (titulo, subtitulo, hero image, CTA WhatsApp)
+- [x] Secao About (about title, about text, galeria de fotos)
+- [x] Secao Plans (cards dos service plans com preco, sessoes/semana, duracao)
+- [x] Secao Contact (botao WhatsApp com mensagem pre-preenchida)
+- [x] `generateMetadata` dinamico (title, description, og:image)
+- [x] Responsivo mobile-first
+- [x] Pagina 404 customizada para slug inexistente (`not-found.tsx`)
 
 ### Notas Tecnicas
 - Landing page nao segue regra de dark/light mode — usa themeColor do personal
