@@ -19,7 +19,7 @@ import { login, register as registerUser } from "@/services/auth.service";
 const registerSchema = z
   .object({
     name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres."),
-    email: z.string().email("Informe um e-mail valido."),
+    email: z.email("Informe um e-mail valido."),
     password: z.string().min(8, "A senha deve ter no minimo 8 caracteres."),
     confirmPassword: z.string().min(1, "Confirme sua senha."),
   })

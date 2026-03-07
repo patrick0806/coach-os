@@ -107,7 +107,7 @@ export class WorkoutPlansRepository {
 
     const plan = rows[0].plan;
     const exerciseRows: WorkoutExerciseRow[] = rows
-      .filter((r) => r.we.id !== null)
+      .filter((r) => r.we !== null && r.we.id !== null)
       .map((r) => ({
         id: r.we.id!,
         exerciseId: r.we.exerciseId!,

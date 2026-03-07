@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { login } from "@/services/auth.service";
 
 const loginSchema = z.object({
-  email: z.string().email("Informe um e-mail valido."),
+  email: z.email("Informe um e-mail valido."),
   password: z.string().min(1, "Informe sua senha."),
 });
 

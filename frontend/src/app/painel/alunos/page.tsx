@@ -60,7 +60,7 @@ import {
 
 const studentFormSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  email: z.string().email("Informe um e-mail válido"),
+  email: z.email("Informe um e-mail válido"),
 });
 
 type StudentFormValues = z.infer<typeof studentFormSchema>;
