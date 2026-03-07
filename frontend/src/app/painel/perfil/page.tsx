@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -103,8 +104,6 @@ function ImageUploadButton({ label, isUploading, onUpload }: ImageUploadButtonPr
 export default function PerfilPage() {
   const queryClient = useQueryClient();
   const [uploadingField, setUploadingField] = useState<ImageField | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["personals", "me", "profile"],
@@ -163,12 +162,10 @@ export default function PerfilPage() {
     mutationFn: updateMyProfile,
     onSuccess: (data) => {
       queryClient.setQueryData(["personals", "me", "profile"], data);
-      setSaveSuccess(true);
-      setSaveError(null);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      toast.success("Perfil atualizado com sucesso!");
     },
     onError: (error) => {
-      setSaveError(getApiErrorMessage(error, "Não foi possível salvar as alterações."));
+      toast.error(getApiErrorMessage(error, "Não foi possível salvar as alterações."));
     },
   });
 
@@ -178,16 +175,13 @@ export default function PerfilPage() {
       const { url } = await uploadProfileImage(file);
       setValue(field, url);
     } catch (error) {
-      setSaveError(getApiErrorMessage(error, "Erro ao enviar imagem."));
+      toast.error(getApiErrorMessage(error, "Erro ao enviar imagem."));
     } finally {
       setUploadingField(null);
     }
   }
 
   async function onSubmit(values: ProfileFormValues) {
-    setSaveSuccess(false);
-    setSaveError(null);
-
     const or = (v: string) => (v.trim() ? v : undefined);
 
     const payload: UpdateProfilePayload = {
@@ -223,7 +217,7 @@ export default function PerfilPage() {
   }
 
   return (
-    <div className="p-4 sm:p-8">
+    <div className="mx-auto max-w-3xl p-4 sm:p-8">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Meu Perfil</h1>
@@ -258,7 +252,7 @@ export default function PerfilPage() {
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Dados pessoais */}
         <Card>
           <CardHeader>
@@ -456,15 +450,10 @@ export default function PerfilPage() {
         </Card>
 
         {/* Submit */}
-        <div className="flex flex-wrap items-center gap-4 pb-8">
+        <div className="pb-8">
           <Button type="submit" disabled={updateMutation.isPending}>
             {updateMutation.isPending ? "Salvando..." : "Salvar alterações"}
           </Button>
-
-          {saveSuccess ? (
-            <p className="text-sm text-emerald-600">Perfil atualizado com sucesso!</p>
-          ) : null}
-          {saveError ? <p className="text-sm text-destructive">{saveError}</p> : null}
         </div>
       </form>
     </div>

@@ -82,6 +82,7 @@ async function bootstrap() {
   app.enableCors({
     origin: isDev ? env.CORS_ORIGINS.split(",") : "https://referer.com",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     exposedHeaders: ["Access-Token", "Refresh-Token"],
   });
 
