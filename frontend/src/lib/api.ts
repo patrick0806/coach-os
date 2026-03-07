@@ -28,8 +28,9 @@ api.interceptors.response.use(
 
     const originalConfig = error.config as typeof error.config & { _retry?: boolean };
     const statusCode = error.response?.status;
+    const isAuthEndpoint = (originalConfig.url ?? "").includes("/auth/");
 
-    if (statusCode !== 401 || originalConfig._retry) {
+    if (statusCode !== 401 || originalConfig._retry || isAuthEndpoint) {
       return Promise.reject(error);
     }
 
