@@ -141,7 +141,7 @@ export default function AdminPersonalDetailPage({ params }: AdminPersonalDetailP
           </CardHeader>
           <Separator className="bg-border/50" />
           <CardContent className="grid gap-3 pt-4 sm:grid-cols-2">
-            <InfoRow label="Plano" value={personal.planName ?? "—"} />
+            <InfoRow label="Plano" value={personal.subscriptionPlanName ?? "—"} />
             <InfoRow
               label="Status"
               value={

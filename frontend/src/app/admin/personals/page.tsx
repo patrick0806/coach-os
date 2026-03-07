@@ -144,9 +144,9 @@ export default function AdminPersonalsPage() {
                       {p.email}
                     </td>
                     <td className="hidden px-4 py-3 lg:table-cell">
-                      {p.planName ? (
+                      {p.subscriptionPlanName ? (
                         <Badge variant="secondary" className="text-xs">
-                          {p.planName}
+                          {p.subscriptionPlanName}
                         </Badge>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>

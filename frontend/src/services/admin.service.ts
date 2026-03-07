@@ -9,7 +9,7 @@ export interface AdminPersonal {
   email: string;
   slug: string;
   isActive: boolean;
-  planName: string | null;
+  subscriptionPlanName: string | null;
   subscriptionStatus: string | null;
   createdAt: string;
 }

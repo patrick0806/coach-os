@@ -205,6 +205,7 @@ export default function AssinaturaPage() {
     subscription?.status === "inactive" ||
     subscription?.status === "expired";
   const isTrialing = subscription?.status === "trialing";
+  const hasStripeSubscription = Boolean(subscription?.stripeSubscriptionId);
 
   // Plans available for upgrade (higher order than current)
   const currentPlanOrder =
@@ -313,7 +314,7 @@ export default function AssinaturaPage() {
                 ) : null}
 
                 {/* Actions for active subscribers */}
-                {isActive ? (
+                {isActive && hasStripeSubscription ? (
                   <div className="flex flex-wrap gap-2 pt-1">
                     <Button
                       variant="outline"
@@ -339,7 +340,7 @@ export default function AssinaturaPage() {
             </Card>
 
             {/* Upgrade section */}
-            {isActive && upgradePlans.length > 0 ? (
+            {isActive && hasStripeSubscription && upgradePlans.length > 0 ? (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -387,7 +388,7 @@ export default function AssinaturaPage() {
             ) : null}
 
             {/* No subscription — plan selection */}
-            {!isActive ? (
+            {!hasStripeSubscription ? (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Escolha um plano</CardTitle>
@@ -395,7 +396,7 @@ export default function AssinaturaPage() {
                 <Separator />
                 <CardContent className="pt-4">
                   <PlanSelectSection
-                    currentPlanId={subscription?.planId ?? null}
+                    currentPlanId={isTrialing ? null : (subscription?.planId ?? null)}
                     onCheckout={(planId) => checkoutMutation.mutate(planId)}
                     isPending={checkoutMutation.isPending}
                   />
