@@ -1,6 +1,6 @@
 # Epic 08 — Estabilização da Base (Quality & UX)
 
-Status: `[ ]` todo
+Status: `[~]` in progress
 
 > Épico de melhoria de qualidade antes de novas features.
 > Foco em UX crítica, code quality e robustez.
@@ -10,7 +10,7 @@ Status: `[ ]` todo
 
 ## US-IMP-01 — Time Picker 24h no módulo de Disponibilidade e Agendamento
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Prioridade:** 🔴 Alta
 **Dependências:** nenhuma
 
@@ -25,26 +25,26 @@ O campo `<Input type="time">` exibe o seletor em formato AM/PM no macOS Safari e
 Criar um componente `TimeSelect` reutilizável com dois `<Select>` (shadcn): um para hora (00–23) e um para minuto (00, 15, 30, 45 ou 00–59 com step 5). Isso garante exibição em 24h em qualquer navegador/OS.
 
 ### Critérios de Aceite
-- [ ] Componente `TimeSelect` em `frontend/src/components/ui/time-select.tsx`
+- [x] Componente `TimeSelect` em `frontend/src/components/ui/time-select.tsx`
   - Props: `value: string` (formato `HH:mm`), `onChange: (value: string) => void`, `disabled?: boolean`
   - Dois selects: horas (00–23) e minutos (00, 05, 10, ..., 55)
   - Output sempre no formato `HH:mm` (ex: `"09:00"`, `"14:30"`)
-- [ ] Substituir `<Input type="time">` no formulário de adicionar slot de disponibilidade pelo `TimeSelect`
-- [ ] Substituir `<Input type="time">` no formulário de edição de slot pelo `TimeSelect` (se existir)
-- [ ] Validação de `startTime < endTime` deve continuar funcionando após a substituição
-- [ ] Aparência consistente com os demais selects shadcn do sistema
+- [x] Substituir `<Input type="time">` no formulário de adicionar slot de disponibilidade pelo `TimeSelect`
+- [x] Substituir `<Input type="time">` no formulário de edição de slot pelo `TimeSelect` (se existir)
+- [x] Validação de `startTime < endTime` deve continuar funcionando após a substituição
+- [x] Aparência consistente com os demais selects shadcn do sistema
 
 ### Subtasks
 - [x] Criar `TimeSelect` component com lista de horas 00–23 e minutos com step 5
 - [x] Integrar `TimeSelect` no `AddSlotDialog` (disponibilidade/page.tsx)
-- [ ] Testar no Chrome/macOS — confirmar ausência de AM/PM
+- [x] Testar no Chrome/macOS — confirmar ausência de AM/PM
 - [x] Garantir que o schema Zod `slotSchema` ainda valida `startTime < endTime`
 
 ---
 
 ## US-IMP-02 — Dashboard do Personal com KPIs
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Prioridade:** 🔴 Alta
 **Dependências:** nenhuma (dados já existem via APIs implementadas)
 
@@ -58,15 +58,15 @@ A home do personal trainer (`/painel`) exibe apenas "Bem-vindo ao seu painel de 
 Implementar um dashboard de visão geral com KPIs e atalhos rápidos, consumindo APIs já existentes no backend.
 
 ### Critérios de Aceite
-- [ ] Card: total de alunos ativos com link para `/painel/alunos`
-- [ ] Card: sessões agendadas para hoje com link para `/painel/agenda`
-- [ ] Card: próxima sessão do dia (horário + nome do aluno)
-- [ ] Card: total de planos de treino criados com link para `/painel/treinos`
-- [ ] Seção "Próximas sessões" — lista as 5 sessões mais próximas (status `scheduled`)
-- [ ] Estado vazio amigável quando não há dados (ex: coach novo sem alunos)
-- [ ] Atalho para "Configurar perfil" se a bio ou foto estiver ausente (onboarding hint)
-- [ ] Skeleton loading enquanto carrega
-- [ ] Layout responsivo (cards em grid 2x2 no desktop, coluna única no mobile)
+- [x] Card: total de alunos ativos com link para `/painel/alunos`
+- [x] Card: sessões agendadas para hoje com link para `/painel/agenda`
+- [x] Card: próxima sessão do dia (horário + nome do aluno)
+- [x] Card: total de planos de treino criados com link para `/painel/treinos`
+- [x] Seção "Próximas sessões" — lista as 5 sessões mais próximas (status `scheduled`)
+- [x] Estado vazio amigável quando não há dados (ex: coach novo sem alunos)
+- [x] Atalho para "Configurar perfil" se a bio ou foto estiver ausente (onboarding hint)
+- [x] Skeleton loading enquanto carrega
+- [x] Layout responsivo (cards em grid 2x2 no desktop, coluna única no mobile)
 
 ### APIs a consumir (já implementadas)
 - `GET /students?size=1` — usa `totalElements` para contagem de alunos ativos
@@ -76,15 +76,15 @@ Implementar um dashboard de visão geral com KPIs e atalhos rápidos, consumindo
 - `GET /personals/me/profile` — para verificar se perfil está completo
 
 ### Subtasks
-- [ ] Implementar componente `StatCard` (ícone + label + valor + link) — reutilizável
-- [ ] Query: alunos ativos totais
-- [ ] Query: sessões agendadas hoje
-- [ ] Query: próximas 5 sessões (próximos 7 dias)
-- [ ] Query: total de planos de treino
-- [ ] Seção "Próximas sessões" com mini-cards
-- [ ] Hint de onboarding condicional (se sem foto/bio)
-- [ ] Skeleton loading para cada card
-- [ ] Responsividade mobile
+- [x] Implementar componente `StatCard` (ícone + label + valor + link) — reutilizável
+- [x] Query: alunos ativos totais
+- [x] Query: sessões agendadas hoje
+- [x] Query: próximas 5 sessões (próximos 7 dias)
+- [x] Query: total de planos de treino
+- [x] Seção "Próximas sessões" com mini-cards
+- [x] Hint de onboarding condicional (se sem foto/bio)
+- [x] Skeleton loading para cada card
+- [x] Responsividade mobile
 
 ---
 
