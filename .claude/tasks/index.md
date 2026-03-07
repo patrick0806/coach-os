@@ -21,6 +21,7 @@
 | 05 - Agenda e Agendamentos | [epic-05-scheduling.md](epic-05-scheduling.md) | [x] | [x] |
 | 06 - Planos SaaS e Assinatura | [epic-06-saas-plans.md](epic-06-saas-plans.md) | [x] | [x] |
 | 07 - Area do Admin | [epic-07-admin.md](epic-07-admin.md) | [x] | [x] |
+| 08 - Estabilizacao da Base (Quality & UX) | [epic-08-stabilization.md](epic-08-stabilization.md) | — | `[ ]` |
 
 ## Roadmap por Sprint
 
@@ -123,4 +124,4 @@ US-015 (Planos SaaS publicos) — independente do auth
 - Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
 
 ### Proximo passo
-Todos os épicos 01–07 estão completos (frontend e backend). Projeto pronto para QA/testes integrados.
+Epic 08 — Estabilização da Base em andamento. Ordem de execução: US-IMP-01 → US-IMP-02 → US-IMP-03 → US-IMP-04 → US-IMP-05 → US-IMP-06 → US-IMP-07.
