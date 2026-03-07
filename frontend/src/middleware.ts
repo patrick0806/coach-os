@@ -28,7 +28,7 @@ function decodeAccessTokenPayload(token: string): AccessTokenPayload | null {
 }
 
 function isStudentRoute(pathname: string) {
-  return /^\/[^/]+\/alunos(?:\/|$)/.test(pathname);
+  return /^\/(?!painel|admin)[^/]+\/alunos(?:\/|$)/.test(pathname);
 }
 
 function buildLoginRedirect(request: NextRequest) {
