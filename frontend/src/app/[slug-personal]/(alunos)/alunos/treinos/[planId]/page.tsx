@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MUSCLE_GROUP_COLORS, MUSCLE_GROUP_LABELS, type MuscleGroup } from "@/services/exercises.service";
 import { getMeWorkoutPlan } from "@/services/workout-plans.service";
 
@@ -26,9 +27,14 @@ export default function AlunoTreinoDetailPage({ params }: AlunoTreinoDetailPageP
   if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl p-4 sm:p-8">
+        <div className="mb-6 space-y-2">
+          <Skeleton className="h-4 w-24 bg-accent" />
+          <Skeleton className="h-8 w-56 bg-accent" />
+          <Skeleton className="h-4 w-72 bg-accent" />
+        </div>
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-accent" />
+            <Skeleton key={i} className="h-16 rounded-xl bg-accent" />
           ))}
         </div>
       </div>

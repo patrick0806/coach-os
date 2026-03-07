@@ -1,6 +1,6 @@
 # Epic 08 — Estabilização da Base (Quality & UX)
 
-Status: `[~]` in progress
+Status: `[x]` done
 
 > Épico de melhoria de qualidade antes de novas features.
 > Foco em UX crítica, code quality e robustez.
@@ -181,7 +181,7 @@ Nenhuma rota do painel ou da área do aluno tem `error.tsx` do Next.js. Um erro 
 
 ## US-IMP-06 — Componente WhatsAppIcon reutilizável
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Prioridade:** 🟢 Baixa
 **Dependências:** nenhuma
 
@@ -192,21 +192,21 @@ O SVG do ícone do WhatsApp está duplicado inline em dois lugares na landing pa
 - `frontend/src/app/[slug-personal]/(personal)/page.tsx`
 
 ### Critérios de Aceite
-- [ ] Componente `WhatsAppIcon` em `frontend/src/components/ui/whatsapp-icon.tsx`
+- [x] Componente `WhatsAppIcon` em `frontend/src/components/ui/whatsapp-icon.tsx`
   - Props: `className?: string`
   - SVG extraído do inline atual
-- [ ] Substituir os dois SVGs inline na landing page pelo componente
-- [ ] Comportamento visual idêntico ao atual
+- [x] Substituir os dois SVGs inline na landing page pelo componente
+- [x] Comportamento visual idêntico ao atual
 
 ### Subtasks
-- [ ] Criar `WhatsAppIcon` component
-- [ ] Substituir nas duas ocorrências em `page.tsx`
+- [x] Criar `WhatsAppIcon` component
+- [x] Substituir nas duas ocorrências em `page.tsx`
 
 ---
 
 ## US-IMP-07 — Padronizar Loading Skeletons
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Prioridade:** 🟢 Baixa
 **Dependências:** US-IMP-02 (o dashboard usa skeletons)
 
@@ -219,13 +219,13 @@ Algumas páginas usam `animate-pulse` com divs customizados e outras não têm s
 - `/{slug}/alunos/treinos/[planId]` — sem loading state
 
 ### Critérios de Aceite
-- [ ] Componente `SkeletonCard` genérico (linhas de texto animadas) em `components/ui/skeleton.tsx` via shadcn
-- [ ] Adicionar skeleton em `/painel/planos-servico/page.tsx`
-- [ ] Adicionar skeleton em `/painel/treinos/[id]/page.tsx`
-- [ ] Adicionar skeleton em `/{slug}/alunos/treinos/[planId]/page.tsx`
-- [ ] Padrão visual uniforme: `animate-pulse`, `bg-gray-100` (light) ou `bg-accent` (dark)
+- [x] Componente `SkeletonCard` genérico (linhas de texto animadas) em `components/ui/skeleton.tsx` via shadcn
+- [x] Adicionar skeleton em `/painel/planos-servico/page.tsx`
+- [x] Adicionar skeleton em `/painel/treinos/[id]/page.tsx`
+- [x] Adicionar skeleton em `/{slug}/alunos/treinos/[planId]/page.tsx`
+- [x] Padrão visual uniforme: `animate-pulse`, `bg-gray-100` (light) ou `bg-accent` (dark)
 
 ### Subtasks
-- [ ] Verificar se shadcn `skeleton` já está instalado, instalar se necessário
-- [ ] Auditar todas as páginas e identificar as sem skeleton
-- [ ] Implementar skeletons nas páginas listadas
+- [x] Verificar se shadcn `skeleton` já está instalado, instalar se necessário
+- [x] Auditar todas as páginas e identificar as sem skeleton
+- [x] Implementar skeletons nas páginas listadas

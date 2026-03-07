@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
   deactivateServicePlan,
@@ -71,7 +72,7 @@ export default function PlanosServicoPage() {
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-100" />
+              <Skeleton key={i} className="h-24 rounded-xl bg-gray-100" />
             ))}
           </div>
         ) : plans.length === 0 ? (

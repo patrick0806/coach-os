@@ -9,6 +9,7 @@ import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getWorkoutPlan, reorderExercises } from "@/services/workout-plans.service";
 import { AddExerciseDialog } from "./_components/add-exercise-dialog";
 import { DeletePlanDialog } from "./_components/delete-plan-dialog";
@@ -72,8 +73,26 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <p className="text-muted-foreground">Carregando...</p>
+      <div className="mx-auto max-w-3xl p-4 sm:p-8">
+        <div className="mb-6 space-y-2">
+          <Skeleton className="h-4 w-24 bg-gray-100" />
+          <Skeleton className="h-8 w-56 bg-gray-100" />
+          <Skeleton className="h-4 w-72 bg-gray-100" />
+        </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-6 w-40 bg-gray-100" />
+              <Skeleton className="h-9 w-28 bg-gray-100" />
+            </div>
+          </CardHeader>
+          <Separator />
+          <CardContent className="space-y-2.5 pt-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-20 rounded-xl bg-gray-100" />
+            ))}
+          </CardContent>
+        </Card>
       </div>
     );
   }
