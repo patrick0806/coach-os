@@ -11,18 +11,18 @@ class PlanDistributionItemDTO {
   percentage: number;
 }
 
-class RevenueTimelineItemDTO {
+class RevenuePointDTO {
   @ApiProperty({ example: "2026-02" })
   month: string;
 
   @ApiProperty({ example: 119.7 })
-  mrr: number;
+  amount: number;
 }
 
 export class ChartsDTO {
   @ApiProperty({ type: [PlanDistributionItemDTO] })
   planDistribution: PlanDistributionItemDTO[];
 
-  @ApiProperty({ type: [RevenueTimelineItemDTO] })
-  revenueTimeline: RevenueTimelineItemDTO[];
+  @ApiProperty({ type: [RevenuePointDTO] })
+  revenue: RevenuePointDTO[];
 }

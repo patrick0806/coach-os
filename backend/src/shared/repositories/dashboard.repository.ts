@@ -23,7 +23,7 @@ export interface PlanDistributionItem {
 
 export interface RevenueTimelineItem {
   month: string;
-  mrr: number;
+  amount: number;
 }
 
 @Injectable()
@@ -121,9 +121,12 @@ export class DashboardRepository {
       `,
     );
 
-    return (rows as unknown as { month: string; mrr: string }[]).map((r) => ({
+    // db.execute() returns a QueryResult object; the actual rows are in .rows
+    const rawRows = (rows as unknown as { rows: { month: string; mrr: string }[] }).rows;
+
+    return rawRows.map((r) => ({
       month: r.month,
-      mrr: parseFloat(r.mrr),
+      amount: parseFloat(r.mrr),
     }));
   }
 }

@@ -8,8 +8,8 @@ const mockDistribution = [
 ];
 
 const mockTimeline = [
-  { month: "2026-01", mrr: 89.7 },
-  { month: "2026-02", mrr: 119.6 },
+  { month: "2026-01", amount: 89.7 },
+  { month: "2026-02", amount: 119.6 },
 ];
 
 describe("GetChartsService", () => {
@@ -32,7 +32,7 @@ describe("GetChartsService", () => {
       const result = await service.execute("30d");
 
       expect(result.planDistribution).toEqual(mockDistribution);
-      expect(result.revenueTimeline).toEqual(mockTimeline);
+      expect(result.revenue).toEqual(mockTimeline);
     });
 
     it("should call getRevenueTimeline with 3 months for 90d period", async () => {

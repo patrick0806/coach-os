@@ -27,6 +27,6 @@ export class GetChartsService {
       this.dashboardRepository.getRevenueTimeline(months),
     ]);
 
-    return { planDistribution, revenueTimeline };
+    return { planDistribution, revenue: revenueTimeline };
   }
 }

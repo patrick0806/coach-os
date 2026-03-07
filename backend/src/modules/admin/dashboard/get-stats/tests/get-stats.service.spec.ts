@@ -10,10 +10,6 @@ const mockRawStats = {
   totalStudents: 12,
 };
 
-const mockPreviousStats = {
-  newSubscribers: 1,
-};
-
 describe("GetStatsService", () => {
   let service: GetStatsService;
   let dashboardRepository: {
@@ -28,47 +24,41 @@ describe("GetStatsService", () => {
   });
 
   describe("execute", () => {
-    it("should return stats with positive growth rate for 30d period", async () => {
-      dashboardRepository.getStats
-        .mockResolvedValueOnce(mockRawStats)
-        .mockResolvedValueOnce(mockPreviousStats);
+    it("should return stats with churnRate calculated from churnCount", async () => {
+      dashboardRepository.getStats.mockResolvedValueOnce(mockRawStats);
 
       const result = await service.execute("30d");
 
       expect(result.mrr).toBe(119.7);
       expect(result.totalSubscribers).toBe(4);
       expect(result.newSubscribers).toBe(2);
-      expect(result.churnCount).toBe(1);
       expect(result.totalStudents).toBe(12);
-      // growthRate: (2 - 1) / 1 * 100 = 100%
-      expect(result.growthRate).toBe(100);
+      // churnRate: (1 / 4) * 100 = 25.0
+      expect(result.churnRate).toBe(25.0);
     });
 
-    it("should return null growthRate when previous period had no subscribers", async () => {
-      dashboardRepository.getStats
-        .mockResolvedValueOnce(mockRawStats)
-        .mockResolvedValueOnce({ newSubscribers: 0 });
+    it("should return churnRate of 0 when there are no active subscribers", async () => {
+      dashboardRepository.getStats.mockResolvedValueOnce({
+        ...mockRawStats,
+        totalSubscribers: 0,
+        churnCount: 0,
+      });
 
       const result = await service.execute("30d");
 
-      expect(result.growthRate).toBeNull();
+      expect(result.churnRate).toBe(0);
     });
 
     it("should pass null since for 'all' period", async () => {
-      dashboardRepository.getStats
-        .mockResolvedValueOnce(mockRawStats)
-        .mockResolvedValueOnce(mockPreviousStats);
+      dashboardRepository.getStats.mockResolvedValueOnce(mockRawStats);
 
       await service.execute("all");
 
-      // First call: current period (since = null for 'all')
-      expect(dashboardRepository.getStats).toHaveBeenNthCalledWith(1, null, null);
+      expect(dashboardRepository.getStats).toHaveBeenCalledWith(null, null);
     });
 
     it("should pass a date for 7d period", async () => {
-      dashboardRepository.getStats
-        .mockResolvedValueOnce(mockRawStats)
-        .mockResolvedValueOnce(mockPreviousStats);
+      dashboardRepository.getStats.mockResolvedValueOnce(mockRawStats);
 
       await service.execute("7d");
 
@@ -76,14 +66,12 @@ describe("GetStatsService", () => {
       expect(since).toBeInstanceOf(Date);
     });
 
-    it("should return zero growthRate when current and previous are equal", async () => {
-      dashboardRepository.getStats
-        .mockResolvedValueOnce({ ...mockRawStats, newSubscribers: 2 })
-        .mockResolvedValueOnce({ newSubscribers: 2 });
+    it("should call getStats only once per execute", async () => {
+      dashboardRepository.getStats.mockResolvedValueOnce(mockRawStats);
 
-      const result = await service.execute("30d");
+      await service.execute("30d");
 
-      expect(result.growthRate).toBe(0);
+      expect(dashboardRepository.getStats).toHaveBeenCalledTimes(1);
     });
   });
 });
