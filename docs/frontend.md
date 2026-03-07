@@ -138,7 +138,7 @@ O campo `personalSlug` vem diretamente na resposta do login:
 | `/{slug}/students/*` | **Dark** | Área do Aluno |
 | `/{slug}` (landing page) | **Dinâmico** | Usar `themeColor` do personal como CSS custom property |
 
-Landing page: o `themeColor` é um hex (ex: `#10b981`). Aplicar como `--color-theme` no `layout.tsx` do segmento `[personal-slug]`.
+Landing page: o `themeColor` é um hex (ex: `#10b981`). Aplicar como `--color-primary` no `layout.tsx` do segmento `[personal-slug]`.
 
 ---
 
