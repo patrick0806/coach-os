@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Dumbbell, LayoutDashboard, LogOut } from "lucide-react";
+import { CalendarDays, Dumbbell, LayoutDashboard, LogOut } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ export function StudentShell({ slug, children }: StudentShellProps) {
   const navItems = [
     { href: `/${slug}/alunos/painel`, label: "Início", icon: LayoutDashboard },
     { href: `/${slug}/alunos/treinos`, label: "Treinos", icon: Dumbbell },
+    { href: `/${slug}/alunos/agenda`, label: "Agenda", icon: CalendarDays },
   ];
 
   async function handleSignOut() {

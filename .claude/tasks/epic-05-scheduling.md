@@ -39,11 +39,11 @@ Como personal trainer, quero configurar meus horarios disponiveis por dia da sem
 - [x] Unit tests para cada context
 
 ### Subtasks Frontend
-- [ ] Rota: `/dashboard/schedule/availability`
-- [ ] Grid por dia da semana (seg a dom)
-- [ ] Adicionar/remover horarios por dia
-- [ ] Toggle ativo/inativo por slot
-- [ ] Input de horario com mascara HH:mm
+- [x] Rota: `/painel/agenda/disponibilidade`
+- [x] Grid por dia da semana (seg a dom)
+- [x] Adicionar/remover horarios por dia
+- [x] Toggle ativo/inativo por slot
+- [x] Input de horario nativo type=time (HH:mm)
 
 ### Notas Tecnicas
 - `startTime` e `endTime` no formato `HH:mm` (varchar(5) no schema)
@@ -81,11 +81,11 @@ Como personal trainer, quero criar planos de atendimento (ex: 3x/semana, 60 min)
 - [x] Unit tests para cada context
 
 ### Subtasks Frontend
-- [ ] Rota: `/dashboard/service-plans`
-- [ ] Cards com resumo do plano (nome, sessoes/semana, duracao, preco)
-- [ ] Formulario de criacao/edicao com React Hook Form + Zod
-- [ ] Toggle ativo/inativo
-- [ ] Preco com mascara de moeda (BRL)
+- [x] Rota: `/painel/planos-servico`
+- [x] Cards com resumo do plano (nome, sessoes/semana, duracao, preco)
+- [x] Formulario de criacao/edicao com React Hook Form + Zod
+- [x] Toggle ativo/inativo (deactivate)
+- [x] Preco formatado em BRL
 
 ### Notas Tecnicas
 - `price` no schema e `numeric(10,2)` — retornar como string do backend, converter no frontend
@@ -120,11 +120,11 @@ Como aluno, quero agendar uma sessao com meu personal para confirmar minha prese
 - [x] Unit tests
 
 ### Subtasks Frontend
-- [ ] Rota: `/{personal-slug}/students/schedule`
-- [ ] Calendário semanal com slots disponiveis
-- [ ] Selecao de plano de servico
-- [ ] Resumo do agendamento antes de confirmar
-- [ ] Feedback de sucesso com detalhes da sessao agendada
+- [x] Rota: `/{slug}/alunos/agenda`
+- [x] Date picker com slots disponíveis
+- [x] Selecao de plano de servico
+- [x] Resumo do agendamento antes de confirmar
+- [x] Feedback de sucesso com detalhes da sessao agendada
 
 ### Notas Tecnicas
 - `findAvailableSlots`: buscar todos os `availability_slots` ativos WHERE `personalId = tenantId` para o dia da semana da data, subtrair bookings com status `scheduled` naquela data e horario
@@ -160,11 +160,11 @@ Como personal trainer, quero visualizar e gerenciar minha agenda de sessoes para
 - [x] Unit tests
 
 ### Subtasks Frontend
-- [ ] Rota: `/dashboard/schedule`
-- [ ] Calendario com visualizacao semanal e mensal
-- [ ] Cards de sessao com cor por status
-- [ ] Modal de detalhe com acoes
-- [ ] Filtros por status e periodo
+- [x] Rota: `/painel/agenda`
+- [x] Visualizacao semanal com navegacao prev/next + Hoje
+- [x] Cards de sessao com cor por status
+- [x] Modal de detalhe com acoes (concluir, nao compareceu, cancelar com motivo)
+- [x] Filtros por status (tabs)
 
 ### Notas Tecnicas
 - Status validos: `scheduled`, `completed`, `cancelled`, `no-show`

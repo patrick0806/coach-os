@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays,
+  ClipboardList,
   CreditCard,
   Dumbbell,
   LayoutDashboard,
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/painel/alunos", label: "Alunos", icon: Users, exact: false },
   { href: "/painel/treinos", label: "Treinos", icon: Dumbbell, exact: false },
   { href: "/painel/agenda", label: "Agenda", icon: CalendarDays, exact: false },
+  { href: "/painel/planos-servico", label: "Planos de Serviço", icon: ClipboardList, exact: false },
   { href: "/painel/assinatura", label: "Assinatura", icon: CreditCard, exact: false },
 ];
 
