@@ -1,12 +1,12 @@
 # Epic 09 — Freemium e Conversao
 
-Status: `[ ]` todo
+Status: `[~]` in progress
 
 ---
 
 ## US-021 — Trial de 30 dias para novos personals
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 7
 **Dependencias:** US-001, US-016
 
@@ -14,11 +14,11 @@ Status: `[ ]` todo
 Como personal recem-cadastrado, quero usar a plataforma por 30 dias gratis para avaliar o produto antes de assinar.
 
 ### Criterios de Aceite
-- [ ] Todo novo personal inicia com trial de 30 dias automaticamente
-- [ ] API de assinatura retorna status `trialing` com `trialEndsAt`
-- [ ] Quando trial expira, status muda para `expired` se nao houver assinatura ativa
-- [ ] Datas de trial aparecem no painel de assinatura
-- [ ] Status de acesso do tenant e reutilizado para controlar acesso de personal e alunos
+- [x] Todo novo personal inicia com trial de 30 dias automaticamente
+- [x] API de assinatura retorna status `trialing` com `trialEndsAt`
+- [x] Quando trial expira, status muda para `expired` se nao houver assinatura ativa
+- [x] Datas de trial aparecem no painel de assinatura
+- [x] Status de acesso do tenant e reutilizado para controlar acesso de personal e alunos
 
 ### Diretivas de Implementacao
 - Migration em `personals`:
@@ -29,16 +29,16 @@ Como personal recem-cadastrado, quero usar a plataforma por 30 dias gratis para 
 - Nao quebrar compatibilidade com `subscriptionStatus` atual
 
 ### Subtasks Backend
-- [ ] Migration para campos de trial/acesso
-- [ ] Atualizar fluxo de cadastro para iniciar trial
-- [ ] Atualizar `GET /subscriptions/me` para incluir trial
-- [ ] Job/rotina de reconciliacao para expiracao de trial (ou regra lazy on-read)
-- [ ] Unit tests para inicio e expiracao de trial
+- [x] Migration para campos de trial/acesso
+- [x] Atualizar fluxo de cadastro para iniciar trial
+- [x] Atualizar `GET /subscriptions/me` para incluir trial
+- [x] Job/rotina de reconciliacao para expiracao de trial (ou regra lazy on-read)
+- [x] Unit tests para inicio e expiracao de trial
 
 ### Subtasks Frontend
-- [ ] Atualizar `/painel/assinatura` com card de trial (dias restantes)
-- [ ] Badge visual para `trialing`, `expired`, `past_due`, `active`
-- [ ] CTA de upgrade na pagina de assinatura durante trial
+- [x] Atualizar `/painel/assinatura` com card de trial (dias restantes)
+- [x] Badge visual para `trialing`, `expired`, `past_due`, `active`
+- [x] CTA de upgrade na pagina de assinatura durante trial
 
 ---
 

@@ -32,6 +32,10 @@ export class RegisterService {
     );
 
     const result = await this.drizzle.db.transaction(async (tx) => {
+      const now = new Date();
+      const trialEndsAt = new Date(now);
+      trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+
       const user = await this.usersRepository.create(
         {
           name: dto.name,
@@ -46,6 +50,9 @@ export class RegisterService {
         {
           userId: user.id,
           slug,
+          trialStartedAt: now,
+          trialEndsAt,
+          accessStatus: "trialing",
         },
         tx,
       );

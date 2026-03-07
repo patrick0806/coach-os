@@ -21,6 +21,9 @@ const mockPersonal = {
   subscriptionStatus: "active",
   subscriptionPlanId: "plan-id",
   subscriptionExpiresAt: new Date("2026-12-31"),
+  trialStartedAt: new Date("2026-03-01"),
+  trialEndsAt: new Date("2026-03-31"),
+  accessStatus: "active",
 };
 
 const mockPlan = {
@@ -38,11 +41,17 @@ const mockPlan = {
 
 describe("GetSubscriptionService", () => {
   let service: GetSubscriptionService;
-  let personalsRepository: { findById: ReturnType<typeof vi.fn> };
+  let personalsRepository: {
+    findById: ReturnType<typeof vi.fn>;
+    updateSubscription: ReturnType<typeof vi.fn>;
+  };
   let plansRepository: { findById: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    personalsRepository = { findById: vi.fn() };
+    personalsRepository = {
+      findById: vi.fn(),
+      updateSubscription: vi.fn(),
+    };
     plansRepository = { findById: vi.fn() };
     service = new GetSubscriptionService(personalsRepository as any, plansRepository as any);
   });
@@ -58,20 +67,45 @@ describe("GetSubscriptionService", () => {
       expect(result.plan).toBeDefined();
       expect(result.plan!.name).toBe("Pro");
       expect(result.expiresAt).toEqual(new Date("2026-12-31"));
+      expect(result.trialStartedAt).toEqual(new Date("2026-03-01"));
+      expect(result.trialEndsAt).toEqual(new Date("2026-03-31"));
     });
 
-    it("should return null plan when personal has no subscription", async () => {
+    it("should return trialing status when personal has no subscription and trial is still active", async () => {
       personalsRepository.findById.mockResolvedValue({
         ...mockPersonal,
         subscriptionStatus: null,
         subscriptionPlanId: null,
         subscriptionExpiresAt: null,
+        trialStartedAt: new Date("2099-01-01"),
+        trialEndsAt: new Date("2099-01-31"),
       });
 
       const result = await service.execute(mockCurrentUser);
 
-      expect(result.status).toBeNull();
+      expect(result.status).toBe("trialing");
       expect(result.plan).toBeNull();
+      expect(result.expiresAt).toEqual(new Date("2099-01-31"));
+    });
+
+    it("should return expired status and persist accessStatus when trial has expired", async () => {
+      personalsRepository.findById.mockResolvedValue({
+        ...mockPersonal,
+        subscriptionStatus: null,
+        subscriptionPlanId: null,
+        subscriptionExpiresAt: null,
+        trialStartedAt: new Date("2020-01-01"),
+        trialEndsAt: new Date("2020-01-31"),
+        accessStatus: "trialing",
+      });
+      personalsRepository.updateSubscription.mockResolvedValue(undefined);
+
+      const result = await service.execute(mockCurrentUser);
+
+      expect(result.status).toBe("expired");
+      expect(personalsRepository.updateSubscription).toHaveBeenCalledWith("personal-id", {
+        accessStatus: "expired",
+      });
     });
 
     it("should throw NotFoundException when personal is not found", async () => {

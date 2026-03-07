@@ -4,7 +4,9 @@ export type SubscriptionStatus =
   | "active"
   | "inactive"
   | "trialing"
+  | "expired"
   | "past_due"
+  | "canceled"
   | "cancelled"
   | null;
 
@@ -12,7 +14,9 @@ export const SUBSCRIPTION_STATUS_LABELS: Record<NonNullable<SubscriptionStatus>,
   active: "Ativa",
   inactive: "Inativa",
   trialing: "Em teste",
+  expired: "Expirada",
   past_due: "Pagamento pendente",
+  canceled: "Cancelada",
   cancelled: "Cancelada",
 };
 
@@ -22,6 +26,8 @@ export interface Subscription {
   planName: string | null;
   expiresAt: string | null;
   stripeSubscriptionId: string | null;
+  trialStartedAt: string | null;
+  trialEndsAt: string | null;
 }
 
 export interface SubscriptionUsage {
@@ -31,8 +37,26 @@ export interface SubscriptionUsage {
 }
 
 export async function getMySubscription(): Promise<Subscription> {
-  const { data } = await api.get<Subscription>("/subscriptions/me");
-  return data;
+  const { data } = await api.get<{
+    status: SubscriptionStatus;
+    plan?: { id: string; name: string } | null;
+    planId?: string | null;
+    planName?: string | null;
+    expiresAt: string | null;
+    stripeSubscriptionId?: string | null;
+    trialStartedAt?: string | null;
+    trialEndsAt?: string | null;
+  }>("/subscriptions/me");
+
+  return {
+    status: data.status ?? null,
+    planId: data.planId ?? data.plan?.id ?? null,
+    planName: data.planName ?? data.plan?.name ?? null,
+    expiresAt: data.expiresAt ?? null,
+    stripeSubscriptionId: data.stripeSubscriptionId ?? null,
+    trialStartedAt: data.trialStartedAt ?? null,
+    trialEndsAt: data.trialEndsAt ?? null,
+  };
 }
 
 export async function getSubscriptionUsage(): Promise<SubscriptionUsage> {

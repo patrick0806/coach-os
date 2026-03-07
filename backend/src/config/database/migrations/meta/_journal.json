@@ -29,6 +29,13 @@
       "when": 1772818393481,
       "tag": "0003_add_max_students_to_plans",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772908415379,
+      "tag": "0004_add_trial_fields_to_personals",
+      "breakpoints": true
     }
   ]
 }

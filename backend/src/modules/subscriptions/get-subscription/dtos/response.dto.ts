@@ -23,4 +23,10 @@ export class SubscriptionStatusDTO {
 
   @ApiProperty({ example: "2026-12-31T00:00:00.000Z", nullable: true })
   expiresAt: Date | null;
+
+  @ApiProperty({ example: "2026-03-01T00:00:00.000Z", nullable: true })
+  trialStartedAt: Date | null;
+
+  @ApiProperty({ example: "2026-03-31T00:00:00.000Z", nullable: true })
+  trialEndsAt: Date | null;
 }

@@ -200,7 +200,11 @@ export default function AssinaturaPage() {
     subscription?.status === "active" || subscription?.status === "trialing";
   const isPastDue = subscription?.status === "past_due";
   const isExpired =
-    subscription?.status === "cancelled" || subscription?.status === "inactive";
+    subscription?.status === "cancelled" ||
+    subscription?.status === "canceled" ||
+    subscription?.status === "inactive" ||
+    subscription?.status === "expired";
+  const isTrialing = subscription?.status === "trialing";
 
   // Plans available for upgrade (higher order than current)
   const currentPlanOrder =
@@ -255,11 +259,15 @@ export default function AssinaturaPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-semibold text-gray-900">
-                      {subscription?.planName ?? "Sem plano"}
+                      {subscription?.planName ?? (isTrialing ? "Período gratuito" : "Sem plano")}
                     </p>
                     {subscription?.expiresAt ? (
                       <p className="mt-0.5 text-xs text-gray-500">
-                        {isActive ? "Renova em" : "Acesso até"}{" "}
+                        {isTrialing
+                          ? "Período gratuito até"
+                          : isActive
+                            ? "Renova em"
+                            : "Acesso até"}{" "}
                         {new Date(subscription.expiresAt).toLocaleDateString("pt-BR", {
                           day: "2-digit",
                           month: "long",
@@ -286,6 +294,18 @@ export default function AssinaturaPage() {
                     </span>
                   )}
                 </div>
+
+                {isTrialing && subscription.trialEndsAt ? (
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+                    Seu trial termina em{" "}
+                    {new Date(subscription.trialEndsAt).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                    . Assine um plano para não perder acesso.
+                  </div>
+                ) : null}
 
                 {/* Usage bar */}
                 {isActive && !loadingUsage && usage ? (

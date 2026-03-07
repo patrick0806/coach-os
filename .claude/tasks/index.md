@@ -142,5 +142,5 @@ US-015 (Planos SaaS publicos) — independente do auth
 - Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
 
 ### Proximo passo
-Iniciar Epic 09 — Freemium e Conversao.
-Ordem sugerida: US-021 → US-022 → US-023.
+Continuar Epic 09 — Freemium e Conversao.
+Ordem sugerida: US-022 → US-023.

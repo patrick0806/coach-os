@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { plans } from "./plans";
 import { randomUUID } from "crypto";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { users } from "./users";
 import { students } from "./students";
 
@@ -40,6 +40,11 @@ export const personals = pgTable(
     subscriptionStatus: varchar("subscription_status", { length: 50 }),
     subscriptionPlanId: varchar("subscription_plan_id", { length: 36 }).references(() => plans.id),
     subscriptionExpiresAt: timestamp("subscription_expires_at", { withTimezone: true }),
+    trialStartedAt: timestamp("trial_started_at", { withTimezone: true }).notNull().defaultNow(),
+    trialEndsAt: timestamp("trial_ends_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now() + interval '30 days'`),
+    accessStatus: varchar("access_status", { length: 30 }).notNull().default("trialing"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

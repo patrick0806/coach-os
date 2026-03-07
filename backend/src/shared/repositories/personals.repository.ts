@@ -7,7 +7,6 @@ import * as schema from "@config/database/schema";
 import {
   personals,
   Personal,
-  NewPersonal,
 } from "@config/database/schema/personals";
 
 type DrizzleDb = NodePgDatabase<typeof schema>;
@@ -35,6 +34,17 @@ export interface UpdateSubscriptionInput {
   subscriptionStatus?: string | null;
   subscriptionPlanId?: string | null;
   subscriptionExpiresAt?: Date | null;
+  trialStartedAt?: Date | null;
+  trialEndsAt?: Date | null;
+  accessStatus?: string | null;
+}
+
+export interface CreatePersonalInput {
+  userId: string;
+  slug: string;
+  trialStartedAt?: Date;
+  trialEndsAt?: Date;
+  accessStatus?: string;
 }
 
 @Injectable()
@@ -71,9 +81,11 @@ export class PersonalsRepository {
     return result[0] ?? null;
   }
 
-  async create(data: NewPersonal, tx?: DrizzleDb): Promise<Personal> {
+  async create(data: CreatePersonalInput, tx?: DrizzleDb): Promise<Personal> {
     const db = tx ?? this.drizzle.db;
-    const result = await db.insert(personals).values(data).returning();
+    // Cast needed: Drizzle v0.39 $inferInsert narrowing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await db.insert(personals).values(data as any).returning();
     return result[0];
   }
 

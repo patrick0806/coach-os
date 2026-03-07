@@ -19,8 +19,28 @@ export class GetSubscriptionService {
       throw new NotFoundException("Personal não encontrado");
     }
 
+    const now = new Date();
+    const trialStartedAt = personal.trialStartedAt ?? personal.createdAt;
+    const trialEndsAt = personal.trialEndsAt ?? null;
+
+    // No paid subscription linked: access comes from trial window.
     if (!personal.subscriptionPlanId) {
-      return { status: null, plan: null, expiresAt: null };
+      const isExpired = trialEndsAt ? trialEndsAt.getTime() < now.getTime() : false;
+      const status = isExpired ? "expired" : "trialing";
+
+      if (isExpired && personal.accessStatus !== "expired") {
+        await this.personalsRepository.updateSubscription(personal.id, {
+          accessStatus: "expired",
+        });
+      }
+
+      return {
+        status,
+        plan: null,
+        expiresAt: trialEndsAt,
+        trialStartedAt,
+        trialEndsAt,
+      };
     }
 
     const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
@@ -31,6 +51,8 @@ export class GetSubscriptionService {
         ? { id: plan.id, name: plan.name, price: plan.price, benefits: plan.benefits }
         : null,
       expiresAt: personal.subscriptionExpiresAt ?? null,
+      trialStartedAt,
+      trialEndsAt,
     };
   }
 }
