@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CalendarDays, CheckCircle2, Clock } from "lucide-react";
 
@@ -294,10 +294,10 @@ interface AlunoAgendaPageProps {
 
 export default function AlunoAgendaPage({ params }: AlunoAgendaPageProps) {
   use(params);
-  const [refetchKey, setRefetchKey] = useState(0);
+  const queryClient = useQueryClient();
 
   const { data: bookings = [] } = useQuery({
-    queryKey: ["my-bookings", refetchKey],
+    queryKey: ["my-bookings"],
     queryFn: getMyBookings,
   });
 
@@ -312,7 +312,7 @@ export default function AlunoAgendaPage({ params }: AlunoAgendaPageProps) {
 
       <div className="space-y-6">
         <UpcomingBookings bookings={bookings} />
-        <BookingForm onBooked={() => setRefetchKey((k) => k + 1)} />
+        <BookingForm onBooked={() => queryClient.invalidateQueries({ queryKey: ["my-bookings"] })} />
       </div>
     </div>
   );

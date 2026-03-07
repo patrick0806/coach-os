@@ -124,7 +124,7 @@ Adicionar seção de próximas sessões antes dos treinos, e um card de destaque
 
 ## US-IMP-04 — Refatorar padrão `refetchKey` para `invalidateQueries`
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Prioridade:** 🟡 Média
 **Dependências:** nenhuma
 
@@ -142,21 +142,21 @@ queryClient.invalidateQueries({ queryKey: ["my-bookings"] })
 ```
 
 ### Critérios de Aceite
-- [ ] Remover `useState(0)` / `refetchKey` de `alunos/agenda/page.tsx`
-- [ ] Usar `useQueryClient` + `invalidateQueries({ queryKey: ["my-bookings"] })` após booking criado
-- [ ] A lista de próximas sessões atualiza corretamente após novo agendamento
-- [ ] Nenhuma regressão no comportamento de agendamento
+- [x] Remover `useState(0)` / `refetchKey` de `alunos/agenda/page.tsx`
+- [x] Usar `useQueryClient` + `invalidateQueries({ queryKey: ["my-bookings"] })` após booking criado
+- [x] A lista de próximas sessões atualiza corretamente após novo agendamento
+- [x] Nenhuma regressão no comportamento de agendamento
 
 ### Subtasks
-- [ ] Refatorar `AlunoAgendaPage` — remover `refetchKey`, passar `queryClient.invalidateQueries` via `onBooked`
-- [ ] Garantir que `BookingForm` recebe e chama o callback correto
-- [ ] Testar fluxo: agendar → lista de próximas sessões atualiza sem reload
+- [x] Refatorar `AlunoAgendaPage` — remover `refetchKey`, passar `queryClient.invalidateQueries` via `onBooked`
+- [x] Garantir que `BookingForm` recebe e chama o callback correto
+- [x] Testar fluxo: agendar → lista de próximas sessões atualiza sem reload
 
 ---
 
 ## US-IMP-05 — Error Boundaries nas rotas principais
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Prioridade:** 🟡 Média
 **Dependências:** nenhuma
 
@@ -164,18 +164,18 @@ queryClient.invalidateQueries({ queryKey: ["my-bookings"] })
 Nenhuma rota do painel ou da área do aluno tem `error.tsx` do Next.js. Um erro de rede ou exceção não tratada derruba a página inteira exibindo a tela de erro padrão do Next.js — sem mensagem amigável, sem opção de retry.
 
 ### Critérios de Aceite
-- [ ] Componente `ErrorFallback` reutilizável em `components/shared/error-fallback.tsx`
+- [x] Componente `ErrorFallback` reutilizável em `components/shared/error-fallback.tsx`
   - Ícone de alerta, mensagem genérica em português, botão "Tentar novamente" (`router.refresh()`)
-- [ ] `error.tsx` nas rotas: `/painel`, `/painel/alunos`, `/painel/treinos`, `/painel/agenda`, `/painel/agenda/disponibilidade`, `/painel/planos-servico`, `/painel/assinatura`
-- [ ] `error.tsx` nas rotas do aluno: `/{slug}/alunos/painel`, `/{slug}/alunos/treinos`, `/{slug}/alunos/agenda`
-- [ ] `error.tsx` na área admin: `/admin/dashboard`, `/admin/personals`, `/admin/plans`
-- [ ] Design consistente com o modo (light no painel, dark no admin/aluno)
+- [x] `error.tsx` nas rotas: `/painel`, `/painel/alunos`, `/painel/treinos`, `/painel/agenda`, `/painel/agenda/disponibilidade`, `/painel/planos-servico`, `/painel/assinatura`
+- [x] `error.tsx` nas rotas do aluno: `/{slug}/alunos/painel`, `/{slug}/alunos/treinos`, `/{slug}/alunos/agenda`
+- [x] `error.tsx` na área admin: `/admin/dashboard`, `/admin/personals`, `/admin/plans`
+- [x] Design consistente com o modo (light no painel, dark no admin/aluno)
 
 ### Subtasks
-- [ ] Criar `ErrorFallback` component (light e dark variant)
-- [ ] Criar `error.tsx` no layout do painel (`/painel/error.tsx`) — cobre todas as sub-rotas
-- [ ] Criar `error.tsx` no layout do aluno (`/{slug}/alunos/error.tsx`)
-- [ ] Criar `error.tsx` no layout do admin (`/admin/error.tsx`)
+- [x] Criar `ErrorFallback` component (light e dark variant)
+- [x] Criar `error.tsx` no layout do painel (`/painel/error.tsx`) — cobre todas as sub-rotas
+- [x] Criar `error.tsx` no layout do aluno (`/{slug}/alunos/error.tsx`)
+- [x] Criar `error.tsx` no layout do admin (`/admin/error.tsx`)
 
 ---
 
