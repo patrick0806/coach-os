@@ -221,7 +221,7 @@ export default function PerfilPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">Meu Perfil</h1>
         <p className="mt-1 text-sm text-gray-500">
@@ -368,12 +368,12 @@ export default function PerfilPage() {
 
             <div className="space-y-2">
               <Label>Imagem principal (hero)</Label>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input
                   value={watch("lpHeroImage")}
                   readOnly
                   placeholder="URL da imagem"
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                 />
                 <ImageUploadButton
                   label="Upload"
@@ -405,15 +405,15 @@ export default function PerfilPage() {
             <div className="space-y-3">
               <Label>Imagens da galeria</Label>
               {(["lpImage1", "lpImage2", "lpImage3"] as const).map((field, i) => (
-                <div key={field} className="flex items-center gap-3">
-                  <span className="w-20 shrink-0 text-sm text-muted-foreground">
+                <div key={field} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <span className="shrink-0 text-sm text-muted-foreground sm:w-20">
                     Imagem {i + 1}
                   </span>
                   <Input
                     value={watch(field)}
                     readOnly
                     placeholder="URL da imagem"
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                   />
                   <ImageUploadButton
                     label="Upload"
@@ -427,7 +427,7 @@ export default function PerfilPage() {
         </Card>
 
         {/* Submit */}
-        <div className="flex items-center gap-4 pb-8">
+        <div className="flex flex-wrap items-center gap-4 pb-8">
           <Button type="submit" disabled={updateMutation.isPending}>
             {updateMutation.isPending ? "Salvando..." : "Salvar alterações"}
           </Button>

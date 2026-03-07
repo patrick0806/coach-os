@@ -1,14 +1,9 @@
-import { PainelSidebar } from "@/components/shared/painel-sidebar";
+import { PainelShell } from "@/components/shared/painel-shell";
 
 interface PainelLayoutProps {
   children: React.ReactNode;
 }
 
 export default function PainelLayout({ children }: PainelLayoutProps) {
-  return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <PainelSidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
-    </div>
-  );
+  return <PainelShell>{children}</PainelShell>;
 }
