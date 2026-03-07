@@ -11,6 +11,11 @@ interface AccessTokenPayload {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
 const AUTH_ROUTES = new Set(["/login", "/cadastro"]);
 
+function isStudentLoginRoute(pathname: string) {
+  // matches /{any-slug}/login but not /login itself
+  return /^\/[^/]+\/login$/.test(pathname);
+}
+
 function decodeAccessTokenPayload(token: string): AccessTokenPayload | null {
   const parts = token.split(".");
   if (parts.length < 2) {
@@ -97,7 +102,7 @@ export async function middleware(request: NextRequest) {
   const requiresPersonal = pathname.startsWith("/painel");
   const requiresAdmin = pathname.startsWith("/admin");
   const requiresStudent = isStudentRoute(pathname);
-  const isAuthRoute = AUTH_ROUTES.has(pathname);
+  const isAuthRoute = AUTH_ROUTES.has(pathname) || isStudentLoginRoute(pathname);
   const isProtectedRoute = requiresPersonal || requiresAdmin || requiresStudent;
 
   if (!isProtectedRoute && !isAuthRoute) {
@@ -143,5 +148,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/cadastro", "/painel/:path*", "/admin/:path*", "/:slug/alunos/:path*"],
+  matcher: ["/login", "/cadastro", "/painel/:path*", "/admin/:path*", "/:slug/alunos/:path*", "/:slug/login"],
 };

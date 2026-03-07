@@ -5,7 +5,7 @@ export default function PersonalNotFound() {
     <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
       <p
         className="text-8xl font-extrabold"
-        style={{ color: "var(--color-theme, #10b981)" }}
+        style={{ color: "var(--color-primary, #10b981)" }}
       >
         404
       </p>
@@ -18,7 +18,7 @@ export default function PersonalNotFound() {
       <Link
         href="/"
         className="mt-8 rounded-full px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-        style={{ backgroundColor: "var(--color-theme, #10b981)" }}
+        style={{ backgroundColor: "var(--color-primary, #10b981)" }}
       >
         Voltar ao início
       </Link>

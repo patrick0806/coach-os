@@ -103,7 +103,7 @@ export default function SetPasswordPage() {
             <Link href={`/${slug}/login`}>
               <Button
                 className="w-full"
-                style={{ backgroundColor: "var(--color-theme, #10b981)" }}
+                style={{ backgroundColor: "var(--color-primary, #10b981)" }}
               >
                 Ir para o login
               </Button>
@@ -186,7 +186,7 @@ export default function SetPasswordPage() {
               type="submit"
               className="w-full"
               disabled={isSubmitting}
-              style={{ backgroundColor: "var(--color-theme, #10b981)" }}
+              style={{ backgroundColor: "var(--color-primary, #10b981)" }}
             >
               {isSubmitting ? "Definindo senha..." : "Definir senha"}
             </Button>
