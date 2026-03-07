@@ -75,8 +75,17 @@ export async function createBooking(payload: CreateBookingPayload): Promise<Book
 }
 
 export async function getMyBookings(): Promise<Booking[]> {
-  const { data } = await api.get<Booking[]>("/bookings/me");
-  return data;
+  const { data } = await api.get<Booking[] | PaginatedBookings>("/bookings/me");
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  if (data && Array.isArray(data.content)) {
+    return data.content;
+  }
+
+  return [];
 }
 
 export async function listBookings(

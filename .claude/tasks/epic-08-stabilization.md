@@ -90,7 +90,7 @@ Implementar um dashboard de visão geral com KPIs e atalhos rápidos, consumindo
 
 ## US-IMP-03 — Painel do Aluno com Próximas Sessões
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Prioridade:** 🟡 Média
 **Dependências:** nenhuma
 
@@ -104,21 +104,21 @@ O painel inicial do aluno (`/{slug}/alunos/painel`) exibe apenas os planos de tr
 Adicionar seção de próximas sessões antes dos treinos, e um card de destaque para a próxima sessão mais imediata.
 
 ### Critérios de Aceite
-- [ ] Seção "Próxima sessão" no topo — card destacado com data, horário e plano (se houver sessão agendada)
-- [ ] Seção "Próximas sessões" listando até 3 sessões futuras com status `scheduled`
-- [ ] Se não há sessões futuras: mensagem encorajadora com link para `/alunos/agenda`
-- [ ] Seção de treinos mantida, mas posicionada abaixo das sessões
-- [ ] Skeleton loading para as novas seções
+- [x] Seção "Próxima sessão" no topo — card destacado com data, horário e plano (se houver sessão agendada)
+- [x] Seção "Próximas sessões" listando até 3 sessões futuras com status `scheduled`
+- [x] Se não há sessões futuras: mensagem encorajadora com link para `/alunos/agenda`
+- [x] Seção de treinos mantida, mas posicionada abaixo das sessões
+- [x] Skeleton loading para as novas seções
 
 ### APIs a consumir (já implementadas)
 - `GET /bookings/me` — agendamentos do aluno autenticado (já implementado em `bookings.service.ts`)
 
 ### Subtasks
-- [ ] Query: `getMyBookings` filtrado por `status=scheduled` e ordenado por data
-- [ ] Componente `NextSessionCard` — card destacado com a próxima sessão
-- [ ] Lista de sessões futuras (até 3)
-- [ ] Estado vazio com link para agendar
-- [ ] Manter seção de treinos abaixo
+- [x] Query: `getMyBookings` filtrado por `status=scheduled` e ordenado por data
+- [x] Componente `NextSessionCard` — card destacado com a próxima sessão
+- [x] Lista de sessões futuras (até 3)
+- [x] Estado vazio com link para agendar
+- [x] Manter seção de treinos abaixo
 
 ---
 
