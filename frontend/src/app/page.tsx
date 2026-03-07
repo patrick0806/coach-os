@@ -10,36 +10,32 @@ function PlanCard({ plan }: { plan: Plan }) {
     <div
       className={`relative flex flex-col rounded-2xl p-8 ${
         plan.highlighted
-          ? "bg-white text-gray-900 shadow-2xl ring-2 ring-primary/30"
-          : "bg-slate-900/70 text-white ring-1 ring-white/10 backdrop-blur"
+          ? "bg-card text-card-foreground shadow-2xl ring-2 ring-primary/40"
+          : "bg-card/70 text-card-foreground ring-1 ring-border/70 backdrop-blur"
       }`}
     >
       {plan.highlighted ? (
-        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-semibold text-white">
+        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-semibold text-primary-foreground">
           Recomendado
         </span>
       ) : null}
 
       <div className="mb-6">
-        <h3
-          className={`text-xl font-bold ${plan.highlighted ? "text-gray-900" : "text-white"}`}
-        >
+        <h3 className="text-xl font-bold">
           {plan.name}
         </h3>
         {plan.description ? (
-          <p className={`mt-1 text-sm ${plan.highlighted ? "text-gray-500" : "text-white/60"}`}>
+          <p className="mt-1 text-sm text-muted-foreground">
             {plan.description}
           </p>
         ) : null}
       </div>
 
       <div className="mb-6">
-        <span
-          className={`text-4xl font-extrabold ${plan.highlighted ? "text-gray-900" : "text-white"}`}
-        >
+        <span className="text-4xl font-extrabold">
           {formatPlanPrice(plan.price)}
         </span>
-        <span className={`ml-1 text-sm ${plan.highlighted ? "text-gray-500" : "text-white/60"}`}>
+        <span className="ml-1 text-sm text-muted-foreground">
           /mês
         </span>
       </div>
@@ -48,11 +44,9 @@ function PlanCard({ plan }: { plan: Plan }) {
         {plan.benefits.map((benefit, i) => (
           <li key={i} className="flex items-start gap-2.5">
             <Check
-              className={`mt-0.5 size-4 shrink-0 ${plan.highlighted ? "text-primary" : "text-primary"}`}
+              className="mt-0.5 size-4 shrink-0 text-primary"
             />
-            <span
-              className={`text-sm ${plan.highlighted ? "text-gray-600" : "text-white/80"}`}
-            >
+            <span className="text-sm text-foreground/90">
               {benefit}
             </span>
           </li>
@@ -63,8 +57,8 @@ function PlanCard({ plan }: { plan: Plan }) {
         href="/cadastro"
         className={`block rounded-xl px-6 py-3 text-center text-sm font-semibold transition-all hover:-translate-y-0.5 ${
           plan.highlighted
-            ? "bg-primary text-white shadow-lg shadow-primary/30"
-            : "bg-white/10 text-white hover:bg-white/20"
+            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
         }`}
       >
         Começar agora
@@ -79,21 +73,21 @@ export default async function HomePage() {
   const plans = await listPlans();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="dark min-h-screen bg-background text-foreground">
       {/* Hero */}
-      <header className="border-b border-white/10 px-6 py-4">
+      <header className="border-b border-border/80 px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <span className="text-lg font-bold tracking-tight">Coach OS</span>
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="text-sm text-white/70 transition-colors hover:text-white"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Entrar
             </Link>
             <Link
               href="/cadastro"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
             >
               Testar sem cartão
             </Link>
@@ -104,29 +98,30 @@ export default async function HomePage() {
       <main>
         {/* Hero section */}
         <section className="relative overflow-hidden px-6 py-24 text-center">
-          <div className="absolute left-1/2 top-10 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
+          <div className="absolute left-1/2 top-10 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-background to-background" />
           <div className="mx-auto max-w-3xl">
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/80">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
               <Sparkles className="size-3.5" />
               Plataforma profissional para personal trainers
             </p>
             <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl">
               O sistema que transforma seu atendimento em um negócio
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-white/75">
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
               Organize alunos, treinos, agenda e sua pagina publica em um painel unico.
               Comece com 30 dias gratis e teste sem informar cartao.
             </p>
-            <div className="mx-auto mt-8 grid max-w-2xl gap-3 text-left text-sm text-white/80 sm:grid-cols-3">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+            <div className="mx-auto mt-8 grid max-w-2xl gap-3 text-left text-sm text-foreground/90 sm:grid-cols-3">
+              <div className="rounded-xl border border-border/70 bg-card/60 p-3">
                 <TimerReset className="mb-1 size-4 text-primary" />
                 30 dias de teste
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="rounded-xl border border-border/70 bg-card/60 p-3">
                 <ShieldCheck className="mb-1 size-4 text-primary" />
                 Sem cartao de credito
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="rounded-xl border border-border/70 bg-card/60 p-3">
                 <Check className="mb-1 size-4 text-primary" />
                 Setup em poucos minutos
               </div>
@@ -134,13 +129,13 @@ export default async function HomePage() {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 href="/cadastro"
-                className="rounded-xl bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
+                className="rounded-xl bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
               >
                 Teste sem passar o cartao
               </Link>
               <Link
                 href="/login"
-                className="rounded-xl border border-white/20 bg-white/5 px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-white/10"
+                className="rounded-xl border border-border bg-card/70 px-8 py-4 text-base font-semibold text-foreground transition-colors hover:bg-accent/70"
               >
                 Já tenho conta
               </Link>
@@ -155,13 +150,13 @@ export default async function HomePage() {
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                 Planos e preços
               </h2>
-              <p className="mt-3 text-white/70">
+              <p className="mt-3 text-muted-foreground">
                 Escolha o plano ideal para o tamanho do seu negócio.
               </p>
             </div>
 
             {plans.length === 0 ? (
-              <p className="text-center text-white/70">
+              <p className="text-center text-muted-foreground">
                 Planos indisponíveis no momento.
               </p>
             ) : (
@@ -185,7 +180,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-white/60">
+      <footer className="border-t border-border/80 px-6 py-8 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} Coach OS. Todos os direitos reservados.
       </footer>
     </div>

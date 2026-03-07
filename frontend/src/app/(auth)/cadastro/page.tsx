@@ -85,31 +85,32 @@ export default function CadastroPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-950 p-4">
+    <main className="dark relative min-h-screen overflow-hidden bg-background p-4 text-foreground">
       <Link
         href="/"
-        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/20"
+        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-md border border-border bg-card/80 px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-accent"
       >
         <ArrowLeft className="size-4" />
         Voltar para home
       </Link>
-      <div className="absolute left-1/2 top-8 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
+      <div className="absolute left-1/2 top-8 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-background to-background" />
       <div className="mx-auto grid min-h-screen w-full max-w-5xl items-center gap-6 py-8 lg:grid-cols-2">
         <section className="hidden lg:block">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/80">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5" />
             Coach OS para personal trainers
           </p>
-          <h1 className="text-4xl font-extrabold text-white">
+          <h1 className="text-4xl font-extrabold">
             Teste sem passar o cartao e organize seu atendimento com padrao profissional.
           </h1>
-          <p className="mt-4 max-w-xl text-white/70">
+          <p className="mt-4 max-w-xl text-muted-foreground">
             Voce entra hoje no plano Basico em periodo gratuito por 30 dias.
             Depois decide se quer continuar.
           </p>
-          <div className="mt-8 rounded-2xl border border-white/15 bg-white/5 p-5 text-sm text-white/80">
-            <p className="mb-3 text-sm font-semibold text-white">Plano selecionado no cadastro</p>
-            <p className="text-base font-bold text-white">Basico</p>
+          <div className="mt-8 rounded-2xl border border-border/70 bg-card/60 p-5 text-sm text-foreground/90">
+            <p className="mb-3 text-sm font-semibold">Plano selecionado no cadastro</p>
+            <p className="text-base font-bold">Basico</p>
             <ul className="mt-3 space-y-2">
               <li className="flex items-center gap-2"><Check className="size-4 text-primary" /> Ate 3 alunos</li>
               <li className="flex items-center gap-2"><Check className="size-4 text-primary" /> Agenda personalizada</li>
@@ -119,7 +120,7 @@ export default function CadastroPage() {
           </div>
         </section>
 
-        <Card className="w-full border-white/20 bg-white/95 shadow-2xl">
+        <Card className="w-full border-border bg-card shadow-2xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Crie sua conta</CardTitle>
             <CardDescription>
@@ -133,7 +134,7 @@ export default function CadastroPage() {
                   {submitError}
                 </p>
               ) : null}
-              <div className="rounded-lg border bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+              <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs text-foreground">
                 Plano do cadastro: <strong>Basico</strong> · 30 dias de teste sem cartao
               </div>
               <div className="space-y-2">
