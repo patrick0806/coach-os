@@ -33,7 +33,6 @@ export class LoginController {
     @Body() body: unknown,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<LoginResponseDTO> {
-    console.log("Here we go")
     const dto = validate(LoginRequestSchema, body);
     const result = await this.loginService.execute(dto);
 

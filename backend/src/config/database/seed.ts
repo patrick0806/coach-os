@@ -1,9 +1,9 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { hash } from "argon2";
-import { sql } from "drizzle-orm";
 
 import { getDatabaseConfig } from "@config/database/database.config";
+import { env } from "@config/env";
 import {
   plans,
   users,
@@ -11,6 +11,13 @@ import {
   students,
   admins,
   exercises,
+  workoutExercises,
+  workoutPlanStudents,
+  workoutPlans,
+  availabilitySlots,
+  servicePlans,
+  bookings,
+  passwordSetupTokens,
 } from "./schema";
 import { ApplicationRoles } from "@shared/enums";
 
@@ -21,15 +28,20 @@ async function cleanDatabase() {
   const db = drizzle(pool);
 
   try {
+    // Delete in dependency order: children before parents
+    await db.delete(workoutExercises);
+    await db.delete(workoutPlanStudents);
+    await db.delete(workoutPlans);
+    await db.delete(bookings);
+    await db.delete(servicePlans);
+    await db.delete(availabilitySlots);
+    await db.delete(passwordSetupTokens);
     await db.delete(students);
     await db.delete(admins);
     await db.delete(personals);
-    await db.delete(plans);
     await db.delete(exercises);
+    await db.delete(plans);
     await db.delete(users);
-
-    await db.execute(sql`ALTER SEQUENCE IF EXISTS users_id_seq RESTART WITH 1`);
-    await db.execute(sql`ALTER SEQUENCE IF EXISTS plans_id_seq RESTART WITH 1`);
 
     console.log("Database cleaned successfully!");
   } catch (error) {
@@ -53,27 +65,30 @@ async function seed() {
       {
         name: "Admin User",
         email: "admin@example.com",
-        password: await hash("testPassword"),
+        password: await hash("testPassword" + env.HASH_PEPPER, { type: 2 }), // argon2id = type 2
         role: ApplicationRoles.ADMIN,
         isActive: true,
       },
       {
         name: "Personal Trainer",
         email: "personal@example.com",
-        password: await hash("testPassword"),
+        password: await hash("testPassword" + env.HASH_PEPPER, { type: 2 }),
         role: ApplicationRoles.PERSONAL,
         isActive: true,
       },
       {
         name: "Joao Silva",
         email: "joao.silva@example.com",
-        password: await hash("studentPassword"),
+        password: await hash("studentPassword" + env.HASH_PEPPER, { type: 2 }),
         role: ApplicationRoles.STUDENT,
         isActive: true,
       },
     ];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [adminUser, personalUser, studentUser] = await db.insert(users).values(usersToInsert as any).returning();
+
+    const [adminUser, personalUser, studentUser] = await db
+      .insert(users)
+      .values(usersToInsert)
+      .returning();
 
     // --- ADMINS ---
     console.log("Inserting admin profile...");
@@ -81,7 +96,7 @@ async function seed() {
 
     // --- PERSONALS ---
     console.log("Inserting personal profile...");
-    const personalToInsert = {
+    const personalData = {
       userId: personalUser.id,
       slug: "personal-trainer",
       bio: "Personal trainer certificado com mais de 10 anos de experiencia em treinamento funcional e musculacao.",
@@ -103,8 +118,10 @@ async function seed() {
       lpImage3:
         "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800",
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [insertedPersonal] = await db.insert(personals).values(personalToInsert as any).returning();
+    const [insertedPersonal] = await db
+      .insert(personals)
+      .values(personalData)
+      .returning();
 
     // --- STUDENTS ---
     console.log("Inserting student profile...");
@@ -115,7 +132,7 @@ async function seed() {
 
     // --- SAAS PLANS ---
     console.log("Inserting SaaS plans...");
-    const plansToInsert = [
+    const plansData = [
       {
         name: "Basico",
         description: "O plano perfeito para quem esta comecando",
@@ -147,12 +164,11 @@ async function seed() {
         maxStudents: null,
       },
     ];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await db.insert(plans).values(plansToInsert as any);
+    await db.insert(plans).values(plansData);
 
     // --- EXERCISES ---
     console.log("Inserting global exercises...");
-    const exercisesToInsert = [
+    const exercisesData = [
       // Peito
       { name: "Supino Reto", description: "Supino reto com barra para desenvolvimento do peitoral", muscleGroup: "peito", personalId: null },
       { name: "Supino Inclinado", description: "Supino inclinado com barra ou halteres", muscleGroup: "peito", personalId: null },
@@ -212,11 +228,10 @@ async function seed() {
       { name: "Bicicleta", description: "Abdominal obliquo em movimento", muscleGroup: "core", personalId: null },
       { name: "Russian Twist", description: "Torcao de tronco sentado", muscleGroup: "core", personalId: null },
     ];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await db.insert(exercises).values(exercisesToInsert as any);
+    await db.insert(exercises).values(exercisesData);
 
     console.log("Seed data inserted successfully!");
-    console.log("\n--- Seed Credentials ---");
+    console.log("\n--- Credenciais da Seed ---");
     console.log("Admin:    admin@example.com / testPassword");
     console.log("Personal: personal@example.com / testPassword");
     console.log("Student:  joao.silva@example.com / studentPassword");
