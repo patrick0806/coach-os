@@ -22,6 +22,9 @@
 | 06 - Planos SaaS e Assinatura | [epic-06-saas-plans.md](epic-06-saas-plans.md) | [x] | [x] |
 | 07 - Area do Admin | [epic-07-admin.md](epic-07-admin.md) | [x] | [x] |
 | 08 - Estabilizacao da Base (Quality & UX) | [epic-08-stabilization.md](epic-08-stabilization.md) | — | `[x]` |
+| 09 - Freemium e Conversao | [epic-09-freemium-conversion.md](epic-09-freemium-conversion.md) | [ ] | [ ] |
+| 10 - Agenda e Produtividade do Personal | [epic-10-agenda-e-produtividade.md](epic-10-agenda-e-produtividade.md) | [ ] | [ ] |
+| 11 - Treinos, Midia e Tema | [epic-11-treinos-midia-e-tema.md](epic-11-treinos-midia-e-tema.md) | [ ] | [ ] |
 
 ## Roadmap por Sprint
 
@@ -47,6 +50,21 @@ Sprint 5 — Monetizacao
 
 Sprint 6 — Admin Area
   US-017 → US-018
+
+Sprint 7 — Freemium e Conversao
+  US-021 → US-022 → US-023
+
+Sprint 8 — Agenda Operacional do Personal
+  US-024 → US-025
+
+Sprint 9 — Busca e Midia
+  US-026 → US-027 → US-028
+
+Sprint 10 — Organizacao de Treinos
+  US-029 → US-030
+
+Sprint 11 — Tema do Painel Personal
+  US-031
 ```
 
 ## Mapa de Dependencias (revisado)
@@ -124,4 +142,5 @@ US-015 (Planos SaaS publicos) — independente do auth
 - Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
 
 ### Proximo passo
-Epic 08 — Estabilização da Base concluído.
+Iniciar Epic 09 — Freemium e Conversao.
+Ordem sugerida: US-021 → US-022 → US-023.
