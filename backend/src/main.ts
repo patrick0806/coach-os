@@ -80,7 +80,7 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: isDev ? env.CORS_ORIGINS.split(",") : "https://referer.com",
+    origin: isDev ? "http://localhost:3000,http://localhost:3001" : "https://coachos.com.br/cadastro,https://coachos.com.br/cadastro",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     exposedHeaders: ["Access-Token", "Refresh-Token"],

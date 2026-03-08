@@ -3,17 +3,17 @@ import { pino } from 'pino';
 const isDev = process.env.NODE_ENV !== 'production';
 
 export const pinoConfig = {
-  level: isDev ? 'info' : 'error',
+  level: isDev ? 'info' : 'info',/*'error',*/
   transport: isDev
     ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: false,
-          ignore: 'pid,hostname',
-          singleLine: false,
-        },
-      }
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: false,
+        ignore: 'pid,hostname',
+        singleLine: false,
+      },
+    }
     : undefined,
   formatters: {
     level: (label: string) => {

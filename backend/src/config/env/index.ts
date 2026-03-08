@@ -28,9 +28,6 @@ export const env = {
 
   RESEND_API_KEY: process.env.RESEND_API_KEY || "",
   APP_URL: process.env.APP_URL || "http://localhost:3000",
-  CORS_ORIGINS:
-    process.env.CORS_ORIGINS ||
-    "http://localhost:3000,http://localhost:3001",
 
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
