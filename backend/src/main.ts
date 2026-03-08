@@ -80,9 +80,9 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: isDev 
-      ? ["http://localhost:3000", "http://localhost:3001"] 
-      : ["https://coachos.com.br", "https://www.coachos.com.br"],
+    origin: isDev
+      ? ["http://localhost:3000", "http://localhost:3001"]
+      : ["https://coachos.com.br", "http://www.coachos.com.br", "https://www.api.coachos.com.br", "https://api.coachos.com.br"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     exposedHeaders: ["Access-Token", "Refresh-Token"],
