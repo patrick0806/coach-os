@@ -13,7 +13,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Desativa a telemetria do Next.js durante o build
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
+# Ignora erros de certificado auto-assinado durante o build (prerendering)
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 
 RUN npm run build
 
@@ -21,8 +23,8 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Cria um usuário não-root para segurança
 RUN addgroup --system --gid 1001 nodejs
@@ -43,8 +45,8 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # O Next.js standalone gera um arquivo server.js que deve ser executado pelo Node.js diretamente
 CMD ["node", "server.js"]
