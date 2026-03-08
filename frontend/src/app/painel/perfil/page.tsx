@@ -82,7 +82,7 @@ export default function PerfilPage() {
   async function handleImageUpload(field: ImageField, file: File) {
     setUploadingField(field);
     try {
-      const { url } = await uploadProfileImage(file);
+      const { url } = await uploadProfileImage(file, field);
       form.setValue(field, url);
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Erro ao enviar imagem."));

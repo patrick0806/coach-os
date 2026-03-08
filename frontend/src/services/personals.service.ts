@@ -1,3 +1,4 @@
+import axios from "axios";
 import { api } from "@/lib/api";
 
 export interface PersonalProfile {
@@ -36,21 +37,46 @@ export interface UpdateProfilePayload {
   lpImage3?: string;
 }
 
+export type ImageType =
+  | "profilePhoto"
+  | "lpHeroImage"
+  | "lpImage1"
+  | "lpImage2"
+  | "lpImage3";
+
 export async function getMyProfile(): Promise<PersonalProfile> {
   const { data } = await api.get<PersonalProfile>("/personals/me/profile");
   return data;
 }
 
-export async function updateMyProfile(payload: UpdateProfilePayload): Promise<PersonalProfile> {
-  const { data } = await api.patch<PersonalProfile>("/personals/me/profile", payload);
+export async function updateMyProfile(
+  payload: UpdateProfilePayload,
+): Promise<PersonalProfile> {
+  const { data } = await api.patch<PersonalProfile>(
+    "/personals/me/profile",
+    payload,
+  );
   return data;
 }
 
-export async function uploadProfileImage(file: File): Promise<{ url: string }> {
-  const formData = new FormData();
-  formData.append("file", file);
-  const { data } = await api.post<{ url: string }>("/personals/me/profile/upload", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+export async function uploadProfileImage(
+  file: File,
+  imageType: ImageType,
+): Promise<{ url: string }> {
+  const { data } = await api.post<{ uploadUrl: string; publicUrl: string }>(
+    "/personals/me/profile/upload",
+    {
+      fileName: file.name,
+      mimeType: file.type,
+      imageType,
+    },
+  );
+
+  await axios.put(data.uploadUrl, file, {
+    headers: {
+      "Content-Type": file.type,
+    },
   });
-  return data;
+
+  return { url: data.publicUrl };
 }
