@@ -152,8 +152,8 @@ export function LandingPageCard({
                     label={imageUrl ? "Trocar" : "Upload"}
                     isUploading={uploadingField === field}
                     onUpload={(file) => onImageUpload(field, file)}
-                    className="w-full"
                   />
+                  {/*className="w-full"*/}
                 </div>
               );
             })}
