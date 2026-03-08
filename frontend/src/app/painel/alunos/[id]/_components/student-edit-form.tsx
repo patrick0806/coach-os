@@ -13,17 +13,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { updateStudent, type Student } from "@/services/students.service";
+import { StudentDetail, updateStudent, type Student } from "@/services/students.service";
 
 const editSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  email: z.string().email("Informe um e-mail válido"),
+  email: z.email("Informe um e-mail válido"),
 });
 
 type EditFormValues = z.infer<typeof editSchema>;
 
 interface StudentEditFormProps {
-  student: Student;
+  student: StudentDetail;
 }
 
 export function StudentEditForm({ student }: StudentEditFormProps) {
