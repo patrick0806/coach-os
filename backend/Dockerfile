@@ -32,5 +32,6 @@ RUN npm ci --only=production
 # Expõe a porta definida no main.ts (padrão 3000)
 EXPOSE 3000
 
+ENV NODE_ENV=production
 # Comando para iniciar a aplicação
 CMD ["npm", "run", "start:prod"]
