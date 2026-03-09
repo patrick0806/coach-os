@@ -66,7 +66,10 @@ async function bootstrap() {
     },
   );
 
-  app.setGlobalPrefix(API_BASE_PATH);
+  if (isDev) {
+    app.setGlobalPrefix(API_BASE_PATH);
+  }
+
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" });
 
   const swaggerConfig = new SwaggerConfig();
