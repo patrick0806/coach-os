@@ -1,14 +1,16 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   rewrites: async () => {
-    return [
+    return isDev ? [
       {
         source: '/api/:path*',
         destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
       },
-    ];
+    ] : [];
   },
 };
 
