@@ -21,4 +21,10 @@ export class AdminsRepository {
       .limit(1);
     return result[0] ?? null;
   }
+
+  async create(data: { userId: string }, tx?: DrizzleDb): Promise<Admin> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db.insert(admins).values(data).returning();
+    return result[0];
+  }
 }

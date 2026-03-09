@@ -34,4 +34,6 @@ export const env = {
   STRIPE_PRICE_BASICO: process.env.STRIPE_PRICE_BASICO || "",
   STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO || "",
   STRIPE_PRICE_EMPRESARIAL: process.env.STRIPE_PRICE_EMPRESARIAL || "",
+
+  CAN_CREATE_ADMIN: process.env.CAN_CREATE_ADMIN === "true" || false,
 };

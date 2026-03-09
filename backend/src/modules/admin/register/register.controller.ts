@@ -15,15 +15,15 @@ import { RegisterRequestSchema, RegisterResponseDTO } from "./dtos";
 import { RegisterService } from "./register.service";
 
 @Public()
-@ApiTags(API_TAGS.ADMIN)
+@ApiTags(API_TAGS.AUTH)
 @Controller({ version: "1", path: "register" })
 export class RegisterController {
-  constructor(private registerService: RegisterService) { }
+  constructor(private registerService: RegisterService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: "Register Personal Admin" })
-  @ApiCreatedResponse({ description: "Personal Admin registered successfully", type: RegisterResponseDTO })
+  @ApiOperation({ summary: "Register Personal Trainer" })
+  @ApiCreatedResponse({ description: "Personal Trainer registered successfully", type: RegisterResponseDTO })
   async handle(@Body() body: unknown): Promise<RegisterResponseDTO> {
     const dto = validate(RegisterRequestSchema, body);
     return this.registerService.execute({

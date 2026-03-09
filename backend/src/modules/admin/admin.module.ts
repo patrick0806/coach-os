@@ -28,6 +28,9 @@ import { GetStatsController } from "./dashboard/get-stats/get-stats.controller";
 import { GetStatsService } from "./dashboard/get-stats/get-stats.service";
 import { GetChartsController } from "./dashboard/get-charts/get-charts.controller";
 import { GetChartsService } from "./dashboard/get-charts/get-charts.service";
+import { RegisterController } from "./register/register.controller";
+import { RegisterService } from "./register/register.service";
+import { AdminsRepository } from "@shared/repositories";
 
 @Module({
   controllers: [
@@ -41,6 +44,7 @@ import { GetChartsService } from "./dashboard/get-charts/get-charts.service";
     ReorderPlansController,
     GetStatsController,
     GetChartsController,
+    RegisterController,
   ],
   providers: [
     ListPersonalsService,
@@ -53,6 +57,8 @@ import { GetChartsService } from "./dashboard/get-charts/get-charts.service";
     ReorderPlansService,
     GetStatsService,
     GetChartsService,
+    RegisterService,
+    AdminsRepository,
     AdminPersonalsRepository,
     PersonalsRepository,
     UsersRepository,
@@ -60,4 +66,4 @@ import { GetChartsService } from "./dashboard/get-charts/get-charts.service";
     DashboardRepository,
   ],
 })
-export class AdminModule {}
+export class AdminModule { }
