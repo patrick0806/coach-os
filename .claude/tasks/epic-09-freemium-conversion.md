@@ -44,7 +44,7 @@ Como personal recem-cadastrado, quero usar a plataforma por 30 dias gratis para 
 
 ## US-022 — Bloqueio de recursos apos trial expirar
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 7
 **Dependencias:** US-021
 
@@ -52,23 +52,23 @@ Como personal recem-cadastrado, quero usar a plataforma por 30 dias gratis para 
 Como dono da plataforma, quero bloquear o acesso do tenant inteiro (personal e alunos) quando o trial expirar ou houver inadimplencia, para manter o modelo de assinatura.
 
 ### Criterios de Aceite
-- [ ] Personal com acesso expirado/inadimplente nao consegue acessar o painel (leitura e escrita)
-- [ ] Alunos vinculados ao personal tambem perdem acesso ao portal (`/{slug}/alunos/*`)
-- [ ] Login pode autenticar, mas o acesso deve ser barrado por status do tenant com mensagem clara
-- [ ] Mensagem de bloqueio orienta regularizacao da assinatura
-- [ ] Bloqueio aplicado no backend (nao so frontend), cobrindo personal e student
+- [x] Personal com acesso expirado/inadimplente nao consegue acessar o painel (leitura e escrita)
+- [x] Alunos vinculados ao personal tambem perdem acesso ao portal (`/{slug}/alunos/*`)
+- [x] Login pode autenticar, mas o acesso deve ser barrado por status do tenant com mensagem clara
+- [x] Mensagem de bloqueio orienta regularizacao da assinatura
+- [x] Bloqueio aplicado no backend (nao so frontend), cobrindo personal e student
 
 ### Subtasks Backend
-- [ ] Criar guard/policy `TenantAccessGuard` validando status de acesso do personal dono do tenant
-- [ ] Aplicar guard em rotas `PERSONAL` e `STUDENT` (exceto auth, checkout e webhook)
-- [ ] Padronizar erro de negocio para tenant bloqueado (`trial_expired`, `payment_required`, `subscription_inactive`)
-- [ ] Unit tests por modulo para cobrir bloqueio para personal e aluno
+- [x] Criar guard/policy `TenantAccessGuard` validando status de acesso do personal dono do tenant
+- [x] Aplicar guard em rotas `PERSONAL` e `STUDENT` (exceto auth, checkout e webhook)
+- [x] Padronizar erro de negocio para tenant bloqueado (`trial_expired`, `payment_required`, `subscription_inactive`)
+- [x] Unit tests por modulo para cobrir bloqueio para personal e aluno
 
 ### Subtasks Frontend
-- [ ] Interceptar erro de tenant bloqueado e redirecionar para tela de bloqueio
-- [ ] Tela de bloqueio no painel do personal com CTA para `/painel/assinatura`
-- [ ] Tela de bloqueio no portal do aluno explicando indisponibilidade temporaria
-- [ ] Banner preventivo quando faltarem <= 7 dias de trial
+- [x] Interceptar erro de tenant bloqueado e redirecionar para tela de bloqueio
+- [x] Tela de bloqueio no painel do personal com CTA para `/painel/assinatura`
+- [x] Tela de bloqueio no portal do aluno explicando indisponibilidade temporaria
+- [x] Banner preventivo quando faltarem <= 7 dias de trial
 
 ### Rollout Tecnico — Guard por Prioridade
 

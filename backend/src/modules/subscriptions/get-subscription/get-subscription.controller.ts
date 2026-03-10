@@ -1,7 +1,7 @@
 import { Controller, Get } from "@nestjs/common";
 import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
-import { CurrentUser, Roles } from "@shared/decorators";
+import { BypassTenantAccess, CurrentUser, Roles } from "@shared/decorators";
 import { ApplicationRoles } from "@shared/enums";
 import { IAccessToken } from "@shared/interfaces";
 import { API_TAGS } from "@shared/constants";
@@ -16,6 +16,7 @@ export class GetSubscriptionController {
   constructor(private readonly getSubscriptionService: GetSubscriptionService) {}
 
   @Get()
+  @BypassTenantAccess()
   @ApiOperation({ summary: "Get current subscription status for the authenticated personal" })
   @ApiOkResponse({ type: SubscriptionStatusDTO })
   handle(@CurrentUser() user: IAccessToken): Promise<SubscriptionStatusDTO> {

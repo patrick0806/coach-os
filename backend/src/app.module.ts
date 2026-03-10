@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { RouterModule } from "@nestjs/core";
 
-import { JWTAuthGuard, RolesGuard } from "@shared/guards";
+import { JWTAuthGuard, RolesGuard, TenantAccessGuard } from "@shared/guards";
 
 import { HealthModule } from "@modules/health/health.module";
 import { AuthModule } from "@modules/auth/auth.module";
@@ -93,6 +93,10 @@ import { DatabaseModule } from "@config/database/database.module";
     {
       provide: "APP_GUARD",
       useClass: RolesGuard,
+    },
+    {
+      provide: "APP_GUARD",
+      useClass: TenantAccessGuard,
     },
   ],
 })

@@ -16,7 +16,7 @@ import { ExceptionDTO } from "./dtos/exception.dto";
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(
-    exception: HttpException & { error: string; message: string },
+    exception: HttpException & { error?: string; message: string; code?: string },
     host: ArgumentsHost
   ) {
     const context = host.switchToHttp();
@@ -29,11 +29,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const exceptionResponse = new ExceptionDTO(
       statusCode,
-      exception.error,
+      exception.error ?? HttpStatus[statusCode],
       request.url,
       transactionId,
       exception.message
     );
+    exceptionResponse.code = exception.code;
 
     LogBuilderService.build({
       level: statusCode === HttpStatus.INTERNAL_SERVER_ERROR ? "error" : "warn",
