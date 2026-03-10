@@ -289,7 +289,7 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
   }
 
   function toggleDay(day: number) {
-    const currentDays = form.getValues("daysOfWeek");
+    const currentDays = form.getValues("daysOfWeek") || [];
     const next = currentDays.includes(day)
       ? currentDays.filter((value) => value !== day)
       : [...currentDays, day].sort((a, b) => a - b);

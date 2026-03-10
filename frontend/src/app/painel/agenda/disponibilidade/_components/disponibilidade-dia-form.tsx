@@ -142,7 +142,7 @@ export function DisponibilidadeDiaForm({
       buildPreviewSlots({
         startTime: watchedValues.startTime ?? "",
         endTime: watchedValues.endTime ?? "",
-        slotDurationMinutes: watchedValues.slotDurationMinutes ?? 0,
+        slotDurationMinutes: (watchedValues.slotDurationMinutes as number | undefined) ?? 0,
         breakStart: watchedValues.breakStart ?? "",
         breakEnd: watchedValues.breakEnd ?? "",
       }),
