@@ -4,32 +4,68 @@ Status: `[ ]` todo
 
 ---
 
-## US-028 — Midia de execucao em exercicios (video/gif)
+## US-028 — Guia visual de execucao em exercicios
 
 **Status:** `[ ]` todo
 **Sprint:** 9
 **Dependencias:** US-007
 
 **Descricao:**
-Como personal, quero anexar video ou gif em exercicios para que o aluno entenda melhor a execucao sem precisar de instrucoes textuais extensas.
+Como aluno, quero ver uma demonstracao visual de como executar cada exercicio da minha ficha, para treinar com mais seguranca e sem depender de explicacoes textuais. Como personal, quero enriquecer exercicios customizados com um link do YouTube quando quiser dar uma instrucao mais personalizada.
+
+**Decisao de arquitetura — sem S3, sem upload:**
+- Exercicios **globais** (os 50+ pre-cadastrados): recebem GIF automatico via mapeamento com a [ExerciseDB](https://exercisedb.p.rapidapi.com). A URL do GIF e armazenada no banco uma unica vez (no seed/migration), servida diretamente da CDN publica da ExerciseDB — custo zero de storage.
+- Exercicios **customizados** (criados pelo personal): campo opcional de URL do YouTube. O personal cola o link do proprio canal; o frontend embeda o player.
+- **Sem upload de arquivo, sem S3, sem multipart** — infraestrutura eliminada.
+
+---
+
+### Modelo de Dados
+
+| Coluna | Tipo | Descricao |
+|--------|------|-----------|
+| `exercisedb_gif_url` | text nullable | URL do GIF da CDN do ExerciseDB (exercicios globais) |
+| `youtube_url` | text nullable | URL do YouTube (exercicios customizados do personal) |
+
+Regra de negocio:
+- Exercicio global: pode ter `exercisedb_gif_url`. Nao aceita `youtube_url`.
+- Exercicio customizado (personal): pode ter `youtube_url`. Nao aceita `exercisedb_gif_url` (campo gerenciado apenas pelo sistema).
+
+---
 
 ### Criterios de Aceite
-- [ ] Exercicio aceita `mediaUrl` e `mediaType` (`video` | `gif`)
-- [ ] Upload validado: `video/mp4` max 50MB, `image/gif` max 10MB
-- [ ] Aluno visualiza a midia no detalhe do treino
-- [ ] Fallback visual quando sem midia
-- [ ] Personal pode remover midia existente
+
+#### Exercicios Globais — GIF automatico
+- [ ] Os 50+ exercicios globais do seed tem `exercisedb_gif_url` preenchida com a URL do GIF correspondente na ExerciseDB
+- [ ] Aluno ve o GIF animado no detalhe do exercicio dentro da ficha de treino
+- [ ] Se o exercicio global nao tiver mapeamento (exercicio muito especifico), exibe placeholder "Sem demonstracao disponivel"
+
+#### Exercicios Customizados — Link do YouTube
+- [ ] Personal pode salvar uma URL do YouTube no formulario de criacao/edicao do exercicio
+- [ ] Apenas URLs do dominio `youtube.com` ou `youtu.be` sao aceitas
+- [ ] Aluno ve o video embedado (iframe do YouTube) no detalhe do exercicio
+- [ ] Personal pode remover o link (campo vazio = sem demonstracao)
+
+#### Exibicao (ambos os tipos)
+- [ ] Prioridade de exibicao: YouTube > GIF do ExerciseDB > placeholder
+- [ ] Placeholder visual quando nao ha nenhuma midia configurada
+- [ ] Midia exibida apenas na area do aluno — no painel do personal exibir apenas preview discreto (thumbnail ou label)
+
+---
 
 ### Subtasks Backend
-- [ ] Migration: `media_url` e `media_type` em `exercises`
-- [ ] `POST /exercises/:id/media` — upload multipart S3
-- [ ] `DELETE /exercises/:id/media` — remove do S3 e banco
-- [ ] Unit tests: upload valido, tipo invalido, tamanho excedido, remocao
+- [ ] Migration: adicionar `exercisedb_gif_url` e `youtube_url` em `exercises`
+- [ ] Atualizar seed: mapear os 50 exercicios globais com suas URLs do ExerciseDB
+- [ ] `PATCH /exercises/:id/youtube-url` — salvar/remover URL do YouTube (apenas exercicios do personal)
+- [ ] Validar que a URL e do YouTube (dominio allowlist)
+- [ ] Incluir `exercisedbGifUrl` e `youtubeUrl` no response de `GET /exercises` e `GET /exercises/:id`
+- [ ] Unit tests
 
 ### Subtasks Frontend
-- [ ] Zona de upload com preview no formulario de exercicio
-- [ ] Render de video/gif no treino do aluno
-- [ ] Validacao client-side de tipo e tamanho
+- [ ] Campo "Link do YouTube" no formulario de exercicio customizado
+- [ ] Componente `ExercicioMidia` na area do aluno (GIF ou iframe YouTube)
+- [ ] Placeholder quando sem midia
+- [ ] Preview discreto no painel do personal (so mostrar que tem video)
 
 ---
 
@@ -40,301 +76,315 @@ Como personal, quero anexar video ou gif em exercicios para que o aluno entenda 
 ##### 1.1 Migration
 
 ```sql
--- Adicionar enum e colunas em exercises
 ALTER TABLE "exercises"
-  ADD COLUMN "media_url" text,
-  ADD COLUMN "media_type" varchar(5);
--- media_type: 'video' | 'gif' | NULL
--- Nao usar pg enum para facilitar migracao futura
+  ADD COLUMN "exercisedb_gif_url" text,
+  ADD COLUMN "youtube_url" text;
 ```
 
 ##### 1.2 Schema Drizzle
 
 ```typescript
 // Adicionar em schema/exercises.ts
-mediaUrl: text('media_url'),
-mediaType: varchar('media_type', { length: 5 }).$type<'video' | 'gif'>(),
+exercisedbGifUrl: text('exercisedb_gif_url'),
+youtubeUrl: text('youtube_url'),
 ```
 
-##### 1.3 Estrutura de arquivos
+##### 1.3 Atualizacao do Seed
+
+O seed ja popula 50 exercicios globais. Adicionar o campo `exercisedbGifUrl` para cada um.
+
+**Como obter os GIF URLs:**
+A ExerciseDB tem endpoint publico (com chave RapidAPI gratuita) que retorna exercicios com `gifUrl`. O processo e feito uma unica vez, offline, pelo dev:
+
+```bash
+# Script utilitario (rodar uma vez para gerar o mapeamento)
+# GET https://exercisedb.p.rapidapi.com/exercises?limit=1300
+# Salvar o campo gifUrl para cada exercicio encontrado por nome
+# Atualizar o array de seed com os gifUrls correspondentes
+```
+
+Exemplo do seed atualizado:
+```typescript
+{ name: 'Agachamento', muscleGroup: 'quadriceps', isGlobal: true,
+  exercisedbGifUrl: 'https://v2.exercisedb.io/image/abc123.gif' },
+{ name: 'Supino Reto', muscleGroup: 'chest', isGlobal: true,
+  exercisedbGifUrl: 'https://v2.exercisedb.io/image/def456.gif' },
+// ...
+```
+
+> Exercicios que nao tiverem correspondencia no ExerciseDB ficam com `exercisedbGifUrl: null` — sem problema, o placeholder cuida disso.
+
+##### 1.4 Endpoint — PATCH /exercises/:id/youtube-url
 
 ```
 src/modules/exercises/
-  upload-media/
-    upload-media.controller.ts
-    upload-media.service.ts
+  update-youtube-url/
+    update-youtube-url.controller.ts
+    update-youtube-url.service.ts
+    dtos/
+      request.dto.ts
     tests/
-      upload-media.service.spec.ts
-  delete-media/
-    delete-media.controller.ts
-    delete-media.service.ts
-    tests/
-      delete-media.service.spec.ts
+      update-youtube-url.service.spec.ts
+      update-youtube-url.controller.spec.ts
 ```
 
-##### 1.4 Controller — Upload
-
+**DTO:**
 ```typescript
-@Post(':id/media')
-@UseInterceptors(FileInterceptor('file'))
-@Roles(Role.PERSONAL)
-async handle(
-  @Param('id') id: string,
-  @UploadedFile() file: Express.Multer.File,
-  @CurrentUser() user: IAccessToken,
-) {
-  return this.service.execute(id, file, user.profileId)
-}
+// Allowlist de dominios aceitos
+const YOUTUBE_DOMAINS = ['youtube.com', 'www.youtube.com', 'youtu.be']
+
+export const UpdateYoutubeUrlSchema = z.object({
+  youtubeUrl: z
+    .string()
+    .url('URL invalida')
+    .refine((url) => {
+      try {
+        const { hostname } = new URL(url)
+        return YOUTUBE_DOMAINS.includes(hostname)
+      } catch {
+        return false
+      }
+    }, 'Apenas links do YouTube sao aceitos (youtube.com ou youtu.be)')
+    .nullable(),
+  // null = remover o link
+})
 ```
 
-**Configuracao do interceptor (validacao de tamanho e tipo no pipe):**
+**Service:**
 ```typescript
-@UploadedFile(
-  new ParseFilePipe({
-    validators: [
-      new MaxFileSizeValidator({ maxSize: 50 * 1024 * 1024 }), // 50MB max
-      new FileTypeValidator({ fileType: /(video\/mp4|image\/gif)/ }),
-    ],
-  }),
-)
-```
+async execute(exerciseId: string, dto: UpdateYoutubeUrlDto, personalId: string) {
+  const parsed = UpdateYoutubeUrlSchema.safeParse(dto)
+  if (!parsed.success) throw new BadRequestException(parsed.error.errors[0].message)
 
-> **Nota:** O `MaxFileSizeValidator` aplica 50MB para todos. A validacao diferenciada por tipo (gif max 10MB) deve ser feita no service, pois o pipe nao tem acesso ao tipo no momento da validacao de tamanho.
-
-##### 1.5 Service — UploadExerciseMediaService
-
-```typescript
-async execute(exerciseId: string, file: Express.Multer.File, personalId: string) {
   // 1. Buscar exercicio e validar ownership
   const exercise = await this.exercisesRepository.findById(exerciseId)
   if (!exercise) throw new NotFoundException('Exercicio nao encontrado')
-  // Exercicios globais (personalId = null) nao aceitam upload de midia
+
+  // 2. Exercicios globais nao aceitam youtube_url (gerenciados pelo sistema)
+  if (!exercise.personalId)
+    throw new ForbiddenException('Exercicios globais nao podem receber link do YouTube')
+
+  // 3. Validar que pertence ao personal logado
   if (exercise.personalId !== personalId)
     throw new ForbiddenException('Sem permissao para editar este exercicio')
 
-  // 2. Validar tipo MIME (redundante com pipe, mas defesa em profundidade)
-  const allowedMimes = ['video/mp4', 'image/gif']
-  if (!allowedMimes.includes(file.mimetype))
-    throw new BadRequestException('Tipo de arquivo invalido. Aceito: MP4 e GIF')
+  // 4. Atualizar
+  await this.exercisesRepository.updateYoutubeUrl(exerciseId, dto.youtubeUrl)
+  return { youtubeUrl: dto.youtubeUrl }
+}
+```
 
-  // 3. Validar tamanho por tipo
-  const mediaType = file.mimetype === 'video/mp4' ? 'video' : 'gif'
-  const maxSizeByType = { video: 50 * 1024 * 1024, gif: 10 * 1024 * 1024 }
-  if (file.size > maxSizeByType[mediaType])
-    throw new BadRequestException(
-      mediaType === 'gif'
-        ? 'GIF deve ter no maximo 10MB'
-        : 'Video deve ter no maximo 50MB'
-    )
+##### 1.5 Repository — novos metodos
 
-  // 4. Se ja existe midia, remover do S3 antes de fazer upload do novo
-  if (exercise.mediaUrl) {
-    await this.s3Provider.delete(exercise.mediaUrl).catch(() => {
-      // Logar mas nao bloquear o upload do novo arquivo
-      this.logger.warn(`Falha ao remover midia antiga: ${exercise.mediaUrl}`)
-    })
+```typescript
+async updateYoutubeUrl(exerciseId: string, youtubeUrl: string | null): Promise<void>
+```
+
+##### 1.6 Response DTO — atualizar ExerciseDto
+
+```typescript
+// Adicionar em ExerciseDto
+exercisedbGifUrl: string | null   // URL do GIF da CDN ExerciseDB
+youtubeUrl: string | null          // URL do YouTube (exercicios customizados)
+```
+
+##### 1.7 Utilitario — extrair video ID do YouTube
+
+```typescript
+// exercises.utils.ts — usado apenas no frontend, mas documentado aqui para referencia
+export function extractYouTubeVideoId(url: string): string | null {
+  try {
+    const { hostname, pathname, searchParams } = new URL(url)
+    if (hostname === 'youtu.be') return pathname.slice(1)       // youtu.be/{id}
+    if (hostname.includes('youtube.com')) return searchParams.get('v') // youtube.com/watch?v={id}
+    return null
+  } catch {
+    return null
   }
-
-  // 5. Upload para S3
-  const key = `exercises/${personalId}/${exerciseId}/${Date.now()}.${mediaType === 'video' ? 'mp4' : 'gif'}`
-  const url = await this.s3Provider.upload(file.buffer, key, file.mimetype)
-
-  // 6. Atualizar banco
-  await this.exercisesRepository.updateMedia(exerciseId, url, mediaType)
-
-  return { mediaUrl: url, mediaType }
 }
+// URL de embed: https://www.youtube.com/embed/{videoId}
 ```
 
-##### 1.6 Service — DeleteExerciseMediaService
-
-```typescript
-async execute(exerciseId: string, personalId: string) {
-  const exercise = await this.exercisesRepository.findById(exerciseId)
-  if (!exercise) throw new NotFoundException('Exercicio nao encontrado')
-  if (exercise.personalId !== personalId)
-    throw new ForbiddenException('Sem permissao para editar este exercicio')
-  if (!exercise.mediaUrl)
-    throw new BadRequestException('Este exercicio nao possui midia')
-
-  // 1. Remover do S3 (fire-and-forget tolerante a falha)
-  await this.s3Provider.delete(exercise.mediaUrl).catch(() =>
-    this.logger.warn(`Falha ao remover arquivo S3: ${exercise.mediaUrl}`)
-  )
-
-  // 2. Limpar campos no banco independentemente do resultado S3
-  await this.exercisesRepository.updateMedia(exerciseId, null, null)
-}
-```
-
-##### 1.7 Repository — novo metodo
-
-```typescript
-async updateMedia(
-  exerciseId: string,
-  mediaUrl: string | null,
-  mediaType: 'video' | 'gif' | null,
-): Promise<Exercise>
-```
-
-##### 1.8 Response DTO dos exercicios — atualizar
-
-```typescript
-// Adicionar em ExerciseDto (response existente)
-mediaUrl: string | null
-mediaType: 'video' | 'gif' | null
-```
-
-##### 1.9 Cenarios de erro
+##### 1.8 Cenarios de erro — Backend
 
 | Cenario | Excecao | Mensagem |
 |---------|---------|----------|
 | Exercicio nao encontrado | `NotFoundException` | "Exercicio nao encontrado" |
-| Exercicio global (nao pertence ao personal) | `ForbiddenException` | "Sem permissao para editar este exercicio" |
-| MIME invalido | `BadRequestException` | "Tipo de arquivo invalido. Aceito: MP4 e GIF" |
-| GIF > 10MB | `BadRequestException` | "GIF deve ter no maximo 10MB" |
-| Video > 50MB | `BadRequestException` | "Video deve ter no maximo 50MB" |
-| Arquivo nenhum enviado (field vazio) | 400 do pipe NestJS | "File is required" |
-| Delete sem midia existente | `BadRequestException` | "Este exercicio nao possui midia" |
-| Falha no S3 ao fazer upload | Relanca erro (500) — falha critica | — |
-| Falha no S3 ao remover antiga | Logado, nao bloqueia | — |
+| Exercicio global recebe youtube_url | `ForbiddenException` | "Exercicios globais nao podem receber link do YouTube" |
+| Exercicio customizado de outro personal | `ForbiddenException` | "Sem permissao para editar este exercicio" |
+| URL invalida (formato errado) | `BadRequestException` | "URL invalida" |
+| URL de outro dominio (ex: vimeo.com) | `BadRequestException` | "Apenas links do YouTube sao aceitos" |
+| `youtubeUrl: null` (remover link) | Sucesso — limpa o campo | — |
 
 ---
 
 #### 2. Frontend
 
-##### 2.1 Componente ExercicioMediaUpload
-
-```
-Estado:
-  - preview: string | null   (object URL local antes de enviar)
-  - mediaType: 'video' | 'gif' | null
-  - uploading: boolean
-
-Zona de upload (drag-and-drop + click):
-  - Aceitar apenas .mp4 e .gif
-  - Validacao client-side antes de chamar API:
-      if (!['video/mp4', 'image/gif'].includes(file.type)) → toast de erro
-      if (file.type === 'image/gif' && file.size > 10MB) → toast de erro
-      if (file.type === 'video/mp4' && file.size > 50MB) → toast de erro
-
-Preview local (antes do upload):
-  - gif: <img src={URL.createObjectURL(file)} />
-  - video: <video src={URL.createObjectURL(file)} controls />
-  - Mostrar loader de upload com progresso (barra ou spinner)
-
-Apos upload (mediaUrl salvo):
-  - Exibir midia renderizada (gif ou video)
-  - Botao "Remover midia" visivel
-  - Botao "Trocar midia" (chama upload novamente)
-
-Importante — limpeza de object URLs:
-  useEffect(() => {
-    return () => { if (preview) URL.revokeObjectURL(preview) }
-  }, [preview])
-```
-
-##### 2.2 Hook
+##### 2.1 Campo no formulario de exercicio customizado
 
 ```typescript
-export function useUploadExerciseMedia(exerciseId: string) {
+// Adicionar no formulario de criacao/edicao de exercicio CUSTOMIZADO
+// Nao exibir para exercicios globais (isGlobal === true)
+
+<div className="space-y-1">
+  <Label htmlFor="youtubeUrl">Link do YouTube (opcional)</Label>
+  <Input
+    id="youtubeUrl"
+    placeholder="https://youtube.com/watch?v=..."
+    {...register('youtubeUrl')}
+  />
+  <p className="text-xs text-muted-foreground">
+    Cole o link de um video do YouTube demonstrando o exercicio
+  </p>
+  {errors.youtubeUrl && (
+    <p className="text-xs text-destructive">{errors.youtubeUrl.message}</p>
+  )}
+</div>
+```
+
+**Validacao client-side (schema Zod do form):**
+```typescript
+youtubeUrl: z
+  .string()
+  .refine(url => {
+    if (!url) return true  // opcional
+    try {
+      const { hostname } = new URL(url)
+      return ['youtube.com', 'www.youtube.com', 'youtu.be'].includes(hostname)
+    } catch { return false }
+  }, 'Apenas links do YouTube sao aceitos')
+  .optional()
+  .or(z.literal(''))
+```
+
+##### 2.2 Service
+
+```typescript
+// services/exercises.service.ts — adicionar funcao
+export const updateExerciseYoutubeUrl = (
+  exerciseId: string,
+  youtubeUrl: string | null,
+) => api.patch(`/exercises/${exerciseId}/youtube-url`, { youtubeUrl })
+```
+
+##### 2.3 Hook
+
+```typescript
+export function useUpdateExerciseYoutubeUrl(exerciseId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (file: File) => uploadExerciseMedia(exerciseId, file),
+    mutationFn: (youtubeUrl: string | null) =>
+      updateExerciseYoutubeUrl(exerciseId, youtubeUrl),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exercises'] })
-      toast.success('Midia adicionada ao exercicio')
+      toast.success('Link atualizado com sucesso')
     },
     onError: (err: AxiosError<ApiError>) => {
-      toast.error(err.response?.data?.message ?? 'Erro ao fazer upload')
-    },
-  })
-}
-
-export function useDeleteExerciseMedia(exerciseId: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: () => deleteExerciseMedia(exerciseId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['exercises'] })
-      toast.success('Midia removida')
+      toast.error(err.response?.data?.message ?? 'URL invalida ou nao permitida')
     },
   })
 }
 ```
 
-##### 2.3 Service de upload (multipart)
+##### 2.4 Componente ExercicioMidia — area do aluno
 
 ```typescript
-export const uploadExerciseMedia = (exerciseId: string, file: File) => {
-  const form = new FormData()
-  form.append('file', file)
-  return api.post<{ mediaUrl: string; mediaType: string }>(
-    `/exercises/${exerciseId}/media`,
-    form,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
-  )
+// Usado em /{slug}/alunos/treinos/:planId — dentro de cada exercicio da ficha
+
+interface ExercicioMidiaProps {
+  exercisedbGifUrl: string | null
+  youtubeUrl: string | null
+  exerciseName: string
 }
-```
 
-##### 2.4 Render na area do aluno
+function ExercicioMidia({ exercisedbGifUrl, youtubeUrl, exerciseName }: ExercicioMidiaProps) {
+  // Prioridade: YouTube > GIF ExerciseDB > placeholder
+  if (youtubeUrl) {
+    const videoId = extractYouTubeVideoId(youtubeUrl)
+    if (videoId) return (
+      <div className="aspect-video w-full rounded-lg overflow-hidden">
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title={`Demonstracao: ${exerciseName}`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="w-full h-full"
+          loading="lazy"
+        />
+      </div>
+    )
+  }
 
-```typescript
-// Componente ExercicioMidia — usado em /{slug}/alunos/treinos/:id
-function ExercicioMidia({ mediaUrl, mediaType }: { mediaUrl: string | null; mediaType: string | null }) {
-  if (!mediaUrl) return (
-    <div className="flex items-center gap-2 text-muted-foreground">
-      <ImageOff size={16} /> Sem demonstracao disponivel
-    </div>
-  )
-
-  if (mediaType === 'video') return (
-    <video
-      src={mediaUrl}
-      controls
-      playsInline
-      preload="metadata"    // carrega apenas thumbnail, nao o video inteiro
-      className="w-full rounded-lg max-h-64"
+  if (exercisedbGifUrl) return (
+    <img
+      src={exercisedbGifUrl}
+      alt={`Demonstracao: ${exerciseName}`}
+      className="w-full max-h-56 object-contain rounded-lg"
+      loading="lazy"
     />
   )
 
-  return <img src={mediaUrl} alt="Demonstracao do exercicio" className="w-full rounded-lg max-h-64 object-contain" />
+  return (
+    <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
+      <ImageOff size={16} />
+      <span>Sem demonstracao disponivel</span>
+    </div>
+  )
 }
 ```
 
-##### 2.5 Cenarios de erro — Frontend
+##### 2.5 Preview no painel do personal (formulario de exercicio)
+
+```
+No formulario/detalhe do exercicio do personal:
+  - Se exercicio global com GIF: exibir thumbnail do GIF (pequeno, 80x80px) + label "GIF automatico"
+  - Se exercicio customizado com YouTube: exibir thumbnail do YouTube + botao "Remover link"
+    Thumbnail URL: https://img.youtube.com/vi/{videoId}/mqdefault.jpg (sem requisicao ao YouTube)
+  - Se sem midia: mostrar o campo de input para YouTube (exercicios customizados)
+                  ou mensagem "Exercicio global sem GIF mapeado" (exercicios globais)
+```
+
+##### 2.6 Cenarios de erro — Frontend
 
 | Cenario | Comportamento |
 |---------|---------------|
-| Arquivo de tipo errado selecionado | Toast imediato antes de qualquer upload |
-| GIF > 10MB | Toast "GIF deve ter no maximo 10MB" antes do upload |
-| Video > 50MB | Toast "Video deve ter no maximo 50MB" antes do upload |
-| API retorna 403 (exercicio global) | Toast com mensagem da API |
-| Upload falha (S3 indisponivel) | Toast de erro + preview local limpo |
-| Video nao carrega na area do aluno | `<video>` exibe controles nativos de erro + fallback de texto |
+| URL nao e YouTube (ex: vimeo) | Erro inline sob o campo antes de enviar (validacao Zod) |
+| URL malformada | Erro inline "URL invalida" |
+| GIF do ExerciseDB indisponivel | `<img>` com `onError` → exibe placeholder automaticamente |
+| YouTube bloqueado (iframe) | Iframe exibe mensagem nativa do YouTube "Video indisponivel" |
+| Campo vazio + salvar | `youtubeUrl: null` → remove o link, sucesso silencioso |
+| API retorna 403 (global) | Toast com mensagem da API (edge case) |
 
 ---
 
 #### 3. Testes — Backend (US-028)
 
 ```typescript
-describe('UploadExerciseMediaService', () => {
-  it('faz upload e atualiza banco com mediaUrl e mediaType', async () => { ... })
-  it('remove midia antiga do S3 antes de fazer novo upload', async () => { ... })
-  it('nao bloqueia se remocao da midia antiga falhar', async () => { ... })
-  it('retorna 404 para exercicio inexistente', async () => { ... })
+describe('UpdateYoutubeUrlService', () => {
+  it('salva youtube_url valida em exercicio customizado', async () => { ... })
+  it('remove youtube_url quando recebe null', async () => { ... })
+  it('retorna 400 para URL que nao e do YouTube', async () => { ... })
+  it('retorna 400 para URL com formato invalido', async () => { ... })
+  it('retorna 403 para exercicio global', async () => { ... })
   it('retorna 403 para exercicio de outro personal', async () => { ... })
-  it('retorna 400 para MIME invalido', async () => { ... })
-  it('retorna 400 para gif acima de 10MB', async () => { ... })
-  it('retorna 400 para video acima de 50MB', async () => { ... })
-})
-
-describe('DeleteExerciseMediaService', () => {
-  it('remove do S3 e limpa campos no banco', async () => { ... })
-  it('limpa banco mesmo se S3 falhar', async () => { ... })
-  it('retorna 400 se exercicio nao tem midia', async () => { ... })
+  it('retorna 404 para exercicio inexistente', async () => { ... })
+  it('aceita youtu.be como dominio valido', async () => { ... })
+  it('aceita www.youtube.com como dominio valido', async () => { ... })
 })
 ```
+
+---
+
+#### 4. Observacao — Mapeamento ExerciseDB
+
+O mapeamento dos 50 exercicios globais com o ExerciseDB e feito **uma unica vez** pelo dev, antes de rodar em producao:
+
+1. Acessar `https://exercisedb.p.rapidapi.com/exercises?limit=1300` com chave gratuita do RapidAPI
+2. Cruzar os nomes com os exercicios do seed (match por nome aproximado ou manual)
+3. Inserir os `gifUrl` retornados diretamente no array do `seed.ts`
+4. Commitar — pronto, CDN do ExerciseDB serve os GIFs gratuitamente
+
+Nenhuma chave de API e necessaria em producao — as URLs dos GIFs sao publicas e permanentes.
 
 ---
 
