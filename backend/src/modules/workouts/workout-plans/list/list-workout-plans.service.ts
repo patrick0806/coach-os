@@ -9,7 +9,7 @@ export class ListWorkoutPlansService {
 
   async execute(
     currentUser: IAccessToken,
-    options: { page: number; size: number },
+    options: { page: number; size: number; kind?: "template" | "student" },
   ): Promise<PaginatedWorkoutPlans> {
     return this.workoutPlansRepository.findAll(currentUser.personalId as string, options);
   }

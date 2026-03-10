@@ -17,6 +17,9 @@ const mockPlan = {
   personalId: "personal-id",
   name: "Treino A",
   description: "Foco em membros superiores",
+  planKind: "template",
+  sourceTemplateId: null,
+  studentNames: [],
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
 };
@@ -43,6 +46,8 @@ describe("CreateWorkoutPlanService", () => {
         personalId: "personal-id",
         name: "Treino A",
         description: "Foco em membros superiores",
+        planKind: "template",
+        sourceTemplateId: null,
       });
       expect(result).toEqual(mockPlan);
     });
@@ -56,6 +61,25 @@ describe("CreateWorkoutPlanService", () => {
         personalId: "personal-id",
         name: "Treino A",
         description: undefined,
+        planKind: "template",
+        sourceTemplateId: null,
+      });
+    });
+
+    it("should create a workout plan with student kind when provided", async () => {
+      workoutPlansRepository.create.mockResolvedValue({
+        ...mockPlan,
+        planKind: "student",
+      });
+
+      await service.execute({ name: "Treino A", planKind: "student" }, mockCurrentUser);
+
+      expect(workoutPlansRepository.create).toHaveBeenCalledWith({
+        personalId: "personal-id",
+        name: "Treino A",
+        description: undefined,
+        planKind: "student",
+        sourceTemplateId: null,
       });
     });
 

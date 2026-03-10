@@ -20,6 +20,8 @@ export class CreateWorkoutPlanService {
       personalId: currentUser.personalId as string,
       name: parsed.data.name,
       description: parsed.data.description,
+      planKind: parsed.data.planKind,
+      sourceTemplateId: null,
     });
   }
 }

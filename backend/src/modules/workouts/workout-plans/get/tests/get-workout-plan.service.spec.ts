@@ -17,6 +17,9 @@ const mockPlanDetail = {
   personalId: "personal-id",
   name: "Treino A",
   description: null,
+  planKind: "template",
+  sourceTemplateId: null,
+  studentNames: [],
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
   exercises: [
@@ -25,6 +28,8 @@ const mockPlanDetail = {
       exerciseId: "exercise-id",
       exerciseName: "Supino Reto",
       muscleGroup: "peito",
+      exercisedbGifUrl: null,
+      youtubeUrl: null,
       sets: 3,
       repetitions: 12,
       load: "20kg",

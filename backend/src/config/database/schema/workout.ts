@@ -6,6 +6,7 @@ import {
   integer,
   index,
   uniqueIndex,
+  AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
 import { relations } from "drizzle-orm";
@@ -50,6 +51,14 @@ export const workoutPlans = pgTable(
       .references(() => personals.id),
     name: varchar("name", { length: 150 }).notNull(),
     description: text("description"),
+    planKind: varchar("plan_kind", { length: 10 })
+      .$type<"template" | "student">()
+      .notNull()
+      .default("template"),
+    sourceTemplateId: varchar("source_template_id", { length: 36 }).references(
+      (): AnyPgColumn => workoutPlans.id,
+      { onDelete: "set null" },
+    ),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -58,7 +67,10 @@ export const workoutPlans = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [index("idx_workout_plans_personal_id").on(table.personalId)]
+  (table) => [
+    index("idx_workout_plans_personal_id").on(table.personalId),
+    index("idx_workout_plans_personal_kind").on(table.personalId, table.planKind),
+  ]
 );
 
 export const workoutPlanStudents = pgTable(

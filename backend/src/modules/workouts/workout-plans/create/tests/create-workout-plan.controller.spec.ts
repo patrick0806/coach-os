@@ -16,6 +16,9 @@ const mockPlan = {
   personalId: "personal-id",
   name: "Treino A",
   description: null,
+  planKind: "template",
+  sourceTemplateId: null,
+  studentNames: [],
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
 };

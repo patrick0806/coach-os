@@ -1,12 +1,12 @@
 # Epic 11 — Treinos, Midia e Tema
 
-Status: `[ ]` todo
+Status: `[~]` in progress
 
 ---
 
 ## US-028 — Separar fichas em modelo (generica) e especifica por aluno
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 10
 **Dependencias:** US-008, US-009
 
@@ -14,22 +14,22 @@ Status: `[ ]` todo
 Como personal, quero organizar minhas fichas em modelos reutilizaveis e fichas especificas por aluno para reduzir poluicao na listagem e facilitar a manutencao de treinos padronizados.
 
 ### Criterios de Aceite
-- [ ] Workout plan possui tipo `planKind`: `template` ou `student`
-- [ ] Ao criar plano, personal escolhe o tipo (padrao: `template`)
-- [ ] Lista separada em abas: "Modelos" e "Por aluno"
-- [ ] "Aplicar para aluno" cria copia editavel independente do modelo
-- [ ] Aba "Por aluno" tem filtro por nome do aluno
+- [x] Workout plan possui tipo `planKind`: `template` ou `student`
+- [x] Ao criar plano, personal escolhe o tipo (padrao: `template`)
+- [x] Lista separada em abas: "Modelos" e "Por aluno"
+- [x] "Aplicar para aluno" cria copia editavel independente do modelo
+- [x] Aba "Por aluno" tem filtro por nome do aluno
 
 ### Subtasks Backend
-- [ ] Migration: `plan_kind` e `source_template_id` em `workout_plans`
-- [ ] Ajustar `GET /workout-plans?kind=`
-- [ ] `POST /workout-plans/:id/apply`
-- [ ] Unit tests
+- [x] Migration: `plan_kind` e `source_template_id` em `workout_plans`
+- [x] Ajustar `GET /workout-plans?kind=`
+- [x] `POST /workout-plans/:id/apply`
+- [x] Unit tests
 
 ### Subtasks Frontend
-- [ ] Refatorar `/painel/treinos` com Tabs
-- [ ] Botao "Aplicar para aluno" com dialog
-- [ ] Filtro por aluno na aba "Por aluno"
+- [x] Refatorar `/painel/treinos` com Tabs
+- [x] Botao "Aplicar para aluno" com dialog
+- [x] Filtro por aluno na aba "Por aluno"
 
 ---
 
@@ -255,7 +255,7 @@ describe('ListWorkoutPlansService (ajuste)', () => {
 
 ## US-029 — Guia visual de execucao em exercicios
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 9
 **Dependencias:** US-007
 
@@ -286,35 +286,35 @@ Regra de negocio:
 
 #### Exercicios Globais — GIF automatico
 - [ ] Os 50+ exercicios globais do seed tem `exercisedb_gif_url` preenchida com a URL do GIF correspondente na ExerciseDB
-- [ ] Aluno ve o GIF animado no detalhe do exercicio dentro da ficha de treino
-- [ ] Se o exercicio global nao tiver mapeamento (exercicio muito especifico), exibe placeholder "Sem demonstracao disponivel"
+- [x] Aluno ve o GIF animado no detalhe do exercicio dentro da ficha de treino
+- [x] Se o exercicio global nao tiver mapeamento (exercicio muito especifico), exibe placeholder "Sem demonstracao disponivel"
 
 #### Exercicios Customizados — Link do YouTube
-- [ ] Personal pode salvar uma URL do YouTube no formulario de criacao/edicao do exercicio
-- [ ] Apenas URLs do dominio `youtube.com` ou `youtu.be` sao aceitas
-- [ ] Aluno ve o video embedado (iframe do YouTube) no detalhe do exercicio
-- [ ] Personal pode remover o link (campo vazio = sem demonstracao)
+- [x] Personal pode salvar uma URL do YouTube no formulario de criacao/edicao do exercicio
+- [x] Apenas URLs do dominio `youtube.com` ou `youtu.be` sao aceitas
+- [x] Aluno ve o video embedado (iframe do YouTube) no detalhe do exercicio
+- [x] Personal pode remover o link (campo vazio = sem demonstracao)
 
 #### Exibicao (ambos os tipos)
-- [ ] Prioridade de exibicao: YouTube > GIF do ExerciseDB > placeholder
-- [ ] Placeholder visual quando nao ha nenhuma midia configurada
-- [ ] Midia exibida apenas na area do aluno — no painel do personal exibir apenas preview discreto (thumbnail ou label)
+- [x] Prioridade de exibicao: YouTube > GIF do ExerciseDB > placeholder
+- [x] Placeholder visual quando nao ha nenhuma midia configurada
+- [x] Midia exibida apenas na area do aluno — no painel do personal exibir apenas preview discreto (thumbnail ou label)
 
 ---
 
 ### Subtasks Backend
-- [ ] Migration: adicionar `exercisedb_gif_url` e `youtube_url` em `exercises`
+- [x] Migration: adicionar `exercisedb_gif_url` e `youtube_url` em `exercises`
 - [ ] Atualizar seed: mapear os 50 exercicios globais com suas URLs do ExerciseDB
-- [ ] `PATCH /exercises/:id/youtube-url` — salvar/remover URL do YouTube (apenas exercicios do personal)
-- [ ] Validar que a URL e do YouTube (dominio allowlist)
-- [ ] Incluir `exercisedbGifUrl` e `youtubeUrl` no response de `GET /exercises` e `GET /exercises/:id`
-- [ ] Unit tests
+- [x] `PATCH /exercises/:id/youtube-url` — salvar/remover URL do YouTube (apenas exercicios do personal)
+- [x] Validar que a URL e do YouTube (dominio allowlist)
+- [x] Incluir `exercisedbGifUrl` e `youtubeUrl` no response de `GET /exercises` e `GET /exercises/:id`
+- [x] Unit tests
 
 ### Subtasks Frontend
-- [ ] Campo "Link do YouTube" no formulario de exercicio customizado
-- [ ] Componente `ExercicioMidia` na area do aluno (GIF ou iframe YouTube)
-- [ ] Placeholder quando sem midia
-- [ ] Preview discreto no painel do personal (so mostrar que tem video)
+- [x] Campo "Link do YouTube" no formulario de exercicio customizado
+- [x] Componente `ExercicioMidia` na area do aluno (GIF ou iframe YouTube)
+- [x] Placeholder quando sem midia
+- [x] Preview discreto no painel do personal (so mostrar que tem video)
 
 ---
 

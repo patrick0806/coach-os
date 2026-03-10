@@ -25,13 +25,26 @@ describe("ListWorkoutPlansController", () => {
       const mockResult = { content: [], page: 1, size: 10, totalElements: 0, totalPages: 0 };
       listWorkoutPlansService.execute.mockResolvedValue(mockResult);
 
-      const result = await controller.handle(mockCurrentUser, 1, 10);
+      const result = await controller.handle(mockCurrentUser, undefined, 1, 10);
 
       expect(listWorkoutPlansService.execute).toHaveBeenCalledWith(mockCurrentUser, {
         page: 1,
         size: 10,
       });
       expect(result).toEqual(mockResult);
+    });
+
+    it("should pass kind when provided", async () => {
+      const mockResult = { content: [], page: 1, size: 10, totalElements: 0, totalPages: 0 };
+      listWorkoutPlansService.execute.mockResolvedValue(mockResult);
+
+      await controller.handle(mockCurrentUser, "student", 1, 10);
+
+      expect(listWorkoutPlansService.execute).toHaveBeenCalledWith(mockCurrentUser, {
+        kind: "student",
+        page: 1,
+        size: 10,
+      });
     });
   });
 });

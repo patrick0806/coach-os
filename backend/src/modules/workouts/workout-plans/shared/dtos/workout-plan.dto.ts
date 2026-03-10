@@ -48,6 +48,15 @@ export class WorkoutPlanDTO {
   @ApiProperty({ nullable: true })
   description: string | null;
 
+  @ApiProperty({ enum: ["template", "student"] })
+  planKind: "template" | "student";
+
+  @ApiProperty({ nullable: true })
+  sourceTemplateId: string | null;
+
+  @ApiProperty({ type: [String] })
+  studentNames: string[];
+
   @ApiProperty()
   createdAt: Date;
 

@@ -25,6 +25,8 @@ import { AssignStudentsController } from "./workout-plans/assign-students/assign
 import { AssignStudentsService } from "./workout-plans/assign-students/assign-students.service";
 import { RevokeStudentController } from "./workout-plans/revoke-student/revoke-student.controller";
 import { RevokeStudentService } from "./workout-plans/revoke-student/revoke-student.service";
+import { ApplyTemplateController } from "./workout-plans/apply-template/apply-template.controller";
+import { ApplyTemplateService } from "./workout-plans/apply-template/apply-template.service";
 
 @Module({
   controllers: [
@@ -38,6 +40,7 @@ import { RevokeStudentService } from "./workout-plans/revoke-student/revoke-stud
     ReorderExercisesController,
     AssignStudentsController,
     RevokeStudentController,
+    ApplyTemplateController,
   ],
   providers: [
     CreateWorkoutPlanService,
@@ -50,6 +53,7 @@ import { RevokeStudentService } from "./workout-plans/revoke-student/revoke-stud
     ReorderExercisesService,
     AssignStudentsService,
     RevokeStudentService,
+    ApplyTemplateService,
     WorkoutPlansRepository,
     WorkoutExercisesRepository,
     WorkoutPlanStudentsRepository,

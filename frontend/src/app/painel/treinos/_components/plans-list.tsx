@@ -1,20 +1,128 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Dumbbell } from "lucide-react";
+import { ChevronRight, CopyPlus, Dumbbell, Users } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { WorkoutPlan } from "@/services/workout-plans.service";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { listStudents } from "@/services/students.service";
+import { applyWorkoutTemplate, type WorkoutPlan } from "@/services/workout-plans.service";
+
+interface ApplyTemplateDialogProps {
+  plan: WorkoutPlan | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+function ApplyTemplateDialog({ plan, open, onOpenChange }: ApplyTemplateDialogProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [studentId, setStudentId] = useState<string>("none");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["students", "apply-template"],
+    queryFn: () => listStudents({ page: 1, size: 200 }),
+    enabled: open,
+  });
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      applyWorkoutTemplate(plan!.id, {
+        studentId: studentId !== "none" ? studentId : undefined,
+      }),
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: ["workout-plans"] });
+      toast.success("Modelo aplicado com sucesso.");
+      onOpenChange(false);
+      setStudentId("none");
+      router.push(`/painel/treinos/${created.id}`);
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível aplicar o modelo."));
+    },
+  });
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          setStudentId("none");
+        }
+        onOpenChange(nextOpen);
+      }}
+    >
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Aplicar modelo ao aluno</DialogTitle>
+          <DialogDescription>
+            Será criada uma cópia editável de <strong>{plan?.name ?? "modelo"}</strong>.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Aluno (opcional)</label>
+          <Select value={studentId} onValueChange={setStudentId} disabled={isLoading}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione um aluno" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Atribuir depois</SelectItem>
+              {(data?.content ?? []).map((student) => (
+                <SelectItem key={student.id} value={student.id}>
+                  {student.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Se não selecionar um aluno agora, você pode atribuir depois.
+          </p>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !plan}>
+            {mutation.isPending ? "Aplicando..." : "Aplicar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 interface PlansListProps {
   plans: WorkoutPlan[];
   isLoading: boolean;
   onCreateClick: () => void;
+  emptyMessage?: string;
+  showApplyAction?: boolean;
 }
 
-export function PlansList({ plans, isLoading, onCreateClick }: PlansListProps) {
+export function PlansList({
+  plans,
+  isLoading,
+  onCreateClick,
+  emptyMessage = "Você ainda não tem planos de treino.",
+  showApplyAction = false,
+}: PlansListProps) {
   const router = useRouter();
+  const [applyPlan, setApplyPlan] = useState<WorkoutPlan | null>(null);
 
   if (isLoading) {
     return (
@@ -31,7 +139,7 @@ export function PlansList({ plans, isLoading, onCreateClick }: PlansListProps) {
       <Card>
         <CardContent className="flex flex-col items-center py-16 text-center text-gray-400">
           <Dumbbell className="mb-3 size-10 opacity-30" />
-          <p>Você ainda não tem planos de treino.</p>
+          <p>{emptyMessage}</p>
           <Button variant="outline" className="mt-4" onClick={onCreateClick}>
             Criar primeiro plano
           </Button>
@@ -43,23 +151,56 @@ export function PlansList({ plans, isLoading, onCreateClick }: PlansListProps) {
   return (
     <div className="space-y-3">
       {plans.map((plan) => (
-        <button
+        <div
           key={plan.id}
-          onClick={() => router.push(`/painel/treinos/${plan.id}`)}
-          className="flex w-full items-center justify-between rounded-xl border bg-white p-4 text-left transition-colors hover:bg-gray-50"
+          className="flex items-center justify-between rounded-xl border bg-white p-4"
         >
-          <div className="min-w-0">
-            <p className="font-medium text-gray-900">{plan.name}</p>
-            {plan.description ? (
-              <p className="mt-0.5 truncate text-sm text-gray-500">{plan.description}</p>
-            ) : null}
-            <p className="mt-1 text-xs text-gray-400">
-              Criado em {new Date(plan.createdAt).toLocaleDateString("pt-BR")}
-            </p>
-          </div>
-          <ChevronRight className="ml-4 size-5 shrink-0 text-gray-400" />
-        </button>
+          <button
+            onClick={() => router.push(`/painel/treinos/${plan.id}`)}
+            className="flex min-w-0 flex-1 items-center justify-between text-left transition-colors hover:text-primary"
+          >
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-medium text-gray-900">{plan.name}</p>
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                  {plan.planKind === "template" ? "Modelo" : "Por aluno"}
+                </span>
+              </div>
+              {plan.description ? (
+                <p className="mt-0.5 truncate text-sm text-gray-500">{plan.description}</p>
+              ) : null}
+              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                <span>Criado em {new Date(plan.createdAt).toLocaleDateString("pt-BR")}</span>
+                {plan.studentNames.length > 0 ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Users className="size-3.5" />
+                    {plan.studentNames.join(", ")}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <ChevronRight className="ml-4 size-5 shrink-0 text-gray-400" />
+          </button>
+
+          {showApplyAction ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-4 gap-1.5"
+              onClick={() => setApplyPlan(plan)}
+            >
+              <CopyPlus className="size-3.5" />
+              Aplicar
+            </Button>
+          ) : null}
+        </div>
       ))}
+
+      <ApplyTemplateDialog
+        plan={applyPlan}
+        open={Boolean(applyPlan)}
+        onOpenChange={(open) => !open && setApplyPlan(null)}
+      />
     </div>
   );
 }

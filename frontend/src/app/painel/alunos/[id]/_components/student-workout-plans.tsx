@@ -53,8 +53,8 @@ function AssignPlanDialog({
   onAssigned,
 }: AssignPlanDialogProps) {
   const { data, isLoading } = useQuery({
-    queryKey: ["workout-plans", { page: 1, size: 100 }],
-    queryFn: () => listWorkoutPlans({ page: 1, size: 100 }),
+    queryKey: ["workout-plans", { page: 1, size: 100, kind: "template" }],
+    queryFn: () => listWorkoutPlans({ page: 1, size: 100, kind: "template" }),
     enabled: open,
   });
 

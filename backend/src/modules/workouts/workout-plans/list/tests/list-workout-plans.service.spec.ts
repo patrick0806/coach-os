@@ -18,6 +18,9 @@ const mockPaginatedResult = {
       personalId: "personal-id",
       name: "Treino A",
       description: null,
+      planKind: "template",
+      sourceTemplateId: null,
+      studentNames: [],
       createdAt: new Date("2024-01-01"),
       updatedAt: new Date("2024-01-01"),
     },
@@ -62,6 +65,18 @@ describe("ListWorkoutPlansService", () => {
       const result = await service.execute(mockCurrentUser, { page: 1, size: 10 });
 
       expect(result.content).toHaveLength(0);
+    });
+
+    it("should pass kind filter when provided", async () => {
+      workoutPlansRepository.findAll.mockResolvedValue(mockPaginatedResult);
+
+      await service.execute(mockCurrentUser, { page: 1, size: 10, kind: "template" });
+
+      expect(workoutPlansRepository.findAll).toHaveBeenCalledWith("personal-id", {
+        page: 1,
+        size: 10,
+        kind: "template",
+      });
     });
   });
 });

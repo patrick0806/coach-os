@@ -65,14 +65,16 @@ export class WorkoutPlanStudentsRepository {
     studentId: string,
     tenantId: string,
     tx?: DrizzleDb,
-  ): Promise<WorkoutPlan[]> {
+  ): Promise<Array<WorkoutPlan & { studentNames: string[] }>> {
     const db = tx ?? this.drizzle.db;
-    return db
+    const plans = await db
       .select({
         id: workoutPlans.id,
         personalId: workoutPlans.personalId,
         name: workoutPlans.name,
         description: workoutPlans.description,
+        planKind: workoutPlans.planKind,
+        sourceTemplateId: workoutPlans.sourceTemplateId,
         createdAt: workoutPlans.createdAt,
         updatedAt: workoutPlans.updatedAt,
       })
@@ -85,5 +87,10 @@ export class WorkoutPlanStudentsRepository {
         ),
       )
       .orderBy(workoutPlans.name);
+
+    return plans.map((plan) => ({
+      ...plan,
+      studentNames: [],
+    }));
   }
 }
