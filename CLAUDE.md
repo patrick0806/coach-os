@@ -157,7 +157,7 @@ Rules:
 - Routes of front end the path must be in portuguese(insted register -> cadastro,  except for login is login) the same value for SEO data
 - The texts labels and messages must be in portuguese
 - For our product pages like pricing, faq, etc use dark mode only
-- For personal product pages like management area use light mode only
+- For personal product pages like management area use theme switching light and dark mode
 - If we need do user focus on some message like a error ou a success on save something use toasts in the top right sideuti
 
 

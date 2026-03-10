@@ -25,6 +25,7 @@
 | 09 - Freemium e Conversao | [epic-09-freemium-conversion.md](epic-09-freemium-conversion.md) | [ ] | [ ] |
 | 10 - Agenda e Produtividade do Personal | [epic-10-agenda-e-produtividade.md](epic-10-agenda-e-produtividade.md) | [ ] | [ ] |
 | 11 - Treinos, Midia e Tema | [epic-11-treinos-midia-e-tema.md](epic-11-treinos-midia-e-tema.md) | [ ] | [ ] |
+| Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
 
@@ -55,7 +56,7 @@ Sprint 7 — Freemium e Conversao
   US-021 → US-022 → US-023
 
 Sprint 8 — Agenda Operacional do Personal
-  US-024 → US-025
+  US-032 (disponibilidade em lote) → US-024 (sessao avulsa + recorrencia + exclusao por escopo) → US-025
 
 Sprint 9 — Busca e Midia
   US-026 → US-027 → US-028
@@ -66,6 +67,9 @@ Sprint 10 — Organizacao de Treinos
 Sprint 11 — Tema do Painel Personal
   US-031
 ```
+
+> **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).
+> **Aluno multi-personal:** Adiado para pos-MVP. Ver [post-mvp-backlog.md](post-mvp-backlog.md).
 
 ## Mapa de Dependencias (revisado)
 
@@ -83,7 +87,9 @@ SCHEMA RESET (pre-requisito global)
               │           └── US-009 (Atribuir Treino)
               │                 └── US-010
               ├── US-011 (Disponibilidade)
-              │     └── US-013
+              │     ├── US-013
+              │     └── US-032 (Disponibilidade em lote)  ← UX critica: configurar dia inteiro + copiar dias
+              │           └── US-024
               ├── US-012 (Service Plans)
               │     └── US-013
               │           └── US-014 (Personal gerencia agenda)
@@ -94,7 +100,7 @@ US-015 (Planos SaaS publicos) — independente do auth
   └── US-016 (Stripe) — depende de US-001
 ```
 
-## Estado do Projeto (atualizado 2026-03-06)
+## Estado do Projeto (atualizado 2026-03-10)
 
 ### Backend — 100% implementado (todos os épicos 01–07)
 - Infraestrutura: guards JWT/Roles, filters, interceptors, decorators, providers Drizzle, S3, Stripe, Resend
