@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -25,12 +25,31 @@ import {
   type ServicePlan,
 } from "@/services/service-plans.service";
 
+function formatCurrencyInput(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  const cents = Number(digits || "0") / 100;
+
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  }).format(cents);
+}
+
+function parseCurrencyInput(value: string): number {
+  const digits = value.replace(/\D/g, "");
+  return Number(digits || "0") / 100;
+}
+
 const schema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   description: z.string().optional(),
   sessionsPerWeek: z.coerce.number().int().min(1).max(7),
   durationMinutes: z.coerce.number().int().min(1),
-  price: z.string().min(1, "Preço é obrigatório"),
+  price: z
+    .string()
+    .min(1, "Preço é obrigatório")
+    .refine((value) => parseCurrencyInput(value) >= 0, "Preço é obrigatório"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -45,17 +64,17 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
   const queryClient = useQueryClient();
   const isEditing = Boolean(plan);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const form = useForm<FormValues, any, FormValues>({
-    resolver: zodResolver(schema) as any,
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       description: "",
       sessionsPerWeek: 3,
       durationMinutes: 60,
-      price: "",
+      price: formatCurrencyInput(""),
     },
   });
+  const priceValue = useWatch({ control: form.control, name: "price" }) ?? formatCurrencyInput("");
 
   useEffect(() => {
     if (open) {
@@ -66,9 +85,15 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
               description: plan.description ?? "",
               sessionsPerWeek: plan.sessionsPerWeek,
               durationMinutes: plan.durationMinutes,
-              price: plan.price,
+              price: formatCurrencyInput(plan.price),
             }
-          : { name: "", description: "", sessionsPerWeek: 3, durationMinutes: 60, price: "" },
+          : {
+              name: "",
+              description: "",
+              sessionsPerWeek: 3,
+              durationMinutes: 60,
+              price: formatCurrencyInput(""),
+            },
       );
     }
   }, [open, plan, form]);
@@ -81,14 +106,14 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
             description: values.description || undefined,
             sessionsPerWeek: values.sessionsPerWeek,
             durationMinutes: values.durationMinutes,
-            price: values.price,
+            price: parseCurrencyInput(values.price),
           })
         : createServicePlan({
             name: values.name,
             description: values.description || undefined,
             sessionsPerWeek: values.sessionsPerWeek,
             durationMinutes: values.durationMinutes,
-            price: values.price,
+            price: parseCurrencyInput(values.price),
           }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["service-plans"] });
@@ -166,11 +191,16 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
             <Label htmlFor="sp-price">Preço mensal (R$)</Label>
             <Input
               id="sp-price"
-              type="number"
-              min={0}
-              step={0.01}
-              placeholder="250.00"
-              {...form.register("price")}
+              type="text"
+              inputMode="numeric"
+              placeholder="R$ 0,00"
+              value={priceValue}
+              onChange={(event) =>
+                form.setValue("price", formatCurrencyInput(event.target.value), {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }
             />
             {form.formState.errors.price ? (
               <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>

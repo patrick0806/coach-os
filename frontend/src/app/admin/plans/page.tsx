@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -31,6 +31,23 @@ import {
   type AdminPlan,
 } from "@/services/admin.service";
 
+function formatCurrencyInput(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  const cents = Number(digits || "0") / 100;
+
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  }).format(cents);
+}
+
+function parseCurrencyToDecimalString(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  const cents = Number(digits || "0");
+  return (cents / 100).toFixed(2);
+}
+
 // ─── Form ─────────────────────────────────────────────────────────────────────
 
 const planSchema = z.object({
@@ -54,18 +71,18 @@ function PlanDialog({ plan, open, onOpenChange }: PlanDialogProps) {
   const queryClient = useQueryClient();
   const isEditing = Boolean(plan);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const form = useForm<PlanFormValues, any, PlanFormValues>({
-    resolver: zodResolver(planSchema) as any,
+  const form = useForm<PlanFormValues>({
+    resolver: zodResolver(planSchema),
     defaultValues: {
       name: "",
       description: "",
-      price: "",
+      price: formatCurrencyInput(""),
       maxStudents: 10,
       benefits: "",
       highlighted: false,
     },
   });
+  const priceValue = useWatch({ control: form.control, name: "price" }) ?? formatCurrencyInput("");
 
   useEffect(() => {
     if (open) {
@@ -74,12 +91,19 @@ function PlanDialog({ plan, open, onOpenChange }: PlanDialogProps) {
           ? {
               name: plan.name,
               description: plan.description ?? "",
-              price: plan.price,
+              price: formatCurrencyInput(plan.price),
               maxStudents: plan.maxStudents,
               benefits: plan.benefits.join("\n"),
               highlighted: plan.highlighted,
             }
-          : { name: "", description: "", price: "", maxStudents: 10, benefits: "", highlighted: false },
+          : {
+              name: "",
+              description: "",
+              price: formatCurrencyInput(""),
+              maxStudents: 10,
+              benefits: "",
+              highlighted: false,
+            },
       );
     }
   }, [open, plan, form]);
@@ -89,7 +113,7 @@ function PlanDialog({ plan, open, onOpenChange }: PlanDialogProps) {
       const payload = {
         name: values.name,
         description: values.description || undefined,
-        price: values.price,
+        price: parseCurrencyToDecimalString(values.price),
         maxStudents: values.maxStudents,
         benefits: values.benefits.split("\n").map((b) => b.trim()).filter(Boolean),
         highlighted: values.highlighted,
@@ -127,7 +151,19 @@ function PlanDialog({ plan, open, onOpenChange }: PlanDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="p-price">Preço (R$)</Label>
-              <Input id="p-price" type="number" step={0.01} placeholder="29.90" {...form.register("price")} />
+              <Input
+                id="p-price"
+                type="text"
+                inputMode="numeric"
+                placeholder="R$ 0,00"
+                value={priceValue}
+                onChange={(event) =>
+                  form.setValue("price", formatCurrencyInput(event.target.value), {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
+              />
               {form.formState.errors.price ? (
                 <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
               ) : null}

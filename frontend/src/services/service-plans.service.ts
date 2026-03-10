@@ -18,7 +18,7 @@ export interface CreateServicePlanPayload {
   description?: string;
   sessionsPerWeek: number;
   durationMinutes: number;
-  price: string;
+  price: number;
 }
 
 export interface UpdateServicePlanPayload {
@@ -26,7 +26,7 @@ export interface UpdateServicePlanPayload {
   description?: string;
   sessionsPerWeek?: number;
   durationMinutes?: number;
-  price?: string;
+  price?: number;
   isActive?: boolean;
 }
 
