@@ -40,6 +40,9 @@ export class CreatePersonalBookingService {
     if (!servicePlan) {
       throw new BadRequestException("Plano de serviço não encontrado ou não pertence a este personal");
     }
+    if (student.servicePlanId !== servicePlanId) {
+      throw new BadRequestException("O aluno deve ser agendado com o plano de atendimento vinculado");
+    }
 
     const conflict = await this.bookingsRepository.findConflict(personalId, scheduledDate, startTime);
     if (conflict) {

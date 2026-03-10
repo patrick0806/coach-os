@@ -18,6 +18,7 @@ export const students = pgTable(
       .$defaultFn(() => randomUUID()),
     userId: varchar("user_id", { length: 36 }).notNull().unique(),
     personalId: varchar("personal_id", { length: 36 }).notNull(),
+    servicePlanId: varchar("service_plan_id", { length: 36 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -29,6 +30,7 @@ export const students = pgTable(
   (table) => [
     uniqueIndex("students_user_id_idx").on(table.userId),
     index("students_personal_id_idx").on(table.personalId),
+    index("students_service_plan_id_idx").on(table.servicePlanId),
   ]
 );
 

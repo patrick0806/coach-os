@@ -19,6 +19,8 @@ const mockResponse = {
   name: "Alice Silva",
   email: "alice@example.com",
   personalId: "personal-id",
+  servicePlanId: "service-plan-id",
+  servicePlanName: "Plano 3x por semana",
   createdAt: new Date("2024-01-01"),
 };
 
@@ -38,13 +40,21 @@ describe("CreateStudentController", () => {
       service.execute.mockResolvedValue(mockResponse);
 
       const result = await controller.handle(
-        { name: "Alice Silva", email: "alice@example.com" },
+        {
+          name: "Alice Silva",
+          email: "alice@example.com",
+          servicePlanId: "service-plan-id",
+        },
         mockCurrentUser,
       );
 
       expect(result).toEqual(mockResponse);
       expect(service.execute).toHaveBeenCalledWith(
-        { name: "Alice Silva", email: "alice@example.com" },
+        {
+          name: "Alice Silva",
+          email: "alice@example.com",
+          servicePlanId: "service-plan-id",
+        },
         mockCurrentUser,
       );
     });
@@ -54,7 +64,11 @@ describe("CreateStudentController", () => {
 
       await expect(
         controller.handle(
-          { name: "Alice", email: "existing@example.com" },
+          {
+            name: "Alice",
+            email: "existing@example.com",
+            servicePlanId: "service-plan-id",
+          },
           mockCurrentUser,
         ),
       ).rejects.toThrow(ConflictException);

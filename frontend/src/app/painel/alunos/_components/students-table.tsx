@@ -49,6 +49,7 @@ export function StudentsTable({
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>E-mail</TableHead>
+                <TableHead>Plano</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Cadastrado em</TableHead>
                 <TableHead className="w-12" />
@@ -58,7 +59,7 @@ export function StudentsTable({
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 5 }).map((__, j) => (
+                    {Array.from({ length: 6 }).map((__, j) => (
                       <TableCell key={j}>
                         <div className="h-4 animate-pulse rounded bg-gray-100" />
                       </TableCell>
@@ -67,7 +68,7 @@ export function StudentsTable({
                 ))
               ) : students.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-16 text-center text-gray-400">
+                  <TableCell colSpan={6} className="py-16 text-center text-gray-400">
                     <UserRound className="mx-auto mb-3 size-10 opacity-30" />
                     {debouncedSearch
                       ? "Nenhum aluno encontrado para esta busca."
@@ -79,6 +80,9 @@ export function StudentsTable({
                   <TableRow key={student.id} className="group">
                     <TableCell className="font-medium">{student.name}</TableCell>
                     <TableCell className="text-gray-500">{student.email}</TableCell>
+                    <TableCell className="text-gray-500">
+                      {student.servicePlanName ?? "Sem plano"}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={student.isActive ? "default" : "secondary"}>
                         {student.isActive ? "Ativo" : "Inativo"}

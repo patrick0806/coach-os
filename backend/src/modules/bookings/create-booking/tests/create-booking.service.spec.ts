@@ -43,6 +43,19 @@ const mockBooking = {
   updatedAt: new Date("2024-01-01"),
 };
 
+const mockStudent = {
+  id: "student-id",
+  userId: "student-user-id",
+  personalId: "personal-id",
+  servicePlanId: VALID_PLAN_UUID,
+  servicePlanName: "Plano Básico",
+  name: "Aluno Teste",
+  email: "aluno@teste.com",
+  isActive: true,
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date("2024-01-01"),
+};
+
 describe("CreateBookingService", () => {
   let service: CreateBookingService;
   let bookingsRepository: {
@@ -50,6 +63,7 @@ describe("CreateBookingService", () => {
     create: ReturnType<typeof vi.fn>;
   };
   let servicePlansRepository: { findById: ReturnType<typeof vi.fn> };
+  let studentsRepository: { findById: ReturnType<typeof vi.fn> };
   let resendProvider: {
     sendBookingConfirmation: ReturnType<typeof vi.fn>;
     sendBookingNotification: ReturnType<typeof vi.fn>;
@@ -61,6 +75,7 @@ describe("CreateBookingService", () => {
       create: vi.fn(),
     };
     servicePlansRepository = { findById: vi.fn() };
+    studentsRepository = { findById: vi.fn() };
     resendProvider = {
       sendBookingConfirmation: vi.fn(),
       sendBookingNotification: vi.fn(),
@@ -68,12 +83,14 @@ describe("CreateBookingService", () => {
     service = new CreateBookingService(
       bookingsRepository as any,
       servicePlansRepository as any,
+      studentsRepository as any,
       resendProvider as any,
     );
   });
 
   describe("execute", () => {
     it("should create a booking successfully", async () => {
+      studentsRepository.findById.mockResolvedValue(mockStudent);
       servicePlansRepository.findById.mockResolvedValue(mockServicePlan);
       bookingsRepository.findConflict.mockResolvedValue(null);
       bookingsRepository.create.mockResolvedValue(mockBooking);
@@ -91,6 +108,7 @@ describe("CreateBookingService", () => {
       );
 
       expect(servicePlansRepository.findById).toHaveBeenCalledWith(VALID_PLAN_UUID);
+      expect(studentsRepository.findById).toHaveBeenCalledWith("student-id", "personal-id");
       expect(bookingsRepository.findConflict).toHaveBeenCalledWith(
         "personal-id",
         "2024-01-15",
@@ -109,6 +127,7 @@ describe("CreateBookingService", () => {
     });
 
     it("should throw BadRequestException when service plan does not belong to personal", async () => {
+      studentsRepository.findById.mockResolvedValue(mockStudent);
       servicePlansRepository.findById.mockResolvedValue({
         ...mockServicePlan,
         personalId: "other-personal",
@@ -123,6 +142,7 @@ describe("CreateBookingService", () => {
     });
 
     it("should throw BadRequestException when service plan not found", async () => {
+      studentsRepository.findById.mockResolvedValue(mockStudent);
       servicePlansRepository.findById.mockResolvedValue(null);
 
       await expect(
@@ -134,6 +154,7 @@ describe("CreateBookingService", () => {
     });
 
     it("should throw ConflictException when time slot is already booked", async () => {
+      studentsRepository.findById.mockResolvedValue(mockStudent);
       servicePlansRepository.findById.mockResolvedValue(mockServicePlan);
       bookingsRepository.findConflict.mockResolvedValue({ id: "existing-booking" });
 
@@ -143,6 +164,21 @@ describe("CreateBookingService", () => {
           mockCurrentUser,
         ),
       ).rejects.toThrow(ConflictException);
+    });
+
+    it("should throw BadRequestException when selected service plan is different from student's linked plan", async () => {
+      studentsRepository.findById.mockResolvedValue({
+        ...mockStudent,
+        servicePlanId: "another-plan-id",
+      });
+      servicePlansRepository.findById.mockResolvedValue(mockServicePlan);
+
+      await expect(
+        service.execute(
+          { servicePlanId: VALID_PLAN_UUID, scheduledDate: "2024-01-15", startTime: "08:00", endTime: "09:00" },
+          mockCurrentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it("should throw BadRequestException when input is invalid", async () => {

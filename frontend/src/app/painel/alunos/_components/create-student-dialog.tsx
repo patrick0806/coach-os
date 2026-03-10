@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -17,12 +18,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { createStudent } from "@/services/students.service";
+import { listServicePlans } from "@/services/service-plans.service";
 
 const studentFormSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   email: z.email("Informe um e-mail válido"),
+  servicePlanId: z.string().uuid("Selecione um plano de atendimento"),
 });
 
 type StudentFormValues = z.infer<typeof studentFormSchema>;
@@ -34,11 +44,18 @@ interface CreateStudentDialogProps {
 
 export function CreateStudentDialog({ open, onOpenChange }: CreateStudentDialogProps) {
   const queryClient = useQueryClient();
+  const servicePlansQuery = useQuery({
+    queryKey: ["service-plans", "student-form"],
+    queryFn: listServicePlans,
+    enabled: open,
+    select: (plans) => plans.filter((plan) => plan.isActive),
+  });
 
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
-    defaultValues: { name: "", email: "" },
+    defaultValues: { name: "", email: "", servicePlanId: "" },
   });
+  const servicePlanId = useWatch({ control: form.control, name: "servicePlanId" }) ?? "";
 
   const mutation = useMutation({
     mutationFn: createStudent,
@@ -93,6 +110,36 @@ export function CreateStudentDialog({ open, onOpenChange }: CreateStudentDialogP
             />
             {form.formState.errors.email ? (
               <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Plano de atendimento</Label>
+            <Select
+              value={servicePlanId}
+              onValueChange={(value) =>
+                form.setValue("servicePlanId", value, { shouldValidate: true, shouldDirty: true })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    servicePlansQuery.isLoading ? "Carregando planos..." : "Selecione um plano"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {(servicePlansQuery.data ?? []).map((plan) => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.servicePlanId ? (
+              <p className="text-sm text-destructive">
+                {form.formState.errors.servicePlanId.message}
+              </p>
             ) : null}
           </div>
 

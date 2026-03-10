@@ -1,15 +1,19 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { TimeSelect } from "@/components/ui/time-select";
 import {
@@ -41,7 +45,7 @@ const schema = z
   .object({
     mode: z.enum(["single", "recurring"]),
     studentId: z.string().uuid("Selecione um aluno"),
-    servicePlanId: z.string().uuid("Selecione um plano de serviço"),
+    servicePlanId: z.string().uuid("Aluno sem plano ativo"),
     startTime: z.string().min(1, "Horário obrigatório"),
     endTime: z.string().min(1, "Horário obrigatório"),
     notes: z.string().max(500, "Máximo de 500 caracteres").optional(),
@@ -136,6 +140,20 @@ function toDateLabel(dateIso: string): string {
   return new Date(`${dateIso}T00:00:00.000Z`).toLocaleDateString("pt-BR");
 }
 
+function parseIsoDate(value?: string): Date | undefined {
+  if (!value) return undefined;
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return undefined;
+  return new Date(year, month - 1, day, 12, 0, 0);
+}
+
+function formatIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function buildRecurringDates(daysOfWeek: number[], startDate: string, endDate: string): string[] {
   if (!startDate || !endDate || daysOfWeek.length === 0) {
     return [];
@@ -185,10 +203,12 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
   });
 
   const mode = useWatch({ control: form.control, name: "mode" }) ?? "single";
+  const studentId = useWatch({ control: form.control, name: "studentId" }) ?? "";
   const watchedDaysOfWeek = useWatch({ control: form.control, name: "daysOfWeek" });
   const daysOfWeek = watchedDaysOfWeek ?? EMPTY_DAYS;
   const seriesStartDate = useWatch({ control: form.control, name: "seriesStartDate" }) ?? "";
   const seriesEndDate = useWatch({ control: form.control, name: "seriesEndDate" }) ?? "";
+  const scheduledDate = useWatch({ control: form.control, name: "scheduledDate" }) ?? "";
 
   const studentsQuery = useQuery({
     queryKey: ["students", "agenda-create"],
@@ -237,6 +257,30 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
   const isSubmitting = createSingleMutation.isPending || createRecurringMutation.isPending;
   const activePlans = (plansQuery.data ?? []).filter((plan) => plan.isActive);
   const students = studentsQuery.data?.content ?? [];
+  const selectedStudent = students.find((student) => student.id === studentId) ?? null;
+  const selectedStudentPlan = useMemo(
+    () => activePlans.find((plan) => plan.id === selectedStudent?.servicePlanId) ?? null,
+    [activePlans, selectedStudent?.servicePlanId],
+  );
+
+  useEffect(() => {
+    if (!studentId) {
+      form.setValue("servicePlanId", "", { shouldValidate: true });
+      return;
+    }
+
+    if (selectedStudentPlan) {
+      form.setValue("servicePlanId", selectedStudentPlan.id, { shouldValidate: true });
+      return;
+    }
+
+    form.setValue("servicePlanId", "", { shouldValidate: true });
+  }, [form, selectedStudentPlan, studentId]);
+
+  const canSubmit =
+    !isSubmitting &&
+    Boolean(selectedStudentPlan) &&
+    (mode === "single" || recurringDates.length > 0);
 
   function handleClose() {
     form.reset();
@@ -315,7 +359,9 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder={studentsQuery.isLoading ? "Carregando..." : "Selecione o aluno"} />
+                      <SelectValue
+                        placeholder={studentsQuery.isLoading ? "Carregando..." : "Selecione o aluno"}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {students.map((student) => (
@@ -333,36 +379,62 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
             </div>
 
             <div className="space-y-2">
-              <Label>Plano de serviço</Label>
-              <Controller
-                name="servicePlanId"
-                control={form.control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={plansQuery.isLoading ? "Carregando..." : "Selecione o plano"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activePlans.map((plan) => (
-                        <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <Label>Plano do aluno</Label>
+              <div className="min-h-[72px] rounded-lg border bg-muted/20 p-3">
+                {!studentId ? (
+                  <p className="text-sm text-muted-foreground">Selecione um aluno para carregar o plano.</p>
+                ) : plansQuery.isLoading ? (
+                  <p className="text-sm text-muted-foreground">Carregando plano...</p>
+                ) : selectedStudentPlan ? (
+                  <div>
+                    <p className="font-medium">{selectedStudentPlan.name}</p>
+                    {selectedStudentPlan.description ? (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {selectedStudentPlan.description}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : (
+                  <p className="text-sm text-destructive">Este aluno não possui plano ativo vinculado.</p>
                 )}
-              />
-              {form.formState.errors.servicePlanId ? (
-                <p className="text-sm text-destructive">{form.formState.errors.servicePlanId.message}</p>
-              ) : null}
+              </div>
             </div>
           </div>
 
           {mode === "single" ? (
             <div className="space-y-4 rounded-lg border bg-muted/20 p-4">
               <div className="space-y-2">
-                <Label htmlFor="single-date">Data</Label>
-                <Input id="single-date" type="date" {...form.register("scheduledDate")} />
+                <Label>Data</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !scheduledDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 size-4" />
+                      {scheduledDate
+                        ? format(parseIsoDate(scheduledDate)!, "PPP", { locale: ptBR })
+                        : "Selecione a data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={parseIsoDate(scheduledDate)}
+                      onSelect={(date) =>
+                        form.setValue("scheduledDate", date ? formatIsoDate(date) : "", {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
                 {form.formState.errors.scheduledDate ? (
                   <p className="text-sm text-destructive">{form.formState.errors.scheduledDate.message}</p>
                 ) : null}
@@ -443,8 +515,37 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="series-start">Data inicial</Label>
-                  <Input id="series-start" type="date" {...form.register("seriesStartDate")} />
+                  <Label>Data inicial</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !seriesStartDate && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 size-4" />
+                        {seriesStartDate
+                          ? format(parseIsoDate(seriesStartDate)!, "P", { locale: ptBR })
+                          : "Selecione"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={parseIsoDate(seriesStartDate)}
+                        onSelect={(date) =>
+                          form.setValue("seriesStartDate", date ? formatIsoDate(date) : "", {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          })
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                   {form.formState.errors.seriesStartDate ? (
                     <p className="text-sm text-destructive">
                       {form.formState.errors.seriesStartDate.message}
@@ -452,8 +553,37 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
                   ) : null}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="series-end">Data final</Label>
-                  <Input id="series-end" type="date" {...form.register("seriesEndDate")} />
+                  <Label>Data final</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !seriesEndDate && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 size-4" />
+                        {seriesEndDate
+                          ? format(parseIsoDate(seriesEndDate)!, "P", { locale: ptBR })
+                          : "Selecione"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={parseIsoDate(seriesEndDate)}
+                        onSelect={(date) =>
+                          form.setValue("seriesEndDate", date ? formatIsoDate(date) : "", {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          })
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                   {form.formState.errors.seriesEndDate ? (
                     <p className="text-sm text-destructive">{form.formState.errors.seriesEndDate.message}</p>
                   ) : null}
@@ -497,10 +627,7 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || (mode === "recurring" && recurringDates.length === 0)}
-            >
+            <Button type="submit" disabled={!canSubmit}>
               {isSubmitting
                 ? "Salvando..."
                 : mode === "single"

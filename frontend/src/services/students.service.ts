@@ -4,6 +4,8 @@ export interface Student {
   id: string;
   userId: string;
   personalId: string;
+  servicePlanId: string;
+  servicePlanName: string | null;
   name: string;
   email: string;
   isActive: boolean;
@@ -25,6 +27,7 @@ export interface PaginatedStudents {
 export interface CreateStudentPayload {
   name: string;
   email: string;
+  servicePlanId: string;
 }
 
 export interface CreateStudentResponse {
@@ -33,12 +36,15 @@ export interface CreateStudentResponse {
   name: string;
   email: string;
   personalId: string;
+  servicePlanId: string;
+  servicePlanName: string | null;
   createdAt: string;
 }
 
 export interface UpdateStudentPayload {
   name?: string;
   email?: string;
+  servicePlanId?: string;
 }
 
 export interface ListStudentsParams {

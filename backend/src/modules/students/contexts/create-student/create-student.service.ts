@@ -6,6 +6,7 @@ import { UsersRepository } from "@shared/repositories/users.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PasswordSetupTokensRepository } from "@shared/repositories/password-setup-tokens.repository";
+import { ServicePlansRepository } from "@shared/repositories/service-plans.repository";
 import { ApplicationRoles } from "@shared/enums";
 import { IAccessToken } from "@shared/interfaces";
 import { generateSetupToken, expiresInHours } from "@shared/utils";
@@ -21,6 +22,7 @@ export class CreateStudentService {
     private readonly studentsRepository: StudentsRepository,
     private readonly personalsRepository: PersonalsRepository,
     private readonly passwordSetupTokensRepository: PasswordSetupTokensRepository,
+    private readonly servicePlansRepository: ServicePlansRepository,
     private readonly resendProvider: ResendProvider,
     private readonly drizzle: DrizzleProvider,
   ) {}
@@ -32,6 +34,14 @@ export class CreateStudentService {
     const existing = await this.usersRepository.findByEmail(dto.email);
     if (existing) {
       throw new ConflictException("E-mail já está em uso");
+    }
+
+    const servicePlan = await this.servicePlansRepository.findOwnedById(
+      dto.servicePlanId,
+      currentUser.personalId,
+    );
+    if (!servicePlan) {
+      throw new ConflictException("Plano de atendimento não encontrado para este personal");
     }
 
     const { raw, hash } = generateSetupToken();
@@ -52,6 +62,7 @@ export class CreateStudentService {
         {
           userId: user.id,
           personalId: currentUser.personalId,
+          servicePlanId: dto.servicePlanId,
         },
         tx,
       );
@@ -88,6 +99,8 @@ export class CreateStudentService {
       name: user.name,
       email: user.email,
       personalId: student.personalId,
+      servicePlanId: student.servicePlanId,
+      servicePlanName: servicePlan.name,
       createdAt: student.createdAt,
     };
   }

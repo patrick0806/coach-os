@@ -82,6 +82,9 @@ export class BookingSeriesService {
     if (!servicePlan) {
       throw new BadRequestException("Plano de serviço não encontrado ou não pertence a este personal");
     }
+    if (student.servicePlanId !== servicePlanId) {
+      throw new BadRequestException("O aluno deve ser agendado com o plano de atendimento vinculado");
+    }
 
     const recurrenceDates = buildRecurringDates(seriesStartDate, seriesEndDate, daysOfWeek);
     if (recurrenceDates.length === 0) {

@@ -6,6 +6,7 @@ import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PasswordSetupTokensRepository } from "@shared/repositories/password-setup-tokens.repository";
 import { WorkoutPlanStudentsRepository } from "@shared/repositories/workout-plan-students.repository";
 import { WorkoutPlansRepository } from "@shared/repositories/workout-plans.repository";
+import { ServicePlansRepository } from "@shared/repositories/service-plans.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { CreateStudentController } from "./contexts/create-student/create-student.controller";
@@ -53,6 +54,7 @@ import { MyWorkoutPlanDetailService } from "./contexts/my-workout-plan-detail/my
     PasswordSetupTokensRepository,
     WorkoutPlanStudentsRepository,
     WorkoutPlansRepository,
+    ServicePlansRepository,
     ResendProvider,
   ],
 })

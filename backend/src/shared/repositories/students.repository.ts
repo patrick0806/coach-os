@@ -6,6 +6,7 @@ import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import * as schema from "@config/database/schema";
 import { students, Student, NewStudent } from "@config/database/schema/students";
 import { users } from "@config/database/schema/users";
+import { servicePlans } from "@config/database/schema/availability";
 
 type DrizzleDb = NodePgDatabase<typeof schema>;
 
@@ -13,6 +14,8 @@ export interface StudentWithUser {
   id: string;
   userId: string;
   personalId: string;
+  servicePlanId: string;
+  servicePlanName: string | null;
   name: string;
   email: string;
   isActive: boolean;
@@ -32,6 +35,10 @@ export interface PaginatedStudents {
   size: number;
   totalElements: number;
   totalPages: number;
+}
+
+export interface UpdateStudentInput {
+  servicePlanId?: string;
 }
 
 @Injectable()
@@ -81,6 +88,8 @@ export class StudentsRepository {
           id: students.id,
           userId: students.userId,
           personalId: students.personalId,
+          servicePlanId: students.servicePlanId,
+          servicePlanName: servicePlans.name,
           name: users.name,
           email: users.email,
           isActive: users.isActive,
@@ -89,6 +98,7 @@ export class StudentsRepository {
         })
         .from(students)
         .innerJoin(users, eq(students.userId, users.id))
+        .innerJoin(servicePlans, eq(students.servicePlanId, servicePlans.id))
         .where(baseWhere)
         .orderBy(students.createdAt)
         .limit(size)
@@ -129,19 +139,38 @@ export class StudentsRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .select({
-        id: students.id,
-        userId: students.userId,
-        personalId: students.personalId,
-        name: users.name,
-        email: users.email,
-        isActive: users.isActive,
-        createdAt: students.createdAt,
-        updatedAt: students.updatedAt,
-      })
-      .from(students)
-      .innerJoin(users, eq(students.userId, users.id))
-      .where(and(eq(students.id, id), eq(students.personalId, tenantId)))
+          id: students.id,
+          userId: students.userId,
+          personalId: students.personalId,
+          servicePlanId: students.servicePlanId,
+          servicePlanName: servicePlans.name,
+          name: users.name,
+          email: users.email,
+          isActive: users.isActive,
+          createdAt: students.createdAt,
+          updatedAt: students.updatedAt,
+        })
+        .from(students)
+        .innerJoin(users, eq(students.userId, users.id))
+        .innerJoin(servicePlans, eq(students.servicePlanId, servicePlans.id))
+        .where(and(eq(students.id, id), eq(students.personalId, tenantId)))
       .limit(1);
+    return result[0] ?? null;
+  }
+
+  async update(
+    id: string,
+    tenantId: string,
+    data: UpdateStudentInput,
+    tx?: DrizzleDb,
+  ): Promise<Student | null> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .update(students)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .set(data as any)
+      .where(and(eq(students.id, id), eq(students.personalId, tenantId)))
+      .returning();
     return result[0] ?? null;
   }
 }

@@ -39,6 +39,20 @@ const mockCreatedStudent = {
   id: "student-id",
   userId: "student-user-id",
   personalId: "personal-id",
+  servicePlanId: "service-plan-id",
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date("2024-01-01"),
+};
+
+const mockServicePlan = {
+  id: "service-plan-id",
+  personalId: "personal-id",
+  name: "Plano 3x por semana",
+  description: null,
+  sessionsPerWeek: 3,
+  durationMinutes: 60,
+  price: "299.90",
+  isActive: true,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
 };
@@ -90,6 +104,9 @@ describe("CreateStudentService", () => {
   let passwordSetupTokensRepository: {
     create: ReturnType<typeof vi.fn>;
   };
+  let servicePlansRepository: {
+    findOwnedById: ReturnType<typeof vi.fn>;
+  };
   let resendProvider: {
     sendStudentInvite: ReturnType<typeof vi.fn>;
   };
@@ -108,6 +125,7 @@ describe("CreateStudentService", () => {
     studentsRepository = { create: vi.fn() };
     personalsRepository = { findById: vi.fn() };
     passwordSetupTokensRepository = { create: vi.fn() };
+    servicePlansRepository = { findOwnedById: vi.fn() };
     resendProvider = { sendStudentInvite: vi.fn() };
     drizzle = {
       db: {
@@ -120,6 +138,7 @@ describe("CreateStudentService", () => {
       studentsRepository as any,
       personalsRepository as any,
       passwordSetupTokensRepository as any,
+      servicePlansRepository as any,
       resendProvider as any,
       drizzle as any,
     );
@@ -128,6 +147,7 @@ describe("CreateStudentService", () => {
   describe("execute", () => {
     it("should create a student and send invite email successfully", async () => {
       usersRepository.findByEmail.mockResolvedValue(null);
+      servicePlansRepository.findOwnedById.mockResolvedValue(mockServicePlan);
       personalsRepository.findById.mockResolvedValue(mockPersonal);
       usersRepository.findById.mockResolvedValue(mockPersonalUser);
       usersRepository.create.mockResolvedValue(mockCreatedUser);
@@ -136,7 +156,11 @@ describe("CreateStudentService", () => {
       resendProvider.sendStudentInvite.mockResolvedValue(undefined);
 
       const result = await service.execute(
-        { name: "Alice Silva", email: "alice@example.com" },
+        {
+          name: "Alice Silva",
+          email: "alice@example.com",
+          servicePlanId: "service-plan-id",
+        },
         mockCurrentUser,
       );
 
@@ -146,11 +170,17 @@ describe("CreateStudentService", () => {
         name: "Alice Silva",
         email: "alice@example.com",
         personalId: "personal-id",
+        servicePlanId: "service-plan-id",
+        servicePlanName: "Plano 3x por semana",
         createdAt: mockCreatedStudent.createdAt,
       });
 
       expect(usersRepository.findByEmail).toHaveBeenCalledWith(
         "alice@example.com",
+      );
+      expect(servicePlansRepository.findOwnedById).toHaveBeenCalledWith(
+        "service-plan-id",
+        "personal-id",
       );
       expect(resendProvider.sendStudentInvite).toHaveBeenCalledOnce();
     });
@@ -160,13 +190,35 @@ describe("CreateStudentService", () => {
 
       await expect(
         service.execute(
-          { name: "Alice Silva", email: "alice@example.com" },
+          {
+            name: "Alice Silva",
+            email: "alice@example.com",
+            servicePlanId: "service-plan-id",
+          },
           mockCurrentUser,
         ),
       ).rejects.toThrow(ConflictException);
 
       expect(drizzle.db.transaction).not.toHaveBeenCalled();
       expect(resendProvider.sendStudentInvite).not.toHaveBeenCalled();
+    });
+
+    it("should throw ConflictException when service plan does not belong to personal", async () => {
+      usersRepository.findByEmail.mockResolvedValue(null);
+      servicePlansRepository.findOwnedById.mockResolvedValue(null);
+
+      await expect(
+        service.execute(
+          {
+            name: "Alice Silva",
+            email: "alice@example.com",
+            servicePlanId: "service-plan-id",
+          },
+          mockCurrentUser,
+        ),
+      ).rejects.toThrow(ConflictException);
+
+      expect(drizzle.db.transaction).not.toHaveBeenCalled();
     });
   });
 });

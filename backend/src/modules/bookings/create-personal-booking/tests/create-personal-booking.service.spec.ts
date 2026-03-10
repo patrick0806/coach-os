@@ -19,6 +19,8 @@ const mockStudent = {
   id: VALID_STUDENT_UUID,
   userId: "student-user-id",
   personalId: "personal-id",
+  servicePlanId: VALID_PLAN_UUID,
+  servicePlanName: "Plano Básico",
   name: "Aluno Teste",
   email: "aluno@teste.com",
   isActive: true,
@@ -141,6 +143,27 @@ describe("CreatePersonalBookingService", () => {
     it("should throw BadRequestException when service plan does not belong to personal", async () => {
       studentsRepository.findById.mockResolvedValue(mockStudent);
       servicePlansRepository.findOwnedById.mockResolvedValue(null);
+
+      await expect(
+        service.execute(
+          {
+            studentId: VALID_STUDENT_UUID,
+            servicePlanId: VALID_PLAN_UUID,
+            scheduledDate: "2024-01-15",
+            startTime: "08:00",
+            endTime: "09:00",
+          },
+          mockCurrentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should throw BadRequestException when service plan is different from student's linked plan", async () => {
+      studentsRepository.findById.mockResolvedValue({
+        ...mockStudent,
+        servicePlanId: "another-plan-id",
+      });
+      servicePlansRepository.findOwnedById.mockResolvedValue(mockServicePlan);
 
       await expect(
         service.execute(

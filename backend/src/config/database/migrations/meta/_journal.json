@@ -43,6 +43,13 @@
       "when": 1773168358275,
       "tag": "0005_add_booking_series",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773168358276,
+      "tag": "0006_link_students_to_service_plans",
+      "breakpoints": true
     }
   ]
 }
