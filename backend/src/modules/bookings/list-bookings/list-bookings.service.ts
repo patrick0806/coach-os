@@ -16,10 +16,18 @@ export class ListBookingsService {
   async execute(options: ListBookingsOptions, currentUser: IAccessToken): Promise<PaginatedBookings> {
     const { page = 1, size = 10, status } = options;
 
-    return this.bookingsRepository.findByPersonal(currentUser.personalId as string, {
+    const paginated = await this.bookingsRepository.findByPersonal(currentUser.personalId as string, {
       page,
       size,
       status,
     });
+
+    return {
+      ...paginated,
+      content: paginated.content.map((booking) => ({
+        ...booking,
+        isRecurring: Boolean(booking.seriesId),
+      })),
+    };
   }
 }

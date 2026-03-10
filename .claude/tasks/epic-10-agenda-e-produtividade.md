@@ -445,7 +445,7 @@ describe('CopyAvailabilityService', () => {
 
 ## US-024 — Personal cria sessao avulsa ou recorrente vinculada a aluno
 
-**Status:** `[ ]` todo
+**Status:** `[~]` in progress
 **Sprint:** 8
 **Dependencias:** US-014
 
@@ -499,12 +499,12 @@ Armazena a regra de recorrencia. Cada serie gera multiplos `bookings`.
 - [ ] Cancela a `booking_series` quando nao restar nenhuma sessao nao-concluida
 
 ### Subtasks Backend
-- [ ] Migration: tabela `booking_series` + coluna `series_id` em `bookings`
-- [ ] `POST /bookings/personal` — sessao avulsa
-- [ ] `POST /booking-series` — serie recorrente
-- [ ] `DELETE /bookings/:id?scope=single|future|all`
-- [ ] `GET /booking-series` — listar series ativas
-- [ ] Atualizar `GET /bookings` com campos `seriesId` e `isRecurring`
+- [x] Migration: tabela `booking_series` + coluna `series_id` em `bookings`
+- [x] `POST /bookings/personal` — sessao avulsa
+- [x] `POST /booking-series` — serie recorrente
+- [x] `DELETE /bookings/:id?scope=single|future|all`
+- [x] `GET /booking-series` — listar series ativas
+- [x] Atualizar `GET /bookings` com campos `seriesId` e `isRecurring`
 
 ### Subtasks Frontend
 - [ ] Formulario com toggle sessao unica / recorrente

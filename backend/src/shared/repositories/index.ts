@@ -10,6 +10,7 @@ export { WorkoutExercisesRepository, WorkoutExerciseRow } from "./workout-exerci
 export { WorkoutPlanStudentsRepository } from "./workout-plan-students.repository";
 export { AvailabilityRepository } from "./availability.repository";
 export { BookingsRepository } from "./bookings.repository";
+export { BookingSeriesRepository } from "./booking-series.repository";
 export { PlansRepository } from "./plans.repository";
 export { AdminPersonalsRepository } from "./admin-personals.repository";
 export { DashboardRepository } from "./dashboard.repository";

@@ -36,6 +36,13 @@
       "when": 1772908415379,
       "tag": "0004_add_trial_fields_to_personals",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1773168358275,
+      "tag": "0005_add_booking_series",
+      "breakpoints": true
     }
   ]
 }

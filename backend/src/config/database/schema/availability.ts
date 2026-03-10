@@ -4,6 +4,7 @@ import {
   integer,
   boolean,
   timestamp,
+  date,
   index,
   uniqueIndex,
   numeric,
@@ -89,6 +90,9 @@ export const bookings = pgTable(
     servicePlanId: varchar("service_plan_id", { length: 36 })
       .notNull()
       .references(() => servicePlans.id),
+    seriesId: varchar("series_id", { length: 36 }).references(() => bookingSeries.id, {
+      onDelete: "set null",
+    }),
     scheduledDate: timestamp("scheduled_date", {
       withTimezone: true,
     }).notNull(),
@@ -121,6 +125,37 @@ export const bookings = pgTable(
   ]
 );
 
+export const bookingSeries = pgTable(
+  "booking_series",
+  {
+    id: varchar("id", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    personalId: varchar("personal_id", { length: 36 })
+      .notNull()
+      .references(() => personals.id),
+    studentId: varchar("student_id", { length: 36 })
+      .notNull()
+      .references(() => students.id),
+    servicePlanId: varchar("service_plan_id", { length: 36 })
+      .notNull()
+      .references(() => servicePlans.id),
+    daysOfWeek: integer("days_of_week").array().notNull(),
+    startTime: varchar("start_time", { length: 5 }).notNull(),
+    endTime: varchar("end_time", { length: 5 }).notNull(),
+    seriesStartDate: date("series_start_date").notNull(),
+    seriesEndDate: date("series_end_date").notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("idx_booking_series_personal_id").on(table.personalId),
+    index("idx_booking_series_start_date").on(table.seriesStartDate),
+  ],
+);
+
 export const availabilitySlotsRelations = relations(
   availabilitySlots,
   ({ one }) => ({
@@ -142,6 +177,22 @@ export const servicePlansRelations = relations(
   })
 );
 
+export const bookingSeriesRelations = relations(bookingSeries, ({ one, many }) => ({
+  personal: one(personals, {
+    fields: [bookingSeries.personalId],
+    references: [personals.id],
+  }),
+  student: one(students, {
+    fields: [bookingSeries.studentId],
+    references: [students.id],
+  }),
+  servicePlan: one(servicePlans, {
+    fields: [bookingSeries.servicePlanId],
+    references: [servicePlans.id],
+  }),
+  bookings: many(bookings),
+}));
+
 export const bookingsRelations = relations(bookings, ({ one }) => ({
   personal: one(personals, {
     fields: [bookings.personalId],
@@ -155,6 +206,10 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
     fields: [bookings.servicePlanId],
     references: [servicePlans.id],
   }),
+  series: one(bookingSeries, {
+    fields: [bookings.seriesId],
+    references: [bookingSeries.id],
+  }),
 }));
 
 // Type exports
@@ -166,3 +221,6 @@ export type NewServicePlan = typeof servicePlans.$inferInsert;
 
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;
+
+export type BookingSeries = typeof bookingSeries.$inferSelect;
+export type NewBookingSeries = typeof bookingSeries.$inferInsert;

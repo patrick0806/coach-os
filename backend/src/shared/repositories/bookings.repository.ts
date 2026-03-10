@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, eq, count } from "drizzle-orm";
+import { and, eq, count, gte, inArray, notInArray } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -16,6 +16,7 @@ export interface CreateBookingInput {
   personalId: string;
   studentId: string;
   servicePlanId: string;
+  seriesId?: string | null;
   scheduledDate: Date;
   startTime: string;
   endTime: string;
@@ -116,6 +117,16 @@ export class BookingsRepository {
     return result[0];
   }
 
+  async createMany(data: CreateBookingInput[], tx?: DrizzleDb): Promise<Booking[]> {
+    if (data.length === 0) {
+      return [];
+    }
+
+    const db = tx ?? this.drizzle.db;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return db.insert(bookings).values(data as any).returning();
+  }
+
   async findByStudent(
     studentId: string,
     personalId: string,
@@ -161,6 +172,39 @@ export class BookingsRepository {
       .where(and(eq(bookings.id, id), eq(bookings.personalId, personalId)))
       .limit(1);
     return result[0] ?? null;
+  }
+
+  async findBySeries(
+    seriesId: string,
+    personalId: string,
+    tx?: DrizzleDb,
+  ): Promise<Booking[]> {
+    const db = tx ?? this.drizzle.db;
+    return db
+      .select()
+      .from(bookings)
+      .where(and(eq(bookings.seriesId, seriesId), eq(bookings.personalId, personalId)))
+      .orderBy(bookings.scheduledDate, bookings.startTime);
+  }
+
+  async findFutureBySeries(
+    seriesId: string,
+    personalId: string,
+    fromDate: Date,
+    tx?: DrizzleDb,
+  ): Promise<Booking[]> {
+    const db = tx ?? this.drizzle.db;
+    return db
+      .select()
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.seriesId, seriesId),
+          eq(bookings.personalId, personalId),
+          gte(bookings.scheduledDate, fromDate),
+        ),
+      )
+      .orderBy(bookings.scheduledDate, bookings.startTime);
   }
 
   async findByPersonal(
@@ -233,5 +277,55 @@ export class BookingsRepository {
       .where(and(eq(bookings.id, id), eq(bookings.personalId, personalId)))
       .returning();
     return result[0] ?? null;
+  }
+
+  async cancelMany(
+    ids: string[],
+    personalId: string,
+    reason: string,
+    tx?: DrizzleDb,
+  ): Promise<Booking[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .update(bookings)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .set({
+        status: "cancelled",
+        cancelledAt: new Date(),
+        cancellationReason: reason,
+      } as any)
+      .where(
+        and(
+          eq(bookings.personalId, personalId),
+          inArray(bookings.id, ids),
+          notInArray(bookings.status, ["completed", "cancelled"]),
+        ),
+      )
+      .returning();
+    return result;
+  }
+
+  async countOpenBySeries(
+    seriesId: string,
+    personalId: string,
+    tx?: DrizzleDb,
+  ): Promise<number> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .select({ total: count() })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.seriesId, seriesId),
+          eq(bookings.personalId, personalId),
+          notInArray(bookings.status, ["completed", "cancelled"]),
+        ),
+      );
+
+    return Number(result[0]?.total ?? 0);
   }
 }

@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
 
 import { BookingsRepository } from "@shared/repositories/bookings.repository";
+import { BookingSeriesRepository } from "@shared/repositories/booking-series.repository";
 import { ServicePlansRepository } from "@shared/repositories/service-plans.repository";
+import { StudentsRepository } from "@shared/repositories/students.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { AvailableSlotsController } from "./available-slots/available-slots.controller";
@@ -18,6 +20,14 @@ import { UpdateBookingStatusController } from "./update-booking-status/update-bo
 import { UpdateBookingStatusService } from "./update-booking-status/update-booking-status.service";
 import { CancelBookingController } from "./cancel-booking/cancel-booking.controller";
 import { CancelBookingService } from "./cancel-booking/cancel-booking.service";
+import { CreatePersonalBookingController } from "./create-personal-booking/create-personal-booking.controller";
+import { CreatePersonalBookingService } from "./create-personal-booking/create-personal-booking.service";
+import { BookingSeriesController } from "./booking-series/booking-series.controller";
+import { BookingSeriesService } from "./booking-series/booking-series.service";
+import { DeleteBookingScopeController } from "./delete-booking-scope/delete-booking-scope.controller";
+import { DeleteBookingScopeService } from "./delete-booking-scope/delete-booking-scope.service";
+import { ListBookingSeriesController } from "./list-booking-series/list-booking-series.controller";
+import { ListBookingSeriesService } from "./list-booking-series/list-booking-series.service";
 
 @Module({
   controllers: [
@@ -28,6 +38,10 @@ import { CancelBookingService } from "./cancel-booking/cancel-booking.service";
     GetBookingController,
     UpdateBookingStatusController,
     CancelBookingController,
+    CreatePersonalBookingController,
+    BookingSeriesController,
+    DeleteBookingScopeController,
+    ListBookingSeriesController,
   ],
   providers: [
     AvailableSlotsService,
@@ -37,8 +51,14 @@ import { CancelBookingService } from "./cancel-booking/cancel-booking.service";
     GetBookingService,
     UpdateBookingStatusService,
     CancelBookingService,
+    CreatePersonalBookingService,
+    BookingSeriesService,
+    DeleteBookingScopeService,
+    ListBookingSeriesService,
     BookingsRepository,
+    BookingSeriesRepository,
     ServicePlansRepository,
+    StudentsRepository,
     ResendProvider,
   ],
 })

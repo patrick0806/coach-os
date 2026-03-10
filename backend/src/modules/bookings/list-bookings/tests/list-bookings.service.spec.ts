@@ -12,11 +12,44 @@ const mockCurrentUser = {
 };
 
 const mockPaginated = {
-  content: [],
+  content: [
+    {
+      id: "booking-1",
+      personalId: "personal-id",
+      studentId: "student-id",
+      servicePlanId: "plan-id",
+      seriesId: "series-id",
+      scheduledDate: new Date("2024-01-15"),
+      startTime: "08:00",
+      endTime: "09:00",
+      notes: null,
+      status: "scheduled",
+      cancelledAt: null,
+      cancellationReason: null,
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-01-01"),
+    },
+    {
+      id: "booking-2",
+      personalId: "personal-id",
+      studentId: "student-id",
+      servicePlanId: "plan-id",
+      seriesId: null,
+      scheduledDate: new Date("2024-01-16"),
+      startTime: "10:00",
+      endTime: "11:00",
+      notes: null,
+      status: "scheduled",
+      cancelledAt: null,
+      cancellationReason: null,
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-01-01"),
+    },
+  ],
   page: 1,
   size: 10,
-  totalElements: 0,
-  totalPages: 0,
+  totalElements: 2,
+  totalPages: 1,
 };
 
 describe("ListBookingsService", () => {
@@ -38,7 +71,8 @@ describe("ListBookingsService", () => {
         "personal-id",
         expect.objectContaining({ page: 1, size: 10 }),
       );
-      expect(result).toEqual(mockPaginated);
+      expect(result.content[0]).toMatchObject({ seriesId: "series-id", isRecurring: true });
+      expect(result.content[1]).toMatchObject({ seriesId: null, isRecurring: false });
     });
 
     it("should pass status filter when provided", async () => {

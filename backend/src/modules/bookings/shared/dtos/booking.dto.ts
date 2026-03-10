@@ -27,6 +27,12 @@ export class BookingDTO {
   @ApiProperty({ example: "plan-id" })
   servicePlanId: string;
 
+  @ApiProperty({ required: false, nullable: true, example: "series-id" })
+  seriesId: string | null;
+
+  @ApiProperty({ required: false, example: false })
+  isRecurring?: boolean;
+
   @ApiProperty()
   scheduledDate: Date;
 
