@@ -111,6 +111,26 @@ export interface PaginatedBookings {
   totalPages: number;
 }
 
+function normalizeDateOnly(value: string): string {
+  if (!value) {
+    return value;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  const [datePart] = value.split("T");
+  return /^\d{4}-\d{2}-\d{2}$/.test(datePart) ? datePart : value;
+}
+
+function normalizeBooking(booking: Booking): Booking {
+  return {
+    ...booking,
+    scheduledDate: normalizeDateOnly(booking.scheduledDate),
+  };
+}
+
 export async function getAvailableSlots(date: string): Promise<AvailableSlot[]> {
   const { data } = await api.get<AvailableSlot[]>("/bookings/available-slots", {
     params: { date },
@@ -120,21 +140,24 @@ export async function getAvailableSlots(date: string): Promise<AvailableSlot[]> 
 
 export async function createBooking(payload: CreateBookingPayload): Promise<Booking> {
   const { data } = await api.post<Booking>("/bookings", payload);
-  return data;
+  return normalizeBooking(data);
 }
 
 export async function createPersonalBooking(
   payload: CreatePersonalBookingPayload,
 ): Promise<Booking> {
   const { data } = await api.post<Booking>("/bookings/personal", payload);
-  return data;
+  return normalizeBooking(data);
 }
 
 export async function createBookingSeries(
   payload: CreateBookingSeriesPayload,
 ): Promise<CreateBookingSeriesResponse> {
   const { data } = await api.post<CreateBookingSeriesResponse>("/booking-series", payload);
-  return data;
+  return {
+    ...data,
+    bookings: data.bookings.map(normalizeBooking),
+  };
 }
 
 export async function listBookingSeries(): Promise<BookingSeries[]> {
@@ -146,11 +169,11 @@ export async function getMyBookings(): Promise<Booking[]> {
   const { data } = await api.get<Booking[] | PaginatedBookings>("/bookings/me");
 
   if (Array.isArray(data)) {
-    return data;
+    return data.map(normalizeBooking);
   }
 
   if (data && Array.isArray(data.content)) {
-    return data.content;
+    return data.content.map(normalizeBooking);
   }
 
   return [];
@@ -160,12 +183,15 @@ export async function listBookings(
   params: ListBookingsParams = {},
 ): Promise<PaginatedBookings> {
   const { data } = await api.get<PaginatedBookings>("/bookings", { params });
-  return data;
+  return {
+    ...data,
+    content: data.content.map(normalizeBooking),
+  };
 }
 
 export async function getBooking(id: string): Promise<Booking> {
   const { data } = await api.get<Booking>(`/bookings/${id}`);
-  return data;
+  return normalizeBooking(data);
 }
 
 export async function updateBookingStatus(
@@ -173,12 +199,12 @@ export async function updateBookingStatus(
   status: "completed" | "no-show",
 ): Promise<Booking> {
   const { data } = await api.patch<Booking>(`/bookings/${id}/status`, { status });
-  return data;
+  return normalizeBooking(data);
 }
 
 export async function cancelBooking(id: string, reason: string): Promise<Booking> {
   const { data } = await api.patch<Booking>(`/bookings/${id}/cancel`, { reason });
-  return data;
+  return normalizeBooking(data);
 }
 
 export async function deleteBooking(

@@ -4,6 +4,9 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  /*typescript: {
+    ignoreBuildErrors: true,
+  },*/
   rewrites: async () => {
     return isDev ? [
       {

@@ -123,7 +123,8 @@ const schema = z
     }
   });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
 
 const WEEK_DAY_OPTIONS = [
   { value: 1, label: "Seg" },
@@ -186,7 +187,7 @@ interface AddSessionDialogProps {
 export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) {
   const queryClient = useQueryClient();
 
-  const form = useForm<FormValues>({
+  const form = useForm<FormValues, unknown, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       mode: "single",

@@ -60,6 +60,8 @@ const planSchema = z.object({
 });
 
 type PlanFormValues = z.infer<typeof planSchema>;
+type PlanFormInput = z.input<typeof planSchema>;
+type PlanFormOutput = z.output<typeof planSchema>;
 
 interface PlanDialogProps {
   plan?: AdminPlan;
@@ -71,7 +73,7 @@ function PlanDialog({ plan, open, onOpenChange }: PlanDialogProps) {
   const queryClient = useQueryClient();
   const isEditing = Boolean(plan);
 
-  const form = useForm<PlanFormValues>({
+  const form = useForm<PlanFormInput, unknown, PlanFormOutput>({
     resolver: zodResolver(planSchema),
     defaultValues: {
       name: "",
@@ -109,7 +111,7 @@ function PlanDialog({ plan, open, onOpenChange }: PlanDialogProps) {
   }, [open, plan, form]);
 
   const mutation = useMutation({
-    mutationFn: (values: PlanFormValues) => {
+    mutationFn: (values: PlanFormOutput) => {
       const payload = {
         name: values.name,
         description: values.description || undefined,

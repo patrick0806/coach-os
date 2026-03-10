@@ -13,5 +13,5 @@ export class DeleteBookingScopeQueryDTO implements DeleteBookingScopeInput {
     default: "single",
     description: "Escopo de cancelamento: somente a sessão, esta e próximas, ou série inteira",
   })
-  scope?: "single" | "future" | "all";
+  scope: "single" | "future" | "all" = "single";
 }

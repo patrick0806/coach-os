@@ -52,7 +52,8 @@ const schema = z.object({
     .refine((value) => parseCurrencyInput(value) >= 0, "Preço é obrigatório"),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
 
 interface ServicePlanDialogProps {
   open: boolean;
@@ -64,7 +65,7 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
   const queryClient = useQueryClient();
   const isEditing = Boolean(plan);
 
-  const form = useForm<FormValues>({
+  const form = useForm<FormValues, unknown, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
@@ -99,7 +100,7 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
   }, [open, plan, form]);
 
   const mutation = useMutation({
-    mutationFn: (values: FormValues) =>
+    mutationFn: (values: FormOutput) =>
       isEditing
         ? updateServicePlan(plan!.id, {
             name: values.name,

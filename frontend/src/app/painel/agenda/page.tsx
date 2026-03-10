@@ -184,7 +184,10 @@ export default function AgendaPage() {
                           <p className="flex items-center gap-1 truncate font-medium text-gray-900">
                             <span className="truncate">{booking.studentName}</span>
                             {booking.isRecurring ? (
-                              <Repeat2 className="size-3.5 shrink-0 text-muted-foreground" title="Sessão recorrente" />
+                              <Repeat2
+                                aria-label="Sessão recorrente"
+                                className="size-3.5 shrink-0 text-muted-foreground"
+                              />
                             ) : null}
                           </p>
                           <p className="truncate text-xs text-gray-500">

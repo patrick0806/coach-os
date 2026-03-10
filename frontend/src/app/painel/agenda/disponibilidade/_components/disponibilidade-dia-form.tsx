@@ -49,7 +49,8 @@ const schema = z
     path: ["breakStart"],
   });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
 
 interface PreviewSlot {
   startTime: string;
@@ -67,7 +68,7 @@ function minutesToTime(value: number): string {
   return `${hours}:${minutes}`;
 }
 
-function buildPreviewSlots(values: FormValues): PreviewSlot[] {
+function buildPreviewSlots(values: FormOutput): PreviewSlot[] {
   if (!values.startTime || !values.endTime || !values.slotDurationMinutes) {
     return [];
   }
@@ -124,7 +125,7 @@ export function DisponibilidadeDiaForm({
   onOpenChange,
   onSubmit,
 }: DisponibilidadeDiaFormProps) {
-  const form = useForm<FormValues>({
+  const form = useForm<FormValues, unknown, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       startTime: "09:00",
