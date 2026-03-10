@@ -6,7 +6,7 @@ Status: `[~]` in progress
 
 ## US-032 — Configuracao de Disponibilidade em Lote
 
-**Status:** `[~]` in progress
+**Status:** `[x]` done
 **Sprint:** 8
 **Dependencias:** US-011
 
@@ -16,21 +16,21 @@ Como personal, quero configurar minha disponibilidade de um dia inteiro de uma v
 ### Criterios de Aceite
 
 #### Configuracao de Dia em Lote
-- [ ] Personal pode abrir um formulario "Configurar dia" para qualquer dia da semana
-- [ ] Campos: dia da semana, horario inicio, horario termino, duracao do slot (min), pausa (opcional)
-- [ ] Sistema gera automaticamente todos os slots respeitando a pausa
-- [ ] Preview dos slots antes de confirmar
-- [ ] Ao confirmar, substitui os slots existentes do dia (nao acumula)
-- [ ] Validacao: fim deve ser apos inicio, pausa deve estar dentro do intervalo
+- [x] Personal pode abrir um formulario "Configurar dia" para qualquer dia da semana
+- [x] Campos: dia da semana, horario inicio, horario termino, duracao do slot (min), pausa (opcional)
+- [x] Sistema gera automaticamente todos os slots respeitando a pausa
+- [x] Preview dos slots antes de confirmar
+- [x] Ao confirmar, substitui os slots existentes do dia (nao acumula)
+- [x] Validacao: fim deve ser apos inicio, pausa deve estar dentro do intervalo
 
 #### Copia entre Dias
-- [ ] Botao "Copiar para outros dias" disponivel em cada dia ja configurado
-- [ ] Modal com checkboxes dos outros dias
-- [ ] Confirmacao substitui slots dos dias destino (nao acumula)
-- [ ] Preview resumido dos dias afetados
+- [x] Botao "Copiar para outros dias" disponivel em cada dia ja configurado
+- [x] Modal com checkboxes dos outros dias
+- [x] Confirmacao substitui slots dos dias destino (nao acumula)
+- [x] Preview resumido dos dias afetados
 
 #### Manutencao Individual (existente)
-- [ ] Manter possibilidade de adicionar/remover slots individuais para ajustes pontuais
+- [x] Manter possibilidade de adicionar/remover slots individuais para ajustes pontuais
 
 ### Subtasks Backend
 - [x] `POST /availability/bulk`
@@ -38,9 +38,9 @@ Como personal, quero configurar minha disponibilidade de um dia inteiro de uma v
 - [x] Unit tests
 
 ### Subtasks Frontend
-- [ ] Refatorar `/painel/agenda/disponibilidade`
-- [ ] Componente `DisponibilidadeDiaForm` com preview em tempo real
-- [ ] Modal `CopiarDisponibilidadeModal`
+- [x] Refatorar `/painel/agenda/disponibilidade`
+- [x] Componente `DisponibilidadeDiaForm` com preview em tempo real
+- [x] Modal `CopiarDisponibilidadeModal`
 
 ---
 

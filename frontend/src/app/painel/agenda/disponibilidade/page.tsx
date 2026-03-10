@@ -34,6 +34,8 @@ import { Label } from "@/components/ui/label";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
   createSlot,
+  copyAvailability,
+  bulkAvailability,
   DAY_LABELS,
   DAYS_ORDER,
   deleteSlot,
@@ -42,6 +44,8 @@ import {
   type AvailabilitySlot,
   type DayOfWeek,
 } from "@/services/availability.service";
+import { DisponibilidadeDiaForm } from "./_components/disponibilidade-dia-form";
+import { CopiarDisponibilidadeModal } from "./_components/copiar-disponibilidade-modal";
 
 // ─── Add Slot Dialog ──────────────────────────────────────────────────────────
 
@@ -198,6 +202,8 @@ function SlotRow({ slot, onToggle, onDelete, isTogglingId }: SlotRowProps) {
 export default function DisponibilidadePage() {
   const queryClient = useQueryClient();
   const [addingDay, setAddingDay] = useState<DayOfWeek | null>(null);
+  const [configuringDay, setConfiguringDay] = useState<DayOfWeek | null>(null);
+  const [copyingDay, setCopyingDay] = useState<DayOfWeek | null>(null);
   const [deletingSlot, setDeletingSlot] = useState<AvailabilitySlot | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
@@ -218,6 +224,32 @@ export default function DisponibilidadePage() {
     },
   });
 
+  const bulkMutation = useMutation({
+    mutationFn: bulkAvailability,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["availability"] });
+      toast.success(
+        `${data.slotsCreated} ${data.slotsCreated === 1 ? "slot criado" : "slots criados"} em ${DAY_LABELS[data.dayOfWeek]}.`,
+      );
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível configurar o dia."));
+    },
+  });
+
+  const copyMutation = useMutation({
+    mutationFn: copyAvailability,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["availability"] });
+      toast.success(
+        `${data.totalSlotsCreated} slots copiados para ${data.copiedToDays.length} dia(s).`,
+      );
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível copiar a disponibilidade."));
+    },
+  });
+
   async function handleToggle(slot: AvailabilitySlot) {
     setTogglingId(slot.id);
     try {
@@ -234,6 +266,11 @@ export default function DisponibilidadePage() {
     acc[day] = slots
       .filter((s) => s.dayOfWeek === day)
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    return acc;
+  }, {});
+
+  const daySlotCounts = DAYS_ORDER.reduce<Record<number, number>>((acc, day) => {
+    acc[day] = slotsByDay[day]?.length ?? 0;
     return acc;
   }, {});
 
@@ -275,15 +312,35 @@ export default function DisponibilidadePage() {
                         </span>
                       ) : null}
                     </CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 gap-1 px-2 text-xs text-gray-500"
-                      onClick={() => setAddingDay(day)}
-                    >
-                      <Plus className="size-3.5" />
-                      Adicionar
-                    </Button>
+                    <div className="flex flex-wrap items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 gap-1 px-2 text-xs text-gray-500"
+                        onClick={() => setConfiguringDay(day)}
+                      >
+                        Configurar dia
+                      </Button>
+                      {daySlots.length > 0 ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 gap-1 px-2 text-xs text-gray-500"
+                          onClick={() => setCopyingDay(day)}
+                        >
+                          Copiar para outros dias
+                        </Button>
+                      ) : null}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 gap-1 px-2 text-xs text-gray-500"
+                        onClick={() => setAddingDay(day)}
+                      >
+                        <Plus className="size-3.5" />
+                        Adicionar
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent className="pt-0">
                     {daySlots.length === 0 ? (
@@ -317,6 +374,33 @@ export default function DisponibilidadePage() {
           onAdded={() => {
             queryClient.invalidateQueries({ queryKey: ["availability"] });
             setAddingDay(null);
+          }}
+        />
+      ) : null}
+
+      {configuringDay !== null ? (
+        <DisponibilidadeDiaForm
+          dayOfWeek={configuringDay}
+          open={true}
+          pending={bulkMutation.isPending}
+          onOpenChange={(open) => !open && setConfiguringDay(null)}
+          onSubmit={async (payload) => {
+            await bulkMutation.mutateAsync(payload);
+            setConfiguringDay(null);
+          }}
+        />
+      ) : null}
+
+      {copyingDay !== null ? (
+        <CopiarDisponibilidadeModal
+          sourceDay={copyingDay}
+          open={true}
+          pending={copyMutation.isPending}
+          daySlotCounts={daySlotCounts}
+          onOpenChange={(open) => !open && setCopyingDay(null)}
+          onSubmit={async (payload) => {
+            await copyMutation.mutateAsync(payload);
+            setCopyingDay(null);
           }}
         />
       ) : null}

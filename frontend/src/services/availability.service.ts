@@ -37,6 +37,31 @@ export interface UpdateSlotPayload {
   isActive?: boolean;
 }
 
+export interface BulkAvailabilityPayload {
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  endTime: string;
+  slotDurationMinutes: number;
+  breakStart?: string;
+  breakEnd?: string;
+}
+
+export interface BulkAvailabilityResponse {
+  dayOfWeek: DayOfWeek;
+  slotsCreated: number;
+  slots: AvailabilitySlot[];
+}
+
+export interface CopyAvailabilityPayload {
+  sourceDayOfWeek: DayOfWeek;
+  targetDays: DayOfWeek[];
+}
+
+export interface CopyAvailabilityResponse {
+  copiedToDays: DayOfWeek[];
+  totalSlotsCreated: number;
+}
+
 export async function listAvailability(): Promise<AvailabilitySlot[]> {
   const { data } = await api.get<AvailabilitySlot[]>("/availability");
   return data;
@@ -57,4 +82,18 @@ export async function updateSlot(
 
 export async function deleteSlot(id: string): Promise<void> {
   await api.delete(`/availability/${id}`);
+}
+
+export async function bulkAvailability(
+  payload: BulkAvailabilityPayload,
+): Promise<BulkAvailabilityResponse> {
+  const { data } = await api.post<BulkAvailabilityResponse>("/availability/bulk", payload);
+  return data;
+}
+
+export async function copyAvailability(
+  payload: CopyAvailabilityPayload,
+): Promise<CopyAvailabilityResponse> {
+  const { data } = await api.post<CopyAvailabilityResponse>("/availability/copy", payload);
+  return data;
 }
