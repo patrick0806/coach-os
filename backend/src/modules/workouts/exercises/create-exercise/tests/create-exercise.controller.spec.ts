@@ -16,6 +16,8 @@ const mockCreatedResult = {
   name: "Meu Exercicio",
   description: "Descricao",
   muscleGroup: "peito",
+  exercisedbGifUrl: null,
+  youtubeUrl: null,
   personalId: "personal-id",
   isGlobal: false,
   createdAt: new Date("2024-01-01"),

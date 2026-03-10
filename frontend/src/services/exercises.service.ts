@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { isYoutubeUrl } from "@/lib/youtube";
 
 export type MuscleGroup =
   | "peito"
@@ -48,6 +49,8 @@ export interface Exercise {
   name: string;
   description: string | null;
   muscleGroup: MuscleGroup;
+  exercisedbGifUrl: string | null;
+  youtubeUrl: string | null;
   personalId: string | null;
   isGlobal: boolean;
   createdAt: string;
@@ -75,6 +78,19 @@ export async function createExercise(payload: CreateExercisePayload): Promise<Ex
   return data;
 }
 
+export async function updateExerciseYoutubeUrl(
+  id: string,
+  youtubeUrl: string | null,
+): Promise<{ youtubeUrl: string | null }> {
+  const { data } = await api.patch<{ youtubeUrl: string | null }>(
+    `/exercises/${id}/youtube-url`,
+    { youtubeUrl },
+  );
+  return data;
+}
+
 export async function deleteExercise(id: string): Promise<void> {
   await api.delete(`/exercises/${id}`);
 }
+
+export { isYoutubeUrl };

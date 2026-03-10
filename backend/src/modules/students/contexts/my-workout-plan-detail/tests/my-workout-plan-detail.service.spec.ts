@@ -31,6 +31,8 @@ const mockPlanDetail = {
       exerciseId: "exercise-id",
       exerciseName: "Supino Reto",
       muscleGroup: "peito",
+      exercisedbGifUrl: "https://cdn.example.com/supino.gif",
+      youtubeUrl: null,
       sets: 3,
       repetitions: 12,
       load: "20kg",

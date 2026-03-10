@@ -17,6 +17,8 @@ const mockCreatedExercise = {
   name: "Meu Exercicio",
   description: "Descricao do exercicio",
   muscleGroup: "peito",
+  exercisedbGifUrl: null,
+  youtubeUrl: null,
   personalId: "personal-id",
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),

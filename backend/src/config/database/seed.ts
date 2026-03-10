@@ -335,7 +335,11 @@ async function seed() {
       { name: "Bird Dog", description: "Extensao alternada de braco e perna em quatro apoios", muscleGroup: "core", personalId: null },
       { name: "Mountain Climber", description: "Corrida de montanha com foco em core e condicionamento", muscleGroup: "core", personalId: null },
       { name: "Hollow Hold", description: "Posicao isometrica para estabilidade anterior do tronco", muscleGroup: "core", personalId: null },
-    ];
+    ].map((exercise) => ({
+      ...exercise,
+      exercisedbGifUrl: null,
+      youtubeUrl: null,
+    }));
     await db.insert(exercises).values(exercisesData);
 
     console.log("Seed data inserted successfully!");

@@ -5,6 +5,7 @@ import { use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 
+import { ExerciseMedia } from "@/components/shared/exercise-media";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -96,32 +97,41 @@ export default function AlunoTreinoDetailPage({ params }: AlunoTreinoDetailPageP
               {sortedExercises.map((ex, idx) => (
                 <div
                   key={ex.id}
-                  className="flex items-start gap-3 rounded-xl border border-border bg-background/40 p-4"
+                  className="rounded-xl border border-border bg-background/40 p-4"
                 >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                    {idx + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{ex.exerciseName}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          MUSCLE_GROUP_COLORS[ex.muscleGroup as MuscleGroup] ??
-                          "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {MUSCLE_GROUP_LABELS[ex.muscleGroup as MuscleGroup] ?? ex.muscleGroup}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {ex.sets} séries × {ex.repetitions} reps
-                      {ex.load ? (
-                        <span className="ml-2 font-medium text-foreground">— {ex.load}</span>
+                  <div className="flex items-start gap-3">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                      {idx + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-medium">{ex.exerciseName}</span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            MUSCLE_GROUP_COLORS[ex.muscleGroup as MuscleGroup] ??
+                            "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {MUSCLE_GROUP_LABELS[ex.muscleGroup as MuscleGroup] ?? ex.muscleGroup}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {ex.sets} séries × {ex.repetitions} reps
+                        {ex.load ? (
+                          <span className="ml-2 font-medium text-foreground">- {ex.load}</span>
+                        ) : null}
+                      </p>
+                      {ex.notes ? (
+                        <p className="mt-1 text-xs italic text-muted-foreground">{ex.notes}</p>
                       ) : null}
-                    </p>
-                    {ex.notes ? (
-                      <p className="mt-1 text-xs italic text-muted-foreground">{ex.notes}</p>
-                    ) : null}
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <ExerciseMedia
+                      exercisedbGifUrl={ex.exercisedbGifUrl}
+                      youtubeUrl={ex.youtubeUrl}
+                      exerciseName={ex.exerciseName}
+                    />
                   </div>
                 </div>
               ))}

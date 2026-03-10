@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Search, X } from "lucide-react";
 
+import { ExerciseMedia } from "@/components/shared/exercise-media";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,11 +32,13 @@ import { getApiErrorMessage } from "@/lib/api-error";
 import {
   type Exercise,
   createExercise,
+  isYoutubeUrl,
   listExercises,
   MUSCLE_GROUP_COLORS,
   MUSCLE_GROUP_LABELS,
   MUSCLE_GROUPS,
   type MuscleGroup,
+  updateExerciseYoutubeUrl,
 } from "@/services/exercises.service";
 import { addExerciseToPlan } from "@/services/workout-plans.service";
 
@@ -58,6 +61,10 @@ const createExerciseSchema = z.object({
     message: "Grupo muscular é obrigatório",
   }),
   description: z.string().optional(),
+  youtubeUrl: z
+    .string()
+    .refine((value) => !value || isYoutubeUrl(value), "Apenas links do YouTube são aceitos")
+    .optional(),
 });
 
 type CreateExerciseValues = z.infer<typeof createExerciseSchema>;
@@ -105,7 +112,7 @@ export function AddExerciseDialog({
 
   const createForm = useForm<CreateExerciseValues>({
     resolver: zodResolver(createExerciseSchema),
-    defaultValues: { name: search, muscleGroup: undefined, description: "" },
+    defaultValues: { name: search, muscleGroup: undefined, description: "", youtubeUrl: "" },
   });
 
   const addMutation = useMutation({
@@ -129,12 +136,23 @@ export function AddExerciseDialog({
   });
 
   const createMutation = useMutation({
-    mutationFn: (values: CreateExerciseValues) =>
-      createExercise({
+    mutationFn: async (values: CreateExerciseValues) => {
+      const created = await createExercise({
         name: values.name,
         muscleGroup: values.muscleGroup as MuscleGroup,
         description: values.description || undefined,
-      }),
+      });
+      const youtubeUrl = values.youtubeUrl?.trim();
+
+      if (youtubeUrl) {
+        await updateExerciseYoutubeUrl(created.id, youtubeUrl);
+      }
+
+      return {
+        ...created,
+        youtubeUrl: youtubeUrl || null,
+      };
+    },
     onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ["exercises"] });
       toast.success("Exercício criado.");
@@ -152,7 +170,7 @@ export function AddExerciseDialog({
   }
 
   function handleOpenCreateForm() {
-    createForm.reset({ name: search, muscleGroup: undefined, description: "" });
+    createForm.reset({ name: search, muscleGroup: undefined, description: "", youtubeUrl: "" });
     setView("create");
   }
 
@@ -162,7 +180,7 @@ export function AddExerciseDialog({
     setSelected(null);
     setView("search");
     addForm.reset({ sets: 3, repetitions: 12, load: "", notes: "" });
-    createForm.reset({ name: "", muscleGroup: undefined, description: "" });
+    createForm.reset({ name: "", muscleGroup: undefined, description: "", youtubeUrl: "" });
     onOpenChange(false);
   }
 
@@ -178,28 +196,38 @@ export function AddExerciseDialog({
         {/* ── Configure (set sets/reps after selecting exercise) ── */}
         {view === "configure" && selected ? (
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border bg-gray-50 px-4 py-3">
-              <div>
-                <p className="font-medium text-gray-900">{selected.name}</p>
-                <span
-                  className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                    MUSCLE_GROUP_COLORS[selected.muscleGroup] ?? "bg-gray-100 text-gray-600"
-                  }`}
+            <div className="rounded-lg border bg-gray-50 px-4 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium text-gray-900">{selected.name}</p>
+                  <span
+                    className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                      MUSCLE_GROUP_COLORS[selected.muscleGroup] ?? "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {MUSCLE_GROUP_LABELS[selected.muscleGroup]}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelected(null);
+                    setView("search");
+                  }}
+                  className="size-8 p-0 text-gray-400"
                 >
-                  {MUSCLE_GROUP_LABELS[selected.muscleGroup]}
-                </span>
+                  <X className="size-4" />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelected(null);
-                  setView("search");
-                }}
-                className="size-8 p-0 text-gray-400"
-              >
-                <X className="size-4" />
-              </Button>
+              <div className="mt-3 max-w-xs">
+                <ExerciseMedia
+                  compact
+                  exercisedbGifUrl={selected.exercisedbGifUrl}
+                  youtubeUrl={selected.youtubeUrl}
+                  exerciseName={selected.name}
+                />
+              </div>
             </div>
 
             <form
@@ -320,6 +348,32 @@ export function AddExerciseDialog({
                 {...createForm.register("description")}
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ce-youtube">Link do YouTube (opcional)</Label>
+              <Input
+                id="ce-youtube"
+                placeholder="https://youtube.com/watch?v=..."
+                {...createForm.register("youtubeUrl")}
+              />
+              <p className="text-xs text-muted-foreground">
+                Cole um vídeo demonstrando a execução do exercício.
+              </p>
+              {createForm.formState.errors.youtubeUrl ? (
+                <p className="text-sm text-destructive">
+                  {createForm.formState.errors.youtubeUrl.message}
+                </p>
+              ) : null}
+            </div>
+
+            {createForm.watch("youtubeUrl") ? (
+              <ExerciseMedia
+                compact
+                exercisedbGifUrl={null}
+                youtubeUrl={createForm.watch("youtubeUrl") || null}
+                exerciseName={createForm.watch("name") || "Exercício"}
+              />
+            ) : null}
 
             <DialogFooter>
               <Button

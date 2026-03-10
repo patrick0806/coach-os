@@ -8,17 +8,21 @@ import { CreateExerciseController } from "./exercises/create-exercise/create-exe
 import { CreateExerciseService } from "./exercises/create-exercise/create-exercise.service";
 import { DeleteExerciseController } from "./exercises/delete-exercise/delete-exercise.controller";
 import { DeleteExerciseService } from "./exercises/delete-exercise/delete-exercise.service";
+import { UpdateYoutubeUrlController } from "./exercises/update-youtube-url/update-youtube-url.controller";
+import { UpdateYoutubeUrlService } from "./exercises/update-youtube-url/update-youtube-url.service";
 
 @Module({
   controllers: [
     ListExercisesController,
     CreateExerciseController,
     DeleteExerciseController,
+    UpdateYoutubeUrlController,
   ],
   providers: [
     ListExercisesService,
     CreateExerciseService,
     DeleteExerciseService,
+    UpdateYoutubeUrlService,
     ExercisesRepository,
   ],
 })

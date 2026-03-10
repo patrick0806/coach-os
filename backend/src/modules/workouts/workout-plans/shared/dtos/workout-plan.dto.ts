@@ -13,6 +13,12 @@ export class WorkoutExerciseDTO {
   @ApiProperty()
   muscleGroup: string;
 
+  @ApiProperty({ nullable: true })
+  exercisedbGifUrl: string | null;
+
+  @ApiProperty({ nullable: true })
+  youtubeUrl: string | null;
+
   @ApiProperty()
   sets: number;
 

@@ -16,6 +16,8 @@ export interface WorkoutExerciseRow {
   exerciseId: string;
   exerciseName: string;
   muscleGroup: string;
+  exercisedbGifUrl: string | null;
+  youtubeUrl: string | null;
   sets: number;
   repetitions: number;
   load: string | null;
@@ -53,6 +55,8 @@ export class WorkoutExercisesRepository {
         exerciseId: workoutExercises.exerciseId,
         exerciseName: exercises.name,
         muscleGroup: exercises.muscleGroup,
+        exercisedbGifUrl: exercises.exercisedbGifUrl,
+        youtubeUrl: exercises.youtubeUrl,
         sets: workoutExercises.sets,
         repetitions: workoutExercises.repetitions,
         load: workoutExercises.load,
@@ -87,7 +91,12 @@ export class WorkoutExercisesRepository {
 
     // Fetch exercise details to return full row
     const exerciseRows = await db
-      .select({ name: exercises.name, muscleGroup: exercises.muscleGroup })
+      .select({
+        name: exercises.name,
+        muscleGroup: exercises.muscleGroup,
+        exercisedbGifUrl: exercises.exercisedbGifUrl,
+        youtubeUrl: exercises.youtubeUrl,
+      })
       .from(exercises)
       .where(eq(exercises.id, we.exerciseId))
       .limit(1);
@@ -97,6 +106,8 @@ export class WorkoutExercisesRepository {
       exerciseId: we.exerciseId,
       exerciseName: exerciseRows[0].name,
       muscleGroup: exerciseRows[0].muscleGroup,
+      exercisedbGifUrl: exerciseRows[0].exercisedbGifUrl ?? null,
+      youtubeUrl: exerciseRows[0].youtubeUrl ?? null,
       sets: we.sets,
       repetitions: we.repetitions,
       load: we.load ?? null,

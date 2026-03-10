@@ -21,6 +21,8 @@ export const exercises = pgTable(
     name: varchar("name", { length: 150 }).notNull(),
     description: text("description"),
     muscleGroup: varchar("muscle_group", { length: 100 }).notNull(),
+    exercisedbGifUrl: text("exercisedb_gif_url"),
+    youtubeUrl: text("youtube_url"),
     // null = global exercise (available to all); set = personal's custom exercise
     personalId: varchar("personal_id", { length: 36 }),
     createdAt: timestamp("created_at", { withTimezone: true })

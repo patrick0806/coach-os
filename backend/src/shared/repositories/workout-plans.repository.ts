@@ -95,6 +95,8 @@ export class WorkoutPlansRepository {
         ex: {
           name: exercises.name,
           muscleGroup: exercises.muscleGroup,
+          exercisedbGifUrl: exercises.exercisedbGifUrl,
+          youtubeUrl: exercises.youtubeUrl,
         },
       })
       .from(workoutPlans)
@@ -113,6 +115,8 @@ export class WorkoutPlansRepository {
         exerciseId: r.we.exerciseId!,
         exerciseName: r.ex.name!,
         muscleGroup: r.ex.muscleGroup!,
+        exercisedbGifUrl: r.ex.exercisedbGifUrl ?? null,
+        youtubeUrl: r.ex.youtubeUrl ?? null,
         sets: r.we.sets!,
         repetitions: r.we.repetitions!,
         load: r.we.load ?? null,

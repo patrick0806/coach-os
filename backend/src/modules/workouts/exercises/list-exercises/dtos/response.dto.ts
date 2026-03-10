@@ -14,6 +14,12 @@ export class ExerciseResponseDTO {
   muscleGroup: string;
 
   @ApiProperty({ nullable: true })
+  exercisedbGifUrl: string | null;
+
+  @ApiProperty({ nullable: true })
+  youtubeUrl: string | null;
+
+  @ApiProperty({ nullable: true })
   personalId: string | null;
 
   @ApiProperty({ description: "True if it is a global exercise (available to all personals)" })

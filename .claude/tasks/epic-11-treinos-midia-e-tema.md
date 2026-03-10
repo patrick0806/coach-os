@@ -4,7 +4,256 @@ Status: `[ ]` todo
 
 ---
 
-## US-028 — Guia visual de execucao em exercicios
+## US-028 — Separar fichas em modelo (generica) e especifica por aluno
+
+**Status:** `[ ]` todo
+**Sprint:** 10
+**Dependencias:** US-008, US-009
+
+**Descricao:**
+Como personal, quero organizar minhas fichas em modelos reutilizaveis e fichas especificas por aluno para reduzir poluicao na listagem e facilitar a manutencao de treinos padronizados.
+
+### Criterios de Aceite
+- [ ] Workout plan possui tipo `planKind`: `template` ou `student`
+- [ ] Ao criar plano, personal escolhe o tipo (padrao: `template`)
+- [ ] Lista separada em abas: "Modelos" e "Por aluno"
+- [ ] "Aplicar para aluno" cria copia editavel independente do modelo
+- [ ] Aba "Por aluno" tem filtro por nome do aluno
+
+### Subtasks Backend
+- [ ] Migration: `plan_kind` e `source_template_id` em `workout_plans`
+- [ ] Ajustar `GET /workout-plans?kind=`
+- [ ] `POST /workout-plans/:id/apply`
+- [ ] Unit tests
+
+### Subtasks Frontend
+- [ ] Refatorar `/painel/treinos` com Tabs
+- [ ] Botao "Aplicar para aluno" com dialog
+- [ ] Filtro por aluno na aba "Por aluno"
+
+---
+
+### Plano de Implementacao — US-029
+
+#### 1. Backend
+
+##### 1.1 Migration
+
+```sql
+ALTER TABLE "workout_plans"
+  ADD COLUMN "plan_kind" varchar(10) NOT NULL DEFAULT 'template',
+  ADD COLUMN "source_template_id" varchar(36) REFERENCES "workout_plans"("id") ON DELETE SET NULL;
+
+-- Planos ja existentes na base recebem plan_kind = 'template' pelo DEFAULT
+CREATE INDEX ON "workout_plans" ("personal_id", "plan_kind");
+```
+
+##### 1.2 Schema Drizzle
+
+```typescript
+// Adicionar em schema/workout-plans.ts
+planKind: varchar('plan_kind', { length: 10 })
+  .$type<'template' | 'student'>()
+  .notNull()
+  .default('template'),
+sourceTemplateId: varchar('source_template_id', { length: 36 })
+  .references((): AnyPgColumn => workoutPlans.id),  // self-reference
+```
+
+##### 1.3 Ajuste no GET /workout-plans
+
+```typescript
+// request.dto.ts — adicionar query param
+export const ListWorkoutPlansSchema = z.object({
+  kind: z.enum(['template', 'student']).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  size: z.coerce.number().int().min(1).max(100).default(10),
+  search: z.string().optional(),
+})
+
+// repository — adicionar filtro por kind
+async findAll(personalId: string, filters: { kind?, search?, page, size }) {
+  const conditions = [eq(workoutPlans.personalId, personalId)]
+  if (filters.kind) conditions.push(eq(workoutPlans.planKind, filters.kind))
+  if (filters.search) conditions.push(ilike(workoutPlans.name, `%${filters.search}%`))
+  // ... paginacao existente
+}
+```
+
+##### 1.4 Service — ApplyWorkoutTemplateService
+
+```typescript
+// POST /workout-plans/:id/apply
+async execute(templateId: string, dto: ApplyTemplateDto, personalId: string) {
+  // 1. Buscar o template e validar ownership + tipo
+  const template = await this.workoutPlansRepository.findById(templateId, personalId)
+  if (!template) throw new NotFoundException('Modelo de treino nao encontrado')
+  if (template.planKind !== 'template')
+    throw new BadRequestException('Somente modelos podem ser aplicados')
+
+  // 2. Validar aluno se informado
+  let student = null
+  if (dto.studentId) {
+    student = await this.studentsRepository.findById(dto.studentId, personalId)
+    if (!student) throw new BadRequestException('Aluno nao encontrado ou nao pertence a este personal')
+  }
+
+  // 3. Copiar plano + exercicios em transacao
+  const newPlan = await this.db.transaction(async (tx) => {
+    const plan = await this.workoutPlansRepository.create({
+      personalId,
+      name: `Copia de ${template.name}`,
+      description: template.description,
+      planKind: 'student',
+      sourceTemplateId: template.id,
+    }, tx)
+
+    // Copiar exercicios preservando todos os campos
+    const exercises = await this.workoutExercisesRepository.findByPlan(templateId)
+    if (exercises.length > 0) {
+      await this.workoutExercisesRepository.createMany(
+        exercises.map(e => ({
+          workoutPlanId: plan.id,
+          exerciseId: e.exerciseId,
+          sets: e.sets,
+          reps: e.reps,
+          weight: e.weight,
+          notes: e.notes,
+          order: e.order,
+        })),
+        tx
+      )
+    }
+
+    // Atribuir ao aluno se informado
+    if (dto.studentId) {
+      await this.workoutPlanStudentsRepository.create({ workoutPlanId: plan.id, studentId: dto.studentId }, tx)
+    }
+
+    return plan
+  })
+
+  return newPlan
+}
+```
+
+##### 1.5 DTO de apply
+
+```typescript
+export const ApplyTemplateSchema = z.object({
+  studentId: z.string().uuid().optional(),
+})
+```
+
+##### 1.6 Cenarios de erro
+
+| Cenario | Excecao | Mensagem |
+|---------|---------|----------|
+| Plano nao encontrado / outro tenant | `NotFoundException` | "Modelo de treino nao encontrado" |
+| Plano nao e template (e student) | `BadRequestException` | "Somente modelos podem ser aplicados" |
+| `studentId` informado mas invalido | `BadRequestException` | "Aluno nao encontrado ou nao pertence a este personal" |
+| Falha na transacao de copia | Relanca erro (500) | — |
+
+---
+
+#### 2. Frontend
+
+##### 2.1 Estrutura de abas em /painel/treinos
+
+```
+<Tabs defaultValue="templates">
+  <TabsList>
+    <TabsTrigger value="templates">Modelos</TabsTrigger>
+    <TabsTrigger value="student">Por aluno</TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="templates">
+    <WorkoutPlanList kind="template" />
+  </TabsContent>
+
+  <TabsContent value="student">
+    <WorkoutPlanList kind="student" showStudentFilter />
+  </TabsContent>
+</Tabs>
+```
+
+##### 2.2 Filtro por aluno na aba "Por aluno"
+
+```
+Input de busca local — filtra sobre os dados ja carregados (nao nova request)
+OU query param no GET /workout-plans:
+  - Adicionar campo studentSearch no hook
+  - Pesquisa por nome do aluno associado ao plano
+
+Recomendacao: filtro local e mais simples para MVP.
+A listagem de planos pode incluir o nome do aluno associado no response.
+```
+
+##### 2.3 Dialog "Aplicar para aluno"
+
+```
+Titulo: "Aplicar modelo ao aluno"
+Descricao: "Sera criada uma copia editavel de '[nome do modelo]'"
+
+Campos:
+  - Aluno (Combobox, opcional): busca em GET /students
+  - Aviso: "Se nao selecionar um aluno agora, voce pode atribuir depois"
+
+Botoes:
+  - "Cancelar"
+  - "Aplicar" (disabled se isPending)
+
+Apos sucesso:
+  - toast.success com link "Abrir copia" → navega para /painel/treinos/:newPlanId
+  - invalidateQueries(['workout-plans'])
+  - Fechar dialog
+```
+
+##### 2.4 Formulario de criacao — adicionar campo planKind
+
+```
+Toggle ou Select discreto:
+  "Tipo: Modelo ▾"  (opcoes: Modelo / Especifico por aluno)
+  Default: Modelo
+  Visivel apenas no formulario de criacao (nao no de edicao)
+```
+
+##### 2.5 Cenarios de erro — Frontend
+
+| Cenario | Comportamento |
+|---------|---------------|
+| API retorna 400 (nao e template) | Toast com mensagem (edge case, UI so exibe botao em modelos) |
+| Aluno invalido | Toast com mensagem da API |
+| Transacao falha (500) | Toast "Erro ao aplicar modelo. Tente novamente" |
+
+---
+
+#### 3. Testes — Backend (US-029)
+
+```typescript
+describe('ApplyWorkoutTemplateService', () => {
+  it('cria copia do plano com todos os exercicios', async () => { ... })
+  it('novo plano tem planKind = student e sourceTemplateId correto', async () => { ... })
+  it('nome da copia e "Copia de [nome]"', async () => { ... })
+  it('atribui ao aluno quando studentId informado', async () => { ... })
+  it('cria plano sem atribuicao quando studentId omitido', async () => { ... })
+  it('retorna 404 para template inexistente', async () => { ... })
+  it('retorna 400 ao tentar aplicar plano do tipo student', async () => { ... })
+  it('retorna 400 para aluno de outro tenant', async () => { ... })
+  it('rollback completo se insercao de exercicios falhar', async () => { ... })
+})
+
+describe('ListWorkoutPlansService (ajuste)', () => {
+  it('filtra por kind=template corretamente', async () => { ... })
+  it('filtra por kind=student corretamente', async () => { ... })
+  it('retorna todos quando kind nao informado', async () => { ... })
+})
+```
+
+---
+
+
+## US-029 — Guia visual de execucao em exercicios
 
 **Status:** `[ ]` todo
 **Sprint:** 9
@@ -388,253 +637,6 @@ Nenhuma chave de API e necessaria em producao — as URLs dos GIFs sao publicas 
 
 ---
 
-## US-029 — Separar fichas em modelo (generica) e especifica por aluno
-
-**Status:** `[ ]` todo
-**Sprint:** 10
-**Dependencias:** US-008, US-009
-
-**Descricao:**
-Como personal, quero organizar minhas fichas em modelos reutilizaveis e fichas especificas por aluno para reduzir poluicao na listagem e facilitar a manutencao de treinos padronizados.
-
-### Criterios de Aceite
-- [ ] Workout plan possui tipo `planKind`: `template` ou `student`
-- [ ] Ao criar plano, personal escolhe o tipo (padrao: `template`)
-- [ ] Lista separada em abas: "Modelos" e "Por aluno"
-- [ ] "Aplicar para aluno" cria copia editavel independente do modelo
-- [ ] Aba "Por aluno" tem filtro por nome do aluno
-
-### Subtasks Backend
-- [ ] Migration: `plan_kind` e `source_template_id` em `workout_plans`
-- [ ] Ajustar `GET /workout-plans?kind=`
-- [ ] `POST /workout-plans/:id/apply`
-- [ ] Unit tests
-
-### Subtasks Frontend
-- [ ] Refatorar `/painel/treinos` com Tabs
-- [ ] Botao "Aplicar para aluno" com dialog
-- [ ] Filtro por aluno na aba "Por aluno"
-
----
-
-### Plano de Implementacao — US-029
-
-#### 1. Backend
-
-##### 1.1 Migration
-
-```sql
-ALTER TABLE "workout_plans"
-  ADD COLUMN "plan_kind" varchar(10) NOT NULL DEFAULT 'template',
-  ADD COLUMN "source_template_id" varchar(36) REFERENCES "workout_plans"("id") ON DELETE SET NULL;
-
--- Planos ja existentes na base recebem plan_kind = 'template' pelo DEFAULT
-CREATE INDEX ON "workout_plans" ("personal_id", "plan_kind");
-```
-
-##### 1.2 Schema Drizzle
-
-```typescript
-// Adicionar em schema/workout-plans.ts
-planKind: varchar('plan_kind', { length: 10 })
-  .$type<'template' | 'student'>()
-  .notNull()
-  .default('template'),
-sourceTemplateId: varchar('source_template_id', { length: 36 })
-  .references((): AnyPgColumn => workoutPlans.id),  // self-reference
-```
-
-##### 1.3 Ajuste no GET /workout-plans
-
-```typescript
-// request.dto.ts — adicionar query param
-export const ListWorkoutPlansSchema = z.object({
-  kind: z.enum(['template', 'student']).optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  size: z.coerce.number().int().min(1).max(100).default(10),
-  search: z.string().optional(),
-})
-
-// repository — adicionar filtro por kind
-async findAll(personalId: string, filters: { kind?, search?, page, size }) {
-  const conditions = [eq(workoutPlans.personalId, personalId)]
-  if (filters.kind) conditions.push(eq(workoutPlans.planKind, filters.kind))
-  if (filters.search) conditions.push(ilike(workoutPlans.name, `%${filters.search}%`))
-  // ... paginacao existente
-}
-```
-
-##### 1.4 Service — ApplyWorkoutTemplateService
-
-```typescript
-// POST /workout-plans/:id/apply
-async execute(templateId: string, dto: ApplyTemplateDto, personalId: string) {
-  // 1. Buscar o template e validar ownership + tipo
-  const template = await this.workoutPlansRepository.findById(templateId, personalId)
-  if (!template) throw new NotFoundException('Modelo de treino nao encontrado')
-  if (template.planKind !== 'template')
-    throw new BadRequestException('Somente modelos podem ser aplicados')
-
-  // 2. Validar aluno se informado
-  let student = null
-  if (dto.studentId) {
-    student = await this.studentsRepository.findById(dto.studentId, personalId)
-    if (!student) throw new BadRequestException('Aluno nao encontrado ou nao pertence a este personal')
-  }
-
-  // 3. Copiar plano + exercicios em transacao
-  const newPlan = await this.db.transaction(async (tx) => {
-    const plan = await this.workoutPlansRepository.create({
-      personalId,
-      name: `Copia de ${template.name}`,
-      description: template.description,
-      planKind: 'student',
-      sourceTemplateId: template.id,
-    }, tx)
-
-    // Copiar exercicios preservando todos os campos
-    const exercises = await this.workoutExercisesRepository.findByPlan(templateId)
-    if (exercises.length > 0) {
-      await this.workoutExercisesRepository.createMany(
-        exercises.map(e => ({
-          workoutPlanId: plan.id,
-          exerciseId: e.exerciseId,
-          sets: e.sets,
-          reps: e.reps,
-          weight: e.weight,
-          notes: e.notes,
-          order: e.order,
-        })),
-        tx
-      )
-    }
-
-    // Atribuir ao aluno se informado
-    if (dto.studentId) {
-      await this.workoutPlanStudentsRepository.create({ workoutPlanId: plan.id, studentId: dto.studentId }, tx)
-    }
-
-    return plan
-  })
-
-  return newPlan
-}
-```
-
-##### 1.5 DTO de apply
-
-```typescript
-export const ApplyTemplateSchema = z.object({
-  studentId: z.string().uuid().optional(),
-})
-```
-
-##### 1.6 Cenarios de erro
-
-| Cenario | Excecao | Mensagem |
-|---------|---------|----------|
-| Plano nao encontrado / outro tenant | `NotFoundException` | "Modelo de treino nao encontrado" |
-| Plano nao e template (e student) | `BadRequestException` | "Somente modelos podem ser aplicados" |
-| `studentId` informado mas invalido | `BadRequestException` | "Aluno nao encontrado ou nao pertence a este personal" |
-| Falha na transacao de copia | Relanca erro (500) | — |
-
----
-
-#### 2. Frontend
-
-##### 2.1 Estrutura de abas em /painel/treinos
-
-```
-<Tabs defaultValue="templates">
-  <TabsList>
-    <TabsTrigger value="templates">Modelos</TabsTrigger>
-    <TabsTrigger value="student">Por aluno</TabsTrigger>
-  </TabsList>
-
-  <TabsContent value="templates">
-    <WorkoutPlanList kind="template" />
-  </TabsContent>
-
-  <TabsContent value="student">
-    <WorkoutPlanList kind="student" showStudentFilter />
-  </TabsContent>
-</Tabs>
-```
-
-##### 2.2 Filtro por aluno na aba "Por aluno"
-
-```
-Input de busca local — filtra sobre os dados ja carregados (nao nova request)
-OU query param no GET /workout-plans:
-  - Adicionar campo studentSearch no hook
-  - Pesquisa por nome do aluno associado ao plano
-
-Recomendacao: filtro local e mais simples para MVP.
-A listagem de planos pode incluir o nome do aluno associado no response.
-```
-
-##### 2.3 Dialog "Aplicar para aluno"
-
-```
-Titulo: "Aplicar modelo ao aluno"
-Descricao: "Sera criada uma copia editavel de '[nome do modelo]'"
-
-Campos:
-  - Aluno (Combobox, opcional): busca em GET /students
-  - Aviso: "Se nao selecionar um aluno agora, voce pode atribuir depois"
-
-Botoes:
-  - "Cancelar"
-  - "Aplicar" (disabled se isPending)
-
-Apos sucesso:
-  - toast.success com link "Abrir copia" → navega para /painel/treinos/:newPlanId
-  - invalidateQueries(['workout-plans'])
-  - Fechar dialog
-```
-
-##### 2.4 Formulario de criacao — adicionar campo planKind
-
-```
-Toggle ou Select discreto:
-  "Tipo: Modelo ▾"  (opcoes: Modelo / Especifico por aluno)
-  Default: Modelo
-  Visivel apenas no formulario de criacao (nao no de edicao)
-```
-
-##### 2.5 Cenarios de erro — Frontend
-
-| Cenario | Comportamento |
-|---------|---------------|
-| API retorna 400 (nao e template) | Toast com mensagem (edge case, UI so exibe botao em modelos) |
-| Aluno invalido | Toast com mensagem da API |
-| Transacao falha (500) | Toast "Erro ao aplicar modelo. Tente novamente" |
-
----
-
-#### 3. Testes — Backend (US-029)
-
-```typescript
-describe('ApplyWorkoutTemplateService', () => {
-  it('cria copia do plano com todos os exercicios', async () => { ... })
-  it('novo plano tem planKind = student e sourceTemplateId correto', async () => { ... })
-  it('nome da copia e "Copia de [nome]"', async () => { ... })
-  it('atribui ao aluno quando studentId informado', async () => { ... })
-  it('cria plano sem atribuicao quando studentId omitido', async () => { ... })
-  it('retorna 404 para template inexistente', async () => { ... })
-  it('retorna 400 ao tentar aplicar plano do tipo student', async () => { ... })
-  it('retorna 400 para aluno de outro tenant', async () => { ... })
-  it('rollback completo se insercao de exercicios falhar', async () => { ... })
-})
-
-describe('ListWorkoutPlansService (ajuste)', () => {
-  it('filtra por kind=template corretamente', async () => { ... })
-  it('filtra por kind=student corretamente', async () => { ... })
-  it('retorna todos quando kind nao informado', async () => { ... })
-})
-```
-
----
 
 ## US-030 — Duplicar ficha/modelo com 1 clique
 

@@ -83,6 +83,19 @@ export class ExercisesRepository {
     return result[0];
   }
 
+  async updateYoutubeUrl(
+    exerciseId: string,
+    youtubeUrl: string | null,
+    tx?: DrizzleDb,
+  ): Promise<void> {
+    const db = tx ?? this.drizzle.db;
+    await db
+      .update(exercises)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .set({ youtubeUrl } as any)
+      .where(eq(exercises.id, exerciseId));
+  }
+
   async isInUse(id: string, tx?: DrizzleDb): Promise<boolean> {
     const db = tx ?? this.drizzle.db;
     const result = await db

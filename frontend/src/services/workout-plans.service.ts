@@ -5,6 +5,8 @@ export interface WorkoutExercise {
   exerciseId: string;
   exerciseName: string;
   muscleGroup: string;
+  exercisedbGifUrl: string | null;
+  youtubeUrl: string | null;
   sets: number;
   repetitions: number;
   load: string | null;
