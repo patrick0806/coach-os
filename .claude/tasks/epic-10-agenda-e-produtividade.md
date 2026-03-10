@@ -445,7 +445,7 @@ describe('CopyAvailabilityService', () => {
 
 ## US-024 — Personal cria sessao avulsa ou recorrente vinculada a aluno
 
-**Status:** `[~]` in progress
+**Status:** `[x]` done
 **Sprint:** 8
 **Dependencias:** US-014
 
@@ -507,10 +507,10 @@ Armazena a regra de recorrencia. Cada serie gera multiplos `bookings`.
 - [x] Atualizar `GET /bookings` com campos `seriesId` e `isRecurring`
 
 ### Subtasks Frontend
-- [ ] Formulario com toggle sessao unica / recorrente
-- [ ] Modo recorrente: checkboxes dias, date pickers, preview dinamico
-- [ ] Dialog de exclusao com 3 opcoes de escopo
-- [ ] Indicador visual de recorrencia na agenda
+- [x] Formulario com toggle sessao unica / recorrente
+- [x] Modo recorrente: checkboxes dias, date pickers, preview dinamico
+- [x] Dialog de exclusao com 3 opcoes de escopo
+- [x] Indicador visual de recorrencia na agenda
 
 ---
 

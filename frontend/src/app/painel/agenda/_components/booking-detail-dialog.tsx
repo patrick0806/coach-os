@@ -23,12 +23,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
   BOOKING_STATUS_COLORS,
   BOOKING_STATUS_LABELS,
-  cancelBooking,
+  deleteBooking,
+  type DeleteBookingScope,
   updateBookingStatus,
   type Booking,
 } from "@/services/bookings.service";
@@ -41,7 +41,7 @@ interface BookingDetailDialogProps {
 export function BookingDetailDialog({ booking, onOpenChange }: BookingDetailDialogProps) {
   const queryClient = useQueryClient();
   const [cancelOpen, setCancelOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState("");
+  const [cancelScope, setCancelScope] = useState<DeleteBookingScope>("single");
 
   const statusMutation = useMutation({
     mutationFn: ({ status }: { status: "completed" | "no-show" }) =>
@@ -57,15 +57,16 @@ export function BookingDetailDialog({ booking, onOpenChange }: BookingDetailDial
   });
 
   const cancelMutation = useMutation({
-    mutationFn: () => cancelBooking(booking!.id, cancelReason),
+    mutationFn: (scope: DeleteBookingScope) => deleteBooking(booking!.id, scope),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
-      toast.success("Agendamento cancelado.");
+      queryClient.invalidateQueries({ queryKey: ["booking-series"] });
+      toast.success("Sessão cancelada.");
       setCancelOpen(false);
       onOpenChange(false);
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, "Não foi possível cancelar o agendamento."));
+      toast.error(getApiErrorMessage(error, "Não foi possível cancelar a sessão."));
     },
   });
 
@@ -79,6 +80,13 @@ export function BookingDetailDialog({ booking, onOpenChange }: BookingDetailDial
   });
 
   const canAct = booking.status === "scheduled";
+  const isRecurring = Boolean(booking.isRecurring || booking.seriesId);
+
+  function getConfirmLabel(scope: DeleteBookingScope): string {
+    if (scope === "future") return "Remover esta e próximas";
+    if (scope === "all") return "Remover toda a série";
+    return "Remover sessão";
+  }
 
   return (
     <>
@@ -153,7 +161,10 @@ export function BookingDetailDialog({ booking, onOpenChange }: BookingDetailDial
                   variant="outline"
                   className="gap-1.5 text-destructive hover:text-destructive"
                   disabled={statusMutation.isPending}
-                  onClick={() => setCancelOpen(true)}
+                  onClick={() => {
+                    setCancelScope("single");
+                    setCancelOpen(true);
+                  }}
                 >
                   Cancelar sessão
                 </Button>
@@ -168,30 +179,63 @@ export function BookingDetailDialog({ booking, onOpenChange }: BookingDetailDial
           <AlertDialogHeader>
             <AlertDialogTitle>Cancelar agendamento</AlertDialogTitle>
             <AlertDialogDescription>
-              Informe o motivo do cancelamento. O aluno será notificado.
+              {isRecurring
+                ? "Escolha como deseja cancelar esta sessão recorrente."
+                : "Esta ação cancelará apenas esta sessão."}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="px-6 pb-2">
-            <Label htmlFor="cancel-reason" className="text-sm">
-              Motivo
-            </Label>
-            <Textarea
-              id="cancel-reason"
-              className="mt-1.5"
-              rows={3}
-              placeholder="Ex: Imprevisto pessoal..."
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-            />
-          </div>
+          {isRecurring ? (
+            <div className="space-y-2 px-6 pb-2">
+              <Label className="text-sm">Escopo</Label>
+              <button
+                type="button"
+                className={`w-full rounded-md border px-3 py-2 text-left text-sm ${
+                  cancelScope === "single"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:bg-muted/40"
+                }`}
+                onClick={() => setCancelScope("single")}
+              >
+                Somente esta sessão
+              </button>
+              <button
+                type="button"
+                className={`w-full rounded-md border px-3 py-2 text-left text-sm ${
+                  cancelScope === "future"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:bg-muted/40"
+                }`}
+                onClick={() => setCancelScope("future")}
+              >
+                Esta e as próximas
+                <span className="block text-xs text-muted-foreground">
+                  Remove esta sessão e todas as futuras desta série.
+                </span>
+              </button>
+              <button
+                type="button"
+                className={`w-full rounded-md border px-3 py-2 text-left text-sm ${
+                  cancelScope === "all"
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:bg-muted/40"
+                }`}
+                onClick={() => setCancelScope("all")}
+              >
+                Toda a série
+                <span className="block text-xs text-muted-foreground">
+                  Remove todas as sessões da série, exceto as já concluídas.
+                </span>
+              </button>
+            </div>
+          ) : null}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={cancelMutation.isPending}>Voltar</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={!cancelReason.trim() || cancelMutation.isPending}
-              onClick={() => cancelMutation.mutate()}
+              disabled={cancelMutation.isPending}
+              onClick={() => cancelMutation.mutate(isRecurring ? cancelScope : "single")}
             >
-              {cancelMutation.isPending ? "Cancelando..." : "Confirmar cancelamento"}
+              {cancelMutation.isPending ? "Cancelando..." : getConfirmLabel(isRecurring ? cancelScope : "single")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

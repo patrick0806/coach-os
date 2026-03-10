@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, Repeat2 } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   type BookingStatus,
 } from "@/services/bookings.service";
 import { BookingDetailDialog } from "./_components/booking-detail-dialog";
+import { AddSessionDialog } from "./_components/add-session-dialog";
 
 const STATUS_TABS: { value: BookingStatus | "all"; label: string }[] = [
   { value: "all", label: "Todos" },
@@ -59,6 +60,7 @@ export default function AgendaPage() {
   const [weekRef, setWeekRef] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [addSessionOpen, setAddSessionOpen] = useState(false);
 
   const week = getWeekBounds(weekRef);
 
@@ -107,6 +109,9 @@ export default function AgendaPage() {
               Configurar disponibilidade
             </Button>
           </Link>
+          <Button size="sm" onClick={() => setAddSessionOpen(true)}>
+            Adicionar sessão
+          </Button>
         </div>
 
         {/* Week navigation */}
@@ -176,8 +181,11 @@ export default function AgendaPage() {
                           <p className="text-xs text-gray-400">{booking.endTime}</p>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate font-medium text-gray-900">
-                            {booking.studentName}
+                          <p className="flex items-center gap-1 truncate font-medium text-gray-900">
+                            <span className="truncate">{booking.studentName}</span>
+                            {booking.isRecurring ? (
+                              <Repeat2 className="size-3.5 shrink-0 text-muted-foreground" title="Sessão recorrente" />
+                            ) : null}
                           </p>
                           <p className="truncate text-xs text-gray-500">
                             {booking.servicePlanName}
@@ -201,6 +209,7 @@ export default function AgendaPage() {
         booking={selectedBooking}
         onOpenChange={(open) => !open && setSelectedBooking(null)}
       />
+      <AddSessionDialog open={addSessionOpen} onOpenChange={setAddSessionOpen} />
     </>
   );
 }

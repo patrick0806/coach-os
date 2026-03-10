@@ -21,6 +21,8 @@ export interface Booking {
   studentId: string;
   personalId: string;
   servicePlanId: string;
+  seriesId?: string | null;
+  isRecurring?: boolean;
   scheduledDate: string;
   startTime: string;
   endTime: string;
@@ -44,6 +46,53 @@ export interface CreateBookingPayload {
   scheduledDate: string;
   startTime: string;
   endTime: string;
+}
+
+export interface CreatePersonalBookingPayload {
+  studentId: string;
+  servicePlanId: string;
+  scheduledDate: string;
+  startTime: string;
+  endTime: string;
+  notes?: string;
+}
+
+export interface CreateBookingSeriesPayload {
+  studentId: string;
+  servicePlanId: string;
+  daysOfWeek: number[];
+  startTime: string;
+  endTime: string;
+  seriesStartDate: string;
+  seriesEndDate: string;
+  notes?: string;
+}
+
+export interface BookingSeries {
+  id: string;
+  studentId: string;
+  servicePlanId: string;
+  daysOfWeek: number[];
+  startTime: string;
+  endTime: string;
+  seriesStartDate: string;
+  seriesEndDate: string;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface CreateBookingSeriesResponse {
+  series: BookingSeries;
+  bookingsCreated: number;
+  bookings: Booking[];
+}
+
+export type DeleteBookingScope = "single" | "future" | "all";
+
+export interface DeleteBookingResponse {
+  scope: DeleteBookingScope;
+  cancelledBookings: number;
+  seriesCancelled: boolean;
 }
 
 export interface ListBookingsParams {
@@ -71,6 +120,25 @@ export async function getAvailableSlots(date: string): Promise<AvailableSlot[]> 
 
 export async function createBooking(payload: CreateBookingPayload): Promise<Booking> {
   const { data } = await api.post<Booking>("/bookings", payload);
+  return data;
+}
+
+export async function createPersonalBooking(
+  payload: CreatePersonalBookingPayload,
+): Promise<Booking> {
+  const { data } = await api.post<Booking>("/bookings/personal", payload);
+  return data;
+}
+
+export async function createBookingSeries(
+  payload: CreateBookingSeriesPayload,
+): Promise<CreateBookingSeriesResponse> {
+  const { data } = await api.post<CreateBookingSeriesResponse>("/booking-series", payload);
+  return data;
+}
+
+export async function listBookingSeries(): Promise<BookingSeries[]> {
+  const { data } = await api.get<BookingSeries[]>("/booking-series");
   return data;
 }
 
@@ -110,5 +178,15 @@ export async function updateBookingStatus(
 
 export async function cancelBooking(id: string, reason: string): Promise<Booking> {
   const { data } = await api.patch<Booking>(`/bookings/${id}/cancel`, { reason });
+  return data;
+}
+
+export async function deleteBooking(
+  id: string,
+  scope: DeleteBookingScope = "single",
+): Promise<DeleteBookingResponse> {
+  const { data } = await api.delete<DeleteBookingResponse>(`/bookings/${id}`, {
+    params: { scope },
+  });
   return data;
 }
