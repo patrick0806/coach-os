@@ -172,11 +172,24 @@ async function seed() {
       .values(personalData)
       .returning();
 
+    // --- SERVICE PLANS ---
+    console.log("Inserting service plans...");
+    const [defaultServicePlan] = await db
+      .insert(servicePlans)
+      .values({
+        personalId: insertedPersonal.id,
+        name: "Plano Mensal 3x",
+        sessionsPerWeek: 3,
+        price: "249.90",
+      })
+      .returning();
+
     // --- STUDENTS ---
     console.log("Inserting student profile...");
     await db.insert(students).values({
       userId: studentUser.id,
       personalId: insertedPersonal.id,
+      servicePlanId: defaultServicePlan.id,
     });
 
     // --- EXERCISES ---
