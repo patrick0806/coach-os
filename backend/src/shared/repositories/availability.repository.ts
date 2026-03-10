@@ -61,6 +61,19 @@ export class AvailabilityRepository {
       .orderBy(availabilitySlots.dayOfWeek, availabilitySlots.startTime);
   }
 
+  async findByDay(
+    personalId: string,
+    dayOfWeek: number,
+    tx?: DrizzleDb,
+  ): Promise<AvailabilitySlot[]> {
+    const db = tx ?? this.drizzle.db;
+    return db
+      .select()
+      .from(availabilitySlots)
+      .where(and(eq(availabilitySlots.personalId, personalId), eq(availabilitySlots.dayOfWeek, dayOfWeek)))
+      .orderBy(availabilitySlots.startTime);
+  }
+
   async findOwnedById(
     id: string,
     personalId: string,
@@ -85,6 +98,19 @@ export class AvailabilityRepository {
     return result[0];
   }
 
+  async createMany(
+    data: CreateAvailabilitySlotInput[],
+    tx?: DrizzleDb,
+  ): Promise<AvailabilitySlot[]> {
+    if (data.length === 0) {
+      return [];
+    }
+
+    const db = tx ?? this.drizzle.db;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return db.insert(availabilitySlots).values(data as any).returning();
+  }
+
   async update(
     id: string,
     personalId: string,
@@ -106,5 +132,12 @@ export class AvailabilityRepository {
     await db
       .delete(availabilitySlots)
       .where(and(eq(availabilitySlots.id, id), eq(availabilitySlots.personalId, personalId)));
+  }
+
+  async deleteByDay(personalId: string, dayOfWeek: number, tx?: DrizzleDb): Promise<void> {
+    const db = tx ?? this.drizzle.db;
+    await db
+      .delete(availabilitySlots)
+      .where(and(eq(availabilitySlots.personalId, personalId), eq(availabilitySlots.dayOfWeek, dayOfWeek)));
   }
 }

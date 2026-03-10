@@ -10,6 +10,10 @@ import { UpdateAvailabilityController } from "./availability/update/update-avail
 import { UpdateAvailabilityService } from "./availability/update/update-availability.service";
 import { DeleteAvailabilityController } from "./availability/delete/delete-availability.controller";
 import { DeleteAvailabilityService } from "./availability/delete/delete-availability.service";
+import { BulkAvailabilityController } from "./availability/bulk/bulk-availability.controller";
+import { BulkAvailabilityService } from "./availability/bulk/bulk-availability.service";
+import { CopyAvailabilityController } from "./availability/copy/copy-availability.controller";
+import { CopyAvailabilityService } from "./availability/copy/copy-availability.service";
 
 @Module({
   controllers: [
@@ -17,12 +21,16 @@ import { DeleteAvailabilityService } from "./availability/delete/delete-availabi
     CreateAvailabilityController,
     UpdateAvailabilityController,
     DeleteAvailabilityController,
+    BulkAvailabilityController,
+    CopyAvailabilityController,
   ],
   providers: [
     ListAvailabilityService,
     CreateAvailabilityService,
     UpdateAvailabilityService,
     DeleteAvailabilityService,
+    BulkAvailabilityService,
+    CopyAvailabilityService,
     AvailabilityRepository,
   ],
 })
