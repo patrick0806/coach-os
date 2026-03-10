@@ -72,6 +72,11 @@ function buildPreviewSlots(values: FormValues): PreviewSlot[] {
     return [];
   }
 
+  const durationMinutes = Number(values.slotDurationMinutes);
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+    return [];
+  }
+
   const slots: PreviewSlot[] = [];
   const start = timeToMinutes(values.startTime);
   const end = timeToMinutes(values.endTime);
@@ -80,8 +85,8 @@ function buildPreviewSlots(values: FormValues): PreviewSlot[] {
 
   let current = start;
 
-  while (current + values.slotDurationMinutes <= end) {
-    const currentEnd = current + values.slotDurationMinutes;
+  while (current + durationMinutes <= end) {
+    const currentEnd = current + durationMinutes;
 
     if (
       pauseStart !== null &&
@@ -98,7 +103,7 @@ function buildPreviewSlots(values: FormValues): PreviewSlot[] {
       endTime: minutesToTime(currentEnd),
     });
 
-    current += values.slotDurationMinutes;
+    current += durationMinutes;
   }
 
   return slots;
