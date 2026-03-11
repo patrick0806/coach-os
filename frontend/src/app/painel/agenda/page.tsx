@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, CalendarDays, Repeat2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, Repeat2, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -57,10 +57,13 @@ function formatDateHeader(dateStr: string): string {
 }
 
 export default function AgendaPage() {
+  const shouldStartAddSessionOpen =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("action") === "new-session";
   const [weekRef, setWeekRef] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [addSessionOpen, setAddSessionOpen] = useState(false);
+  const [addSessionOpen, setAddSessionOpen] = useState(shouldStartAddSessionOpen);
 
   const week = getWeekBounds(weekRef);
 
@@ -101,29 +104,33 @@ export default function AgendaPage() {
         {/* Header */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Agenda</h1>
-            <p className="mt-1 text-sm text-gray-500">Gerencie suas sessões agendadas.</p>
+            <span className="mb-2 inline-flex items-center gap-2 rounded-full border border-[color:var(--premium-border)] bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+              <Sparkles className="size-3.5 text-primary" />
+              Operação semanal
+            </span>
+            <h1 className="premium-heading text-3xl">Agenda</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Gerencie suas sessões agendadas.</p>
           </div>
           <Link href="/painel/agenda/disponibilidade">
-            <Button variant="outline" size="sm">
+            <Button variant="premium-ghost" size="sm">
               Configurar disponibilidade
             </Button>
           </Link>
-          <Button size="sm" onClick={() => setAddSessionOpen(true)}>
+          <Button variant="premium" size="sm" onClick={() => setAddSessionOpen(true)}>
             Adicionar sessão
           </Button>
         </div>
 
         {/* Week navigation */}
         <div className="mb-4 flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={prevWeek}>
+          <Button variant="premium-ghost" size="sm" onClick={prevWeek}>
             <ChevronLeft className="size-4" />
           </Button>
-          <span className="flex-1 text-center text-sm font-medium text-gray-700">{week.label}</span>
-          <Button variant="outline" size="sm" onClick={nextWeek}>
+          <span className="flex-1 text-center text-sm font-medium text-foreground">{week.label}</span>
+          <Button variant="premium-ghost" size="sm" onClick={nextWeek}>
             <ChevronRight className="size-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={goToday} className="text-xs text-gray-500">
+          <Button variant="ghost" size="sm" onClick={goToday} className="text-xs text-muted-foreground">
             Hoje
           </Button>
         </div>
@@ -136,8 +143,8 @@ export default function AgendaPage() {
               onClick={() => setStatusFilter(tab.value)}
               className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 statusFilter === tab.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "premium-highlight text-primary-foreground shadow-[var(--premium-shadow)]"
+                  : "premium-glass text-muted-foreground"
               }`}
             >
               {tab.label}
@@ -149,12 +156,12 @@ export default function AgendaPage() {
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100" />
+              <div key={i} className="h-20 animate-pulse rounded-2xl bg-accent/60" />
             ))}
           </div>
         ) : grouped.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center py-16 text-center text-gray-400">
+          <Card variant="glass" className="rounded-3xl">
+            <CardContent className="flex flex-col items-center py-16 text-center text-muted-foreground">
               <CalendarDays className="mb-3 size-10 opacity-30" />
               <p>Nenhum agendamento neste período.</p>
             </CardContent>
@@ -163,7 +170,7 @@ export default function AgendaPage() {
           <div className="space-y-6">
             {grouped.map(([date, dayBookings]) => (
               <section key={date}>
-                <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 capitalize">
+                <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground capitalize">
                   {formatDateHeader(date)}
                 </h2>
                 <div className="space-y-2">
@@ -174,14 +181,14 @@ export default function AgendaPage() {
                         key={booking.id}
                         type="button"
                         onClick={() => setSelectedBooking(booking)}
-                        className="flex w-full items-center gap-4 rounded-xl border bg-white p-4 text-left transition-colors hover:bg-gray-50"
+                        className="premium-surface flex w-full items-center gap-4 rounded-2xl p-4 text-left transition-all hover:scale-[1.01]"
                       >
                         <div className="text-center text-sm">
-                          <p className="font-semibold text-gray-900">{booking.startTime}</p>
-                          <p className="text-xs text-gray-400">{booking.endTime}</p>
+                          <p className="font-semibold text-foreground">{booking.startTime}</p>
+                          <p className="text-xs text-muted-foreground">{booking.endTime}</p>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="flex items-center gap-1 truncate font-medium text-gray-900">
+                          <p className="flex items-center gap-1 truncate font-medium text-foreground">
                             <span className="truncate">{booking.studentName}</span>
                             {booking.isRecurring ? (
                               <Repeat2
@@ -190,7 +197,7 @@ export default function AgendaPage() {
                               />
                             ) : null}
                           </p>
-                          <p className="truncate text-xs text-gray-500">
+                          <p className="truncate text-xs text-muted-foreground">
                             {booking.servicePlanName}
                           </p>
                         </div>

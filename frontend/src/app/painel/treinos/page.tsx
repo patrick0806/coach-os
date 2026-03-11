@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { listWorkoutPlans } from "@/services/workout-plans.service";
@@ -14,8 +14,11 @@ const PAGE_SIZE = 10;
 
 export default function TreinosPage() {
   const router = useRouter();
+  const shouldStartCreateOpen =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("action") === "new-plan";
   const [page, setPage] = useState(1);
-  const [createOpen, setCreateOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(shouldStartCreateOpen);
 
   const { data, isLoading } = useQuery({
     queryKey: ["workout-plans", { page, kind: "template" }],
@@ -29,12 +32,16 @@ export default function TreinosPage() {
     <div className="mx-auto max-w-4xl p-4 sm:p-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Modelos de Treino</h1>
+          <span className="mb-2 inline-flex items-center gap-2 rounded-full border border-[color:var(--premium-border)] bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+            <Sparkles className="size-3.5 text-primary" />
+            Biblioteca de treino
+          </span>
+          <h1 className="premium-heading text-3xl">Modelos de Treino</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Crie modelos reutilizáveis e aplique aos seus alunos.
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="gap-2">
+        <Button onClick={() => setCreateOpen(true)} variant="premium" className="gap-2">
           <Plus className="size-4" />
           Novo modelo
         </Button>

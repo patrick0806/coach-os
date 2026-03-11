@@ -41,7 +41,7 @@ export function StudentsTable({
   const router = useRouter();
 
   return (
-    <Card>
+    <Card variant="glass" className="rounded-3xl">
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table>
@@ -61,14 +61,14 @@ export function StudentsTable({
                   <TableRow key={i}>
                     {Array.from({ length: 6 }).map((__, j) => (
                       <TableCell key={j}>
-                        <div className="h-4 animate-pulse rounded bg-gray-100" />
+                        <div className="h-4 animate-pulse rounded bg-accent/60" />
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : students.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-16 text-center text-gray-400">
+                  <TableCell colSpan={6} className="py-16 text-center text-muted-foreground">
                     <UserRound className="mx-auto mb-3 size-10 opacity-30" />
                     {debouncedSearch
                       ? "Nenhum aluno encontrado para esta busca."
@@ -79,8 +79,8 @@ export function StudentsTable({
                 students.map((student) => (
                   <TableRow key={student.id} className="group">
                     <TableCell className="font-medium">{student.name}</TableCell>
-                    <TableCell className="text-gray-500">{student.email}</TableCell>
-                    <TableCell className="text-gray-500">
+                    <TableCell className="text-muted-foreground">{student.email}</TableCell>
+                    <TableCell className="text-muted-foreground">
                       {student.servicePlanName ?? "Sem plano"}
                     </TableCell>
                     <TableCell>
@@ -88,7 +88,7 @@ export function StudentsTable({
                         {student.isActive ? "Ativo" : "Inativo"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-gray-500">
+                    <TableCell className="text-muted-foreground">
                       {new Date(student.createdAt).toLocaleDateString("pt-BR")}
                     </TableCell>
                     <TableCell>

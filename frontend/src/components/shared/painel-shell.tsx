@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Menu, Moon, Sun } from "lucide-react";
 
+import { PainelQuickActionsFab } from "@/components/shared/painel-quick-actions-fab";
 import { PainelSidebar } from "@/components/shared/painel-sidebar";
 import { Button } from "@/components/ui/button";
 import { getMySubscription } from "@/services/subscriptions.service";
@@ -149,6 +150,7 @@ export function PainelShell({ children }: PainelShellProps) {
           </main>
         </div>
       </div>
+      <PainelQuickActionsFab />
     </div>
   );
 }

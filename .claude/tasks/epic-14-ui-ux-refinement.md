@@ -84,7 +84,7 @@ Transformar a área do aluno em uma experiência que pareça um aplicativo insta
 
 ## US-042 — Painel do Personal: Centro de Comando Profissional
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 14
 **Dependências:** US-040
 
@@ -113,7 +113,7 @@ Redesenhar o fluxo de trabalho do Personal para que a gestão de múltiplos alun
 
 ## US-043 — Player de Execução de Treino: Foco e Ergonomia
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 14
 **Dependências:** US-041
 

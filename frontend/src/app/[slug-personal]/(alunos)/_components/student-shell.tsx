@@ -17,6 +17,7 @@ export function StudentShell({ slug, children }: StudentShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { signOut } = useAuth();
+  const isWorkoutExecutionRoute = /^\/[^/]+\/alunos\/treinos\/[^/]+$/.test(pathname);
 
   const navItems = [
     { href: `/${slug}/alunos/painel`, label: "Início", icon: LayoutDashboard },
@@ -31,7 +32,8 @@ export function StudentShell({ slug, children }: StudentShellProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="premium-glass sticky top-0 z-20 hidden border-b-0 md:block">
+      {!isWorkoutExecutionRoute ? (
+        <header className="premium-glass sticky top-0 z-20 hidden border-b-0 md:block">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
           <span className="premium-heading text-sm">Coach OS</span>
           <nav className="flex items-center gap-1">
@@ -64,9 +66,11 @@ export function StudentShell({ slug, children }: StudentShellProps) {
             <span className="hidden sm:inline">Sair</span>
           </Button>
         </div>
-      </header>
-      <main className="flex-1 pb-24 md:pb-0">{children}</main>
-      <nav className="premium-glass fixed inset-x-3 bottom-3 z-30 rounded-[28px] p-2 md:hidden">
+        </header>
+      ) : null}
+      <main className={isWorkoutExecutionRoute ? "flex-1" : "flex-1 pb-24 md:pb-0"}>{children}</main>
+      {!isWorkoutExecutionRoute ? (
+        <nav className="premium-glass fixed inset-x-3 bottom-3 z-30 rounded-[28px] p-2 md:hidden">
         <ul className="grid grid-cols-4 gap-1">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
@@ -97,7 +101,8 @@ export function StudentShell({ slug, children }: StudentShellProps) {
             </button>
           </li>
         </ul>
-      </nav>
+        </nav>
+      ) : null}
     </div>
   );
 }

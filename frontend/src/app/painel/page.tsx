@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarClock, CalendarDays, Dumbbell, UserCircle2, Users } from "lucide-react";
+import { CalendarClock, CalendarDays, Dumbbell, MessageCircleMore, Sparkles, UserCircle2, Users } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listBookings, type Booking } from "@/services/bookings.service";
 import { getMyProfile } from "@/services/personals.service";
@@ -45,6 +46,10 @@ export default function PainelPage() {
     queryKey: ["students", "dashboard-count"],
     queryFn: () => listStudents({ page: 1, size: 1 }),
   });
+  const { data: activeStudentsPreview, isLoading: loadingActiveStudentsPreview } = useQuery({
+    queryKey: ["students", "dashboard-preview"],
+    queryFn: () => listStudents({ page: 1, size: 6 }),
+  });
 
   const { data: todayBookings, isLoading: loadingTodayBookings } = useQuery({
     queryKey: ["bookings", "dashboard-today", today],
@@ -83,14 +88,19 @@ export default function PainelPage() {
   const sortedTodayBookings = [...(todayBookings?.content ?? [])].sort(compareSessions);
   const upcomingBookings = [...(nextBookings?.content ?? [])].sort(compareSessions);
   const nextSessionToday = sortedTodayBookings[0];
+  const studentPreview = (activeStudentsPreview?.content ?? []).slice(0, 6);
 
   const showOnboardingHint = !loadingProfile && (!profile?.bio || !profile?.profilePhoto);
 
   return (
     <div className="p-4 sm:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Início</h1>
-        <p className="mt-1 text-sm text-gray-500">Visão geral do seu dia e da sua operação.</p>
+      <div className="mb-6 space-y-2">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--premium-border)] bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+          <Sparkles className="size-3.5 text-primary" />
+          Centro de comando
+        </span>
+        <h1 className="premium-heading text-3xl">Início</h1>
+        <p className="premium-subheading">Visão geral do seu dia, dos alunos ativos e das próximas decisões rápidas.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -132,13 +142,13 @@ export default function PainelPage() {
       </div>
 
       {showOnboardingHint ? (
-        <Card className="mt-6 border-primary/20 bg-primary/5">
+        <Card variant="glass" className="mt-6 rounded-3xl">
           <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-2.5">
               <UserCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
               <div>
-                <p className="text-sm font-medium text-gray-900">Complete seu perfil profissional</p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm font-medium text-foreground">Complete seu perfil profissional</p>
+                <p className="text-sm text-muted-foreground">
                   Adicione foto e bio para fortalecer sua presença na landing page.
                 </p>
               </div>
@@ -150,7 +160,8 @@ export default function PainelPage() {
         </Card>
       ) : null}
 
-      <Card className="mt-6">
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <Card variant="glass" className="rounded-3xl">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Próximas sessões</CardTitle>
         </CardHeader>
@@ -158,11 +169,11 @@ export default function PainelPage() {
           {loadingNextBookings ? (
             <div className="space-y-2.5">
               {Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="h-14 animate-pulse rounded-xl bg-gray-100" />
+                <div key={index} className="h-14 animate-pulse rounded-2xl bg-accent/60" />
               ))}
             </div>
           ) : upcomingBookings.length === 0 ? (
-            <div className="rounded-xl border border-dashed bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
+            <div className="rounded-2xl border border-dashed border-[color:var(--premium-border)] bg-background/30 px-4 py-8 text-center text-sm text-muted-foreground">
               Você ainda não possui sessões agendadas para os próximos dias.
             </div>
           ) : (
@@ -170,15 +181,15 @@ export default function PainelPage() {
               {upcomingBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white px-4 py-3"
+                  className="premium-surface flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">{booking.studentName}</p>
-                    <p className="text-sm text-gray-500">{booking.servicePlanName}</p>
+                    <p className="font-medium text-foreground">{booking.studentName}</p>
+                    <p className="text-sm text-muted-foreground">{booking.servicePlanName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{formatSessionDate(booking.scheduledDate)}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm font-medium text-foreground">{formatSessionDate(booking.scheduledDate)}</p>
+                    <p className="text-sm text-muted-foreground">
                       {booking.startTime} - {booking.endTime}
                     </p>
                   </div>
@@ -187,7 +198,49 @@ export default function PainelPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+
+        <Card variant="glass" className="rounded-3xl">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="text-base">Alunos ativos</CardTitle>
+              <Button asChild variant="premium-ghost" size="sm">
+                <Link href="/painel/alunos">Ver todos</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {loadingActiveStudentsPreview ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="h-20 animate-pulse rounded-2xl bg-accent/60" />
+              ))
+            ) : studentPreview.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[color:var(--premium-border)] bg-background/30 px-4 py-8 text-center text-sm text-muted-foreground">
+                Nenhum aluno ativo ainda. Use o atalho rápido para convidar o primeiro.
+              </div>
+            ) : (
+              studentPreview.map((student) => (
+                <div
+                  key={student.id}
+                  className="premium-surface flex items-center justify-between gap-3 rounded-2xl px-4 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-foreground">{student.name}</p>
+                    <p className="truncate text-sm text-muted-foreground">
+                      {student.servicePlanName ?? "Sem plano vinculado"}
+                    </p>
+                  </div>
+                  <Button asChild variant="premium-ghost" size="icon-sm">
+                    <Link href={`/painel/alunos/${student.id}`} aria-label={`Abrir ${student.name}`}>
+                      <MessageCircleMore className="size-4" />
+                    </Link>
+                  </Button>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
