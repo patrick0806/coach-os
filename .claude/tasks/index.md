@@ -24,7 +24,8 @@
 | 08 - Estabilizacao da Base (Quality & UX) | [epic-08-stabilization.md](epic-08-stabilization.md) | — | `[x]` |
 | 09 - Freemium e Conversao | [epic-09-freemium-conversion.md](epic-09-freemium-conversion.md) | [ ] | [ ] |
 | 10 - Agenda e Produtividade do Personal | [epic-10-agenda-e-produtividade.md](epic-10-agenda-e-produtividade.md) | [ ] | [ ] |
-| 11 - Treinos, Midia e Tema | [epic-11-treinos-midia-e-tema.md](epic-11-treinos-midia-e-tema.md) | [ ] | [ ] |
+| Epic 11 - Treinos, Midia e Tema | [epic-11-treinos-midia-e-tema.md](epic-11-treinos-midia-e-tema.md) | [ ] | [ ] |
+| 12 - Páginas Institucionais e Legais | [epic-12-institutional.md](epic-12-institutional.md) | [ ] | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
@@ -64,8 +65,11 @@ Sprint 9 — Busca e Midia
 Sprint 10 — Organizacao de Treinos
   US-029 → US-030
 
-Sprint 11 — Tema do Painel Personal
-  US-031
+Sprint 11 — Tema do Painel Personal e Marketing
+  US-031 → US-033 → US-034
+
+Sprint 12 — Suporte e Retenção
+  US-035
 ```
 
 > **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).
