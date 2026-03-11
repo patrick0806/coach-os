@@ -23,17 +23,17 @@ O plano selecionado na Landing Page deve ser persistido durante o processo de cr
 
 ## US-048 — Checkout Transparente com Stripe Elements (Cartão de Crédito)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 17
 
 **Descrição:**
 Implementar a interface de pagamento diretamente no nosso frontend usando Stripe Elements, evitando redirecionamentos externos e aumentando a conversão.
 
 ### Critérios de Aceite
-- [ ] Integrar `@stripe/stripe-js` e `@stripe/react-stripe-js` no frontend.
-- [ ] Criar componente `StripeCheckoutForm` para captura segura de dados de cartão de crédito.
-- [ ] Exibir resumo do plano selecionado, valor mensal e periodicidade no checkout.
-- [ ] Implementar estados de carregamento e validação de erros do cartão em tempo real (inline).
+- [x] Integrar `@stripe/stripe-js` e `@stripe/react-stripe-js` no frontend.
+- [x] Criar componente `StripeCheckoutForm` para captura segura de dados de cartão de crédito.
+- [x] Exibir resumo do plano selecionado, valor mensal e periodicidade no checkout.
+- [x] Implementar estados de carregamento e validação de erros do cartão em tempo real (inline).
 
 ---
 

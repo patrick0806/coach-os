@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
+import { UsersRepository } from "@shared/repositories/users.repository";
 import { StripeProvider } from "@shared/providers/stripe.provider";
 
 import { CheckoutController } from "./checkout/checkout.controller";
@@ -41,6 +42,7 @@ import { UpgradeService } from "./upgrade/upgrade.service";
     PersonalsRepository,
     PlansRepository,
     StudentsRepository,
+    UsersRepository,
     StripeProvider,
   ],
 })

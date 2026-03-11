@@ -286,7 +286,7 @@ function CadastroContent() {
         </div>
 
         <Button className="w-full h-11 text-base font-semibold shadow-lg shadow-primary/20" disabled={isSubmitting} type="submit">
-          {isSubmitting ? "Criando sua conta..." : "Começar agora gratuitamente"}
+          {isSubmitting ? "Criando sua conta..." : selectedPlan ? "Criar conta e continuar" : "Começar agora gratuitamente"}
         </Button>
 
         <div className="text-center">

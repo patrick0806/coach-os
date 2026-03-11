@@ -16,6 +16,7 @@ export interface UpdatePlanInput {
   highlighted?: boolean;
   order?: number;
   maxStudents?: number | null;
+  stripePriceId?: string | null;
 }
 
 export interface ReorderItem {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { BadRequestException } from "@nestjs/common";
 
 import { ApplicationRoles } from "@shared/enums";
@@ -21,6 +21,7 @@ const mockPlan = {
   order: 1,
   benefits: ["Ate 10 alunos"],
   isActive: true,
+  stripePriceId: "price_test_pro_123",
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -39,16 +40,17 @@ describe("CheckoutService", () => {
   let service: CheckoutService;
   let plansRepository: { findById: ReturnType<typeof vi.fn> };
   let personalsRepository: { findById: ReturnType<typeof vi.fn>; updateSubscription: ReturnType<typeof vi.fn> };
+  let usersRepository: { findById: ReturnType<typeof vi.fn> };
   let stripeProvider: { client: { customers: { create: ReturnType<typeof vi.fn> }; checkout: { sessions: { create: ReturnType<typeof vi.fn> } } }; isConfigured: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    vi.stubEnv("STRIPE_PRICE_PRO", "price_test_pro_123");
-    vi.stubEnv("STRIPE_PRICE_BASICO", "price_test_basico_123");
-    vi.stubEnv("STRIPE_PRICE_EMPRESARIAL", "price_test_emp_123");
     plansRepository = { findById: vi.fn() };
     personalsRepository = {
       findById: vi.fn(),
       updateSubscription: vi.fn(),
+    };
+    usersRepository = {
+      findById: vi.fn().mockResolvedValue({ id: "user-id", email: "personal@example.com" }),
     };
     stripeProvider = {
       isConfigured: vi.fn().mockReturnValue(true),
@@ -66,12 +68,9 @@ describe("CheckoutService", () => {
     service = new CheckoutService(
       plansRepository as any,
       personalsRepository as any,
+      usersRepository as any,
       stripeProvider as any,
     );
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
   });
 
   describe("execute", () => {
@@ -91,8 +90,8 @@ describe("CheckoutService", () => {
       await expect(service.execute("invalid-plan", mockCurrentUser)).rejects.toThrow(BadRequestException);
     });
 
-    it("should throw BadRequestException when plan has no mapped Stripe Price ID", async () => {
-      plansRepository.findById.mockResolvedValue({ ...mockPlan, name: "UnmappedPlan" });
+    it("should throw BadRequestException when plan has no stripePriceId configured", async () => {
+      plansRepository.findById.mockResolvedValue({ ...mockPlan, stripePriceId: null });
       personalsRepository.findById.mockResolvedValue(mockPersonal);
 
       await expect(service.execute("plan-id", mockCurrentUser)).rejects.toThrow(BadRequestException);
