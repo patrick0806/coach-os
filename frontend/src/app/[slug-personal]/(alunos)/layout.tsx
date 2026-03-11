@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import { StudentShell } from "./_components/student-shell";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface AlunosLayoutProps {
   children: React.ReactNode;

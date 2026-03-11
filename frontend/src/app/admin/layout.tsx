@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import { AdminShell } from "./_components/admin-shell";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface AdminLayoutProps {
   children: React.ReactNode;

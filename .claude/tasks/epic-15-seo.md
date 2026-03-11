@@ -8,16 +8,16 @@ Status: `[ ]` todo
 
 ## US-044 — Configuração de Indexação Seletiva (Robots & Sitemap)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 15
 
 **Descrição:**
 Configurar as diretivas de rastreamento para que o Google foque apenas no conteúdo institucional.
 
 ### Critérios de Aceite
-- [ ] Gerar `robots.txt` dinâmico permitindo `/`, `/sobre`, `/funcionalidades`, `/faq` e bloqueando `/painel/*`, `/admin/*`, `/*/alunos/*`.
-- [ ] Implementar geração automática de `sitemap.xml` (Next.js Metadata API).
-- [ ] Adicionar tag `<meta name="robots" content="noindex, nofollow">` globalmente para todas as rotas de dashboard.
+- [x] Gerar `robots.txt` dinâmico permitindo `/`, `/sobre`, `/funcionalidades`, `/faq` e bloqueando `/painel/*`, `/admin/*`, `/*/alunos/*`.
+- [x] Implementar geração automática de `sitemap.xml` (Next.js Metadata API).
+- [x] Adicionar tag `<meta name="robots" content="noindex, nofollow">` globalmente para todas as rotas de dashboard.
 
 ---
 
