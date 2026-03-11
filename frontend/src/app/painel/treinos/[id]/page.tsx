@@ -1,8 +1,8 @@
 "use client";
 
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 
@@ -10,11 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getWorkoutPlan, reorderExercises } from "@/services/workout-plans.service";
+import { getApiErrorMessage } from "@/lib/api-error";
+import {
+  getWorkoutPlan,
+  removeExerciseFromPlan,
+  reorderExercises,
+  updateWorkoutPlan,
+  type WorkoutExercise,
+} from "@/services/workout-plans.service";
 import { AddExerciseDialog } from "./_components/add-exercise-dialog";
 import { DeletePlanDialog } from "./_components/delete-plan-dialog";
 import { EditPlanDialog } from "./_components/edit-plan-dialog";
 import { ExerciseRow } from "./_components/exercise-row";
+import { TemplateEditDecisionDialog } from "./_components/template-edit-decision-dialog";
 
 interface TreinoDetailPageProps {
   params: Promise<{ id: string }>;
@@ -23,16 +31,75 @@ interface TreinoDetailPageProps {
 export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const studentId = searchParams.get("studentId");
 
   const [editOpen, setEditOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [decisionOpen, setDecisionOpen] = useState(false);
+  const [pendingDecision, setPendingDecision] = useState<{
+    onUpdateTemplate: () => void;
+    onFork: () => void;
+  } | null>(null);
 
   const { data: plan, isLoading } = useQuery({
     queryKey: ["workout-plan", id],
     queryFn: () => getWorkoutPlan(id),
   });
+
+  const forkMutation = useMutation({
+    mutationFn: () => {
+      if (!plan || !studentId) {
+        throw new Error("Contexto do aluno não encontrado");
+      }
+
+      return updateWorkoutPlan(id, {
+        name: plan.name,
+        description: plan.description ?? undefined,
+        forkForStudentId: studentId,
+      });
+    },
+    onSuccess: (forkedPlan) => {
+      queryClient.invalidateQueries({ queryKey: ["workout-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["student-workout-plans", studentId] });
+      setDecisionOpen(false);
+      setPendingDecision(null);
+      toast.success("Treino específico criado para este aluno.");
+      router.push(`/painel/treinos/${forkedPlan.id}?studentId=${studentId}`);
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível criar o treino específico."));
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (exerciseId: string) => removeExerciseFromPlan(id, exerciseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workout-plan", id] });
+      toast.success("Exercício removido.");
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível remover o exercício."));
+    },
+  });
+
+  const shouldPromptStudentFork = plan?.planKind === "template" && Boolean(studentId);
+
+  function openDecision(onUpdateTemplate: () => void) {
+    setPendingDecision({
+      onUpdateTemplate: () => {
+        setDecisionOpen(false);
+        setPendingDecision(null);
+        onUpdateTemplate();
+      },
+      onFork: () => {
+        forkMutation.mutate();
+      },
+    });
+    setDecisionOpen(true);
+  }
 
   async function handleReorder(exerciseId: string, direction: "up" | "down") {
     if (!plan) return;
@@ -50,46 +117,76 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
       return { id: e.id, order: e.order };
     });
 
-    // Optimistic update
-    queryClient.setQueryData(["workout-plan", id], {
-      ...plan,
-      exercises: plan.exercises.map((e) => {
-        const found = items.find((it) => it.id === e.id);
-        return found ? { ...e, order: found.order } : e;
-      }),
-    });
+    const reorder = async () => {
+      queryClient.setQueryData(["workout-plan", id], {
+        ...plan,
+        exercises: plan.exercises.map((e) => {
+          const found = items.find((it) => it.id === e.id);
+          return found ? { ...e, order: found.order } : e;
+        }),
+      });
 
-    try {
-      await reorderExercises(id, items);
-    } catch {
-      queryClient.invalidateQueries({ queryKey: ["workout-plan", id] });
-      toast.error("Não foi possível reordenar os exercícios.");
+      try {
+        await reorderExercises(id, items);
+      } catch {
+        queryClient.invalidateQueries({ queryKey: ["workout-plan", id] });
+        toast.error("Não foi possível reordenar os exercícios.");
+      }
+    };
+
+    if (shouldPromptStudentFork) {
+      openDecision(() => {
+        void reorder();
+      });
+      return;
     }
+
+    await reorder();
   }
 
   function handleExerciseMutated() {
     queryClient.invalidateQueries({ queryKey: ["workout-plan", id] });
   }
 
+  function handleAddExercise() {
+    if (shouldPromptStudentFork) {
+      openDecision(() => setAddOpen(true));
+      return;
+    }
+
+    setAddOpen(true);
+  }
+
+  function handleRemoveExercise(exercise: WorkoutExercise) {
+    const remove = () => removeMutation.mutate(exercise.id);
+
+    if (shouldPromptStudentFork) {
+      openDecision(remove);
+      return;
+    }
+
+    remove();
+  }
+
   if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl p-4 sm:p-8">
         <div className="mb-6 space-y-2">
-          <Skeleton className="h-4 w-24 bg-gray-100" />
-          <Skeleton className="h-8 w-56 bg-gray-100" />
-          <Skeleton className="h-4 w-72 bg-gray-100" />
+          <Skeleton className="h-4 w-24 bg-muted" />
+          <Skeleton className="h-8 w-56 bg-muted" />
+          <Skeleton className="h-4 w-72 bg-muted" />
         </div>
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <Skeleton className="h-6 w-40 bg-gray-100" />
-              <Skeleton className="h-9 w-28 bg-gray-100" />
+              <Skeleton className="h-6 w-40 bg-muted" />
+              <Skeleton className="h-9 w-28 bg-muted" />
             </div>
           </CardHeader>
           <Separator />
           <CardContent className="space-y-2.5 pt-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-20 rounded-xl bg-gray-100" />
+              <Skeleton key={i} className="h-20 rounded-xl bg-muted" />
             ))}
           </CardContent>
         </Card>
@@ -116,18 +213,26 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-2 mb-4 gap-1.5 text-gray-500"
-          onClick={() => router.push("/painel/treinos")}
+          className="-ml-2 mb-4 gap-1.5 text-muted-foreground"
+          onClick={() => {
+            if (studentId) {
+              router.push(`/painel/alunos/${studentId}`);
+            } else if (plan.planKind === "student") {
+              router.back();
+            } else {
+              router.push("/painel/treinos");
+            }
+          }}
         >
           <ArrowLeft className="size-4" />
-          Treinos
+          Voltar
         </Button>
 
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold text-gray-900">{plan.name}</h1>
+            <h1 className="text-2xl font-semibold text-foreground">{plan.name}</h1>
             {plan.description ? (
-              <p className="mt-1 text-sm text-gray-500">{plan.description}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
             ) : null}
           </div>
           <div className="flex gap-2">
@@ -156,11 +261,11 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-base">
               Exercícios{" "}
-              <span className="ml-1 text-sm font-normal text-gray-400">
+              <span className="ml-1 text-sm font-normal text-muted-foreground">
                 ({sortedExercises.length})
               </span>
             </CardTitle>
-            <Button size="sm" className="gap-1.5" onClick={() => setAddOpen(true)}>
+            <Button size="sm" className="gap-1.5" onClick={handleAddExercise}>
               <Plus className="size-3.5" />
               Adicionar
             </Button>
@@ -170,13 +275,13 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
 
           <CardContent className="pt-4">
             {sortedExercises.length === 0 ? (
-              <div className="flex flex-col items-center py-10 text-center text-gray-400">
+              <div className="flex flex-col items-center py-10 text-center text-muted-foreground">
                 <p className="text-sm">Nenhum exercício neste plano.</p>
                 <Button
                   variant="outline"
                   size="sm"
                   className="mt-3"
-                  onClick={() => setAddOpen(true)}
+                  onClick={handleAddExercise}
                 >
                   Adicionar exercício
                 </Button>
@@ -189,9 +294,8 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
                     exercise={ex}
                     isFirst={idx === 0}
                     isLast={idx === sortedExercises.length - 1}
-                    planId={id}
                     onReorder={handleReorder}
-                    onRemoved={handleExerciseMutated}
+                    onRemove={handleRemoveExercise}
                   />
                 ))}
               </div>
@@ -202,6 +306,7 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
 
       <EditPlanDialog
         planId={id}
+        studentId={studentId}
         plan={plan}
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -221,6 +326,21 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         onDeleted={() => router.push("/painel/treinos")}
+      />
+
+      <TemplateEditDecisionDialog
+        open={decisionOpen}
+        onOpenChange={(open) => {
+          setDecisionOpen(open);
+          if (!open) setPendingDecision(null);
+        }}
+        onCancel={() => {
+          setDecisionOpen(false);
+          setPendingDecision(null);
+        }}
+        onFork={() => pendingDecision?.onFork()}
+        onUpdateTemplate={() => pendingDecision?.onUpdateTemplate()}
+        isPending={forkMutation.isPending || removeMutation.isPending}
       />
     </>
   );

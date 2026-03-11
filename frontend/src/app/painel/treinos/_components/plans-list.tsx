@@ -111,15 +111,13 @@ interface PlansListProps {
   isLoading: boolean;
   onCreateClick: () => void;
   emptyMessage?: string;
-  showApplyAction?: boolean;
 }
 
 export function PlansList({
   plans,
   isLoading,
   onCreateClick,
-  emptyMessage = "Você ainda não tem planos de treino.",
-  showApplyAction = false,
+  emptyMessage = "Você ainda não tem modelos de treino.",
 }: PlansListProps) {
   const router = useRouter();
   const [applyPlan, setApplyPlan] = useState<WorkoutPlan | null>(null);
@@ -128,7 +126,7 @@ export function PlansList({
     return (
       <div className="space-y-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100" />
+          <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />
         ))}
       </div>
     );
@@ -137,11 +135,11 @@ export function PlansList({
   if (plans.length === 0) {
     return (
       <Card>
-        <CardContent className="flex flex-col items-center py-16 text-center text-gray-400">
+        <CardContent className="flex flex-col items-center py-16 text-center text-muted-foreground">
           <Dumbbell className="mb-3 size-10 opacity-30" />
           <p>{emptyMessage}</p>
           <Button variant="outline" className="mt-4" onClick={onCreateClick}>
-            Criar primeiro plano
+            Criar primeiro modelo
           </Button>
         </CardContent>
       </Card>
@@ -153,7 +151,7 @@ export function PlansList({
       {plans.map((plan) => (
         <div
           key={plan.id}
-          className="flex items-center justify-between rounded-xl border bg-white p-4"
+          className="flex items-center justify-between rounded-xl border bg-card p-4"
         >
           <button
             onClick={() => router.push(`/painel/treinos/${plan.id}`)}
@@ -161,15 +159,12 @@ export function PlansList({
           >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="font-medium text-gray-900">{plan.name}</p>
-                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                  {plan.planKind === "template" ? "Modelo" : "Por aluno"}
-                </span>
+                <p className="font-medium text-foreground">{plan.name}</p>
               </div>
               {plan.description ? (
-                <p className="mt-0.5 truncate text-sm text-gray-500">{plan.description}</p>
+                <p className="mt-0.5 truncate text-sm text-muted-foreground">{plan.description}</p>
               ) : null}
-              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <span>Criado em {new Date(plan.createdAt).toLocaleDateString("pt-BR")}</span>
                 {plan.studentNames.length > 0 ? (
                   <span className="inline-flex items-center gap-1">
@@ -179,20 +174,18 @@ export function PlansList({
                 ) : null}
               </div>
             </div>
-            <ChevronRight className="ml-4 size-5 shrink-0 text-gray-400" />
+            <ChevronRight className="ml-4 size-5 shrink-0 text-muted-foreground" />
           </button>
 
-          {showApplyAction ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="ml-4 gap-1.5"
-              onClick={() => setApplyPlan(plan)}
-            >
-              <CopyPlus className="size-3.5" />
-              Aplicar
-            </Button>
-          ) : null}
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-4 gap-1.5"
+            onClick={() => setApplyPlan(plan)}
+          >
+            <CopyPlus className="size-3.5" />
+            Aplicar
+          </Button>
         </div>
       ))}
 

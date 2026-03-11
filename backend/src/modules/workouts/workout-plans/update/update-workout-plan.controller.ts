@@ -8,7 +8,7 @@ import { API_TAGS } from "@shared/constants";
 
 import { UpdateWorkoutPlanService } from "./update-workout-plan.service";
 import { UpdateWorkoutPlanDTO } from "./dtos/request.dto";
-import { WorkoutPlanDTO } from "../shared/dtos/workout-plan.dto";
+import { WorkoutPlanDetailDTO } from "../shared/dtos/workout-plan.dto";
 
 @Roles(ApplicationRoles.PERSONAL)
 @ApiTags(API_TAGS.WORKOUT_PLANS)
@@ -18,12 +18,12 @@ export class UpdateWorkoutPlanController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Update a workout plan name or description" })
-  @ApiOkResponse({ type: WorkoutPlanDTO })
+  @ApiOkResponse({ type: WorkoutPlanDetailDTO })
   handle(
     @Param("id") id: string,
     @Body() dto: UpdateWorkoutPlanDTO,
     @CurrentUser() user: IAccessToken,
-  ): Promise<WorkoutPlanDTO> {
+  ): Promise<WorkoutPlanDetailDTO> {
     return this.updateWorkoutPlanService.execute(id, dto, user);
   }
 }

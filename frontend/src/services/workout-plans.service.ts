@@ -78,9 +78,15 @@ export interface CreateWorkoutPlanPayload {
   planKind?: "template" | "student";
 }
 
+export interface CreateStudentWorkoutPlanPayload {
+  name: string;
+  description?: string;
+}
+
 export interface UpdateWorkoutPlanPayload {
   name?: string;
   description?: string;
+  forkForStudentId?: string;
 }
 
 export interface AddExercisePayload {
@@ -116,6 +122,17 @@ export async function getWorkoutPlan(id: string): Promise<WorkoutPlanDetail> {
 
 export async function createWorkoutPlan(payload: CreateWorkoutPlanPayload): Promise<WorkoutPlan> {
   const { data } = await api.post<WorkoutPlanApiResponse>("/workout-plans", payload);
+  return normalizeWorkoutPlan(data);
+}
+
+export async function createStudentWorkoutPlan(
+  studentId: string,
+  payload: CreateStudentWorkoutPlanPayload,
+): Promise<WorkoutPlan> {
+  const { data } = await api.post<WorkoutPlanApiResponse>(
+    `/students/${studentId}/workout-plans`,
+    payload,
+  );
   return normalizeWorkoutPlan(data);
 }
 
