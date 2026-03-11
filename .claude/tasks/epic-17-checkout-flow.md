@@ -1,4 +1,4 @@
-# Epic 16 — Checkout Transparente e Conversão SaaS
+# Epic 17 — Checkout Transparente e Conversão SaaS
 
 Status: `[ ]` todo
 
@@ -9,7 +9,7 @@ Status: `[ ]` todo
 ## US-047 — Persistência de Escolha de Plano no Cadastro
 
 **Status:** `[ ]` todo
-**Sprint:** 16
+**Sprint:** 17
 
 **Descrição:**
 O plano selecionado na Landing Page deve ser persistido durante o processo de criação de conta para que o usuário seja levado ao checkout correto imediatamente após o login.
@@ -24,7 +24,7 @@ O plano selecionado na Landing Page deve ser persistido durante o processo de cr
 ## US-048 — Checkout Transparente com Stripe Elements (Cartão de Crédito)
 
 **Status:** `[ ]` todo
-**Sprint:** 16
+**Sprint:** 17
 
 **Descrição:**
 Implementar a interface de pagamento diretamente no nosso frontend usando Stripe Elements, evitando redirecionamentos externos e aumentando a conversão.
@@ -40,7 +40,7 @@ Implementar a interface de pagamento diretamente no nosso frontend usando Stripe
 ## US-049 — Processamento Robusto e Idempotência (Backend Integration)
 
 **Status:** `[ ]` todo
-**Sprint:** 16
+**Sprint:** 17
 
 **Descrição:**
 Garantir que o pagamento seja processado corretamente, sem cobranças duplicadas em caso de instabilidade de rede.

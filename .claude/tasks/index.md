@@ -29,8 +29,8 @@
 | 13 - Redesign de Autenticação e Recuperação de Senha | [epic-13-auth-redesign.md](epic-13-auth-redesign.md) | [x] | [x] |
 | 14 - Refinamento de UI/UX (Premium Experience) | [epic-14-ui-ux-refinement.md](epic-14-ui-ux-refinement.md) | — | [ ] |
 | 15 - SEO e Autoridade Digital | [epic-15-seo.md](epic-15-seo.md) | — | [ ] |
-| 16 - Checkout Transparente e Conversão SaaS | [epic-16-checkout-flow.md](epic-16-checkout-flow.md) | [ ] | [ ] |
-| 17 - Excelência em Testes e Garantia de Qualidade | [epic-17-backend-testing.md](epic-17-backend-testing.md) | [ ] | — |
+| 16 - Excelência em Testes e Garantia de Qualidade | [epic-16-testing.md](epic-16-testing.md) | [ ] | [ ] |
+| 17 - Checkout Transparente e Conversão SaaS | [epic-17-checkout-flow.md](epic-17-checkout-flow.md) | [ ] | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
@@ -85,11 +85,11 @@ Sprint 14 — Refinamento Visual Premium
 Sprint 15 — SEO e Indexação
   US-044 → US-045 → US-046
 
-Sprint 16 — Funil de Conversão e Checkout Stripe
-  US-047 → US-048 → US-049
+Sprint 16 — Excelência em Testes e Automação
+  US-050 → US-051 → US-052 → US-053
 
-Sprint 17 — Qualidade e Automação de Testes
-  US-050 → US-051 → US-052
+Sprint 17 — Funil de Conversão e Checkout Stripe
+  US-047 → US-048 → US-049
 ```
 
 > **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).

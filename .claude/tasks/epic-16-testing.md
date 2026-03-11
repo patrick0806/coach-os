@@ -1,4 +1,4 @@
-# Epic 17 — Excelência em Testes e Garantia de Qualidade (Backend)
+# Epic 16 — Excelência em Testes e Garantia de Qualidade
 
 Status: `[ ]` todo
 
@@ -9,7 +9,7 @@ Status: `[ ]` todo
 ## US-050 — Expansão da Cobertura Unitária e Casos de Borda
 
 **Status:** `[ ]` todo
-**Sprint:** 17
+**Sprint:** 16
 
 **Descrição:**
 Aumentar a profundidade dos testes unitários existentes para cobrir cenários de erro e casos de borda em serviços críticos.
@@ -25,7 +25,7 @@ Aumentar a profundidade dos testes unitários existentes para cobrir cenários d
 ## US-051 — Testes de Integração em Ambiente Local (Docker/TestDB)
 
 **Status:** `[ ]` todo
-**Sprint:** 17
+**Sprint:** 16
 
 **Descrição:**
 Implementar testes de integração que validem a comunicação real com o PostgreSQL e Redis em ambiente isolado.
@@ -33,6 +33,11 @@ Implementar testes de integração que validem a comunicação real com o Postgr
 ### Critérios de Aceite
 - [ ] Configurar `docker-compose.test.yml` para levantar um banco PostgreSQL efêmero.
 - [ ] Criar utilitário `setupTestDB` para limpar e rodar migrations antes de cada suíte de teste de integração.
+- [ ] Criar script unificado para rodar os testes de integração (ex: `npm run test:integration:local` ou similar) que:
+  - Suba os containers necessários via docker-compose.
+  - Aguarde a base estar pronta.
+  - Rode os testes de integração.
+  - Ao finalizar (com sucesso ou falha), limpe a base de testes e encerre o docker-compose para liberar processamento.
 - [ ] Implementar testes de fluxo real: Registro → Login → Criar Treino → Atribuir Aluno.
 - [ ] Garantir que segredos e variáveis de ambiente de teste sejam isolados (ex: `.env.test`).
 
@@ -41,7 +46,7 @@ Implementar testes de integração que validem a comunicação real com o Postgr
 ## US-052 — Automação Preventiva (Git Hooks & CI Simulado)
 
 **Status:** `[ ]` todo
-**Sprint:** 17
+**Sprint:** 16
 
 **Descrição:**
 Impedir que código com falhas ou baixa qualidade seja enviado ao repositório.
@@ -51,3 +56,20 @@ Impedir que código com falhas ou baixa qualidade seja enviado ao repositório.
 - [ ] Configurar hook `pre-push` para rodar `npm run test` e `npm run test:e2e`.
 - [ ] O comando de push deve ser bloqueado se qualquer teste falhar ou se o lint acusar erros graves.
 - [ ] Criar script `npm run check:all` que unifica lint, typecheck e testes para rodar localmente com facilidade.
+
+---
+
+## US-053 — Testes E2E no Frontend com Playwright
+
+**Status:** `[ ]` todo
+**Sprint:** 16
+
+**Descrição:**
+Adotar testes end-to-end (E2E) no frontend utilizando Playwright para garantir a qualidade do fluxo do usuário e a responsividade da interface.
+
+### Critérios de Aceite
+- [ ] Configurar Playwright no projeto frontend.
+- [ ] Implementar testes de fluxo crítico (Login, Cadastro, Navegação no Painel).
+- [ ] Adicionar testes de responsividade (Mobile vs Desktop) para garantir que a UI se adapta corretamente aos diferentes tamanhos de tela.
+- [ ] Validar fluxos de uso comuns para garantir que não existam regressões visuais ou de comportamento.
+- [ ] Integrar os testes E2E no fluxo de validação local.
