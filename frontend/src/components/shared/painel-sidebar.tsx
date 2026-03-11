@@ -53,7 +53,7 @@ export function PainelSidebar({
   }
 
   return (
-    <aside className="premium-glass flex h-full w-64 flex-col border-r-0 lg:m-4 lg:rounded-3xl">
+    <aside className="premium-glass flex h-full w-64 flex-col border-r-0 lg:rounded-[28px]">
       <div className="premium-divider flex h-16 items-center border-b px-6">
         <span className="premium-heading text-lg">Coach OS</span>
       </div>

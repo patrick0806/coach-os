@@ -95,7 +95,7 @@ export function PainelShell({ children }: PainelShellProps) {
         )}
 
         {/* Content area */}
-        <div className="flex flex-1 flex-col overflow-hidden lg:min-h-[calc(100vh-2rem)] lg:rounded-[28px] lg:border lg:border-[color:var(--premium-border)] lg:bg-[var(--premium-surface)] lg:shadow-[var(--premium-shadow)]">
+        <div className="flex flex-1 flex-col overflow-hidden lg:h-[calc(100vh-2rem)] lg:rounded-[28px] lg:border lg:border-[color:var(--premium-border)] lg:bg-[var(--premium-surface)] lg:shadow-[var(--premium-shadow)]">
           {/* Mobile top header */}
           <header className="premium-glass flex h-14 shrink-0 items-center justify-between px-4 lg:hidden">
             <div className="flex items-center">
