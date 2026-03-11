@@ -179,6 +179,11 @@ export async function getMyBookings(): Promise<Booking[]> {
   return [];
 }
 
+export async function getStudentBookings(studentId: string): Promise<Booking[]> {
+  const { data } = await api.get<PaginatedBookings>(`/students/${studentId}/bookings`);
+  return data.content.map(normalizeBooking);
+}
+
 export async function listBookings(
   params: ListBookingsParams = {},
 ): Promise<PaginatedBookings> {

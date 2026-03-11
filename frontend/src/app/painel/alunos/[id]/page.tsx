@@ -3,13 +3,13 @@
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStudent } from "@/services/students.service";
 import { DeactivateStudentDialog } from "./_components/deactivate-student-dialog";
+import { StudentBookingsSection } from "./_components/student-bookings-section";
 import { StudentEditForm } from "./_components/student-edit-form";
 import { StudentNotesTimeline } from "./_components/student-notes-timeline";
 import { StudentWorkoutPlans } from "./_components/student-workout-plans";
@@ -22,7 +22,7 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
   const [deactivateOpen, setDeactivateOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"resumo" | "notas">("resumo");
+  const [activeTab, setActiveTab] = useState<"resumo" | "agendamentos" | "notas">("resumo");
 
   const { data: student, isLoading } = useQuery({
     queryKey: ["students", id],
@@ -96,6 +96,14 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
           </Button>
           <Button
             type="button"
+            variant={activeTab === "agendamentos" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("agendamentos")}
+          >
+            Agendamentos
+          </Button>
+          <Button
+            type="button"
             variant={activeTab === "notas" ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("notas")}
@@ -109,22 +117,9 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
             <StudentEditForm student={student} />
 
             <StudentWorkoutPlans studentId={id} />
-
-            {/* Schedule — placeholder (US-014) */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <CalendarDays className="size-4 text-gray-400" />
-                  Próximos agendamentos
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pb-6">
-                <p className="text-sm text-muted-foreground">
-                  Os agendamentos deste aluno aparecerão aqui.
-                </p>
-              </CardContent>
-            </Card>
           </div>
+        ) : activeTab === "agendamentos" ? (
+          <StudentBookingsSection studentId={id} />
         ) : (
           <StudentNotesTimeline studentId={id} />
         )}
