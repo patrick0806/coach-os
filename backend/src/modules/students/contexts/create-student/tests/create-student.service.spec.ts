@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ConflictException } from "@nestjs/common";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 
 import { ApplicationRoles } from "@shared/enums";
 import { CreateStudentService } from "../create-student.service";
@@ -97,6 +97,7 @@ describe("CreateStudentService", () => {
   };
   let studentsRepository: {
     create: ReturnType<typeof vi.fn>;
+    countActiveByPersonal: ReturnType<typeof vi.fn>;
   };
   let personalsRepository: {
     findById: ReturnType<typeof vi.fn>;
@@ -106,6 +107,9 @@ describe("CreateStudentService", () => {
   };
   let servicePlansRepository: {
     findOwnedById: ReturnType<typeof vi.fn>;
+  };
+  let plansRepository: {
+    findById: ReturnType<typeof vi.fn>;
   };
   let resendProvider: {
     sendStudentInvite: ReturnType<typeof vi.fn>;
@@ -122,10 +126,14 @@ describe("CreateStudentService", () => {
       findById: vi.fn(),
       create: vi.fn(),
     };
-    studentsRepository = { create: vi.fn() };
+    studentsRepository = {
+      create: vi.fn(),
+      countActiveByPersonal: vi.fn(),
+    };
     personalsRepository = { findById: vi.fn() };
     passwordSetupTokensRepository = { create: vi.fn() };
     servicePlansRepository = { findOwnedById: vi.fn() };
+    plansRepository = { findById: vi.fn() };
     resendProvider = { sendStudentInvite: vi.fn() };
     drizzle = {
       db: {
@@ -139,6 +147,7 @@ describe("CreateStudentService", () => {
       personalsRepository as any,
       passwordSetupTokensRepository as any,
       servicePlansRepository as any,
+      plansRepository as any,
       resendProvider as any,
       drizzle as any,
     );
@@ -149,6 +158,8 @@ describe("CreateStudentService", () => {
       usersRepository.findByEmail.mockResolvedValue(null);
       servicePlansRepository.findOwnedById.mockResolvedValue(mockServicePlan);
       personalsRepository.findById.mockResolvedValue(mockPersonal);
+      plansRepository.findById.mockResolvedValue(null);
+      studentsRepository.countActiveByPersonal.mockResolvedValue(4);
       usersRepository.findById.mockResolvedValue(mockPersonalUser);
       usersRepository.create.mockResolvedValue(mockCreatedUser);
       studentsRepository.create.mockResolvedValue(mockCreatedStudent);
@@ -219,6 +230,58 @@ describe("CreateStudentService", () => {
       ).rejects.toThrow(ConflictException);
 
       expect(drizzle.db.transaction).not.toHaveBeenCalled();
+    });
+
+    it("should throw BadRequestException when current plan student limit is reached", async () => {
+      usersRepository.findByEmail.mockResolvedValue(null);
+      servicePlansRepository.findOwnedById.mockResolvedValue(mockServicePlan);
+      personalsRepository.findById.mockResolvedValue({
+        ...mockPersonal,
+        subscriptionPlanId: "plan-free-id",
+      });
+      plansRepository.findById.mockResolvedValue({
+        id: "plan-free-id",
+        name: "Free",
+        maxStudents: 10,
+      });
+      studentsRepository.countActiveByPersonal.mockResolvedValue(10);
+
+      await expect(
+        service.execute(
+          {
+            name: "Alice Silva",
+            email: "alice@example.com",
+            servicePlanId: "service-plan-id",
+          },
+          mockCurrentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(drizzle.db.transaction).not.toHaveBeenCalled();
+      expect(resendProvider.sendStudentInvite).not.toHaveBeenCalled();
+    });
+
+    it("should propagate transaction failure and not send invite email", async () => {
+      usersRepository.findByEmail.mockResolvedValue(null);
+      servicePlansRepository.findOwnedById.mockResolvedValue(mockServicePlan);
+      personalsRepository.findById.mockResolvedValue(mockPersonal);
+      plansRepository.findById.mockResolvedValue(null);
+      studentsRepository.countActiveByPersonal.mockResolvedValue(2);
+      drizzle.db.transaction.mockRejectedValue(new Error("transaction failed"));
+
+      await expect(
+        service.execute(
+          {
+            name: "Alice Silva",
+            email: "alice@example.com",
+            servicePlanId: "service-plan-id",
+          },
+          mockCurrentUser,
+        ),
+      ).rejects.toThrow("transaction failed");
+
+      expect(usersRepository.findById).not.toHaveBeenCalled();
+      expect(resendProvider.sendStudentInvite).not.toHaveBeenCalled();
     });
   });
 });

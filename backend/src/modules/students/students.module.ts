@@ -9,6 +9,7 @@ import { WorkoutPlansRepository } from "@shared/repositories/workout-plans.repos
 import { BookingsRepository } from "@shared/repositories/bookings.repository";
 import { StudentNotesRepository } from "@shared/repositories/student-notes.repository";
 import { ServicePlansRepository } from "@shared/repositories/service-plans.repository";
+import { PlansRepository } from "@shared/repositories/plans.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { CreateStudentController } from "./contexts/create-student/create-student.controller";
@@ -79,6 +80,7 @@ import { DeleteStudentNoteService } from "./contexts/delete-student-note/delete-
     BookingsRepository,
     StudentNotesRepository,
     ServicePlansRepository,
+    PlansRepository,
     ResendProvider,
   ],
 })

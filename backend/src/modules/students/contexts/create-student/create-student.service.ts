@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { ResendProvider } from "@shared/providers/resend.provider";
@@ -7,6 +7,7 @@ import { StudentsRepository } from "@shared/repositories/students.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PasswordSetupTokensRepository } from "@shared/repositories/password-setup-tokens.repository";
 import { ServicePlansRepository } from "@shared/repositories/service-plans.repository";
+import { PlansRepository } from "@shared/repositories/plans.repository";
 import { ApplicationRoles } from "@shared/enums";
 import { IAccessToken } from "@shared/interfaces";
 import { generateSetupToken, expiresInHours } from "@shared/utils";
@@ -23,6 +24,7 @@ export class CreateStudentService {
     private readonly personalsRepository: PersonalsRepository,
     private readonly passwordSetupTokensRepository: PasswordSetupTokensRepository,
     private readonly servicePlansRepository: ServicePlansRepository,
+    private readonly plansRepository: PlansRepository,
     private readonly resendProvider: ResendProvider,
     private readonly drizzle: DrizzleProvider,
   ) {}
@@ -42,6 +44,21 @@ export class CreateStudentService {
     );
     if (!servicePlan) {
       throw new ConflictException("Plano de atendimento não encontrado para este personal");
+    }
+
+    const personal = await this.personalsRepository.findById(currentUser.personalId);
+    const currentPlan = personal?.subscriptionPlanId
+      ? await this.plansRepository.findById(personal.subscriptionPlanId)
+      : null;
+
+    if (currentPlan?.maxStudents !== null && currentPlan?.maxStudents !== undefined) {
+      const activeStudents = await this.studentsRepository.countActiveByPersonal(
+        currentUser.personalId,
+      );
+
+      if (activeStudents >= currentPlan.maxStudents) {
+        throw new BadRequestException("Limite de alunos do plano atual atingido");
+      }
     }
 
     const { raw, hash } = generateSetupToken();
@@ -79,12 +96,12 @@ export class CreateStudentService {
       return { student, user };
     });
 
-    const [personal, personalUser] = await Promise.all([
+    const [freshPersonal, personalUser] = await Promise.all([
       this.personalsRepository.findById(currentUser.personalId),
       this.usersRepository.findById(currentUser.sub),
     ]);
 
-    const setupUrl = `${env.APP_URL}/${personal.slug}/set-password?token=${raw}`;
+    const setupUrl = `${env.APP_URL}/${freshPersonal.slug}/set-password?token=${raw}`;
 
     await this.resendProvider.sendStudentInvite({
       to: user.email,
