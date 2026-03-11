@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Users,
   Dumbbell,
@@ -9,10 +10,18 @@ import {
 
 import { FeatureBlock } from "@/components/marketing/feature-block";
 
-export const metadata = {
-  title: "Funcionalidades | Coach OS",
+export const metadata: Metadata = {
+  title: "Funcionalidades",
   description:
-    "Explore todas as ferramentas que o Coach OS oferece para escalar sua consultoria de fitness.",
+    "Explore todas as ferramentas que o Coach OS oferece: gestão de alunos, construtor de treinos ágil, agenda automatizada e pagamentos integrados.",
+  alternates: {
+    canonical: "/funcionalidades",
+  },
+  openGraph: {
+    title: "Funcionalidades | Coach OS",
+    description: "Tudo o que você precisa para escalar sua consultoria em um único lugar.",
+    url: "/funcionalidades",
+  },
 };
 
 export default function FeaturesPage() {

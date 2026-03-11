@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import {
   Calendar,
   Check,
@@ -77,6 +78,15 @@ function PlanCard({ plan }: { plan: Plan }) {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+
+export const metadata: Metadata = {
+  title: "Domine sua agenda, escale seus treinos",
+  description:
+    "A plataforma completa para Personal Trainers que desejam profissionalismo, agilidade na montagem de treinos e uma gestão financeira impecável.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default async function HomePage() {
   const plans = await listPlans();

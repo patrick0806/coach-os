@@ -23,17 +23,18 @@ Configurar as diretivas de rastreamento para que o Google foque apenas no conte�
 
 ## US-045 — Meta-Tags Dinâmicas e Open Graph (Marketing)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 15
 
 **Descrição:**
 Otimizar as páginas públicas com títulos, descrições e imagens de compartilhamento (OG Tags) atraentes.
 
 ### Critérios de Aceite
-- [ ] Configurar `generateMetadata` para Home e FAQ com palavras-chave estratégicas (ex: "Personal Trainer Software", "Gestão de Alunos").
-- [ ] Implementar imagens Open Graph (OG:Image) padrão para redes sociais.
-- [ ] Configurar URLs canônicas para evitar conteúdo duplicado.
-- [ ] Adicionar JSON-LD (Structured Data) para a página de FAQ e para a Organização (Coach OS).
+- [x] Configurar `generateMetadata` para Home e FAQ com palavras-chave estratégicas.
+- [x] Implementar imagens Open Graph (OG:Image) padrão para redes sociais.
+- [x] Configurar URLs canônicas para evitar conteúdo duplicado.
+- [x] Adicionar JSON-LD (Structured Data) para a página de FAQ e para a Organização (Coach OS).
+
 
 ---
 

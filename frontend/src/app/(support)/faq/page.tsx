@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, BadgeHelp, Clock3, LifeBuoy, ShieldCheck } from "lucide-react";
 
 const faqGroups = [
@@ -64,14 +65,54 @@ const faqGroups = [
   },
 ];
 
-export const metadata = {
-  title: "FAQ | Coach OS",
-  description: "Perguntas frequentes sobre o Coach OS, onboarding, agenda, treinos e suporte.",
+export const metadata: Metadata = {
+  title: "Perguntas Frequentes (FAQ)",
+  description: "Tire todas as suas dúvidas sobre o Coach OS: como funciona a agenda, prescrição de treinos, suporte e segurança dos dados.",
+  alternates: {
+    canonical: "/faq",
+  },
+  openGraph: {
+    title: "Perguntas Frequentes | Coach OS",
+    description: "Tire suas dúvidas sobre a melhor plataforma para Personal Trainers.",
+    url: "/faq",
+  },
 };
 
 export default function FaqPage() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqGroups.flatMap((group) =>
+      group.items.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
+      }))
+    ),
+  };
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Coach OS",
+    url: "https://coachos.com.br",
+    logo: "https://coachos.com.br/logo.png",
+    description: "Plataforma de gestão para Personal Trainers.",
+  };
+
   return (
     <div className="pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <section className="relative overflow-hidden px-6 py-20 md:py-28">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/15 via-background to-background" />
         <div className="absolute left-1/2 top-16 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
