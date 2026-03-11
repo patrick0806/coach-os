@@ -1,112 +1,163 @@
-# Coach OS 🚀
+# Coach OS
 
-Uma plataforma SaaS robusta, escalável e modular para personal trainers gerenciarem seus alunos, planos de treino e presença digital.
+Plataforma SaaS para personal trainers gerenciarem alunos, treinos, agenda, assinatura e presença digital em um modelo multi-tenant.
 
-## 📌 Visão Geral
+## Visão Geral
 
-Coach OS é uma solução **White Label** que permite que cada profissional de educação física tenha sua própria Landing Page personalizada e um painel de gestão completo. A plataforma utiliza o conceito de **multi-tenancy** (separação por tenant ID) para isolar os dados de cada profissional.
+O Coach OS combina:
 
-## 🛠️ Stack Tecnológica
+- backend NestJS com Fastify e Drizzle ORM
+- frontend Next.js com App Router
+- autenticação por JWT e refresh token
+- páginas institucionais, área do personal, área do aluno e área admin
+- integrações com Stripe, Resend e AWS S3
 
-### Backend (API REST)
-- **Framework:** [NestJS](https://nestjs.com/) com [Fastify](https://www.fastify.io/)
-- **Linguagem:** TypeScript
-- **Banco de Dados:** PostgreSQL com [Drizzle ORM](https://orm.drizzle.team/)
-- **Validação:** Zod
-- **Autenticação:** JWT, Passport (Estratégias Local e JWT)
-- **Logs:** Pino Logger
-- **Testes:** [Vitest](https://vitest.dev/) (TDD First)
-- **Integrações:**
-  - **Emails:** Resend API
-  - **Pagamentos:** Stripe
-  - **Storage:** AWS S3
+## Stack
 
-### Frontend (Web)
-- **Framework:** [Next.js](https://nextjs.org/) (App Router)
-- **Estilização:** TailwindCSS v4, shadcn/ui
-- **Gerenciamento de Estado/Dados:** React Query, React Hook Form
-- **Linguagem:** TypeScript
+### Backend
 
----
+- TypeScript
+- NestJS
+- Fastify
+- Drizzle ORM
+- PostgreSQL
+- Zod
+- Vitest
+- Stripe
+- Resend
+- AWS S3
 
-## 📂 Estrutura do Repositório
+### Frontend
+
+- TypeScript
+- Next.js
+- Tailwind CSS
+- shadcn/ui
+- React Query
+- React Hook Form
+- Zod
+- Playwright
+
+## Estrutura
 
 ```bash
-├── backend/    # API NestJS (Porta 3000 por padrão)
-├── frontend/   # Aplicação Next.js (Porta 3001 por padrão)
-├── docs/       # Documentação técnica adicional
-└── .claude/    # Regras e contexto para agentes de IA
+.
+├── backend/
+├── frontend/
+├── docs/
+├── .claude/
+└── CLAUDE.md
 ```
 
----
+## Pré-requisitos
 
-## 🚀 Como Executar o Projeto
+- Node.js 20+
+- npm
+- PostgreSQL
+- Docker opcional para banco local
 
-### Pré-requisitos
-- Node.js (v20 ou superior)
-- Docker & Docker Compose (para o banco de dados)
+## Variáveis de ambiente
 
-### 1. Configuração do Banco de Dados
-Você pode subir um PostgreSQL rapidamente usando Docker:
+Antes de rodar o projeto, configure:
+
+- `backend/.env`
+- variáveis públicas do frontend, como `NEXT_PUBLIC_API_URL`
+
+Use os arquivos de configuração do código como referência:
+
+- `backend/src/config/env`
+- `frontend/src/services`
+
+## Como rodar
+
+### Banco de dados local com Docker
+
 ```bash
 docker run --name coach-os-db \
-    -p 5432:5432 \
-    -e POSTGRES_DB=coach-os-db \
-    -e POSTGRES_USER=postgres \
-    -e POSTGRES_PASSWORD=123 \
-    -d postgres:16.2-alpine
+  -p 5432:5432 \
+  -e POSTGRES_DB=coach-os-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=123 \
+  -d postgres:16.2-alpine
 ```
 
-### 2. Backend
+### Backend
+
 ```bash
 cd backend
 npm install
-
-# Configure seu .env (use src/config/env/index.ts como referência)
-# Rode as migrações e o seed
 npm run db:migrate
 npm run db:seed
-
-# Inicie em modo desenvolvimento
 npm run start:dev
 ```
 
-### 3. Frontend
+### Frontend
+
 ```bash
 cd frontend
 npm install
-
-# Inicie em modo desenvolvimento
 npm run dev
 ```
 
----
+## Scripts úteis
 
-## 🧪 Testes
+### Backend
 
-O projeto segue a filosofia **TDD First**. Os testes são fundamentais para garantir a estabilidade.
-
-Para rodar os testes no backend:
 ```bash
-cd backend
-npm run test        # Executar uma vez
-npm run test:watch  # Modo watch (desenvolvimento)
+npm run start:dev
+npm run test
+npm run test:watch
+npm run test:e2e
+npm run test:cov
+npm run typecheck
+npm run lint
+npm run check:all
 ```
 
----
+### Frontend
 
-## 📐 Arquitetura e Padrões
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run typecheck
+npm run test:e2e
+```
 
-- **Padrões de Código:** Uso rigoroso de interfaces, evitar `any`, validação com Zod em todas as entradas.
-- **Internacionalização:**
-  - Código e commits em **Inglês**.
-  - UI (labels, mensagens, erros) em **Português**.
-- **Design:**
-  - Mobile First e Responsivo.
-  - **Modo Dark:** Obrigatório para áreas de Alunos, Admin e páginas de produto.
-  - **Modo Light:** Áreas de gestão do Personal.
+## Qualidade e testes
 
----
+O projeto segue TDD no backend e agora possui uma camada de validação local mais completa.
 
-## 📄 Licença
-Este projeto é privado e proprietário.
+### Backend
+
+- testes unitários com Vitest
+- suíte E2E mínima com Vitest + Nest testing
+- `husky` com hook de `pre-commit`
+- `pre-push` rodando `npm run test` e `npm run test:e2e`
+- `lint-staged` para arquivos TypeScript staged
+- `check:all` para lint, typecheck e testes
+
+### Frontend
+
+- testes E2E com Playwright
+- cenários de cadastro, login e painel
+- cobertura responsiva com projeto mobile em Chromium
+
+## Convenções do projeto
+
+- código, comentários e commits em inglês
+- interface, labels e mensagens em português
+- arquitetura modular
+- validação com Zod
+- evitar `any`
+- separação clara entre módulos, shared e config
+
+## Observações
+
+- o `core.hooksPath` do git é configurado para `backend/.husky`
+- os testes E2E do frontend usam porta dedicada no Playwright para evitar conflito com instâncias locais
+- o middleware do frontend possui bypass controlado por `E2E_BYPASS_AUTH=true` apenas para execução de testes E2E mockados
+
+## Licença
+
+Projeto privado.

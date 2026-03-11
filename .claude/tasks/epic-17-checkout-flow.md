@@ -17,7 +17,7 @@ O plano selecionado na Landing Page deve ser persistido durante o processo de cr
 ### Critérios de Aceite
 - [ ] Ao clicar em "Assinar" em um plano na Home, passar o `planId` via query param (ex: `/cadastro?plan=plan_premium`).
 - [ ] O formulário de cadastro deve ler o `planId` e armazená-lo temporariamente (Cookie ou SessionStorage).
-- [ ] Após a criação de conta bem-sucedida, redirecionar o usuário para `/painel/checkout` (se plano selecionado !== "gratuito").
+- [ ] Após a criação de conta bem-sucedida, redirecionar o usuário para `/painel/checkout` (se plano selecionado !== "basico"(plano basico pode ser testado por 30 dias sem cartão de crédito)).
 
 ---
 
