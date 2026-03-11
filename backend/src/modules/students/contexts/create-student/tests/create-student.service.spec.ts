@@ -261,6 +261,38 @@ describe("CreateStudentService", () => {
       expect(resendProvider.sendStudentInvite).not.toHaveBeenCalled();
     });
 
+    it("should allow creation when plan has unlimited students", async () => {
+      usersRepository.findByEmail.mockResolvedValue(null);
+      servicePlansRepository.findOwnedById.mockResolvedValue(mockServicePlan);
+      personalsRepository.findById.mockResolvedValue({
+        ...mockPersonal,
+        subscriptionPlanId: "plan-pro-id",
+      });
+      plansRepository.findById.mockResolvedValue({
+        id: "plan-pro-id",
+        name: "Pro",
+        maxStudents: null,
+      });
+      usersRepository.findById.mockResolvedValue(mockPersonalUser);
+      usersRepository.create.mockResolvedValue(mockCreatedUser);
+      studentsRepository.create.mockResolvedValue(mockCreatedStudent);
+      passwordSetupTokensRepository.create.mockResolvedValue({});
+      resendProvider.sendStudentInvite.mockResolvedValue(undefined);
+
+      const result = await service.execute(
+        {
+          name: "Alice Silva",
+          email: "alice@example.com",
+          servicePlanId: "service-plan-id",
+        },
+        mockCurrentUser,
+      );
+
+      expect(result.studentId).toBe("student-id");
+      expect(studentsRepository.countActiveByPersonal).not.toHaveBeenCalled();
+      expect(resendProvider.sendStudentInvite).toHaveBeenCalledOnce();
+    });
+
     it("should propagate transaction failure and not send invite email", async () => {
       usersRepository.findByEmail.mockResolvedValue(null);
       servicePlansRepository.findOwnedById.mockResolvedValue(mockServicePlan);

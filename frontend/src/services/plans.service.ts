@@ -16,7 +16,11 @@ export function formatPlanPrice(price: string): string {
 }
 
 export async function listPlans(): Promise<Plan[]> {
-  const res = await fetch(`${API_URL}/plans`, { next: { revalidate: 300 } });
-  if (!res.ok) return [];
-  return res.json() as Promise<Plan[]>;
+  try {
+    const res = await fetch(`${API_URL}/plans`, { next: { revalidate: 300 } });
+    if (!res.ok) return [];
+    return res.json() as Promise<Plan[]>;
+  } catch {
+    return [];
+  }
 }

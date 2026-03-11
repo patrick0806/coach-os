@@ -45,4 +45,40 @@ describe("RegisterRequestSchema", () => {
       ]);
     }
   });
+
+  it("should collect multiple field errors for malformed payloads", () => {
+    const attempt = () =>
+      validate(RegisterRequestSchema, {
+        name: "J",
+        email: "invalid-email",
+        password: "123",
+        confirmPassword: "456",
+      });
+
+    expect(attempt).toThrowError(ValidationException);
+
+    try {
+      attempt();
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationException);
+      expect((error as ValidationException).fields).toEqual([
+        {
+          name: "name",
+          reason: "Nome deve ter pelo menos 2 caracteres",
+        },
+        {
+          name: "email",
+          reason: "E-mail inválido",
+        },
+        {
+          name: "password",
+          reason: "Senha deve ter pelo menos 8 caracteres",
+        },
+        {
+          name: "confirmPassword",
+          reason: "As senhas não coincidem",
+        },
+      ]);
+    }
+  });
 });

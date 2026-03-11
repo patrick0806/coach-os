@@ -115,5 +115,19 @@ describe("UpdateProfileService", () => {
       expect(result.name).toBe("Jane Doe");
       expect(personalsRepository.update).not.toHaveBeenCalled();
     });
+
+    it("should propagate transaction failures without returning partial data", async () => {
+      drizzleProvider.db.transaction.mockRejectedValue(new Error("database unavailable"));
+
+      await expect(
+        service.execute("personal-id", "user-id", {
+          name: "Jane Doe",
+          bio: "Updated bio",
+        }),
+      ).rejects.toThrow("database unavailable");
+
+      expect(usersRepository.update).not.toHaveBeenCalled();
+      expect(personalsRepository.update).not.toHaveBeenCalled();
+    });
   });
 });
