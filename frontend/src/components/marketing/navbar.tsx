@@ -62,6 +62,12 @@ export function Navbar() {
             Sobre
           </Link>
           <Link
+            href="/faq"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            FAQ
+          </Link>
+          <Link
             href="/contato"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >

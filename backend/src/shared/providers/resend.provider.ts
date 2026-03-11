@@ -29,6 +29,13 @@ export interface SendBookingNotificationParams {
   endTime: string;
 }
 
+export interface SendSupportContactParams {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
 @Injectable()
 export class ResendProvider {
   private readonly client: Resend | null;
@@ -289,6 +296,46 @@ export class ResendProvider {
       });
     } catch (error) {
       this.logger.error("Failed to send booking notification email", error);
+    }
+  }
+
+  async sendSupportContact(params: SendSupportContactParams): Promise<void> {
+    if (!this.client) return;
+    const { name, email, subject, message } = params;
+
+    const html = this.getEmailLayout(`
+      <h2>Novo contato pelo site</h2>
+      <p>Uma nova mensagem foi enviada pela página de contato do Coach OS.</p>
+
+      <div class="details">
+        <div class="detail-row">
+          <span class="label">Nome:</span>
+          <span class="value">${name}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">E-mail:</span>
+          <span class="value">${email}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Assunto:</span>
+          <span class="value">${subject}</span>
+        </div>
+      </div>
+
+      <p><strong>Mensagem:</strong></p>
+      <p>${message.replace(/\n/g, "<br />")}</p>
+    `);
+
+    try {
+      await this.client.emails.send({
+        from: "Coach OS <no-reply@geeknizado.com.br>",
+        to: env.SUPPORT_EMAIL,
+        subject: `[Contato] ${subject}`,
+        html,
+        replyTo: email,
+      });
+    } catch (error) {
+      this.logger.error("Failed to send support contact email", error);
     }
   }
 }

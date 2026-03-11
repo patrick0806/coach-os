@@ -53,6 +53,30 @@ export function Footer() {
           {/* Links Col 2 - Empresa */}
           <div>
             <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+              Atendimento
+            </h4>
+            <ul className="mt-4 space-y-3">
+              <li>
+                <Link
+                  href="/faq"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contato"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Contato
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">
               Empresa
             </h4>
             <ul className="mt-4 space-y-3">
@@ -62,14 +86,6 @@ export function Footer() {
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Sobre Nós
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contato"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Contato
                 </Link>
               </li>
             </ul>
@@ -106,7 +122,7 @@ export function Footer() {
             © {currentYear} Coach OS. Todos os direitos reservados.
           </p>
           <p className="text-xs text-muted-foreground">
-            Desenvolvido com ❤️ para profissionais de Educação Física.
+            Desenvolvido para profissionais de Educação Física.
           </p>
         </div>
       </div>

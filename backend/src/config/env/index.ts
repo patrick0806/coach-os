@@ -28,6 +28,7 @@ export const env = {
 
   RESEND_API_KEY: process.env.RESEND_API_KEY || "",
   APP_URL: process.env.APP_URL || "http://localhost:3000",
+  SUPPORT_EMAIL: process.env.SUPPORT_EMAIL || "suporte@coachos.com.br",
 
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
