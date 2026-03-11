@@ -64,6 +64,20 @@
       "when": 1773182397280,
       "tag": "0008_chilly_gideon",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773235332923,
+      "tag": "0009_mysterious_the_santerians",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1773235352745,
+      "tag": "0010_cute_professor_monster",
+      "breakpoints": true
     }
   ]
 }

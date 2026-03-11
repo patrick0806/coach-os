@@ -22,6 +22,7 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
   const [deactivateOpen, setDeactivateOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"resumo" | "notas">("resumo");
 
   const { data: student, isLoading } = useQuery({
     queryKey: ["students", id],
@@ -84,28 +85,49 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <StudentEditForm student={student} />
-
-          <StudentWorkoutPlans studentId={id} />
-
-          <StudentNotesTimeline studentId={id} />
-
-          {/* Schedule — placeholder (US-014) */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <CalendarDays className="size-4 text-gray-400" />
-                Próximos agendamentos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pb-6">
-              <p className="text-sm text-muted-foreground">
-                Os agendamentos deste aluno aparecerão aqui.
-              </p>
-            </CardContent>
-          </Card>
+        <div className="mb-6 flex flex-wrap gap-2 rounded-xl border bg-card p-1">
+          <Button
+            type="button"
+            variant={activeTab === "resumo" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("resumo")}
+          >
+            Resumo
+          </Button>
+          <Button
+            type="button"
+            variant={activeTab === "notas" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("notas")}
+          >
+            Notas
+          </Button>
         </div>
+
+        {activeTab === "resumo" ? (
+          <div className="space-y-6">
+            <StudentEditForm student={student} />
+
+            <StudentWorkoutPlans studentId={id} />
+
+            {/* Schedule — placeholder (US-014) */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <CalendarDays className="size-4 text-gray-400" />
+                  Próximos agendamentos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pb-6">
+                <p className="text-sm text-muted-foreground">
+                  Os agendamentos deste aluno aparecerão aqui.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <StudentNotesTimeline studentId={id} />
+        )}
       </div>
 
       <DeactivateStudentDialog

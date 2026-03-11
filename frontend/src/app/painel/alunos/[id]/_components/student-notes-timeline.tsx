@@ -156,9 +156,20 @@ export function StudentNotesTimeline({ studentId }: StudentNotesTimelineProps) {
               Não foi possível carregar as notas.
             </p>
           ) : notes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nenhuma nota registrada ainda.
-            </p>
+            <div className="rounded-xl border border-dashed bg-muted/30 px-5 py-10 text-center">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-background">
+                <FileText className="size-5 text-muted-foreground" />
+              </div>
+              <h3 className="mt-4 text-sm font-semibold text-foreground">
+                Nenhuma nota registrada ainda
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Use este espaço para registrar lesões, comportamento, decisões de treino e observações importantes deste aluno.
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                A primeira nota que você adicionar aparecerá aqui em ordem cronológica.
+              </p>
+            </div>
           ) : (
             <div className="space-y-4">
               {notes.map((note) => (

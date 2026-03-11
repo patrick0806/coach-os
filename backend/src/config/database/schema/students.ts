@@ -52,8 +52,12 @@ export const studentNotes = pgTable(
     id: varchar("id", { length: 36 })
       .primaryKey()
       .$defaultFn(() => randomUUID()),
-    studentId: varchar("student_id", { length: 36 }).notNull(),
-    personalId: varchar("personal_id", { length: 36 }).notNull(),
+    studentId: varchar("student_id", { length: 36 })
+      .notNull()
+      .references(() => students.id),
+    personalId: varchar("personal_id", { length: 36 })
+      .notNull()
+      .references(() => personals.id),
     note: text("note").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
