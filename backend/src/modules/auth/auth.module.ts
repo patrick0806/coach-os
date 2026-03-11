@@ -7,7 +7,9 @@ import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { AdminsRepository } from "@shared/repositories/admins.repository";
 import { PasswordSetupTokensRepository } from "@shared/repositories/password-setup-tokens.repository";
+import { PasswordResetTokensRepository } from "@shared/repositories/password-reset-tokens.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
+import { ResendProvider } from "@shared/providers/resend.provider";
 import { env } from "@config/env";
 
 import { JwtStrategy, LocalStrategy } from "./strategies";
@@ -21,6 +23,10 @@ import { RefreshService } from "./contexts/refresh/refresh.service";
 import { LogoutController } from "./contexts/logout/logout.controller";
 import { SetupPasswordController } from "./contexts/setup-password/setup-password.controller";
 import { SetupPasswordService } from "./contexts/setup-password/setup-password.service";
+import { ForgotPasswordController } from "./contexts/forgot-password/forgot-password.controller";
+import { ForgotPasswordService } from "./contexts/forgot-password/forgot-password.service";
+import { ResetPasswordController } from "./contexts/reset-password/reset-password.controller";
+import { ResetPasswordService } from "./contexts/reset-password/reset-password.service";
 
 @Module({
   imports: [
@@ -36,12 +42,16 @@ import { SetupPasswordService } from "./contexts/setup-password/setup-password.s
     RefreshController,
     LogoutController,
     SetupPasswordController,
+    ForgotPasswordController,
+    ResetPasswordController,
   ],
   providers: [
     RegisterService,
     LoginService,
     RefreshService,
     SetupPasswordService,
+    ForgotPasswordService,
+    ResetPasswordService,
     AuthTokenService,
     JwtStrategy,
     LocalStrategy,
@@ -50,7 +60,9 @@ import { SetupPasswordService } from "./contexts/setup-password/setup-password.s
     StudentsRepository,
     AdminsRepository,
     PasswordSetupTokensRepository,
+    PasswordResetTokensRepository,
     PlansRepository,
+    ResendProvider,
   ],
   exports: [
     UsersRepository,

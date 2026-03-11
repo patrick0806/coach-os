@@ -26,6 +26,8 @@
 | 10 - Agenda e Produtividade do Personal | [epic-10-agenda-e-produtividade.md](epic-10-agenda-e-produtividade.md) | [ ] | [ ] |
 | Epic 11 - Treinos, Midia e Tema | [epic-11-treinos-midia-e-tema.md](epic-11-treinos-midia-e-tema.md) | [ ] | [ ] |
 | 12 - Páginas Institucionais e Legais | [epic-12-institutional.md](epic-12-institutional.md) | [ ] | [ ] |
+| 13 - Redesign de Autenticação e Recuperação de Senha | [epic-13-auth-redesign.md](epic-13-auth-redesign.md) | [x] | [x] |
+| 14 - Refinamento de UI/UX (Premium Experience) | [epic-14-ui-ux-refinement.md](epic-14-ui-ux-refinement.md) | — | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
@@ -70,6 +72,12 @@ Sprint 11 — Tema do Painel Personal e Marketing
 
 Sprint 12 — Suporte e Retenção
   US-035
+
+Sprint 13 — Redesign e UX de Autenticação
+  US-037 → US-038 → US-039
+
+Sprint 14 — Refinamento Visual Premium
+  US-040 → US-041 → US-042 → US-043
 ```
 
 > **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).

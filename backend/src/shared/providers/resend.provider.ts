@@ -36,6 +36,12 @@ export interface SendSupportContactParams {
   message: string;
 }
 
+export interface SendPasswordResetParams {
+  to: string;
+  userName: string;
+  resetPasswordUrl: string;
+}
+
 @Injectable()
 export class ResendProvider {
   private readonly client: Resend | null;
@@ -296,6 +302,37 @@ export class ResendProvider {
       });
     } catch (error) {
       this.logger.error("Failed to send booking notification email", error);
+    }
+  }
+
+  async sendPasswordReset(params: SendPasswordResetParams): Promise<void> {
+    if (!this.client) return;
+    const { to, userName, resetPasswordUrl } = params;
+
+    const html = this.getEmailLayout(`
+      <h2>Recuperação de Senha</h2>
+      <p>Olá, ${userName}!</p>
+      <p>Recebemos uma solicitação para redefinir a sua senha no <strong>Coach OS</strong>.</p>
+      <p>Se foi você que solicitou, clique no botão abaixo para criar uma nova senha:</p>
+      <div style="text-align: center;">
+        <a href="${resetPasswordUrl}" class="button">Redefinir minha senha</a>
+      </div>
+      <div class="divider"></div>
+      <p class="muted-text">
+        Este link é válido por <strong>2 horas</strong> por motivos de segurança.
+        Se você não solicitou a redefinição de senha, pode ignorar este e-mail.
+      </p>
+    `);
+
+    try {
+      await this.client.emails.send({
+        from: "Coach OS <no-reply@geeknizado.com.br>",
+        to,
+        subject: "Recuperação de Senha — Coach OS",
+        html,
+      });
+    } catch (error) {
+      this.logger.error("Failed to send password reset email", error);
     }
   }
 

@@ -165,5 +165,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/cadastro", "/painel/:path*", "/admin/:path*", "/:slug/alunos/:path*", "/:slug/login"],
+  matcher: [
+    "/login",
+    "/cadastro",
+    "/recuperar-senha",
+    "/redefinir-senha",
+    "/painel/:path*",
+    "/admin/:path*",
+    "/:slug/alunos/:path*",
+    "/:slug/login",
+  ],
 };

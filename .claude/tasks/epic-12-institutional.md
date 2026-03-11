@@ -45,11 +45,11 @@ Página de FAQ com Accordions e Formulário de Contato integrado ao backend.
 ### Priority: Medium | Impact: High
 
 ### Tasks Backend
-- [ ] `POST /support/contact`: Endpoint para envio de e-mail interno via Resend.
+- [x] `POST /support/contact`: Endpoint para envio de e-mail interno via Resend.
 
 ### Tasks Frontend
-- [ ] Criar `frontend/src/app/(support)/faq/page.tsx`.
-- [ ] Criar `frontend/src/app/(support)/contato/page.tsx`.
+- [x] Criar `frontend/src/app/(support)/faq/page.tsx`.
+- [x] Criar `frontend/src/app/(support)/contato/page.tsx`.
 
 ---
 

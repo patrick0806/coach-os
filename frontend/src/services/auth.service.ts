@@ -49,3 +49,18 @@ export async function refreshSession(): Promise<LoginResponse> {
 export async function logout() {
   await api.post("/auth/logout");
 }
+
+export async function forgotPassword(email: string) {
+  const response = await api.post<{ message: string }>("/auth/forgot-password", { email });
+  return response.data;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
+export async function resetPassword(payload: ResetPasswordPayload) {
+  const response = await api.post<{ message: string }>("/auth/reset-password", payload);
+  return response.data;
+}
