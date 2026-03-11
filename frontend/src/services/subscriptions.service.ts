@@ -69,6 +69,10 @@ export async function createCheckoutSession(planId: string): Promise<{ checkoutU
   return data;
 }
 
+export async function syncCheckout(sessionId: string): Promise<void> {
+  await api.post("/subscriptions/sync-checkout", { sessionId });
+}
+
 export async function cancelSubscription(): Promise<void> {
   await api.post("/subscriptions/cancel");
 }

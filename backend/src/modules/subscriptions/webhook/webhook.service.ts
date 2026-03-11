@@ -30,6 +30,9 @@ export class WebhookService {
       case "checkout.session.completed":
         await this.handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
+      case "invoice.paid":
+        await this.handleInvoicePaid(event.data.object as Stripe.Invoice);
+        break;
       case "customer.subscription.updated":
         await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
         break;
@@ -52,7 +55,33 @@ export class WebhookService {
     await this.personalsRepository.updateSubscription(personal.id, {
       stripeSubscriptionId: session.subscription as string,
       subscriptionStatus: "active",
-      subscriptionPlanId: (session.metadata?.planId) ?? null,
+      subscriptionPlanId: session.metadata?.planId ?? null,
+      accessStatus: "active",
+    });
+  }
+
+  private async handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
+    const customerId = invoice.customer as string;
+    const personal = await this.personalsRepository.findByStripeCustomerId(customerId);
+    if (!personal) return;
+
+    // Stripe SDK v20: subscription info lives under invoice.parent.subscription_details
+    const parent = invoice.parent;
+    if (parent?.type !== "subscription_details" || !parent.subscription_details) return;
+
+    const sub = parent.subscription_details.subscription;
+    const subscriptionId = typeof sub === "string" ? sub : sub.id;
+
+    const stripe = this.stripeProvider.client!;
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const planId = subscription.metadata?.planId ?? null;
+
+    await this.personalsRepository.updateSubscription(personal.id, {
+      stripeSubscriptionId: subscriptionId,
+      subscriptionStatus: "active",
+      subscriptionPlanId: planId,
+      accessStatus: "active",
+      subscriptionExpiresAt: null,
     });
   }
 

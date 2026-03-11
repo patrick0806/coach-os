@@ -20,6 +20,8 @@ import { PortalController } from "./portal/portal.controller";
 import { PortalService } from "./portal/portal.service";
 import { UpgradeController } from "./upgrade/upgrade.controller";
 import { UpgradeService } from "./upgrade/upgrade.service";
+import { SyncCheckoutController } from "./sync-checkout/sync-checkout.controller";
+import { SyncCheckoutService } from "./sync-checkout/sync-checkout.service";
 
 @Module({
   controllers: [
@@ -30,6 +32,7 @@ import { UpgradeService } from "./upgrade/upgrade.service";
     UsageController,
     PortalController,
     UpgradeController,
+    SyncCheckoutController,
   ],
   providers: [
     CheckoutService,
@@ -39,6 +42,7 @@ import { UpgradeService } from "./upgrade/upgrade.service";
     UsageService,
     PortalService,
     UpgradeService,
+    SyncCheckoutService,
     PersonalsRepository,
     PlansRepository,
     StudentsRepository,

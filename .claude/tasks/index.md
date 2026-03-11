@@ -24,13 +24,14 @@
 | 08 - Estabilizacao da Base (Quality & UX) | [epic-08-stabilization.md](epic-08-stabilization.md) | — | `[x]` |
 | 09 - Freemium e Conversao | [epic-09-freemium-conversion.md](epic-09-freemium-conversion.md) | [ ] | [ ] |
 | 10 - Agenda e Produtividade do Personal | [epic-10-agenda-e-produtividade.md](epic-10-agenda-e-produtividade.md) | [ ] | [ ] |
-| Epic 11 - Treinos, Midia e Tema | [epic-11-treinos-midia-e-tema.md](epic-11-treinos-midia-e-tema.md) | [ ] | [ ] |
+| 11 - Treinos, Midia e Tema | [epic-11-treinos-midia-e-tema.md](epic-11-treinos-midia-e-tema.md) | [x] | [x] |
 | 12 - Páginas Institucionais e Legais | [epic-12-institutional.md](epic-12-institutional.md) | [ ] | [ ] |
 | 13 - Redesign de Autenticação e Recuperação de Senha | [epic-13-auth-redesign.md](epic-13-auth-redesign.md) | [x] | [x] |
 | 14 - Refinamento de UI/UX (Premium Experience) | [epic-14-ui-ux-refinement.md](epic-14-ui-ux-refinement.md) | — | [ ] |
 | 15 - SEO e Autoridade Digital | [epic-15-seo.md](epic-15-seo.md) | — | [ ] |
 | 16 - Excelência em Testes e Garantia de Qualidade | [epic-16-testing.md](epic-16-testing.md) | [ ] | [ ] |
 | 17 - Checkout Transparente e Conversão SaaS | [epic-17-checkout-flow.md](epic-17-checkout-flow.md) | [ ] | [ ] |
+| 18 - Treinos Customizados e Independentes | [epic-18-custom-workouts.md](epic-18-custom-workouts.md) | [ ] | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
@@ -90,87 +91,12 @@ Sprint 16 — Excelência em Testes e Automação
 
 Sprint 17 — Funil de Conversão e Checkout Stripe
   US-047 → US-048 → US-049
+
+Sprint 18 — Treinos Customizados e Independentes
+  US-054
 ```
 
 > **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).
 > **Aluno multi-personal:** Adiado para pos-MVP. Ver [post-mvp-backlog.md](post-mvp-backlog.md).
 
-## Mapa de Dependencias (revisado)
-
-```
-SCHEMA RESET (pre-requisito global)
-  └── US-001 (Register Personal)
-        └── US-002 (Login Unificado — Personal, Student, Admin)
-              ├── US-003 (Perfil do Personal)
-              │     └── US-004 (Landing Page Publica)
-              ├── US-005 (Criar Aluno)  ← cria users+students em transacao
-              │     ├── US-010 (Aluno ve Treinos)  ← usa JWT do login unificado
-              │     └── US-013 (Aluno agenda sessao)
-              ├── US-007 (Exercicios)
-              │     └── US-008 (Workout Plans)
-              │           └── US-009 (Atribuir Treino)
-              │                 └── US-010
-              ├── US-011 (Disponibilidade)
-              │     ├── US-013
-              │     └── US-032 (Disponibilidade em lote)  ← UX critica: configurar dia inteiro + copiar dias
-              │           └── US-024
-              ├── US-012 (Service Plans)
-              │     └── US-013
-              │           └── US-014 (Personal gerencia agenda)
-              └── US-017 (Admin gerencia personals)
-                    └── US-018 (Admin gerencia planos SaaS)
-
-US-015 (Planos SaaS publicos) — independente do auth
-  └── US-016 (Stripe) — depende de US-001
-```
-
-## Estado do Projeto (atualizado 2026-03-10)
-
-### Backend — 100% implementado (todos os épicos 01–07)
-- Infraestrutura: guards JWT/Roles, filters, interceptors, decorators, providers Drizzle, S3, Stripe, Resend
-- Schema com 4 migrations aplicadas (users, personals, students, admins, exercises, workout_plans,
-  workout_exercises, workout_plan_students, availability_slots, service_plans, bookings, plans, password_setup_tokens)
-- 98 arquivos de teste, 278 testes — 100% passando
-- Seed com dados iniciais (3 usuários, 3 planos SaaS, 50 exercícios globais)
-- Swagger disponível em http://localhost:3000/api/docs
-
-### Frontend — em andamento (atualizado 2026-03-07)
-
-**Epic 01 — Autenticacao e Fundacao:** `[x]` completo
-- `/cadastro` — registro de personal (React Hook Form + Zod, toggle senha, erros por campo)
-- `/login` — login unificado com redirect por role
-- `AuthProvider` — accessToken em memoria, signIn/signOut
-- `middleware.ts` — protecao de rotas por role (PERSONAL/STUDENT/ADMIN)
-- `api.ts` — axios com interceptor de refresh token automatico (401 → refresh → retry)
-- `QueryProvider`, `AppProvider` configurados
-
-**Epic 02 — Perfil e Landing Page:** `[~]` em andamento
-- US-003 `[x]` — `/painel/perfil` implementado:
-  - Layout com sidebar responsiva (desktop: sidebar fixa, mobile: drawer com hamburger)
-  - Formulario completo: dados pessoais, cor do tema, upload de foto, campos da LP
-  - Color picker nativo + input hex sincronizados
-  - Upload de imagens via `POST /personals/me/profile/upload` com preview
-  - React Query para fetch/mutacao + invalidacao de cache
-  - Feedback de sucesso/erro inline
-- US-004 `[x]` — Landing page publica `/{slug}` implementada (SSR, generateMetadata, 4 seções, 404 customizado)
-
-**Epic 03:** `[x]` completo
-**Epic 04 — Gestao de Treinos:** `[x]` completo
-**Epic 05 — Agenda e Agendamentos:** `[x]` completo
-**Epic 06 — Planos SaaS e Assinatura:** `[x]` completo
-**Epic 07 — Area do Admin:** `[x]` completo
-- Admin shell com sidebar responsiva (desktop fixa + mobile drawer)
-- `/admin/dashboard` — KPIs (MRR, assinantes, churn), AreaChart e PieChart com Recharts, filtro de período
-- `/admin/personals` — tabela paginada com busca, toggle de status inline
-- `/admin/personals/:id` — detalhe com dados de perfil e assinatura (link Stripe)
-- `/admin/plans` — CRUD de planos SaaS, reordenação com botões up/down, toggle ativo/inativo
-- `/admin` → redirect para `/admin/dashboard`
-
-**Estrutura base do painel:**
-- `PainelShell` — layout responsivo com sidebar desktop + drawer mobile
-- `PainelSidebar` — navegacao com active state e logout
-- Rotas placeholder criadas: `/painel`, `/painel/assinatura`, `/admin`, `/{slug}/alunos/painel`
-
-### Proximo passo
-Continuar Epic 09 — Freemium e Conversao.
-Ordem sugerida: US-022 → US-023.
+...

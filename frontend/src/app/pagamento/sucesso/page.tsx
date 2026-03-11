@@ -1,9 +1,28 @@
+"use client";
+
+import { Suspense, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { syncCheckout } from "@/services/subscriptions.service";
 
-export default function PagamentoSucessoPage() {
+function PagamentoSucessoContent() {
+  const searchParams = useSearchParams();
+  const synced = useRef(false);
+
+  useEffect(() => {
+    if (synced.current) return;
+    synced.current = true;
+
+    const sessionId = searchParams.get("session_id");
+    if (!sessionId) return;
+
+    // Best-effort sync — webhook will catch up if this call fails
+    syncCheckout(sessionId).catch(() => undefined);
+  }, [searchParams]);
+
   return (
     <div className="dark relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6 text-foreground">
       {/* Background glows */}
@@ -46,5 +65,13 @@ export default function PagamentoSucessoPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function PagamentoSucessoPage() {
+  return (
+    <Suspense>
+      <PagamentoSucessoContent />
+    </Suspense>
   );
 }
