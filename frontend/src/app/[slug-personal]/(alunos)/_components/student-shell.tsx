@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CalendarDays, Dumbbell, LayoutDashboard, LogOut } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -30,9 +31,9 @@ export function StudentShell({ slug, children }: StudentShellProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 border-b border-border/40 bg-background/95 backdrop-blur">
+      <header className="premium-glass sticky top-0 z-20 hidden border-b-0 md:block">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
-          <span className="text-sm font-semibold tracking-tight text-foreground">Coach OS</span>
+          <span className="premium-heading text-sm">Coach OS</span>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname.startsWith(item.href);
@@ -41,10 +42,10 @@ export function StudentShell({ slug, children }: StudentShellProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                    "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium transition-all",
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      ? "premium-highlight text-primary-foreground shadow-[var(--premium-shadow)]"
+                      : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground",
                   )}
                 >
                   <item.icon className="size-3.5 shrink-0" />
@@ -53,16 +54,50 @@ export function StudentShell({ slug, children }: StudentShellProps) {
               );
             })}
           </nav>
-          <button
+          <Button
             onClick={handleSignOut}
-            className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-destructive"
+            variant="premium-ghost"
+            size="sm"
+            className="gap-1.5 px-2.5 text-muted-foreground hover:text-destructive"
           >
             <LogOut className="size-3.5" />
             <span className="hidden sm:inline">Sair</span>
-          </button>
+          </Button>
         </div>
       </header>
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pb-24 md:pb-0">{children}</main>
+      <nav className="premium-glass fixed inset-x-3 bottom-3 z-30 rounded-[28px] p-2 md:hidden">
+        <ul className="grid grid-cols-4 gap-1">
+          {navItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-medium transition-all",
+                    isActive
+                      ? "premium-highlight text-primary-foreground shadow-[var(--premium-shadow)]"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                  )}
+                >
+                  <item.icon className="size-4 shrink-0" />
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+          <li>
+            <button
+              onClick={handleSignOut}
+              className="flex w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-500"
+            >
+              <LogOut className="size-4 shrink-0" />
+              <span>Sair</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }

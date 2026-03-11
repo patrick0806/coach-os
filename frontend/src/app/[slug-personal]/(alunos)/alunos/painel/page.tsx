@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { use, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, ChevronRight, Dumbbell } from "lucide-react";
+import { ArrowRight, CalendarDays, ChevronRight, Dumbbell, Sparkles } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMyBookings, type Booking } from "@/services/bookings.service";
 import { getMeWorkoutPlans } from "@/services/workout-plans.service";
 import { NextSessionCard } from "./_components/next-session-card";
+import { ProgressRing } from "./_components/progress-ring";
 
 interface AlunoPainelPageProps {
   params: Promise<{ "slug-personal": string }>;
@@ -49,26 +51,50 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
 
   const nextSession = upcomingBookings[0];
   const nextThreeSessions = upcomingBookings.slice(0, 3);
+  const completedBookings = bookingsData.filter((booking) => booking.status === "completed").length;
+  const scheduledBookings = bookingsData.filter((booking) => booking.status === "scheduled").length;
+  const workoutGoal = 12;
+  const progressValue = Math.min(100, Math.round((completedBookings / workoutGoal) * 100));
+  const consistencyValue = Math.min(
+    100,
+    Math.round(((completedBookings + scheduledBookings) / Math.max(workoutGoal, 1)) * 100),
+  );
 
   return (
-    <div className="mx-auto max-w-3xl p-4 sm:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Painel do Aluno</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Bem-vindo de volta!</p>
+    <div className="mx-auto max-w-3xl p-4 pb-28 sm:p-8">
+      <div className="mb-6 space-y-2">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--premium-border)] bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+          <Sparkles className="size-3.5 text-primary" />
+          Seu app de treino
+        </span>
+        <h1 className="premium-heading text-3xl">Painel do Aluno</h1>
+        <p className="premium-subheading">Sua rotina, suas próximas sessões e seu progresso em um só lugar.</p>
       </div>
 
       <section className="mb-6 space-y-4">
         {loadingBookings ? (
           <div className="space-y-3">
-            <div className="h-28 animate-pulse rounded-xl bg-accent" />
-            <div className="h-16 animate-pulse rounded-xl bg-accent" />
-            <div className="h-16 animate-pulse rounded-xl bg-accent" />
+            <div className="h-48 animate-pulse rounded-3xl bg-accent/60" />
+            <div className="h-32 animate-pulse rounded-3xl bg-accent/60" />
           </div>
         ) : nextSession ? (
           <>
-            <NextSessionCard booking={nextSession} />
+            <NextSessionCard booking={nextSession} slug={slug} />
 
-            <Card>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ProgressRing
+                value={progressValue}
+                label="Meta do mês"
+                helper={`${completedBookings} de ${workoutGoal} sessões concluídas`}
+              />
+              <ProgressRing
+                value={consistencyValue}
+                label="Constância"
+                helper={`${scheduledBookings} sessões ainda reservadas`}
+              />
+            </div>
+
+            <Card variant="glass" className="rounded-3xl">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <CalendarDays className="size-4 text-muted-foreground" />
@@ -79,7 +105,7 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
                 {nextThreeSessions.map((booking) => (
                   <div
                     key={booking.id}
-                    className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
+                    className="premium-surface flex items-center justify-between rounded-2xl px-4 py-3"
                   >
                     <div>
                       <p className="font-medium">{booking.servicePlanName}</p>
@@ -94,12 +120,21 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
             </Card>
           </>
         ) : (
-          <Card>
-            <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              <p className="mb-2">Você não possui sessões futuras agendadas.</p>
-              <Link href={`/${slug}/alunos/agenda`} className="font-medium text-primary hover:underline">
-                Ir para agenda e agendar
-              </Link>
+          <Card variant="premium" className="rounded-3xl">
+            <CardContent className="py-10 text-center">
+              <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-white/12 text-primary-foreground">
+                <CalendarDays className="size-7" />
+              </div>
+              <p className="premium-heading mb-2 text-lg text-primary-foreground">Nenhuma sessão marcada</p>
+              <p className="mx-auto max-w-sm text-sm text-primary-foreground/80">
+                Nenhum treino hoje? Que tal organizar sua próxima sessão e manter o ritmo da semana.
+              </p>
+              <Button asChild variant="premium-ghost" className="mt-5 border-white/20 bg-white/12 text-primary-foreground hover:bg-white/18 hover:text-primary-foreground">
+                <Link href={`/${slug}/alunos/agenda`}>
+                  Ir para agenda
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -122,13 +157,13 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
         {loadingPlans ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-accent" />
+              <div key={i} className="h-20 animate-pulse rounded-3xl bg-accent/60" />
             ))}
           </div>
         ) : plans.length === 0 ? (
-          <Card>
+          <Card variant="glass" className="rounded-3xl">
             <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              Nenhum treino atribuído ainda.
+              Nenhum treino atribuído ainda. Seu personal vai liberar seus próximos blocos por aqui.
             </CardContent>
           </Card>
         ) : (
@@ -137,7 +172,7 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
               <Link
                 key={plan.id}
                 href={`/${slug}/alunos/treinos/${plan.id}`}
-                className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 transition-colors hover:bg-accent"
+                className="premium-surface flex items-center justify-between rounded-3xl px-4 py-4 transition-all hover:scale-[1.01] hover:bg-accent/20"
               >
                 <div>
                   <p className="font-medium">{plan.name}</p>

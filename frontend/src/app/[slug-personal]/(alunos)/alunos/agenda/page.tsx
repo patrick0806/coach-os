@@ -3,9 +3,10 @@
 import { use, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CalendarDays, CheckCircle2, Clock } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
@@ -42,7 +43,7 @@ function UpcomingBookings({ bookings }: { bookings: Booking[] }) {
   if (upcoming.length === 0) return null;
 
   return (
-    <Card>
+    <Card variant="glass" className="rounded-3xl">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <CalendarDays className="size-4 text-muted-foreground" />
@@ -55,7 +56,7 @@ function UpcomingBookings({ bookings }: { bookings: Booking[] }) {
           {upcoming.map((b) => (
             <div
               key={b.id}
-              className="flex items-center gap-3 rounded-lg border border-border bg-background/40 px-3 py-2.5"
+              className="premium-surface flex items-center gap-3 rounded-2xl px-3 py-2.5"
             >
               <div className="text-center">
                 <p className="text-xs font-semibold text-foreground">
@@ -130,7 +131,7 @@ function BookingForm({ onBooked }: BookingFormProps) {
 
   if (confirmed) {
     return (
-      <Card>
+      <Card variant="glass" className="rounded-3xl">
         <CardContent className="flex flex-col items-center py-12 text-center">
           <CheckCircle2 className="mb-3 size-12 text-primary" />
           <h3 className="text-lg font-semibold">Sessão agendada!</h3>
@@ -154,7 +155,7 @@ function BookingForm({ onBooked }: BookingFormProps) {
   }
 
   return (
-    <Card>
+    <Card variant="glass" className="rounded-3xl">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <CalendarDays className="size-4 text-muted-foreground" />
@@ -168,7 +169,7 @@ function BookingForm({ onBooked }: BookingFormProps) {
           <Label htmlFor="booking-date" className="text-sm">
             Data
           </Label>
-          <input
+          <Input
             id="booking-date"
             type="date"
             min={today}
@@ -177,7 +178,7 @@ function BookingForm({ onBooked }: BookingFormProps) {
               setDate(e.target.value);
               setSelectedSlot(null);
             }}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="h-11 rounded-2xl border-[color:var(--premium-border)] bg-background/50 px-4"
           />
         </div>
 
@@ -201,10 +202,10 @@ function BookingForm({ onBooked }: BookingFormProps) {
                     key={`${slot.startTime}-${slot.endTime}`}
                     type="button"
                     onClick={() => setSelectedSlot(slot)}
-                    className={`flex items-center justify-center gap-1 rounded-lg border px-2 py-2 text-xs font-medium transition-colors ${
+                    className={`flex items-center justify-center gap-1 rounded-2xl border px-2 py-2.5 text-xs font-medium transition-all ${
                       isSelected
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-background/40 text-foreground hover:bg-accent"
+                        ? "premium-highlight border-transparent text-primary-foreground shadow-[var(--premium-shadow)]"
+                        : "border-[color:var(--premium-border)] bg-background/40 text-foreground hover:bg-accent/60"
                     }`}
                   >
                     <Clock className="size-3 shrink-0" />
@@ -245,7 +246,7 @@ function BookingForm({ onBooked }: BookingFormProps) {
         {selectedSlot && servicePlanId ? (
           <div className="space-y-3">
             <Separator className="bg-border/50" />
-            <div className="rounded-lg border border-border bg-background/40 px-4 py-3 text-sm space-y-1.5">
+            <div className="premium-surface space-y-1.5 rounded-2xl px-4 py-3 text-sm">
               <p className="font-medium text-foreground">Resumo do agendamento</p>
               <p className="text-muted-foreground">
                 Data:{" "}
@@ -272,10 +273,10 @@ function BookingForm({ onBooked }: BookingFormProps) {
             </div>
 
             <Button
+              variant="premium"
               className="w-full font-semibold"
               disabled={bookMutation.isPending}
               onClick={() => bookMutation.mutate()}
-              style={{ backgroundColor: "var(--color-theme, #10b981)" }}
             >
               {bookMutation.isPending ? "Agendando..." : "Confirmar agendamento"}
             </Button>
@@ -302,10 +303,14 @@ export default function AlunoAgendaPage({ params }: AlunoAgendaPageProps) {
   });
 
   return (
-    <div className="mx-auto max-w-3xl p-4 sm:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Agenda</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+    <div className="mx-auto max-w-3xl p-4 pb-28 sm:p-8">
+      <div className="mb-6 space-y-2">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--premium-border)] bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+          <Sparkles className="size-3.5 text-primary" />
+          Planeje sua semana
+        </span>
+        <h1 className="premium-heading text-3xl">Agenda</h1>
+        <p className="premium-subheading">
           Agende sessões com seu personal trainer.
         </p>
       </div>

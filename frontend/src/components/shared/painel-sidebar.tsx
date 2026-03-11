@@ -53,9 +53,9 @@ export function PainelSidebar({
   }
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r bg-card">
-      <div className="flex h-16 items-center border-b px-6">
-        <span className="text-lg font-bold tracking-tight text-foreground">Coach OS</span>
+    <aside className="premium-glass flex h-full w-64 flex-col border-r-0 lg:m-4 lg:rounded-3xl">
+      <div className="premium-divider flex h-16 items-center border-b px-6">
+        <span className="premium-heading text-lg">Coach OS</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
@@ -70,10 +70,10 @@ export function PainelSidebar({
                   href={item.href}
                   onClick={onClose}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                     isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      ? "premium-highlight text-primary-foreground shadow-[var(--premium-shadow)]"
+                      : "text-muted-foreground hover:bg-accent/70 hover:text-foreground",
                   )}
                 >
                   <item.icon className="size-4 shrink-0" />
@@ -85,7 +85,7 @@ export function PainelSidebar({
         </ul>
       </nav>
 
-      <div className="border-t p-3">
+      <div className="premium-divider border-t p-3">
         {1 != 1 && <Button
           type="button"
           variant="ghost"
@@ -101,7 +101,7 @@ export function PainelSidebar({
         </Button> /*TODO - Fix theme toggle contrast font colors for enable theme switch for personal*/}
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-500"
         >
           <LogOut className="size-4 shrink-0" />
           Sair

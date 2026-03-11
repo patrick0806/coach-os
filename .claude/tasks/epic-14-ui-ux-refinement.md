@@ -2,101 +2,148 @@
 
 Status: `[ ]` in progress
 
-> **Objetivo:** Elevar a identidade visual do Painel do Personal e da Área do Aluno para coincidir com a aparência premium, refinada e moderna das páginas institucionais (Landing Page). O foco é em estética "high-end", legibilidade e uma experiência de usuário fluida.
+> **Objetivo:** Elevar a identidade visual do Painel do Personal e da Área do Aluno para coincidir com a aparência premium, refinada e moderna das páginas institucionais. O foco é em estética "high-end", legibilidade extrema em ambientes de treino e uma experiência de usuário sem fricção.
+
+---
+
+## Diretriz Obrigatória de Implementação
+
+Todas as histórias deste épico devem seguir o padrão definido em `CLAUDE.md` para frontend:
+
+- usar Tailwind + tokens de tema existentes, evitando cores, sombras, raios, gradientes e fontes definidos inline por página;
+- concentrar a fundação visual premium em `frontend/src/app/globals.css`, expandindo variáveis CSS, tokens semânticos, utilitários reutilizáveis e estilos base compartilhados;
+- evitar criar arquivos de estilo locais, CSS module ou regras isoladas por tela para resolver identidade visual;
+- componentes e páginas devem consumir classes globais e utilities sem duplicar receita visual;
+- priorizar componentes `shadcn/ui` como base, criando wrappers reutilizáveis apenas quando a variação premium for recorrente;
+- manter responsividade mobile first, acessibilidade AA e consistência entre área do personal e área do aluno.
+
+### Definition of Done do Épico
+
+- tokens premium centralizados em `frontend/src/app/globals.css`;
+- estilos repetidos extraídos para classes/utilitários globais antes da conclusão da história;
+- nenhum componente do épico deve depender de paleta local ou "one-off styling" para elementos estruturais;
+- implementação pronta para reuso em futuras telas do produto sem copiar blocos extensos de classes.
 
 ---
 
 ## US-040 — Unificação do Design System e Tokens Premium
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 14
 **Dependências:** Nenhuma
 
 **Descrição:**
-Como desenvolvedor, quero unificar os tokens de design (cores, sombras, arredondamentos, gradientes) baseados na Landing Page para que todas as áreas do sistema tenham a mesma percepção de qualidade.
+Unificar a fundação visual do sistema para que o aluno e o personal sintam que estão em um ecossistema coeso e de alta qualidade.
+
+### Detalhes de Implementação (O "Como"):
+- **Fundação Global:** Implementar em `frontend/src/app/globals.css` os tokens premium de cor, superfície, borda, sombra, radius e estados interativos que serão consumidos por todo o épico.
+- **Cores:** Definir o "Deep Dark" (`#09090b` ou `#0a0a0a`) e suas superfícies derivadas como tokens semânticos globais. Usar `primary` e tokens derivados para estados ativos, nunca hex hardcoded nas páginas.
+- **Glassmorphism:** Criar classes/utilidades globais para superfícies com blur e transparência. Headers, modais e shells devem reaproveitar essas classes ao invés de repetir combinações locais.
+- **Tipografia:** Consolidar padrões globais de heading, suporte e leitura usando tokens e utilities reutilizáveis. Textos auxiliares devem continuar baseados em `text-muted-foreground`.
+- **Componentes Base:**
+  - `PremiumCard`: criar variante ou wrapper reutilizável com classes globais para borda, superfície e profundidade.
+  - `PremiumButton`: criar variante reutilizável com estados premium centralizados, sem reinventar estilo em cada tela.
 
 ### Critérios de Aceite
-- [ ] Definir e documentar paleta de cores "Premium" (tons de cinza profundo, acentos de gradiente primário).
-- [ ] Padronizar arredondamentos para `rounded-2xl` e `rounded-3xl` em cards e botões principais.
-- [ ] Implementar efeitos de "Glassmorphism" (`backdrop-blur`) consistentes em headers e overlays.
-- [ ] Criar/Atualizar componentes base (Button, Card, Input) na pasta `ui/` ou `shared/` com variantes "Premium".
-- [ ] Garantir que o tema escuro (Dark Mode) seja o padrão ou tenha um refinamento superior.
-
-### Subtasks Frontend
-- [ ] Configurar `tailwind.config.ts` com extensões para sombras suaves e gradientes da marca.
-- [ ] Criar `src/components/ui/premium-card.tsx` com suporte a bordas sutis e brilho interno.
-- [ ] Refatorar `Navbar` e `Sidebar` para usar o novo padrão visual (transparências e desfoque).
+- `frontend/src/app/globals.css` passa a ser a fonte única dos tokens visuais premium deste épico.
+- qualquer card, botão, header ou modal novo deste épico usa classes/utilitários compartilhados;
+- não há dependência de CSS local para identidade visual base.
 
 ---
 
-## US-041 — Área do Aluno: Dashboard e Experiência Mobile Premium
+## US-041 — Área do Aluno: Experiência de App Nativo e Dashboard Motivador
+
+**Status:** `[x]` done
+**Sprint:** 14
+**Dependências:** US-040
+
+**Descrição:**
+Transformar a área do aluno em uma experiência que pareça um aplicativo instalado no celular, focando em facilidade de uso durante o treino.
+
+### Detalhes de Navegação & UI:
+- **Bottom Navigation (Mobile):** Substituir o header atual por uma barra de navegação inferior fixa com ícones grandes e labels curtos (Início, Treinos, Agenda).
+- **Dashboard (Painel):**
+  - **Hero Card (Treino do Dia):** Card de destaque com gradiente vibrante, exibindo o nome do treino, duração estimada e um botão de "Iniciar Agora" proeminente.
+  - **Resumo de Progresso:** Uso de indicadores circulares (progress rings) para sessões concluídas no mês vs. meta.
+- **Usabilidade:**
+  - Pull-to-refresh para atualizar treinos ou agenda.
+  - Feedback tátil visual (animações ao tocar em itens).
+  - Empty states motivacionais: "Nenhum treino hoje? Que tal uma caminhada?" com ilustrações minimalistas.
+
+### Diretriz Técnica desta História
+- a bottom navigation, hero card, empty states e superfícies do dashboard devem usar os tokens e utilitários definidos na US-040;
+- caso surja necessidade de novo padrão visual recorrente, ele deve ser promovido primeiro para `frontend/src/app/globals.css` e só então consumido na tela;
+- evitar gradientes, sombras e espaçamentos exclusivos definidos diretamente na página quando houver potencial de reuso.
+
+### Critérios de Aceite
+- a experiência mobile reutiliza classes globais para navegação, cards e superfícies;
+- animações e feedbacks visuais seguem padrões consistentes do design system premium;
+- não há estilização estrutural "one-off" espalhada pelos componentes da área do aluno.
+
+---
+
+## US-042 — Painel do Personal: Centro de Comando Profissional
 
 **Status:** `[ ]` todo
 **Sprint:** 14
 **Dependências:** US-040
 
 **Descrição:**
-Como aluno, quero acessar um dashboard moderno e visualmente impactante para me sentir motivado e perceber o valor profissional do meu treinador.
+Redesenhar o fluxo de trabalho do Personal para que a gestão de múltiplos alunos seja rápida e transmita autoridade técnica.
+
+### Detalhes de Navegação & UI:
+- **Sidebar "Flutuante":** Design de sidebar separada da borda da tela com `rounded-2xl` e `m-4`, usando `glassmorphism`.
+- **Navegação Interna (Tab-less):** Transições fluidas entre "Alunos" e "Treinos" sem recarregar a página (foco em estados de transição do React).
+- **Dashboard de Gestão:**
+  - **Grid de Alunos Ativos:** Cards compactos com a foto do aluno, status do último treino (concluído/pendente) e link rápido para WhatsApp.
+  - **Filtros Rápidos:** Botões de chip (ex: "Sem treino atribuído", "Vencendo hoje") para ação imediata.
+- **Quick Action Button (FAB):** Um botão flutuante "+" no canto inferior para criar aluno, treino ou agendamento de qualquer lugar do painel.
+
+### Diretriz Técnica desta História
+- sidebar, chips, grid de cards, FAB e blocos de dashboard devem reutilizar o mesmo vocabulário visual global definido na US-040;
+- a implementação deve preferir variantes de componentes compartilhados em vez de estilos específicos de rota;
+- qualquer ajuste visual recorrente identificado no painel deve voltar para `frontend/src/app/globals.css` para manter o padrão do produto.
 
 ### Critérios de Aceite
-- [ ] Redesenhar o Dashboard do Aluno (`[slug-personal]/(alunos)/alunos/painel`) com foco em dispositivos móveis.
-- [ ] Usar gradientes e tipografia de destaque para o "Treino do Dia" ou "Próximo Agendamento".
-- [ ] Implementar visualização de progresso com gráficos ou indicadores refinados (menos "tabela", mais "app fitness").
-- [ ] Melhorar os estados vazios (empty states) com ilustrações ou ícones estilizados.
-
-### Subtasks Frontend
-- [ ] Redesenhar o shell do aluno (`StudentShell`) para uma navegação mais moderna (ex: bottom navigation em mobile).
-- [ ] Implementar cards de treino com imagens de fundo sutis ou ícones grandes e modernos.
-- [ ] Ajustar espaçamentos (padding/gap) para uma sensação de "respiro" e luxo.
+- painel do personal implementado com consistência visual e sem CSS local para estilos-base;
+- FAB, chips e cards seguem variantes reutilizáveis;
+- a tela transmite identidade premium sem criar exceções difíceis de manter.
 
 ---
 
-## US-042 — Painel do Personal: Dashboard e Navegação Refinada
-
-**Status:** `[ ]` todo
-**Sprint:** 14
-**Dependências:** US-040
-
-**Descrição:**
-Como Personal Trainer, quero um painel de controle que transmita profissionalismo e autoridade através de um design limpo e sofisticado.
-
-### Critérios de Aceite
-- [ ] Atualizar o Dashboard principal (`/painel`) para remover o aspecto de "template administrativo padrão".
-- [ ] Refinar `StatCard` com micro-interações e visuais mais ricos (ex: ícones com fundo em gradiente suave).
-- [ ] Melhorar a hierarquia visual das "Próximas Sessões" para facilitar a leitura rápida.
-- [ ] Garantir que a transição entre temas (Light/Dark) mantenha a elegância em ambos.
-
-### Subtasks Frontend
-- [ ] Atualizar `PainelPage` e `StatCard` para usar os novos componentes premium.
-- [ ] Refatorar a `PainelSidebar` com estados ativos mais elegantes e tipografia refinada.
-- [ ] Adicionar elementos visuais de profundidade (sombras em camadas, blurs de fundo).
-
----
-
-## US-043 — Execução de Treino: Interface Focada e Polida
+## US-043 — Player de Execução de Treino: Foco e Ergonomia
 
 **Status:** `[ ]` todo
 **Sprint:** 14
 **Dependências:** US-041
 
 **Descrição:**
-Como aluno, quero uma interface de execução de treino que seja bonita e funcional, facilitando o foco nos exercícios com um visual de app nativo.
+Otimizar a interface de "dentro do treino" para ser operada com uma mão, em movimento, e com alta visibilidade.
+
+### Detalhes de Usabilidade (Modo Treino):
+- **Interface "Foco Total":** Ao iniciar um treino, ocultar barras de navegação globais. Exibir apenas o exercício atual, progresso total e cronômetro.
+- **Mídia em Destaque:** Vídeo de execução do YouTube em tamanho generoso no topo, com controles simplificados.
+- **Input Ergonômico de Cargas:**
+  - Substituir campos de texto pequenos por "Steppers" (botões - e + grandes) para ajustar carga e repetições.
+  - Botão de "Check" (Série Concluída) grande e centralizado na parte inferior (zona de alcance do polegar).
+- **Cronômetro de Descanso:** Overlay ou área fixa que muda de cor (ex: de cinza para verde) quando o tempo de descanso acaba.
+- **Histórico Contextual:** Pequeno indicador da carga usada no último treino diretamente ao lado do campo de input atual.
+
+### Diretriz Técnica desta História
+- o modo treino deve reaproveitar tokens globais de contraste, foco, destaque e estados de sucesso/atenção;
+- overlays, controles grandes, cronômetro e steppers devem nascer como padrões reutilizáveis quando houver chance de reaplicação em outras jornadas;
+- evitar estilização inline/local para resolver contraste, tamanho de toque ou profundidade visual.
 
 ### Critérios de Aceite
-- [ ] Redesenhar a visualização de exercícios com foco em mídia (vídeos do YouTube) e cronômetro.
-- [ ] Usar componentes de input de carga e repetições que sejam fáceis de usar no celular e visualmente integrados.
-- [ ] Implementar animações suaves de transição entre exercícios ou séries.
-- [ ] Feedback visual claro para "Série Concluída" e "Descanso".
-
-### Subtasks Frontend
-- [ ] Refatorar componentes de treino em `[slug-personal]/(alunos)/alunos/treinos`.
-- [ ] Melhorar o player de vídeo integrado e os controles de cronômetro.
-- [ ] Implementar um modo "Foco" ou "Tela Cheia" para a execução do treino.
+- interface de treino usa classes globais para superfícies, estados e hierarquia visual;
+- componentes ergonômicos ficam preparados para reuso em outras experiências mobile;
+- nenhum estilo crítico de legibilidade ou contraste fica acoplado apenas a esta página.
 
 ---
 
-## Notas de Design (Referência: Landing Page)
-- **Cores:** Fundo quase preto (`#0a0a0a`), Primária em gradiente, Texto `muted-foreground` com bom contraste.
-- **Tipografia:** Tracking apertado em títulos (`tracking-tight`), pesos de fonte variados para hierarquia clara.
-- **Efeitos:** `ring-1 ring-border/70 backdrop-blur`, `shadow-2xl shadow-primary/20` em elementos de destaque.
-- **Arredondamento:** Preferência por `rounded-2xl` (16px) ou `rounded-3xl` (24px).
+## Notas de Design (Padrão de Qualidade)
+- **Sombras:** Usar `shadow-primary/10` para dar profundidade aos elementos de destaque.
+- **Bordas:** Arredondamento padrão de `24px` (`rounded-3xl`) para cards maiores e `12px` (`rounded-xl`) para inputs.
+- **Interações:** Hover states com leve aumento de brilho ou escala (`hover:brightness-110` ou `hover:scale-[1.02]`).
+- **Acessibilidade:** Garantir contraste AA mesmo em Dark Mode e tamanhos de fonte legíveis a 1 metro de distância (comum em academias).
+- **Padrão de Código:** Sempre que uma decisão visual se repetir em mais de um componente, ela deve subir para `frontend/src/app/globals.css` ou para uma variante compartilhada de componente.
