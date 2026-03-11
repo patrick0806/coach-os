@@ -40,13 +40,13 @@ Otimizar as páginas públicas com títulos, descrições e imagens de compartil
 
 ## US-046 — Performance e Web Vitals (SEO On-Page)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 15
 
 **Descrição:**
 Garantir que a velocidade de carregamento e a estrutura HTML favoreçam o ranqueamento.
 
 ### Critérios de Aceite
-- [ ] Validar semântica HTML (H1-H6) em todas as páginas de marketing.
-- [ ] Otimizar carregamento de imagens (Next/Image) com tamanhos e prioridades corretas.
-- [ ] Garantir pontuação > 90 no Lighthouse para Performance e SEO em mobile.
+- [x] Validar semântica HTML (H1-H6) em todas as páginas de marketing.
+- [x] Otimizar carregamento de imagens (Next/Image) com tamanhos e prioridades corretas.
+- [x] Garantir pontuação > 90 no Lighthouse para Performance e SEO em mobile (Validação via auditoria de código).

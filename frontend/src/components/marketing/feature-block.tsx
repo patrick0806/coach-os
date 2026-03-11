@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface FeatureBlockProps {
   title: string;
+  titleElement?: "h2" | "h3";
   description: string;
   icon: LucideIcon;
   imageAlt: string;
@@ -14,6 +15,7 @@ interface FeatureBlockProps {
 
 export function FeatureBlock({
   title,
+  titleElement: TitleTag = "h2",
   description,
   icon: Icon,
   imageAlt,
@@ -33,9 +35,9 @@ export function FeatureBlock({
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
             <Icon className="size-6 text-primary" />
           </div>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <TitleTag className="text-3xl font-bold tracking-tight sm:text-4xl">
             {title}
-          </h2>
+          </TitleTag>
           <p className="text-lg text-muted-foreground leading-relaxed">
             {description}
           </p>

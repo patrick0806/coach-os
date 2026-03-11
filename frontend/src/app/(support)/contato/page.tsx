@@ -60,7 +60,7 @@ export default function ContactPage() {
         <div className="mx-auto max-w-6xl">
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/50 px-4 py-1.5 text-xs uppercase tracking-[0.24em] text-muted-foreground backdrop-blur">
-              <Mail className="size-3.5 text-primary" />
+              <Mail className="size-3.5 text-primary" aria-hidden="true" />
               Suporte e atendimento
             </p>
             <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-6xl">
@@ -95,8 +95,8 @@ export default function ContactPage() {
                   key={item.title}
                   className="rounded-2xl border border-border/60 bg-card/40 p-6 backdrop-blur-sm"
                 >
-                  <item.icon className="size-6 text-primary" />
-                  <h2 className="mt-4 text-xl font-bold">{item.title}</h2>
+                  <item.icon className="size-6 text-primary" aria-hidden="true" />
+                  <h3 className="mt-4 text-xl font-bold">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {item.description}
                   </p>

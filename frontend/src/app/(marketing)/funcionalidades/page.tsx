@@ -45,6 +45,7 @@ export default function FeaturesPage() {
       {/* Detail Blocks */}
       <FeatureBlock
         title="Gestão de Alunos sem Fricção"
+        titleElement="h2"
         description="Tenha o histórico completo de cada aluno em segundos. Monitore o progresso, dados biométricos e histórico de treinos em uma interface intuitiva."
         icon={Users}
         imageAlt="Interface de Alunos"
@@ -58,6 +59,7 @@ export default function FeaturesPage() {
 
       <FeatureBlock
         title="O Construtor de Treinos mais Ágil do Mercado"
+        titleElement="h2"
         description="Prescreva treinos complexos em minutos. Utilize nossa biblioteca com +50 exercícios ou crie os seus próprios com vídeos do YouTube."
         icon={Dumbbell}
         imageAlt="Construtor de Treinos"
@@ -72,6 +74,7 @@ export default function FeaturesPage() {
 
       <FeatureBlock
         title="Sua Agenda Online e Automatizada"
+        titleElement="h2"
         description="Chega de conflitos de horário. Configure sua disponibilidade e deixe que seus alunos agendem ou cancelem sessões de forma independente."
         icon={Calendar}
         imageAlt="Agenda do Coach"
@@ -90,7 +93,7 @@ export default function FeaturesPage() {
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <div className="rounded-2xl border border-border/60 bg-card/40 p-8 backdrop-blur-sm">
-            <Rocket className="mb-4 size-8 text-primary" />
+            <Rocket className="mb-4 size-8 text-primary" aria-hidden="true" />
             <h3 className="mb-2 text-xl font-bold">Landing Page Própria</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Receba um link profissional com sua foto, bio e planos de serviço 
@@ -98,7 +101,7 @@ export default function FeaturesPage() {
             </p>
           </div>
           <div className="rounded-2xl border border-border/60 bg-card/40 p-8 backdrop-blur-sm">
-            <ShieldCheck className="mb-4 size-8 text-primary" />
+            <ShieldCheck className="mb-4 size-8 text-primary" aria-hidden="true" />
             <h3 className="mb-2 text-xl font-bold">Pagamentos com Stripe</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Gerencie suas assinaturas e receba seus pagamentos com a segurança 
@@ -106,7 +109,7 @@ export default function FeaturesPage() {
             </p>
           </div>
           <div className="rounded-2xl border border-border/60 bg-card/40 p-8 backdrop-blur-sm">
-            <TrendingUp className="mb-4 size-8 text-primary" />
+            <TrendingUp className="mb-4 size-8 text-primary" aria-hidden="true" />
             <h3 className="mb-2 text-xl font-bold">Dashboard do Admin</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Visão clara da sua receita mensal (MRR), total de assinantes e 

@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
 import { Rocket, Target, Users } from "lucide-react";
 
-export const metadata = {
-  title: "Sobre Nós | Coach OS",
+export const metadata: Metadata = {
+  title: "Sobre Nós",
   description:
-    "Conheça a missão do Coach OS e como estamos transformando a gestão de treinamentos físicos no Brasil.",
+    "Conheça a missão do Coach OS e como estamos transformando a gestão de treinamentos físicos no Brasil com tecnologia e simplicidade.",
+  alternates: {
+    canonical: "/sobre",
+  },
+  openGraph: {
+    title: "Sobre Nós | Coach OS",
+    description: "Nossa missão é empoderar treinadores com o melhor sistema operacional para fitness.",
+    url: "/sobre",
+  },
 };
 
 export default function AboutPage() {
@@ -38,7 +47,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="rounded-2xl border border-border/60 bg-card/40 p-8">
-              <Users className="size-12 text-primary mb-4" />
+              <Users className="size-12 text-primary mb-4" aria-hidden="true" />
               <p className="font-medium">O Coach perdia a vida gerenciando o operacional, em vez de focar no humano.</p>
             </div>
           </div>
@@ -53,7 +62,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="rounded-2xl border border-border/60 bg-card/40 p-8 md:order-1">
-              <Target className="size-12 text-primary mb-4" />
+              <Target className="size-12 text-primary mb-4" aria-hidden="true" />
               <p className="font-medium">Transformar gestão complexa em cliques simples e automações inteligentes.</p>
             </div>
           </div>
@@ -62,10 +71,11 @@ export default function AboutPage() {
 
       {/* Values / Stats */}
       <section className="mx-auto max-w-7xl px-6 py-20 bg-card/20 rounded-3xl border border-border/40">
+        <h2 className="sr-only">Nossos Valores</h2>
         <div className="grid gap-12 sm:grid-cols-3 text-center">
           <div>
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-              <Rocket className="size-8 text-primary" />
+              <Rocket className="size-8 text-primary" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-bold mb-2">Simplicidade</h3>
             <p className="text-sm text-muted-foreground">
@@ -74,7 +84,7 @@ export default function AboutPage() {
           </div>
           <div>
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-              <Target className="size-8 text-primary" />
+              <Target className="size-8 text-primary" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-bold mb-2">Foco no Resultado</h3>
             <p className="text-sm text-muted-foreground">
@@ -83,7 +93,7 @@ export default function AboutPage() {
           </div>
           <div>
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-              <Users className="size-8 text-primary" />
+              <Users className="size-8 text-primary" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-bold mb-2">Comunidade</h3>
             <p className="text-sm text-muted-foreground">
