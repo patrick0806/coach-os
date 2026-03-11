@@ -9,10 +9,13 @@ import {
   Dumbbell,
   LayoutDashboard,
   LogOut,
+  Moon,
+  Sun,
   User,
   Users,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -27,10 +30,18 @@ const navItems = [
 ];
 
 interface PainelSidebarProps {
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
+  isClient: boolean;
   onClose?: () => void;
 }
 
-export function PainelSidebar({ onClose }: PainelSidebarProps) {
+export function PainelSidebar({
+  theme,
+  onToggleTheme,
+  isClient,
+  onClose,
+}: PainelSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { signOut } = useAuth();
@@ -42,9 +53,9 @@ export function PainelSidebar({ onClose }: PainelSidebarProps) {
   }
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r bg-white">
+    <aside className="flex h-full w-64 flex-col border-r bg-card">
       <div className="flex h-16 items-center border-b px-6">
-        <span className="text-lg font-bold tracking-tight text-gray-900">Coach OS</span>
+        <span className="text-lg font-bold tracking-tight text-foreground">Coach OS</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
@@ -62,7 +73,7 @@ export function PainelSidebar({ onClose }: PainelSidebarProps) {
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-primary/10 text-primary"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
                   )}
                 >
                   <item.icon className="size-4 shrink-0" />
@@ -75,9 +86,22 @@ export function PainelSidebar({ onClose }: PainelSidebarProps) {
       </nav>
 
       <div className="border-t p-3">
+        {1 != 1 && <Button
+          type="button"
+          variant="ghost"
+          className="mb-1 flex w-full items-center justify-start gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground"
+          onClick={onToggleTheme}
+        >
+          {isClient && theme === "dark" ? (
+            <Sun className="size-4 shrink-0" />
+          ) : (
+            <Moon className="size-4 shrink-0" />
+          )}
+          {isClient && theme === "dark" ? "Tema claro" : "Tema escuro"}
+        </Button> /*TODO - Fix theme toggle contrast font colors for enable theme switch for personal*/}
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
         >
           <LogOut className="size-4 shrink-0" />
           Sair

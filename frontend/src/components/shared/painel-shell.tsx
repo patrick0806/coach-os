@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Menu } from "lucide-react";
+import { AlertTriangle, Menu, Moon, Sun } from "lucide-react";
 
 import { PainelSidebar } from "@/components/shared/painel-sidebar";
+import { Button } from "@/components/ui/button";
 import { getMySubscription } from "@/services/subscriptions.service";
 
 interface PainelShellProps {
@@ -15,7 +16,20 @@ interface PainelShellProps {
 
 export function PainelShell({ children }: PainelShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") {
+      return "light";
+    }
+
+    const storedTheme = window.localStorage.getItem("personal-theme");
+    return storedTheme === "dark" || storedTheme === "light" ? storedTheme : "light";
+  });
   const pathname = usePathname();
+  const isClient = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
 
   const { data: subscription } = useQuery({
     queryKey: ["subscription", "trial-warning"],
@@ -39,11 +53,23 @@ export function PainelShell({ children }: PainelShellProps) {
     trialDaysRemaining >= 0 &&
     trialDaysRemaining <= 7;
 
+  useEffect(() => {
+    window.localStorage.setItem("personal-theme", theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((currentTheme) => (currentTheme === "light" ? "dark" : "light"));
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div
+      className={isClient && theme === "dark" ? "dark" : undefined}
+      suppressHydrationWarning
+    >
+      <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar — only on desktop */}
       <div className="hidden lg:flex lg:h-screen lg:shrink-0">
-        <PainelSidebar />
+        <PainelSidebar theme={theme} onToggleTheme={toggleTheme} isClient={isClient} />
       </div>
 
       {/* Mobile sidebar drawer */}
@@ -57,7 +83,12 @@ export function PainelShell({ children }: PainelShellProps) {
           />
           {/* Drawer panel */}
           <div className="relative z-50 flex h-full w-64 flex-col shadow-xl">
-            <PainelSidebar onClose={() => setMobileOpen(false)} />
+            <PainelSidebar
+              theme={theme}
+              onToggleTheme={toggleTheme}
+              isClient={isClient}
+              onClose={() => setMobileOpen(false)}
+            />
           </div>
         </div>
       )}
@@ -65,15 +96,30 @@ export function PainelShell({ children }: PainelShellProps) {
       {/* Content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile top header */}
-        <header className="flex h-14 shrink-0 items-center border-b bg-white px-4 lg:hidden">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-4 lg:hidden">
+          <div className="flex items-center">
           <button
             onClick={() => setMobileOpen(true)}
-            className="rounded-md p-2 text-gray-600 hover:bg-gray-100"
+            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
             aria-label="Abrir menu"
           >
             <Menu className="size-5" />
           </button>
-          <span className="ml-3 text-base font-bold tracking-tight text-gray-900">Coach OS</span>
+          <span className="ml-3 text-base font-bold tracking-tight text-foreground">Coach OS</span>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label={theme === "light" ? "Ativar tema escuro" : "Ativar tema claro"}
+          >
+            {isClient && theme === "dark" ? (
+              <Sun className="size-4" />
+            ) : (
+              <Moon className="size-4" />
+            )}
+          </Button>
         </header>
 
         <main className="flex-1 overflow-y-auto">
@@ -101,6 +147,7 @@ export function PainelShell({ children }: PainelShellProps) {
           ) : null}
           {children}
         </main>
+      </div>
       </div>
     </div>
   );
