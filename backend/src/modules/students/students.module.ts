@@ -25,8 +25,6 @@ import { MyWorkoutPlansController } from "./contexts/my-workout-plans/my-workout
 import { MyWorkoutPlansService } from "./contexts/my-workout-plans/my-workout-plans.service";
 import { MyWorkoutPlanDetailController } from "./contexts/my-workout-plan-detail/my-workout-plan-detail.controller";
 import { MyWorkoutPlanDetailService } from "./contexts/my-workout-plan-detail/my-workout-plan-detail.service";
-import { CreateStudentWorkoutPlanController } from "./contexts/create-student-workout-plan/create-student-workout-plan.controller";
-import { CreateStudentWorkoutPlanService } from "./contexts/create-student-workout-plan/create-student-workout-plan.service";
 
 @Module({
   controllers: [
@@ -37,7 +35,6 @@ import { CreateStudentWorkoutPlanService } from "./contexts/create-student-worko
     DeactivateStudentController,
     // US-009 — personal views student plans
     GetStudentWorkoutPlansController,
-    CreateStudentWorkoutPlanController,
     // US-010 — student views own plans (static path must come before :id routes)
     MyWorkoutPlansController,
     MyWorkoutPlanDetailController,
@@ -49,7 +46,6 @@ import { CreateStudentWorkoutPlanService } from "./contexts/create-student-worko
     UpdateStudentService,
     DeactivateStudentService,
     GetStudentWorkoutPlansService,
-    CreateStudentWorkoutPlanService,
     MyWorkoutPlansService,
     MyWorkoutPlanDetailService,
     UsersRepository,

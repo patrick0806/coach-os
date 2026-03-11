@@ -979,183 +979,275 @@ describe('DeleteBookingService', () => {
 
 ---
 
-## US-025 — Notas de sessao e historico rapido
+# US-025 --- Timeline de Notas do Aluno
 
-**Status:** `[ ]` todo
-**Sprint:** 8
-**Dependencias:** US-024
+Status: \[ \] todo\
+Sprint: 8\
+Dependências: US-024
 
-**Descricao:**
-Como personal, quero registrar notas curtas por sessao para acompanhar evolucao do atendimento sem abrir tela complexa.
+## Descrição
 
-### Criterios de Aceite
-- [ ] Personal pode editar nota de uma sessao agendada ou concluida
-- [ ] Nota visivel no detalhe do agendamento e no historico do aluno
-- [ ] Limite de 1000 caracteres com contador e validacao no backend e frontend
-- [ ] Nota nao visivel para o aluno (privada ao personal)
+Como personal, quero registrar múltiplas notas privadas em formato de
+timeline dentro do aluno, para acompanhar evolução, comportamentos,
+lesões, observações de treino e decisões tomadas ao longo do tempo.
 
-### Subtasks Backend
-- [ ] `PATCH /bookings/:id/notes` — `{ notes: string }`
-- [ ] Validar ownership do booking pelo personal
-- [ ] Validar limite de 1000 caracteres no DTO
-- [ ] Unit tests: happy path, nota muito longa, booking de outro tenant, booking de outro status
+As notas devem aparecer ordenadas da **mais recente para a mais
+antiga**.
 
-### Subtasks Frontend
-- [ ] Campo de notas no dialog de detalhe da sessao
-- [ ] Contador de caracteres em tempo real
-- [ ] Secao de historico no detalhe do aluno
-- [ ] Estados de loading/saving
+------------------------------------------------------------------------
 
----
+# Critérios de Aceite
 
-### Plano de Implementacao — US-025
+-   Personal pode criar uma nova nota para um aluno
+-   Personal pode editar ou deletar notas próprias
+-   As notas aparecem em formato de **timeline**
+-   Ordenação padrão: **mais recente → mais antiga**
+-   Cada nota possui:
+    -   texto
+    -   data de criação
+    -   autor (personal)
+-   Limite de **2000 caracteres**
+-   Notas são **privadas ao personal**
+-   O aluno **não pode visualizar essas notas**
 
-#### 1. Backend
+------------------------------------------------------------------------
 
-##### 1.1 Estrutura
+# Modelagem de Dados
 
-Novo context dentro do modulo `bookings`:
+Tabela: `student_notes`
 
-```
-src/modules/bookings/
-  update-notes/
-    update-notes.controller.ts
-    update-notes.service.ts
-    dtos/
-      request.dto.ts
-    tests/
-      update-notes.service.spec.ts
-      update-notes.controller.spec.ts
-```
+  campo         tipo
+  ------------- -----------
+  id            uuid
+  student_id    uuid
+  personal_id   uuid
+  note          text
+  created_at    timestamp
+  updated_at    timestamp
 
-**Sem migration** — a coluna `notes` ja existe em `bookings` (verificar; se nao existir, adicionar via migration: `ALTER TABLE bookings ADD COLUMN notes text`).
+Indexes recomendados:
 
-##### 1.2 DTO
+-   index(student_id, created_at desc)
 
-```typescript
-export const UpdateBookingNotesSchema = z.object({
-  notes: z.string().max(1000, 'Nota deve ter no maximo 1000 caracteres').nullable(),
-})
-// notes: null → limpa a nota; string → atualiza
-```
+Motivo:
 
-##### 1.3 Service
+Permite timeline rápida sem precisar ordenar em memória.
 
-```typescript
-async execute(bookingId: string, dto: UpdateBookingNotesDto, personalId: string) {
-  const parsed = UpdateBookingNotesSchema.safeParse(dto)
-  if (!parsed.success) throw new BadRequestException(parsed.error.errors[0].message)
+------------------------------------------------------------------------
 
-  // 1. Buscar booking e validar ownership
-  const booking = await this.bookingsRepository.findById(bookingId)
-  if (!booking || booking.personalId !== personalId)
-    throw new NotFoundException('Agendamento nao encontrado')
+# Endpoints
 
-  // 2. Nao permitir editar nota de sessao cancelada
-  if (booking.status === 'cancelled')
-    throw new BadRequestException('Nao e possivel editar nota de sessao cancelada')
+## Criar nota
 
-  // 3. Atualizar
-  return this.bookingsRepository.updateNotes(bookingId, dto.notes)
-}
-```
+POST /students/:id/notes
 
-##### 1.4 Repository — novo metodo
+Body
 
-```typescript
-async updateNotes(bookingId: string, notes: string | null): Promise<Booking>
-```
+{ "note": "Aluno relatou dor no ombro esquerdo ao fazer supino." }
 
-##### 1.5 Historico de notas — GET /students/:id/booking-history
+Resposta
 
-Endpoint que retorna sessoes passadas com notas do aluno para exibir no detalhe do aluno:
+{ "id": "uuid", "note": "texto", "createdAt": "..." }
 
-```typescript
-// Adicionar ao StudentsModule context
-// GET /students/:id/booking-history?page=1&size=10
-// Retorna bookings com status completed|no-show do aluno, incluindo campo notes
-// Tenant-aware: personalId do JWT
-```
+------------------------------------------------------------------------
 
-##### 1.6 Cenarios de erro
+## Listar timeline
 
-| Cenario | Excecao | Mensagem |
-|---------|---------|----------|
-| Nota > 1000 chars | `BadRequestException` | "Nota deve ter no maximo 1000 caracteres" |
-| Booking nao pertence ao tenant | `NotFoundException` | "Agendamento nao encontrado" |
-| Booking com status `cancelled` | `BadRequestException` | "Nao e possivel editar nota de sessao cancelada" |
+GET /students/:id/notes?page=1&size=10
 
----
+Ordenação
 
-#### 2. Frontend
+ORDER BY created_at DESC
 
-##### 2.1 Componente NotasSessaoField
+Resposta
 
-```
-Local: dentro do BookingDetailDialog (ja existente ou a criar)
+{ "items": \[ { "id": "uuid", "note": "texto", "createdAt": "..." } \],
+"page": 1, "size": 10, "total": 32 }
 
-Campo:
-  - <Textarea> com placeholder "Adicione uma nota sobre esta sessao..."
-  - maxLength={1000} (previne digitacao alem do limite no browser)
-  - Contador: `{notes.length}/1000` — fica vermelho acima de 900
+------------------------------------------------------------------------
 
-Estado de save:
-  - Debounce de 800ms apos parar de digitar → dispara PATCH automaticamente (auto-save)
-  - OU botao "Salvar nota" explicito — escolher a abordagem mais simples
-  - Recomendacao: botao explicito evita requests desnecessarios
+## Editar nota
 
-Indicador de save:
-  - Durante mutacao: spinner pequeno ao lado do botao
-  - Apos sucesso: checkmark verde por 2 segundos
-  - Erro: mensagem inline vermelha (nao toast — nao interromper o fluxo)
+PATCH /students/notes/:noteId
 
-Restricao de visibilidade:
-  - Campo visivel APENAS na area do personal (/painel/*)
-  - Nao renderizar o campo na area do aluno (/{slug}/alunos/*)
-  - Na area do aluno, o campo notes simplesmente nao aparece no response
-    (o backend pode omitir ou retornar null — preferir omitir via DTO de response do aluno)
-```
+Body
 
-##### 2.2 Secao de Historico no Detalhe do Aluno
+{ "note": "texto atualizado" }
 
-```
-Local: /painel/alunos/:id — nova aba ou secao "Historico de sessoes"
+Regras
 
-Dados: GET /students/:id/booking-history?page=1&size=10
+-   Apenas o personal dono pode editar
 
-Card por sessao:
-  - Data + horario
-  - Status badge (concluida / no-show)
-  - Nota (se existir) — texto em itálico, sem opcao de editar aqui (edita pelo detalhe da sessao)
-  - Paginacao simples (anterior / proxima)
+------------------------------------------------------------------------
 
-Estado vazio: "Nenhuma sessao concluida ainda"
-```
+## Deletar nota
 
-##### 2.3 Cenarios de erro — Frontend
+DELETE /students/notes/:noteId
 
-| Cenario | Comportamento |
-|---------|---------------|
-| Nota com mais de 1000 chars (via paste) | Campo bloqueia em 1000, contador vermelho, botao desabilitado |
-| API retorna 400 | Mensagem inline vermelha sob o campo |
-| Booking cancelado (edge case) | Toast de erro com mensagem da API |
-| Erro de rede ao salvar | Mensagem inline + botao "Tentar novamente" |
+------------------------------------------------------------------------
 
----
+# Estrutura Backend
 
-#### 3. Testes — Backend (US-025)
+src/modules/students/student-notes/
 
-```typescript
-describe('UpdateBookingNotesService', () => {
-  it('atualiza nota com sucesso', async () => { ... })
-  it('limpa nota quando notes = null', async () => { ... })
-  it('retorna 400 se nota exceder 1000 chars', async () => { ... })
-  it('retorna 404 para booking de outro tenant', async () => { ... })
-  it('retorna 400 para booking cancelado', async () => { ... })
+student-notes.controller.ts\
+student-notes.service.ts\
+student-notes.repository.ts
+
+dtos/
+
+create-note.dto.ts\
+update-note.dto.ts
+
+tests/
+
+student-notes.service.spec.ts
+
+------------------------------------------------------------------------
+
+# DTO
+
+Create
+
+``` ts
+z.object({
+  note: z.string().max(2000)
 })
 ```
 
----
+Update
+
+``` ts
+z.object({
+  note: z.string().max(2000)
+})
+```
+
+------------------------------------------------------------------------
+
+# Service
+
+Fluxo criação
+
+1.  validar dto
+2.  validar ownership do aluno
+3.  inserir nota
+4.  retornar nota criada
+
+Fluxo listagem
+
+1.  validar ownership
+2.  buscar por student_id
+3.  ordenar created_at desc
+4.  aplicar paginação
+
+------------------------------------------------------------------------
+
+# Cenários de Erro
+
+  Cenário                         Exceção
+  ------------------------------- ------------
+  nota \> 2000 chars              BadRequest
+  aluno de outro tenant           NotFound
+  editar nota de outro personal   Forbidden
+
+------------------------------------------------------------------------
+
+# Frontend
+
+Local
+
+/painel/alunos/:id
+
+Seção nova
+
+## Timeline de Notas
+
+Componente
+
+StudentNotesTimeline
+
+------------------------------------------------------------------------
+
+# Layout
+
+Card: "Notas do aluno"
+
+Campo para nova nota
+
+Textarea\
+maxLength=2000
+
+Botão
+
+\[Adicionar nota\]
+
+------------------------------------------------------------------------
+
+# Timeline
+
+Lista vertical
+
+Mais recente primeiro
+
+Exemplo
+
+\[10 Mar 2026\] Aluno relatou dor no joelho após corrida.
+
+\[02 Mar 2026\] Aumentamos carga no agachamento.
+
+------------------------------------------------------------------------
+
+# Paginação
+
+Botão
+
+Carregar mais
+
+ou
+
+Scroll infinito
+
+------------------------------------------------------------------------
+
+# Estados
+
+  estado       comportamento
+  ------------ ---------------------------------
+  carregando   skeleton
+  vazio        "Nenhuma nota registrada ainda"
+  erro         mensagem inline
+
+------------------------------------------------------------------------
+
+# Testes Backend
+
+describe('StudentNotesService', () =\> {
+
+it('cria nota')
+
+it('lista notas ordenadas desc')
+
+it('edita nota')
+
+it('deleta nota')
+
+it('bloqueia edição de outro personal')
+
+})
+
+------------------------------------------------------------------------
+
+# Benefícios da Timeline
+
+Permite:
+
+-   histórico de lesões
+-   decisões de treino
+-   comportamento do aluno
+-   evolução ao longo do tempo
+
+Funciona como **mini CRM dentro do aluno**.
 
 ## US-026 — Busca e filtros globais no painel
 

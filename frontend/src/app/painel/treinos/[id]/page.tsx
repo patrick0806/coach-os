@@ -15,14 +15,12 @@ import {
   getWorkoutPlan,
   removeExerciseFromPlan,
   reorderExercises,
-  updateWorkoutPlan,
   type WorkoutExercise,
 } from "@/services/workout-plans.service";
 import { AddExerciseDialog } from "./_components/add-exercise-dialog";
 import { DeletePlanDialog } from "./_components/delete-plan-dialog";
 import { EditPlanDialog } from "./_components/edit-plan-dialog";
 import { ExerciseRow } from "./_components/exercise-row";
-import { TemplateEditDecisionDialog } from "./_components/template-edit-decision-dialog";
 
 interface TreinoDetailPageProps {
   params: Promise<{ id: string }>;
@@ -38,40 +36,10 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [decisionOpen, setDecisionOpen] = useState(false);
-  const [pendingDecision, setPendingDecision] = useState<{
-    onUpdateTemplate: () => void;
-    onFork: () => void;
-  } | null>(null);
 
   const { data: plan, isLoading } = useQuery({
     queryKey: ["workout-plan", id],
     queryFn: () => getWorkoutPlan(id),
-  });
-
-  const forkMutation = useMutation({
-    mutationFn: () => {
-      if (!plan || !studentId) {
-        throw new Error("Contexto do aluno não encontrado");
-      }
-
-      return updateWorkoutPlan(id, {
-        name: plan.name,
-        description: plan.description ?? undefined,
-        forkForStudentId: studentId,
-      });
-    },
-    onSuccess: (forkedPlan) => {
-      queryClient.invalidateQueries({ queryKey: ["workout-plans"] });
-      queryClient.invalidateQueries({ queryKey: ["student-workout-plans", studentId] });
-      setDecisionOpen(false);
-      setPendingDecision(null);
-      toast.success("Treino específico criado para este aluno.");
-      router.push(`/painel/treinos/${forkedPlan.id}?studentId=${studentId}`);
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, "Não foi possível criar o treino específico."));
-    },
   });
 
   const removeMutation = useMutation({
@@ -84,22 +52,6 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
       toast.error(getApiErrorMessage(error, "Não foi possível remover o exercício."));
     },
   });
-
-  const shouldPromptStudentFork = plan?.planKind === "template" && Boolean(studentId);
-
-  function openDecision(onUpdateTemplate: () => void) {
-    setPendingDecision({
-      onUpdateTemplate: () => {
-        setDecisionOpen(false);
-        setPendingDecision(null);
-        onUpdateTemplate();
-      },
-      onFork: () => {
-        forkMutation.mutate();
-      },
-    });
-    setDecisionOpen(true);
-  }
 
   async function handleReorder(exerciseId: string, direction: "up" | "down") {
     if (!plan) return;
@@ -134,13 +86,6 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
       }
     };
 
-    if (shouldPromptStudentFork) {
-      openDecision(() => {
-        void reorder();
-      });
-      return;
-    }
-
     await reorder();
   }
 
@@ -149,23 +94,11 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
   }
 
   function handleAddExercise() {
-    if (shouldPromptStudentFork) {
-      openDecision(() => setAddOpen(true));
-      return;
-    }
-
     setAddOpen(true);
   }
 
   function handleRemoveExercise(exercise: WorkoutExercise) {
-    const remove = () => removeMutation.mutate(exercise.id);
-
-    if (shouldPromptStudentFork) {
-      openDecision(remove);
-      return;
-    }
-
-    remove();
+    removeMutation.mutate(exercise.id);
   }
 
   if (isLoading) {
@@ -306,7 +239,6 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
 
       <EditPlanDialog
         planId={id}
-        studentId={studentId}
         plan={plan}
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -326,21 +258,6 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         onDeleted={() => router.push("/painel/treinos")}
-      />
-
-      <TemplateEditDecisionDialog
-        open={decisionOpen}
-        onOpenChange={(open) => {
-          setDecisionOpen(open);
-          if (!open) setPendingDecision(null);
-        }}
-        onCancel={() => {
-          setDecisionOpen(false);
-          setPendingDecision(null);
-        }}
-        onFork={() => pendingDecision?.onFork()}
-        onUpdateTemplate={() => pendingDecision?.onUpdateTemplate()}
-        isPending={forkMutation.isPending || removeMutation.isPending}
       />
     </>
   );

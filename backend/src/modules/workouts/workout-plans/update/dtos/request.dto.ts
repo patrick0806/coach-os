@@ -4,7 +4,6 @@ import { z } from "zod";
 export const UpdateWorkoutPlanSchema = z.object({
   name: z.string().min(1).max(150).optional(),
   description: z.string().max(1000).nullable().optional(),
-  forkForStudentId: z.string().uuid().optional(),
 });
 
 export type UpdateWorkoutPlanInput = z.infer<typeof UpdateWorkoutPlanSchema>;
@@ -15,7 +14,4 @@ export class UpdateWorkoutPlanDTO implements UpdateWorkoutPlanInput {
 
   @ApiProperty({ required: false, nullable: true })
   description?: string | null;
-
-  @ApiProperty({ required: false, format: "uuid" })
-  forkForStudentId?: string;
 }

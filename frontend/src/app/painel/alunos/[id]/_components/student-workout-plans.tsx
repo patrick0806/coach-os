@@ -3,9 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { toast } from "sonner";
 import { ChevronRight, Dumbbell, Plus, X } from "lucide-react";
 
@@ -29,104 +26,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
   assignStudentsToPlan,
   getStudentWorkoutPlans,
   listWorkoutPlans,
   revokeStudentFromPlan,
-  createStudentWorkoutPlan,
   type WorkoutPlan,
 } from "@/services/workout-plans.service";
-
-// ─── Create Specific Plan Dialog ───────────────────────────────────────────────
-
-const createSpecificPlanSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  description: z.string().optional(),
-});
-
-type CreateSpecificPlanValues = z.infer<typeof createSpecificPlanSchema>;
-
-interface CreateStudentPlanDialogProps {
-  studentId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-function CreateStudentPlanDialog({ studentId, open, onOpenChange }: CreateStudentPlanDialogProps) {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-
-  const form = useForm<CreateSpecificPlanValues>({
-    resolver: zodResolver(createSpecificPlanSchema),
-    defaultValues: { name: "", description: "" },
-  });
-
-  const mutation = useMutation({
-    mutationFn: (values: CreateSpecificPlanValues) =>
-      createStudentWorkoutPlan(studentId, {
-        name: values.name,
-        description: values.description || undefined,
-      }),
-    onSuccess: (created) => {
-      queryClient.invalidateQueries({ queryKey: ["student-workout-plans", studentId] });
-      toast.success("Treino específico criado.");
-      onOpenChange(false);
-      form.reset({ name: "", description: "" });
-      router.push(`/painel/treinos/${created.id}`);
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, "Não foi possível criar o treino."));
-    },
-  });
-
-  function handleOpenChange(open: boolean) {
-    if (!open) form.reset({ name: "", description: "" });
-    onOpenChange(open);
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Criar treino específico</DialogTitle>
-          <DialogDescription>
-            Este treino será vinculado apenas a este aluno e não aparecerá na sua lista de modelos gerais.
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-          className="space-y-4"
-          noValidate
-        >
-          <div className="space-y-2">
-            <Label htmlFor="plan-name">Nome do Treino</Label>
-            <Input id="plan-name" placeholder="Ex: Ficha Adaptação" {...form.register("name")} />
-            {form.formState.errors.name && (
-              <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="plan-desc">Descrição (opcional)</Label>
-            <Textarea id="plan-desc" rows={3} {...form.register("description")} />
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Criando..." : "Criar treino"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 // ─── Assign Plan Dialog ────────────────────────────────────────────────────────
 
@@ -222,7 +129,6 @@ export function StudentWorkoutPlans({ studentId }: StudentWorkoutPlansProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [assignOpen, setAssignOpen] = useState(false);
-  const [createSpecificOpen, setCreateSpecificOpen] = useState(false);
   const [revoking, setRevoking] = useState<WorkoutPlan | null>(null);
 
   const { data: plans = [], isLoading } = useQuery({
@@ -262,14 +168,6 @@ export function StudentWorkoutPlans({ studentId }: StudentWorkoutPlansProps) {
               onClick={() => setAssignOpen(true)}
             >
               Atribuir modelo
-            </Button>
-            <Button
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setCreateSpecificOpen(true)}
-            >
-              <Plus className="size-3.5" />
-              Criar treino específico
             </Button>
           </div>
         </CardHeader>
@@ -312,12 +210,6 @@ export function StudentWorkoutPlans({ studentId }: StudentWorkoutPlansProps) {
         open={assignOpen}
         onOpenChange={setAssignOpen}
         onAssigned={handleAssigned}
-      />
-
-      <CreateStudentPlanDialog
-        studentId={studentId}
-        open={createSpecificOpen}
-        onOpenChange={setCreateSpecificOpen}
       />
 
       <AlertDialog open={Boolean(revoking)} onOpenChange={(open) => !open && setRevoking(null)}>
