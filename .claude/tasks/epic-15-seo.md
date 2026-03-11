@@ -1,0 +1,51 @@
+# Epic 15 — SEO e Autoridade Digital
+
+Status: `[ ]` todo
+
+> **Objetivo:** Maximizar a visibilidade das páginas de marketing (Home, FAQ, Funcionalidades) nos mecanismos de busca, enquanto garantimos que as áreas logadas (Painel, Admin, Aluno) permaneçam privadas e não indexadas.
+
+---
+
+## US-044 — Configuração de Indexação Seletiva (Robots & Sitemap)
+
+**Status:** `[ ]` todo
+**Sprint:** 15
+
+**Descrição:**
+Configurar as diretivas de rastreamento para que o Google foque apenas no conteúdo institucional.
+
+### Critérios de Aceite
+- [ ] Gerar `robots.txt` dinâmico permitindo `/`, `/sobre`, `/funcionalidades`, `/faq` e bloqueando `/painel/*`, `/admin/*`, `/*/alunos/*`.
+- [ ] Implementar geração automática de `sitemap.xml` (Next.js Metadata API).
+- [ ] Adicionar tag `<meta name="robots" content="noindex, nofollow">` globalmente para todas as rotas de dashboard.
+
+---
+
+## US-045 — Meta-Tags Dinâmicas e Open Graph (Marketing)
+
+**Status:** `[ ]` todo
+**Sprint:** 15
+
+**Descrição:**
+Otimizar as páginas públicas com títulos, descrições e imagens de compartilhamento (OG Tags) atraentes.
+
+### Critérios de Aceite
+- [ ] Configurar `generateMetadata` para Home e FAQ com palavras-chave estratégicas (ex: "Personal Trainer Software", "Gestão de Alunos").
+- [ ] Implementar imagens Open Graph (OG:Image) padrão para redes sociais.
+- [ ] Configurar URLs canônicas para evitar conteúdo duplicado.
+- [ ] Adicionar JSON-LD (Structured Data) para a página de FAQ e para a Organização (Coach OS).
+
+---
+
+## US-046 — Performance e Web Vitals (SEO On-Page)
+
+**Status:** `[ ]` todo
+**Sprint:** 15
+
+**Descrição:**
+Garantir que a velocidade de carregamento e a estrutura HTML favoreçam o ranqueamento.
+
+### Critérios de Aceite
+- [ ] Validar semântica HTML (H1-H6) em todas as páginas de marketing.
+- [ ] Otimizar carregamento de imagens (Next/Image) com tamanhos e prioridades corretas.
+- [ ] Garantir pontuação > 90 no Lighthouse para Performance e SEO em mobile.
