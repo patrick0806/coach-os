@@ -60,8 +60,8 @@ export class CheckoutService {
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${env.APP_URL}/painel/assinatura/sucesso?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${env.APP_URL}/painel/assinatura/cancelado`,
+      success_url: `${env.APP_URL}/pagamento/sucesso?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.APP_URL}/pagamento/cancelado`,
       metadata: { planId: plan.id },
     });
 

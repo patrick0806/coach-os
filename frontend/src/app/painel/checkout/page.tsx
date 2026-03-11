@@ -7,8 +7,6 @@ import { Loader2 } from "lucide-react";
 
 import { createCheckoutSession } from "@/services/subscriptions.service";
 
-const PLAN_STORAGE_KEY = "coach-os:selected-plan";
-
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -18,7 +16,7 @@ function CheckoutContent() {
     if (bootstrapped.current) return;
     bootstrapped.current = true;
 
-    const planId = searchParams.get("plan") ?? sessionStorage.getItem(PLAN_STORAGE_KEY) ?? null;
+    const planId = searchParams.get("plan");
 
     if (!planId) {
       router.replace("/painel/assinatura");
@@ -28,7 +26,6 @@ function CheckoutContent() {
     async function redirect() {
       try {
         const { checkoutUrl } = await createCheckoutSession(planId as string);
-        sessionStorage.removeItem(PLAN_STORAGE_KEY);
         window.location.href = checkoutUrl;
       } catch {
         router.replace("/painel/assinatura?erro=checkout");

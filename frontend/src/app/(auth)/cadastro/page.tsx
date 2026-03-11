@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login, register as registerUser } from "@/services/auth.service";
+import { createCheckoutSession } from "@/services/subscriptions.service";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { listPlans, formatPlanPrice, type Plan } from "@/services/plans.service";
 
@@ -31,8 +32,6 @@ const registerSchema = z
   });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
-
-const PLAN_STORAGE_KEY = "coach-os:selected-plan";
 
 const DEFAULT_BENEFITS = [
   "Até 3 alunos ativos",
@@ -103,8 +102,8 @@ function CadastroContent() {
       signIn(loginResponse);
 
       if (selectedPlanId) {
-        sessionStorage.setItem(PLAN_STORAGE_KEY, selectedPlanId);
-        router.push(`/painel/checkout?plan=${selectedPlanId}`);
+        const { checkoutUrl } = await createCheckoutSession(selectedPlanId);
+        window.location.href = checkoutUrl;
       } else {
         router.push("/painel");
       }
