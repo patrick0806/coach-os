@@ -1,14 +1,23 @@
 import Link from "next/link";
-import { Check, ShieldCheck, Sparkles, TimerReset } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Dumbbell,
+  Users,
+  ArrowRight,
+} from "lucide-react";
 
-import { formatPlanPrice, listPlans, type Plan } from "@/services/plans.service";
+import { listPlans, type Plan, formatPlanPrice } from "@/services/plans.service";
+import { Navbar } from "@/components/marketing/navbar";
+import { Footer } from "@/components/marketing/footer";
+import { FeatureBlock } from "@/components/marketing/feature-block";
 
 // ─── Plan card ────────────────────────────────────────────────────────────────
 
 function PlanCard({ plan }: { plan: Plan }) {
   return (
     <div
-      className={`relative flex flex-col rounded-2xl p-8 ${
+      className={`relative flex flex-col rounded-2xl p-8 transition-all hover:-translate-y-1 ${
         plan.highlighted
           ? "bg-card text-card-foreground shadow-2xl ring-2 ring-primary/40"
           : "bg-card/70 text-card-foreground ring-1 ring-border/70 backdrop-blur"
@@ -42,11 +51,11 @@ function PlanCard({ plan }: { plan: Plan }) {
 
       <ul className="mb-8 flex-1 space-y-3">
         {plan.benefits.map((benefit, i) => (
-          <li key={i} className="flex items-start gap-2.5">
+          <li key={i} className="flex items-start gap-2.5 text-sm">
             <Check
               className="mt-0.5 size-4 shrink-0 text-primary"
             />
-            <span className="text-sm text-foreground/90">
+            <span className="text-foreground/90">
               {benefit}
             </span>
           </li>
@@ -55,9 +64,9 @@ function PlanCard({ plan }: { plan: Plan }) {
 
       <Link
         href="/cadastro"
-        className={`block rounded-xl px-6 py-3 text-center text-sm font-semibold transition-all hover:-translate-y-0.5 ${
+        className={`block rounded-xl px-6 py-3 text-center text-sm font-semibold transition-all ${
           plan.highlighted
-            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/40"
             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
         }`}
       >
@@ -73,95 +82,117 @@ export default async function HomePage() {
   const plans = await listPlans();
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
-      {/* Hero */}
-      <header className="border-b border-border/80 px-6 py-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <span className="text-lg font-bold tracking-tight">Coach OS</span>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Entrar
-            </Link>
-            <Link
-              href="/cadastro"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
-            >
-              Testar sem cartão
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="dark min-h-screen bg-background text-foreground selection:bg-primary/30">
+      <Navbar />
 
       <main>
-        {/* Hero section */}
-        <section className="relative overflow-hidden px-6 py-24 text-center">
-          <div className="absolute left-1/2 top-10 h-56 w-56 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-background to-background" />
-          <div className="mx-auto max-w-3xl">
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
-              <Sparkles className="size-3.5" />
-              Plataforma profissional para personal trainers
-            </p>
-            <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl">
-              O sistema que transforma seu atendimento em um negócio
+        {/* Hero Section */}
+        <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
+          {/* Background Blobs */}
+          <div className="absolute left-1/2 top-1/4 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]" />
+          <div className="absolute -left-20 top-1/2 -z-10 h-64 w-64 rounded-full bg-primary/10 blur-[100px]" />
+          
+          <div className="mx-auto max-w-4xl">
+            <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl">
+              Domine sua agenda, <br />
+              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/40 bg-clip-text text-transparent">
+                escale seus treinos
+              </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              Organize alunos, treinos, agenda e sua pagina publica em um painel unico.
-              Comece com 30 dias gratis e teste sem informar cartao.
+            
+            <p className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+              A plataforma completa para Personal Trainers que desejam profissionalismo, 
+              agilidade na montagem de treinos e uma gestão financeira impecável.
             </p>
-            <div className="mx-auto mt-8 grid max-w-2xl gap-3 text-left text-sm text-foreground/90 sm:grid-cols-3">
-              <div className="rounded-xl border border-border/70 bg-card/60 p-3">
-                <TimerReset className="mb-1 size-4 text-primary" />
-                30 dias de teste
-              </div>
-              <div className="rounded-xl border border-border/70 bg-card/60 p-3">
-                <ShieldCheck className="mb-1 size-4 text-primary" />
-                Sem cartao de credito
-              </div>
-              <div className="rounded-xl border border-border/70 bg-card/60 p-3">
-                <Check className="mb-1 size-4 text-primary" />
-                Setup em poucos minutos
-              </div>
-            </div>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
+
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
                 href="/cadastro"
-                className="rounded-xl bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5"
+                className="group flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-primary/30"
               >
-                Teste sem passar o cartao
+                Começar 30 dias grátis
+                <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
-                href="/login"
-                className="rounded-xl border border-border bg-card/70 px-8 py-4 text-base font-semibold text-foreground transition-colors hover:bg-accent/70"
+                href="#planos"
+                className="rounded-2xl border border-border bg-card/50 px-8 py-4 text-lg font-semibold backdrop-blur-sm transition-colors hover:bg-card"
               >
-                Já tenho conta
+                Ver planos
               </Link>
             </div>
+
+            <p className="mt-6 text-sm text-muted-foreground">
+              Não precisa de cartão de crédito para começar.
+            </p>
+          </div>
+
+          {/* Feature Highlight Grid - Quick glance */}
+          <div className="mx-auto mt-20 grid max-w-5xl gap-6 px-6 sm:grid-cols-3">
+            {[
+              { icon: Users, label: "Gestão de Alunos", desc: "Controle total de perfis e evolução" },
+              { icon: Dumbbell, label: "Prescrição Ágil", desc: "Crie treinos complexos em segundos" },
+              { icon: Calendar, label: "Agenda Online", desc: "Agendamentos e recorrência automática" },
+            ].map((f, i) => (
+              <div key={i} className="flex flex-col items-center rounded-2xl border border-border/60 bg-card/40 p-6 text-center backdrop-blur-sm">
+                <f.icon className="mb-3 size-6 text-primary" />
+                <h3 className="font-bold">{f.label}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">{f.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Pricing */}
-        <section className="px-6 py-20" id="planos">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-14 text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Planos e preços
+        {/* Feature Sections - The "Zebra" Layout */}
+        <section id="funcionalidades" className="space-y-10">
+          <FeatureBlock
+            title="Sua ficha de treino no próximo nível"
+            description="Chega de PDFs e planilhas. Ofereça uma experiência mobile premium para seus alunos com cronômetro, vídeos de execução e histórico de cargas."
+            icon={Dumbbell}
+            imageAlt="Interface de Treinos"
+            features={[
+              "Biblioteca com +50 exercícios",
+              "Suporte a vídeos do YouTube",
+              "Histórico de evolução de carga",
+              "Cronômetro de descanso integrado"
+            ]}
+          />
+
+          <FeatureBlock
+            title="Agenda que trabalha por você"
+            description="Permita que seus alunos agendem sessões em seus horários disponíveis. Controle faltas, desmarcações e recorrências sem trocar uma única mensagem no WhatsApp."
+            icon={Calendar}
+            imageAlt="Agenda Online"
+            reverse
+            features={[
+              "Sessões avulsas ou recorrentes",
+              "Disponibilidade configurável por dia",
+              "Status de presença e No-show",
+              "Check-in automático do aluno"
+            ]}
+          />
+        </section>
+
+        {/* Pricing Section */}
+        <section id="planos" className="relative overflow-hidden px-6 py-24 sm:py-32">
+          <div className="absolute left-1/2 top-1/2 -z-10 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[150px]" />
+          
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-16 text-center">
+              <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+                Invista no seu crescimento
               </h2>
-              <p className="mt-3 text-muted-foreground">
-                Escolha o plano ideal para o tamanho do seu negócio.
+              <p className="mt-4 text-lg text-muted-foreground">
+                Planos simples e transparentes. Sem taxas escondidas.
               </p>
             </div>
 
             {plans.length === 0 ? (
               <p className="text-center text-muted-foreground">
-                Planos indisponíveis no momento.
+                Carregando planos...
               </p>
             ) : (
               <div
-                className={`grid gap-6 ${
+                className={`grid gap-8 ${
                   plans.length === 1
                     ? "mx-auto max-w-sm"
                     : plans.length === 2
@@ -178,11 +209,36 @@ export default async function HomePage() {
             )}
           </div>
         </section>
+
+        {/* CTA Section */}
+        <section className="px-6 py-20 md:py-32">
+          <div className="mx-auto max-w-5xl rounded-3xl bg-primary px-8 py-16 text-center text-primary-foreground shadow-2xl shadow-primary/20">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">
+              Pronto para profissionalizar sua consultoria?
+            </h2>
+            <p className="mx-auto mt-6 max-w-xl text-lg opacity-90">
+              Junte-se a centenas de treinadores que já estão economizando horas de 
+              trabalho manual todas as semanas.
+            </p>
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/cadastro"
+                className="rounded-xl bg-background px-8 py-4 text-lg font-bold text-foreground shadow-lg transition-transform hover:-translate-y-1"
+              >
+                Criar minha conta agora
+              </Link>
+              <Link
+                href="/contato"
+                className="rounded-xl border border-primary-foreground/20 px-8 py-4 text-lg font-semibold transition-colors hover:bg-primary-foreground/10"
+              >
+                Falar com consultor
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <footer className="border-t border-border/80 px-6 py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Coach OS. Todos os direitos reservados.
-      </footer>
+      <Footer />
     </div>
   );
 }
