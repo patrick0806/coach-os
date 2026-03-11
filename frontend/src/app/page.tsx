@@ -64,7 +64,7 @@ function PlanCard({ plan }: { plan: Plan }) {
       </ul>
 
       <Link
-        href="/cadastro"
+        href={`/cadastro?plan=${plan.id}`}
         className={`block rounded-xl px-6 py-3 text-center text-sm font-semibold transition-all ${
           plan.highlighted
             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/40"

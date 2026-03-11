@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Eye, EyeOff, TimerReset } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Check, Eye, EyeOff, TimerReset, Zap } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login, register as registerUser } from "@/services/auth.service";
 import { AuthLayout } from "@/components/auth/auth-layout";
+import { listPlans, formatPlanPrice, type Plan } from "@/services/plans.service";
 
 const registerSchema = z
   .object({
@@ -31,12 +32,33 @@ const registerSchema = z
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export default function CadastroPage() {
+const PLAN_STORAGE_KEY = "coach-os:selected-plan";
+
+const DEFAULT_BENEFITS = [
+  "Até 3 alunos ativos",
+  "Agenda personalizada",
+  "Montagem de treinos ilimitada",
+  "30 dias grátis (sem cartão)",
+];
+
+function CadastroContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { signIn } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+
+  const selectedPlanId = searchParams.get("plan") ?? null;
+
+  useEffect(() => {
+    if (!selectedPlanId) return;
+    listPlans().then((plans) => {
+      const found = plans.find((p) => p.id === selectedPlanId) ?? null;
+      setSelectedPlan(found);
+    });
+  }, [selectedPlanId]);
 
   const {
     register,
@@ -79,7 +101,13 @@ export default function CadastroPage() {
       });
 
       signIn(loginResponse);
-      router.push("/painel");
+
+      if (selectedPlanId) {
+        sessionStorage.setItem(PLAN_STORAGE_KEY, selectedPlanId);
+        router.push(`/painel/checkout?plan=${selectedPlanId}`);
+      } else {
+        router.push("/painel");
+      }
     } catch (error) {
       const fieldErrors = getApiFieldErrors(error);
       const validFields: Array<keyof RegisterFormValues> = [
@@ -109,26 +137,51 @@ export default function CadastroPage() {
       sideContent={
         <div className="space-y-6">
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 backdrop-blur-sm">
-            <p className="mb-4 text-sm font-semibold text-primary uppercase tracking-wider">
-              Você começará no plano Básico
-            </p>
-            <ul className="space-y-3">
-              {[
-                "Até 3 alunos ativos",
-                "Agenda personalizada",
-                "Montagem de treinos ilimitada",
-                "30 dias grátis (sem cartão)",
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary">
-                    <Check className="size-3.5" />
-                  </div>
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {selectedPlan ? (
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-primary uppercase tracking-wider">
+                    Plano selecionado
+                  </p>
+                  <span className="flex items-center gap-1.5 rounded-full bg-primary/20 px-3 py-1 text-xs font-bold text-primary">
+                    <Zap className="size-3" />
+                    {selectedPlan.name}
+                  </span>
+                </div>
+                <p className="mb-4 text-3xl font-extrabold">
+                  {formatPlanPrice(selectedPlan.price)}
+                  <span className="ml-1 text-sm font-normal text-muted-foreground">/mês</span>
+                </p>
+                <ul className="space-y-3">
+                  {selectedPlan.benefits.map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary">
+                        <Check className="size-3.5" />
+                      </div>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <>
+                <p className="mb-4 text-sm font-semibold text-primary uppercase tracking-wider">
+                  Você começará no plano Básico
+                </p>
+                <ul className="space-y-3">
+                  {DEFAULT_BENEFITS.map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary">
+                        <Check className="size-3.5" />
+                      </div>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
-          
+
           <div className="flex items-start gap-3 rounded-xl border border-border/50 bg-card/30 p-4">
             <TimerReset className="size-5 text-primary shrink-0 mt-0.5" />
             <div>
@@ -252,5 +305,13 @@ export default function CadastroPage() {
         </p>
       </form>
     </AuthLayout>
+  );
+}
+
+export default function CadastroPage() {
+  return (
+    <Suspense>
+      <CadastroContent />
+    </Suspense>
   );
 }
