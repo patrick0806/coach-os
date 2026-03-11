@@ -4,6 +4,7 @@ import {
   timestamp,
   index,
   uniqueIndex,
+  text,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
 import { relations } from "drizzle-orm";
@@ -45,5 +46,41 @@ export const studentsRelations = relations(students, ({ one }) => ({
   }),
 }));
 
+export const studentNotes = pgTable(
+  "student_notes",
+  {
+    id: varchar("id", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    studentId: varchar("student_id", { length: 36 }).notNull(),
+    personalId: varchar("personal_id", { length: 36 }).notNull(),
+    note: text("note").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("student_notes_student_created_at_idx").on(table.studentId, table.createdAt),
+    index("student_notes_personal_id_idx").on(table.personalId),
+  ],
+);
+
+export const studentNotesRelations = relations(studentNotes, ({ one }) => ({
+  student: one(students, {
+    fields: [studentNotes.studentId],
+    references: [students.id],
+  }),
+  personal: one(personals, {
+    fields: [studentNotes.personalId],
+    references: [personals.id],
+  }),
+}));
+
 export type Student = typeof students.$inferSelect;
 export type NewStudent = typeof students.$inferInsert;
+export type StudentNote = typeof studentNotes.$inferSelect;
+export type NewStudentNote = typeof studentNotes.$inferInsert;

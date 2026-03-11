@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStudent } from "@/services/students.service";
 import { DeactivateStudentDialog } from "./_components/deactivate-student-dialog";
 import { StudentEditForm } from "./_components/student-edit-form";
+import { StudentNotesTimeline } from "./_components/student-notes-timeline";
 import { StudentWorkoutPlans } from "./_components/student-workout-plans";
 
 interface AlunoDetailPageProps {
@@ -87,6 +88,8 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
           <StudentEditForm student={student} />
 
           <StudentWorkoutPlans studentId={id} />
+
+          <StudentNotesTimeline studentId={id} />
 
           {/* Schedule — placeholder (US-014) */}
           <Card>
