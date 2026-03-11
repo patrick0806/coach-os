@@ -27,6 +27,15 @@ export class BookingDTO {
   @ApiProperty({ example: "plan-id" })
   servicePlanId: string;
 
+  @ApiProperty({ example: "Aluno Teste" })
+  studentName: string;
+
+  @ApiProperty({ example: "aluno@teste.com" })
+  studentEmail: string;
+
+  @ApiProperty({ example: "Plano Básico" })
+  servicePlanName: string;
+
   @ApiProperty({ required: false, nullable: true, example: "series-id" })
   seriesId: string | null;
 

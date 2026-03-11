@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, eq, count, gte, inArray, notInArray } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, lte, notInArray } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -8,7 +8,10 @@ import {
   bookings,
   Booking,
   availabilitySlots,
+  servicePlans,
 } from "@config/database/schema/availability";
+import { students } from "@config/database/schema/students";
+import { users } from "@config/database/schema/users";
 
 type DrizzleDb = NodePgDatabase<typeof schema>;
 
@@ -31,16 +34,44 @@ export interface AvailableSlot {
 }
 
 export interface PaginatedBookings {
-  content: Booking[];
+  content: BookingWithRelations[];
   page: number;
   size: number;
   totalElements: number;
   totalPages: number;
 }
 
+export interface BookingWithRelations extends Booking {
+  studentName: string;
+  studentEmail: string;
+  servicePlanName: string;
+}
+
 @Injectable()
 export class BookingsRepository {
   constructor(private drizzle: DrizzleProvider) {}
+
+  private bookingSelect() {
+    return {
+      id: bookings.id,
+      personalId: bookings.personalId,
+      studentId: bookings.studentId,
+      servicePlanId: bookings.servicePlanId,
+      seriesId: bookings.seriesId,
+      scheduledDate: bookings.scheduledDate,
+      startTime: bookings.startTime,
+      endTime: bookings.endTime,
+      notes: bookings.notes,
+      status: bookings.status,
+      cancelledAt: bookings.cancelledAt,
+      cancellationReason: bookings.cancellationReason,
+      createdAt: bookings.createdAt,
+      updatedAt: bookings.updatedAt,
+      studentName: users.name,
+      studentEmail: users.email,
+      servicePlanName: servicePlans.name,
+    };
+  }
 
   async findAvailableSlots(
     personalId: string,
@@ -110,21 +141,27 @@ export class BookingsRepository {
     return result[0] ?? null;
   }
 
-  async create(data: CreateBookingInput, tx?: DrizzleDb): Promise<Booking> {
+  async create(data: CreateBookingInput, tx?: DrizzleDb): Promise<BookingWithRelations> {
     const db = tx ?? this.drizzle.db;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await db.insert(bookings).values(data as any).returning();
-    return result[0];
+    return this.findByIdOrThrow(result[0].id, data.personalId, db);
   }
 
-  async createMany(data: CreateBookingInput[], tx?: DrizzleDb): Promise<Booking[]> {
+  async createMany(data: CreateBookingInput[], tx?: DrizzleDb): Promise<BookingWithRelations[]> {
     if (data.length === 0) {
       return [];
     }
 
     const db = tx ?? this.drizzle.db;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return db.insert(bookings).values(data as any).returning();
+    const result = await db.insert(bookings).values(data as any).returning();
+
+    return this.findManyByIds(
+      result.map((booking) => booking.id),
+      data[0].personalId,
+      db,
+    );
   }
 
   async findByStudent(
@@ -139,12 +176,15 @@ export class BookingsRepository {
 
     const [rows, [{ total }]] = await Promise.all([
       db
-        .select()
+        .select(this.bookingSelect())
         .from(bookings)
+        .innerJoin(students, eq(students.id, bookings.studentId))
+        .innerJoin(users, eq(users.id, students.userId))
+        .innerJoin(servicePlans, eq(servicePlans.id, bookings.servicePlanId))
         .where(
           and(eq(bookings.studentId, studentId), eq(bookings.personalId, personalId)),
         )
-        .orderBy(bookings.scheduledDate)
+        .orderBy(desc(bookings.scheduledDate), desc(bookings.startTime))
         .limit(size)
         .offset(offset),
       db
@@ -164,25 +204,62 @@ export class BookingsRepository {
     };
   }
 
-  async findById(id: string, personalId: string, tx?: DrizzleDb): Promise<Booking | null> {
+  async findById(id: string, personalId: string, tx?: DrizzleDb): Promise<BookingWithRelations | null> {
     const db = tx ?? this.drizzle.db;
     const result = await db
-      .select()
+      .select(this.bookingSelect())
       .from(bookings)
+      .innerJoin(students, eq(students.id, bookings.studentId))
+      .innerJoin(users, eq(users.id, students.userId))
+      .innerJoin(servicePlans, eq(servicePlans.id, bookings.servicePlanId))
       .where(and(eq(bookings.id, id), eq(bookings.personalId, personalId)))
       .limit(1);
     return result[0] ?? null;
+  }
+
+  private async findByIdOrThrow(
+    id: string,
+    personalId: string,
+    db: DrizzleDb,
+  ): Promise<BookingWithRelations> {
+    const booking = await this.findById(id, personalId, db);
+    if (!booking) {
+      throw new Error("Booking not found after creation");
+    }
+    return booking;
+  }
+
+  private async findManyByIds(
+    ids: string[],
+    personalId: string,
+    db: DrizzleDb,
+  ): Promise<BookingWithRelations[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    return db
+      .select(this.bookingSelect())
+      .from(bookings)
+      .innerJoin(students, eq(students.id, bookings.studentId))
+      .innerJoin(users, eq(users.id, students.userId))
+      .innerJoin(servicePlans, eq(servicePlans.id, bookings.servicePlanId))
+      .where(and(eq(bookings.personalId, personalId), inArray(bookings.id, ids)))
+      .orderBy(bookings.scheduledDate, bookings.startTime);
   }
 
   async findBySeries(
     seriesId: string,
     personalId: string,
     tx?: DrizzleDb,
-  ): Promise<Booking[]> {
+  ): Promise<BookingWithRelations[]> {
     const db = tx ?? this.drizzle.db;
     return db
-      .select()
+      .select(this.bookingSelect())
       .from(bookings)
+      .innerJoin(students, eq(students.id, bookings.studentId))
+      .innerJoin(users, eq(users.id, students.userId))
+      .innerJoin(servicePlans, eq(servicePlans.id, bookings.servicePlanId))
       .where(and(eq(bookings.seriesId, seriesId), eq(bookings.personalId, personalId)))
       .orderBy(bookings.scheduledDate, bookings.startTime);
   }
@@ -192,11 +269,14 @@ export class BookingsRepository {
     personalId: string,
     fromDate: Date,
     tx?: DrizzleDb,
-  ): Promise<Booking[]> {
+  ): Promise<BookingWithRelations[]> {
     const db = tx ?? this.drizzle.db;
     return db
-      .select()
+      .select(this.bookingSelect())
       .from(bookings)
+      .innerJoin(students, eq(students.id, bookings.studentId))
+      .innerJoin(users, eq(users.id, students.userId))
+      .innerJoin(servicePlans, eq(servicePlans.id, bookings.servicePlanId))
       .where(
         and(
           eq(bookings.seriesId, seriesId),
@@ -213,22 +293,31 @@ export class BookingsRepository {
     tx?: DrizzleDb,
   ): Promise<PaginatedBookings> {
     const db = tx ?? this.drizzle.db;
-    const { page, size, status } = options;
+    const { page, size, status, from, to } = options;
     const offset = (page - 1) * size;
 
     const conditions = [eq(bookings.personalId, personalId)];
     if (status) {
       conditions.push(eq(bookings.status, status));
     }
+    if (from) {
+      conditions.push(gte(bookings.scheduledDate, from));
+    }
+    if (to) {
+      conditions.push(lte(bookings.scheduledDate, to));
+    }
 
     const whereClause = and(...conditions);
 
     const [rows, [{ total }]] = await Promise.all([
       db
-        .select()
+        .select(this.bookingSelect())
         .from(bookings)
+        .innerJoin(students, eq(students.id, bookings.studentId))
+        .innerJoin(users, eq(users.id, students.userId))
+        .innerJoin(servicePlans, eq(servicePlans.id, bookings.servicePlanId))
         .where(whereClause)
-        .orderBy(bookings.scheduledDate)
+        .orderBy(bookings.scheduledDate, bookings.startTime)
         .limit(size)
         .offset(offset),
       db.select({ total: count() }).from(bookings).where(whereClause),
@@ -248,7 +337,7 @@ export class BookingsRepository {
     personalId: string,
     status: string,
     tx?: DrizzleDb,
-  ): Promise<Booking | null> {
+  ): Promise<BookingWithRelations | null> {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(bookings)
@@ -256,7 +345,10 @@ export class BookingsRepository {
       .set({ status } as any)
       .where(and(eq(bookings.id, id), eq(bookings.personalId, personalId)))
       .returning();
-    return result[0] ?? null;
+    if (!result[0]) {
+      return null;
+    }
+    return this.findById(result[0].id, personalId, db);
   }
 
   async cancel(
@@ -264,7 +356,7 @@ export class BookingsRepository {
     personalId: string,
     reason: string,
     tx?: DrizzleDb,
-  ): Promise<Booking | null> {
+  ): Promise<BookingWithRelations | null> {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(bookings)
@@ -276,7 +368,10 @@ export class BookingsRepository {
       } as any)
       .where(and(eq(bookings.id, id), eq(bookings.personalId, personalId)))
       .returning();
-    return result[0] ?? null;
+    if (!result[0]) {
+      return null;
+    }
+    return this.findById(result[0].id, personalId, db);
   }
 
   async cancelMany(
@@ -284,7 +379,7 @@ export class BookingsRepository {
     personalId: string,
     reason: string,
     tx?: DrizzleDb,
-  ): Promise<Booking[]> {
+  ): Promise<BookingWithRelations[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -306,7 +401,11 @@ export class BookingsRepository {
         ),
       )
       .returning();
-    return result;
+    return this.findManyByIds(
+      result.map((booking) => booking.id),
+      personalId,
+      db,
+    );
   }
 
   async countOpenBySeries(

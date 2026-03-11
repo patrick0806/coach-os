@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 
-import { BookingsRepository } from "@shared/repositories/bookings.repository";
+import { BookingWithRelations, BookingsRepository } from "@shared/repositories/bookings.repository";
 import { IAccessToken } from "@shared/interfaces";
-import { Booking } from "@config/database/schema/availability";
 
 const ALLOWED_STATUSES = ["completed", "no-show"] as const;
 
@@ -10,7 +9,7 @@ const ALLOWED_STATUSES = ["completed", "no-show"] as const;
 export class UpdateBookingStatusService {
   constructor(private readonly bookingsRepository: BookingsRepository) {}
 
-  async execute(id: string, status: string, currentUser: IAccessToken): Promise<Booking> {
+  async execute(id: string, status: string, currentUser: IAccessToken): Promise<BookingWithRelations> {
     if (!ALLOWED_STATUSES.includes(status as (typeof ALLOWED_STATUSES)[number])) {
       throw new BadRequestException(
         `Status inválido. Valores permitidos: ${ALLOWED_STATUSES.join(", ")}`,
@@ -35,6 +34,6 @@ export class UpdateBookingStatusService {
       status,
     );
 
-    return updated as Booking;
+    return updated as BookingWithRelations;
   }
 }

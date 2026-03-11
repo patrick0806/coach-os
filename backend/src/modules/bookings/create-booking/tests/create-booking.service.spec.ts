@@ -32,6 +32,9 @@ const mockBooking = {
   personalId: "personal-id",
   studentId: "student-id",
   servicePlanId: VALID_PLAN_UUID,
+  studentName: "Aluno Teste",
+  studentEmail: "aluno@teste.com",
+  servicePlanName: "Plano Básico",
   scheduledDate: new Date("2024-01-15"),
   startTime: "08:00",
   endTime: "09:00",
@@ -124,6 +127,13 @@ describe("CreateBookingService", () => {
         }),
       );
       expect(result).toEqual(mockBooking);
+      expect(resendProvider.sendBookingConfirmation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          studentName: "Aluno Teste",
+          personalName: "john-doe",
+          servicePlanName: "Plano Básico",
+        }),
+      );
     });
 
     it("should throw BadRequestException when service plan does not belong to personal", async () => {

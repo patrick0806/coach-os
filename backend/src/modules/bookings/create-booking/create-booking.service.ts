@@ -5,7 +5,7 @@ import { ServicePlansRepository } from "@shared/repositories/service-plans.repos
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { IAccessToken } from "@shared/interfaces";
-import { Booking } from "@config/database/schema/availability";
+import { BookingWithRelations } from "@shared/repositories/bookings.repository";
 
 import { CreateBookingSchema, CreateBookingInput } from "./dtos/request.dto";
 
@@ -18,7 +18,7 @@ export class CreateBookingService {
     private readonly resendProvider: ResendProvider,
   ) {}
 
-  async execute(dto: CreateBookingInput, currentUser: IAccessToken): Promise<Booking> {
+  async execute(dto: CreateBookingInput, currentUser: IAccessToken): Promise<BookingWithRelations> {
     const parsed = CreateBookingSchema.safeParse(dto);
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0].message);
@@ -60,8 +60,8 @@ export class CreateBookingService {
     // Send emails asynchronously (fire and forget — failures must not break booking)
     this.resendProvider.sendBookingConfirmation({
       to: currentUser.sub,
-      studentName: studentId,
-      personalName: personalId,
+      studentName: student.name,
+      personalName: currentUser.personalSlug,
       scheduledDate,
       startTime,
       endTime,

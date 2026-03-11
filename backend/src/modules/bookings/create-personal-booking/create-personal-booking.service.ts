@@ -4,7 +4,7 @@ import { BookingsRepository } from "@shared/repositories/bookings.repository";
 import { ServicePlansRepository } from "@shared/repositories/service-plans.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { IAccessToken } from "@shared/interfaces";
-import { Booking } from "@config/database/schema/availability";
+import { BookingWithRelations } from "@shared/repositories/bookings.repository";
 
 import {
   CreatePersonalBookingInput,
@@ -22,7 +22,7 @@ export class CreatePersonalBookingService {
   async execute(
     dto: CreatePersonalBookingInput,
     currentUser: IAccessToken,
-  ): Promise<Booking> {
+  ): Promise<BookingWithRelations> {
     const parsed = CreatePersonalBookingSchema.safeParse(dto);
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0].message);

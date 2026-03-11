@@ -18,6 +18,9 @@ const mockPaginated = {
       personalId: "personal-id",
       studentId: "student-id",
       servicePlanId: "plan-id",
+      studentName: "Aluno Teste",
+      studentEmail: "aluno@teste.com",
+      servicePlanName: "Plano Básico",
       seriesId: "series-id",
       scheduledDate: new Date("2024-01-15"),
       startTime: "08:00",
@@ -34,6 +37,9 @@ const mockPaginated = {
       personalId: "personal-id",
       studentId: "student-id",
       servicePlanId: "plan-id",
+      studentName: "Aluno Teste",
+      studentEmail: "aluno@teste.com",
+      servicePlanName: "Plano Básico",
       seriesId: null,
       scheduledDate: new Date("2024-01-16"),
       startTime: "10:00",
@@ -78,11 +84,20 @@ describe("ListBookingsService", () => {
     it("should pass status filter when provided", async () => {
       bookingsRepository.findByPersonal.mockResolvedValue(mockPaginated);
 
-      await service.execute({ status: "scheduled", page: 2, size: 5 }, mockCurrentUser);
+      await service.execute(
+        { status: "scheduled", from: "2024-01-01", to: "2024-01-31", page: 2, size: 5 },
+        mockCurrentUser,
+      );
 
       expect(bookingsRepository.findByPersonal).toHaveBeenCalledWith(
         "personal-id",
-        expect.objectContaining({ status: "scheduled", page: 2, size: 5 }),
+        expect.objectContaining({
+          status: "scheduled",
+          page: 2,
+          size: 5,
+          from: new Date("2024-01-01T00:00:00Z"),
+          to: new Date("2024-01-31T23:59:59Z"),
+        }),
       );
     });
   });
