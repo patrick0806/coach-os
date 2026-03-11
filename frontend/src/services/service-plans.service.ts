@@ -13,6 +13,19 @@ export interface ServicePlan {
   updatedAt: string;
 }
 
+export interface PublicServicePlan {
+  id: string;
+  name: string;
+  description: string | null;
+  sessionsPerWeek: number;
+  durationMinutes: number;
+  price: string;
+}
+
+interface PublicPersonalProfile {
+  servicePlans: PublicServicePlan[];
+}
+
 export interface CreateServicePlanPayload {
   name: string;
   description?: string;
@@ -37,6 +50,11 @@ export function formatPrice(price: string): string {
 export async function listServicePlans(): Promise<ServicePlan[]> {
   const { data } = await api.get<ServicePlan[]>("/service-plans");
   return data;
+}
+
+export async function listPublicServicePlans(slug: string): Promise<PublicServicePlan[]> {
+  const { data } = await api.get<PublicPersonalProfile>(`/personals/${slug}/public`);
+  return data.servicePlans ?? [];
 }
 
 export async function createServicePlan(

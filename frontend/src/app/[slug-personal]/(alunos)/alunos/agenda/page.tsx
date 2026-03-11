@@ -27,7 +27,10 @@ import {
   type AvailableSlot,
   type Booking,
 } from "@/services/bookings.service";
-import { formatPrice, listServicePlans } from "@/services/service-plans.service";
+import {
+  formatPrice,
+  listPublicServicePlans,
+} from "@/services/service-plans.service";
 
 // ─── Upcoming bookings list ───────────────────────────────────────────────────
 
@@ -90,10 +93,11 @@ function UpcomingBookings({ bookings }: { bookings: Booking[] }) {
 // ─── Booking form ─────────────────────────────────────────────────────────────
 
 interface BookingFormProps {
+  slug: string;
   onBooked: () => void;
 }
 
-function BookingForm({ onBooked }: BookingFormProps) {
+function BookingForm({ slug, onBooked }: BookingFormProps) {
   const today = new Date().toISOString().split("T")[0];
   const [date, setDate] = useState(today);
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
@@ -107,9 +111,8 @@ function BookingForm({ onBooked }: BookingFormProps) {
   });
 
   const { data: servicePlans = [] } = useQuery({
-    queryKey: ["service-plans"],
-    queryFn: listServicePlans,
-    select: (plans) => plans.filter((p) => p.isActive),
+    queryKey: ["service-plans", "public", slug],
+    queryFn: () => listPublicServicePlans(slug),
   });
 
   const bookMutation = useMutation({
@@ -294,7 +297,8 @@ interface AlunoAgendaPageProps {
 }
 
 export default function AlunoAgendaPage({ params }: AlunoAgendaPageProps) {
-  use(params);
+  const resolvedParams = use(params);
+  const slug = resolvedParams["slug-personal"];
   const queryClient = useQueryClient();
 
   const { data: bookings = [] } = useQuery({
@@ -317,7 +321,10 @@ export default function AlunoAgendaPage({ params }: AlunoAgendaPageProps) {
 
       <div className="space-y-6">
         <UpcomingBookings bookings={bookings} />
-        <BookingForm onBooked={() => queryClient.invalidateQueries({ queryKey: ["my-bookings"] })} />
+        <BookingForm
+          slug={slug}
+          onBooked={() => queryClient.invalidateQueries({ queryKey: ["my-bookings"] })}
+        />
       </div>
     </div>
   );
