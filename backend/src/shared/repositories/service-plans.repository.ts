@@ -76,7 +76,7 @@ export class ServicePlansRepository {
 
   async create(data: CreateServicePlanInput, tx?: DrizzleDb): Promise<ServicePlan> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(servicePlans).values(data as any).returning();
     return result[0];
   }
@@ -90,7 +90,7 @@ export class ServicePlansRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(servicePlans)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set(data as any)
       .where(and(eq(servicePlans.id, id), eq(servicePlans.personalId, personalId)))
       .returning();
@@ -101,7 +101,7 @@ export class ServicePlansRepository {
     const db = tx ?? this.drizzle.db;
     await db
       .update(servicePlans)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set({ isActive: false } as any)
       .where(and(eq(servicePlans.id, id), eq(servicePlans.personalId, personalId)));
   }

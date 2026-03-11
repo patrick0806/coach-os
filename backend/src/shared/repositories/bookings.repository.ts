@@ -143,7 +143,7 @@ export class BookingsRepository {
 
   async create(data: CreateBookingInput, tx?: DrizzleDb): Promise<BookingWithRelations> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(bookings).values(data as any).returning();
     return this.findByIdOrThrow(result[0].id, data.personalId, db);
   }
@@ -154,7 +154,7 @@ export class BookingsRepository {
     }
 
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(bookings).values(data as any).returning();
 
     return this.findManyByIds(
@@ -341,7 +341,7 @@ export class BookingsRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(bookings)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set({ status } as any)
       .where(and(eq(bookings.id, id), eq(bookings.personalId, personalId)))
       .returning();
@@ -360,7 +360,7 @@ export class BookingsRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(bookings)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set({
         status: "cancelled",
         cancelledAt: new Date(),
@@ -387,7 +387,7 @@ export class BookingsRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(bookings)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set({
         status: "cancelled",
         cancelledAt: new Date(),

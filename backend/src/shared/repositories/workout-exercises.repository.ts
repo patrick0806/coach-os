@@ -85,7 +85,7 @@ export class WorkoutExercisesRepository {
     tx?: DrizzleDb,
   ): Promise<WorkoutExerciseRow> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const inserted = await db.insert(workoutExercises).values(data as any).returning();
     const we = inserted[0];
 
@@ -133,7 +133,7 @@ export class WorkoutExercisesRepository {
     await db.transaction(async (trx) => {
       for (const item of items) {
         // Cast needed: Drizzle v0.39 $inferUpdate narrowing excludes nullable/default columns
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         await trx
           .update(workoutExercises)
           .set({ order: item.order } as any)

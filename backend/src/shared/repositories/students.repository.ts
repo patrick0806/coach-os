@@ -167,7 +167,7 @@ export class StudentsRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(students)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set(data as any)
       .where(and(eq(students.id, id), eq(students.personalId, tenantId)))
       .returning();

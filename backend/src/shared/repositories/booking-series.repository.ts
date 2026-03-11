@@ -26,7 +26,7 @@ export class BookingSeriesRepository {
 
   async create(data: CreateBookingSeriesInput, tx?: DrizzleDb): Promise<BookingSeries> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(bookingSeries).values(data as any).returning();
     return result[0];
   }

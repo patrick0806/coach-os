@@ -38,7 +38,7 @@ export class UpdateServicePlanService {
     const updated = await this.servicePlansRepository.update(
       id,
       currentUser.personalId as string,
-      updateData as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+      updateData as any,  
     );
 
     return updated as ServicePlan;

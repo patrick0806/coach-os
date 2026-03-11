@@ -155,7 +155,7 @@ export class WorkoutPlansRepository {
   ): Promise<WorkoutPlan & { studentNames: string[] }> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: Drizzle v0.39 $inferInsert narrowing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(workoutPlans).values(data as any).returning();
     return { ...result[0], studentNames: [] };
   }
@@ -167,10 +167,10 @@ export class WorkoutPlansRepository {
     tx?: DrizzleDb,
   ): Promise<(WorkoutPlan & { studentNames: string[] }) | null> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db
       .update(workoutPlans)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set(data as any)
       .where(and(eq(workoutPlans.id, id), eq(workoutPlans.personalId, tenantId)))
       .returning();

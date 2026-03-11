@@ -27,7 +27,7 @@ export class PasswordResetTokensRepository {
   ): Promise<PasswordResetToken> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: Drizzle v0.39 $inferInsert narrowing excludes nullable columns
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(passwordResetTokens).values(data as any).returning();
     return result[0];
   }
@@ -55,14 +55,14 @@ export class PasswordResetTokensRepository {
   async markAsUsed(id: string, tx?: DrizzleDb): Promise<void> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: usedAt is nullable — excluded from Drizzle v0.39 set() keys
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await db.update(passwordResetTokens).set({ usedAt: new Date() } as any).where(eq(passwordResetTokens.id, id));
   }
 
   async invalidateAllForUser(userId: string, tx?: DrizzleDb): Promise<void> {
     const db = tx ?? this.drizzle.db;
     // Mark all as used to invalidate previous tokens
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await db.update(passwordResetTokens).set({ usedAt: new Date() } as any).where(eq(passwordResetTokens.userId, userId));
   }
 }

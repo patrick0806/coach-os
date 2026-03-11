@@ -52,7 +52,7 @@ export class UsersRepository {
   async create(data: CreateUserInput, tx?: DrizzleDb): Promise<User> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: Drizzle $inferInsert only surfaces required keys
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(users).values(data as any).returning();
     return result[0];
   }
@@ -60,7 +60,7 @@ export class UsersRepository {
   async update(id: string, data: UpdateUserInput, tx?: DrizzleDb): Promise<User> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: same Drizzle v0.39 $inferUpdate narrowing issue
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.update(users).set(data as any).where(eq(users.id, id)).returning();
     return result[0];
   }

@@ -49,21 +49,21 @@ export class PlansRepository {
 
   async create(data: Omit<CreatePlan, "id" | "createdAt" | "updatedAt">, tx?: DrizzleDb): Promise<Plans> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(plans).values(data as any).returning();
     return result[0];
   }
 
   async update(id: string, data: UpdatePlanInput, tx?: DrizzleDb): Promise<Plans> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.update(plans).set(data as any).where(eq(plans.id, id)).returning();
     return result[0];
   }
 
   async updateStatus(id: string, isActive: boolean, tx?: DrizzleDb): Promise<Plans> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.update(plans).set({ isActive } as any).where(eq(plans.id, id)).returning();
     return result[0];
   }
@@ -72,7 +72,7 @@ export class PlansRepository {
     const db = tx ?? this.drizzle.db;
     await Promise.all(
       items.map(({ id, order }) =>
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         db.update(plans).set({ order } as any).where(eq(plans.id, id)),
       ),
     );

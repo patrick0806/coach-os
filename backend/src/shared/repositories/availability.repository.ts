@@ -93,7 +93,7 @@ export class AvailabilityRepository {
     tx?: DrizzleDb,
   ): Promise<AvailabilitySlot> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(availabilitySlots).values(data as any).returning();
     return result[0];
   }
@@ -107,7 +107,7 @@ export class AvailabilityRepository {
     }
 
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     return db.insert(availabilitySlots).values(data as any).returning();
   }
 
@@ -120,7 +120,7 @@ export class AvailabilityRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(availabilitySlots)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set(data as any)
       .where(and(eq(availabilitySlots.id, id), eq(availabilitySlots.personalId, personalId)))
       .returning();

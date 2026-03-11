@@ -87,7 +87,7 @@ export class PersonalsRepository {
   async create(data: CreatePersonalInput, tx?: DrizzleDb): Promise<Personal> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: Drizzle v0.39 $inferInsert narrowing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(personals).values(data as any).returning();
     return result[0];
   }
@@ -99,7 +99,7 @@ export class PersonalsRepository {
   ): Promise<Personal> {
     const db = tx ?? this.drizzle.db;
     // Cast needed: Drizzle v0.39 $inferUpdate narrowing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.update(personals).set(data as any).where(eq(personals.id, id)).returning();
     return result[0];
   }
@@ -123,7 +123,7 @@ export class PersonalsRepository {
     tx?: DrizzleDb,
   ): Promise<Personal> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.update(personals).set(data as any).where(eq(personals.id, id)).returning();
     return result[0];
   }

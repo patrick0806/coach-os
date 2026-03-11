@@ -78,7 +78,7 @@ export class ExercisesRepository {
 
   async create(data: CreateExerciseInput, tx?: DrizzleDb): Promise<Exercise> {
     const db = tx ?? this.drizzle.db;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await db.insert(exercises).values(data as any).returning();
     return result[0];
   }
@@ -91,7 +91,7 @@ export class ExercisesRepository {
     const db = tx ?? this.drizzle.db;
     await db
       .update(exercises)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .set({ youtubeUrl } as any)
       .where(eq(exercises.id, exerciseId));
   }
