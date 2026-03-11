@@ -86,7 +86,7 @@ export function PainelSidebar({
       </nav>
 
       <div className="premium-divider border-t p-3">
-        {1 != 1 && <Button
+        <Button
           type="button"
           variant="ghost"
           className="mb-1 flex w-full items-center justify-start gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground"
@@ -98,7 +98,7 @@ export function PainelSidebar({
             <Moon className="size-4 shrink-0" />
           )}
           {isClient && theme === "dark" ? "Tema claro" : "Tema escuro"}
-        </Button> /*TODO - Fix theme toggle contrast font colors for enable theme switch for personal*/}
+        </Button>
         <button
           onClick={handleSignOut}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-500"

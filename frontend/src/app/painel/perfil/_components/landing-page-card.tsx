@@ -33,7 +33,7 @@ export function LandingPageCard({
   const lpHeroImage = watch("lpHeroImage");
 
   return (
-    <Card>
+    <Card variant="glass" className="rounded-3xl">
       <CardHeader>
         <CardTitle>Página de apresentação</CardTitle>
         <CardDescription>
@@ -65,7 +65,7 @@ export function LandingPageCard({
         <div className="space-y-4">
           <Label>Imagem principal (hero)</Label>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted sm:w-64">
+            <div className="premium-surface relative aspect-video w-full overflow-hidden rounded-2xl sm:w-64">
               {lpHeroImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -86,7 +86,7 @@ export function LandingPageCard({
               )}
             </div>
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                 Recomendado: 1920x1080px (16:9).
               </p>
               <ImageUploadButton
@@ -101,7 +101,7 @@ export function LandingPageCard({
         <Separator />
 
         <div className="space-y-2">
-          <Label htmlFor="lpAboutTitle">Título da seção "Sobre"</Label>
+          <Label htmlFor="lpAboutTitle">Título da seção &quot;Sobre&quot;</Label>
           <Input
             id="lpAboutTitle"
             placeholder="Sobre mim"
@@ -110,7 +110,7 @@ export function LandingPageCard({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lpAboutText">Texto da seção "Sobre"</Label>
+          <Label htmlFor="lpAboutText">Texto da seção &quot;Sobre&quot;</Label>
           <Textarea
             id="lpAboutText"
             placeholder="Conte sua história, experiência e metodologia..."
@@ -127,8 +127,8 @@ export function LandingPageCard({
             {(["lpImage1", "lpImage2", "lpImage3"] as const).map((field, i) => {
               const imageUrl = watch(field);
               return (
-                <div key={field} className="space-y-3">
-                  <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
+                  <div key={field} className="space-y-3">
+                  <div className="premium-surface relative aspect-square w-full overflow-hidden rounded-2xl">
                     {imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img

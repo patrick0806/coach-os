@@ -58,12 +58,12 @@ export default function PlanosServicoPage() {
       <div className="mx-auto max-w-4xl p-4 sm:p-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Planos de Serviço</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="premium-heading text-3xl">Planos de Serviço</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
               Seus pacotes de atendimento exibidos na sua página pública.
             </p>
           </div>
-          <Button onClick={() => setDialogPlan(null)} className="gap-2">
+          <Button onClick={() => setDialogPlan(null)} variant="premium" className="gap-2">
             <Plus className="size-4" />
             Novo plano
           </Button>
@@ -72,15 +72,15 @@ export default function PlanosServicoPage() {
         {isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 rounded-xl bg-gray-100" />
+              <Skeleton key={i} className="h-24 rounded-3xl bg-accent/60" />
             ))}
           </div>
         ) : plans.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center py-16 text-center text-gray-400">
+          <Card variant="glass" className="rounded-3xl">
+            <CardContent className="flex flex-col items-center py-16 text-center text-muted-foreground">
               <ClipboardList className="mb-3 size-10 opacity-30" />
               <p>Você ainda não tem planos de serviço.</p>
-              <Button variant="outline" className="mt-4" onClick={() => setDialogPlan(null)}>
+              <Button variant="premium-ghost" className="mt-4" onClick={() => setDialogPlan(null)}>
                 Criar primeiro plano
               </Button>
             </CardContent>
@@ -89,7 +89,7 @@ export default function PlanosServicoPage() {
           <div className="space-y-6">
             {activePlans.length > 0 ? (
               <section>
-                <h2 className="mb-3 text-sm font-medium text-gray-500">Ativos</h2>
+                <h2 className="mb-3 text-sm font-medium text-muted-foreground">Ativos</h2>
                 <div className="space-y-3">
                   {activePlans.map((plan) => (
                     <PlanCard
@@ -105,7 +105,7 @@ export default function PlanosServicoPage() {
 
             {inactivePlans.length > 0 ? (
               <section>
-                <h2 className="mb-3 text-sm font-medium text-gray-500">Inativos</h2>
+                <h2 className="mb-3 text-sm font-medium text-muted-foreground">Inativos</h2>
                 <div className="space-y-3">
                   {inactivePlans.map((plan) => (
                     <PlanCard
@@ -166,13 +166,13 @@ interface PlanCardProps {
 function PlanCard({ plan, onEdit, onDeactivate }: PlanCardProps) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-white p-4 ${
+      className={`premium-surface flex flex-wrap items-center justify-between gap-4 rounded-3xl p-4 ${
         !plan.isActive ? "opacity-60" : ""
       }`}
     >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium text-gray-900">{plan.name}</span>
+          <span className="font-medium text-foreground">{plan.name}</span>
           {!plan.isActive ? (
             <Badge variant="secondary" className="text-xs">
               Inativo
@@ -180,25 +180,25 @@ function PlanCard({ plan, onEdit, onDeactivate }: PlanCardProps) {
           ) : null}
         </div>
         {plan.description ? (
-          <p className="mt-0.5 text-sm text-gray-500">{plan.description}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{plan.description}</p>
         ) : null}
-        <div className="mt-1.5 flex flex-wrap gap-3 text-xs text-gray-400">
+        <div className="mt-1.5 flex flex-wrap gap-3 text-xs text-muted-foreground">
           <span>{plan.sessionsPerWeek}x por semana</span>
           <span>·</span>
           <span>{plan.durationMinutes} min/sessão</span>
           <span>·</span>
-          <span className="font-semibold text-gray-700">{formatPrice(plan.price)}/mês</span>
+          <span className="font-semibold text-foreground">{formatPrice(plan.price)}/mês</span>
         </div>
       </div>
 
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" className="gap-1.5" onClick={onEdit}>
+        <Button variant="premium-ghost" size="sm" className="gap-1.5" onClick={onEdit}>
           <Pencil className="size-3.5" />
           Editar
         </Button>
         {onDeactivate ? (
           <Button
-            variant="outline"
+            variant="premium-ghost"
             size="sm"
             className="gap-1.5 text-destructive hover:text-destructive"
             onClick={onDeactivate}

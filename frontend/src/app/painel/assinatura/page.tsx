@@ -40,14 +40,14 @@ function UsageBar({ used, limit }: { used: number; limit: number }) {
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-xs text-muted-foreground">
         <span>Alunos ativos</span>
         <span className={isCritical ? "font-semibold text-red-600" : ""}>
           {used} / {isUnlimited ? "ilimitado" : limit}
         </span>
       </div>
       {!isUnlimited ? (
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-accent/60">
           <div
             className={`h-full rounded-full transition-all ${isCritical ? "bg-red-500" : "bg-primary"}`}
             style={{ width: `${pct}%` }}
@@ -85,18 +85,20 @@ function PlanSelectSection({
       {available.map((plan) => (
         <div
           key={plan.id}
-          className={`flex items-center justify-between rounded-xl border p-4 ${
-            plan.highlighted ? "border-primary/40 bg-primary/5" : "bg-white"
+          className={`flex items-center justify-between rounded-3xl border p-4 ${
+            plan.highlighted
+              ? "border-primary/40 bg-primary/10"
+              : "premium-surface border-[color:var(--premium-border)]"
           }`}
         >
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-medium text-gray-900">{plan.name}</p>
+              <p className="font-medium text-foreground">{plan.name}</p>
               {plan.highlighted ? (
                 <Badge className="text-xs">Recomendado</Badge>
               ) : null}
             </div>
-            <p className="mt-0.5 text-sm text-gray-500">
+            <p className="mt-0.5 text-sm text-muted-foreground">
               {formatPlanPrice(plan.price)}/mês · até{" "}
               {plan.maxStudents === -1 || plan.maxStudents === 0
                 ? "ilimitados"
@@ -105,7 +107,7 @@ function PlanSelectSection({
             </p>
             <ul className="mt-1.5 space-y-0.5">
               {plan.benefits.slice(0, 2).map((b, i) => (
-                <li key={i} className="flex items-center gap-1.5 text-xs text-gray-400">
+                <li key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Check className="size-3 text-primary" />
                   {b}
                 </li>
@@ -114,7 +116,7 @@ function PlanSelectSection({
           </div>
           <Button
             size="sm"
-            variant={plan.highlighted ? "default" : "outline"}
+            variant={plan.highlighted ? "premium" : "premium-ghost"}
             className="ml-4 shrink-0"
             disabled={isPending}
             onClick={() => onCheckout(plan.id)}
@@ -218,14 +220,14 @@ export default function AssinaturaPage() {
     <>
       <div className="mx-auto max-w-3xl p-4 sm:p-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Assinatura</h1>
-          <p className="mt-1 text-sm text-gray-500">Gerencie seu plano e faturamento.</p>
+          <h1 className="premium-heading text-3xl">Assinatura</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Gerencie seu plano e faturamento.</p>
         </div>
 
         {loadingSub ? (
           <div className="space-y-4">
             {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="h-32 animate-pulse rounded-xl bg-gray-100" />
+              <div key={i} className="h-32 animate-pulse rounded-3xl bg-accent/60" />
             ))}
           </div>
         ) : (
@@ -248,10 +250,10 @@ export default function AssinaturaPage() {
             ) : null}
 
             {/* Current plan card */}
-            <Card>
+            <Card variant="glass" className="rounded-3xl">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <CreditCard className="size-4 text-gray-400" />
+                  <CreditCard className="size-4 text-muted-foreground" />
                   Plano atual
                 </CardTitle>
               </CardHeader>
@@ -259,11 +261,11 @@ export default function AssinaturaPage() {
               <CardContent className="space-y-4 pt-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-foreground">
                       {subscription?.planName ?? (isTrialing ? "Período gratuito" : "Sem plano")}
                     </p>
                     {subscription?.expiresAt ? (
-                      <p className="mt-0.5 text-xs text-gray-500">
+                      <p className="mt-0.5 text-xs text-muted-foreground">
                         {isTrialing
                           ? "Período gratuito até"
                           : isActive
@@ -284,13 +286,13 @@ export default function AssinaturaPage() {
                           ? "bg-green-100 text-green-700"
                           : isPastDue
                             ? "bg-amber-100 text-amber-700"
-                            : "bg-gray-100 text-gray-600"
+                            : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {SUBSCRIPTION_STATUS_LABELS[subscription.status]}
                     </span>
                   ) : (
-                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                    <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
                       Sem assinatura
                     </span>
                   )}
@@ -317,7 +319,7 @@ export default function AssinaturaPage() {
                 {isActive && hasStripeSubscription ? (
                   <div className="flex flex-wrap gap-2 pt-1">
                     <Button
-                      variant="outline"
+                      variant="premium-ghost"
                       size="sm"
                       className="gap-1.5"
                       disabled={portalMutation.isPending}
@@ -327,7 +329,7 @@ export default function AssinaturaPage() {
                       Gerenciar pagamentos
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="premium-ghost"
                       size="sm"
                       className="gap-1.5 text-destructive hover:text-destructive"
                       onClick={() => setCancelOpen(true)}
@@ -341,10 +343,10 @@ export default function AssinaturaPage() {
 
             {/* Upgrade section */}
             {isActive && hasStripeSubscription && upgradePlans.length > 0 ? (
-              <Card>
+              <Card variant="glass" className="rounded-3xl">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
-                    <Zap className="size-4 text-gray-400" />
+                    <Zap className="size-4 text-muted-foreground" />
                     Fazer upgrade
                   </CardTitle>
                 </CardHeader>
@@ -353,18 +355,20 @@ export default function AssinaturaPage() {
                   {upgradePlans.map((plan) => (
                     <div
                       key={plan.id}
-                      className={`flex items-center justify-between rounded-xl border p-4 ${
-                        plan.highlighted ? "border-primary/40 bg-primary/5" : "bg-white"
+                      className={`flex items-center justify-between rounded-3xl border p-4 ${
+                        plan.highlighted
+                          ? "border-primary/40 bg-primary/10"
+                          : "premium-surface border-[color:var(--premium-border)]"
                       }`}
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-gray-900">{plan.name}</p>
+                          <p className="font-medium text-foreground">{plan.name}</p>
                           {plan.highlighted ? (
                             <Badge className="text-xs">Recomendado</Badge>
                           ) : null}
                         </div>
-                        <p className="mt-0.5 text-sm text-gray-500">
+                        <p className="mt-0.5 text-sm text-muted-foreground">
                           {formatPlanPrice(plan.price)}/mês · até{" "}
                           {plan.maxStudents === -1 || plan.maxStudents === 0
                             ? "ilimitados"
@@ -374,7 +378,7 @@ export default function AssinaturaPage() {
                       </div>
                       <Button
                         size="sm"
-                        variant={plan.highlighted ? "default" : "outline"}
+                        variant={plan.highlighted ? "premium" : "premium-ghost"}
                         className="ml-4 shrink-0"
                         disabled={upgradeMutation.isPending}
                         onClick={() => setUpgradingPlanId(plan.id)}
@@ -389,7 +393,7 @@ export default function AssinaturaPage() {
 
             {/* No subscription — plan selection */}
             {!hasStripeSubscription ? (
-              <Card>
+              <Card variant="glass" className="rounded-3xl">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Escolha um plano</CardTitle>
                 </CardHeader>

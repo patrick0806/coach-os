@@ -32,7 +32,7 @@ export function AppearanceCard({
   const profilePhoto = watch("profilePhoto");
 
   return (
-    <Card>
+    <Card variant="glass" className="rounded-3xl">
       <CardHeader>
         <CardTitle>Aparência</CardTitle>
       </CardHeader>
@@ -40,7 +40,7 @@ export function AppearanceCard({
         <div className="space-y-3">
           <Label>Foto de perfil</Label>
           <div className="flex items-center gap-4">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-gray-100">
+            <div className="premium-surface flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full">
               {profilePhoto ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -49,7 +49,7 @@ export function AppearanceCard({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="text-xl font-medium text-gray-400">
+                <span className="text-xl font-medium text-muted-foreground">
                   {(profileName ?? "?").charAt(0).toUpperCase()}
                 </span>
               )}
@@ -76,7 +76,7 @@ export function AppearanceCard({
               id="themeColor"
               {...register("themeColor")}
               maxLength={7}
-              className="w-32 font-mono"
+              className="premium-field w-32 font-mono"
               placeholder="#10b981"
             />
           </div>

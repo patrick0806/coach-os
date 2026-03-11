@@ -162,45 +162,45 @@ export default function PainelPage() {
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card variant="glass" className="rounded-3xl">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Próximas sessões</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loadingNextBookings ? (
-            <div className="space-y-2.5">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="h-14 animate-pulse rounded-2xl bg-accent/60" />
-              ))}
-            </div>
-          ) : upcomingBookings.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[color:var(--premium-border)] bg-background/30 px-4 py-8 text-center text-sm text-muted-foreground">
-              Você ainda não possui sessões agendadas para os próximos dias.
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {upcomingBookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="premium-surface flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{booking.studentName}</p>
-                    <p className="text-sm text-muted-foreground">{booking.servicePlanName}</p>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Próximas sessões</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loadingNextBookings ? (
+              <div className="space-y-2.5">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="h-14 animate-pulse rounded-2xl bg-accent/60" />
+                ))}
+              </div>
+            ) : upcomingBookings.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[color:var(--premium-border)] bg-background/30 px-4 py-8 text-center text-sm text-muted-foreground">
+                Você ainda não possui sessões agendadas para os próximos dias.
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {upcomingBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="premium-surface flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{booking.studentName}</p>
+                      <p className="text-sm text-muted-foreground">{booking.servicePlanName}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-foreground">{formatSessionDate(booking.scheduledDate)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {booking.startTime} - {booking.endTime}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-foreground">{formatSessionDate(booking.scheduledDate)}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {booking.startTime} - {booking.endTime}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
+                ))}
+              </div>
+            )}
+          </CardContent>
         </Card>
 
-        <Card variant="glass" className="rounded-3xl">
+        {/* <Card variant="glass" className="rounded-3xl">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between gap-3">
               <CardTitle className="text-base">Alunos ativos</CardTitle>
@@ -239,7 +239,7 @@ export default function PainelPage() {
               ))
             )}
           </CardContent>
-        </Card>
+        </Card>*/}
       </div>
     </div>
   );

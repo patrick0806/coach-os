@@ -22,13 +22,13 @@ export function StatCard({
 }: StatCardProps) {
   const content = (
     <Card
-      variant="glass"
-      className={href ? "rounded-3xl transition-all hover:scale-[1.01] hover:bg-accent/20" : "rounded-3xl"}
+      variant="premium"
+      className={href ? "rounded-3xl border border-[color:var(--premium-border)] transition-all hover:scale-[1.01] hover:bg-accent/20" : "rounded-3xl border border-[color:var(--premium-border)]"}
     >
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center justify-between text-sm font-medium text-muted-foreground">
-          {title}
+        <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <span className="text-primary">{icon}</span>
+          <span>{title}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -40,7 +40,12 @@ export function StatCard({
         ) : (
           <>
             <p className="premium-heading text-2xl">{value}</p>
-            {description ? <p className="premium-subheading mt-1">{description}</p> : null}
+            <div className="mt-1 flex items-center justify-between gap-3">
+              {description ? <p className="premium-subheading">{description}</p> : <span />}
+              {href ? (
+                <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              ) : null}
+            </div>
           </>
         )}
       </CardContent>
@@ -53,12 +58,7 @@ export function StatCard({
 
   return (
     <Link href={href} className="group block">
-      <div className="relative">
-        {content}
-        {!loading ? (
-          <ArrowRight className="pointer-events-none absolute right-4 top-4 size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-        ) : null}
-      </div>
+      {content}
     </Link>
   );
 }

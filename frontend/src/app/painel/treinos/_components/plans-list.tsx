@@ -151,7 +151,7 @@ export function PlansList({
       {plans.map((plan) => (
         <div
           key={plan.id}
-          className="flex items-center justify-between rounded-xl border bg-card p-4"
+          className="premium-surface flex items-center justify-between rounded-3xl p-4"
         >
           <button
             onClick={() => router.push(`/painel/treinos/${plan.id}`)}
@@ -178,7 +178,7 @@ export function PlansList({
           </button>
 
           <Button
-            variant="outline"
+            variant="premium-ghost"
             size="sm"
             className="ml-4 gap-1.5"
             onClick={() => setApplyPlan(plan)}

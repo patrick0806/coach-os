@@ -34,7 +34,7 @@ export function PersonalDataCard({ form, email }: PersonalDataCardProps) {
   const phoneNumber = watch("phoneNumber");
 
   return (
-    <Card>
+    <Card variant="glass" className="rounded-3xl">
       <CardHeader>
         <CardTitle>Dados pessoais</CardTitle>
       </CardHeader>

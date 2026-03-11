@@ -125,15 +125,15 @@ export default function PerfilPage() {
     <div className="mx-auto max-w-3xl p-4 sm:p-8">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Meu Perfil</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="premium-heading text-3xl">Meu Perfil</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Gerencie suas informações e a aparência da sua página de apresentação.
           </p>
         </div>
 
         {profile?.slug ? (
           <Link href={`/${profile.slug}`} target="_blank" rel="noopener noreferrer">
-            <Button type="button" variant="outline" size="sm" className="gap-2">
+            <Button type="button" variant="premium-ghost" size="sm" className="gap-2">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
