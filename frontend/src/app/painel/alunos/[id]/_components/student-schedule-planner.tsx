@@ -222,19 +222,18 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
           const availabilityStatus =
             isPresential && config.startTime && config.endTime
               ? checkAvailabilityCoverage(
-                  availabilitySlots,
-                  day.dayOfWeek,
-                  config.startTime,
-                  config.endTime,
-                )
+                availabilitySlots,
+                day.dayOfWeek,
+                config.startTime,
+                config.endTime,
+              )
               : null;
 
           return (
             <Card
               key={day.dayOfWeek}
-              className={`border transition-colors duration-200 ${styles.bg} ${
-                availabilityStatus === "outside" ? "border-amber-300" : ""
-              }`}
+              className={`border transition-colors duration-200 ${styles.bg} ${availabilityStatus === "outside" ? "border-amber-300" : ""
+                }`}
             >
               <CardContent className="p-4">
                 <div className="flex flex-wrap items-center gap-3">
@@ -322,7 +321,7 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
 
                   {/* Time range selector (presential only) */}
                   {isPresential ? (
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
                       <Clock className="size-3.5 shrink-0 text-muted-foreground" />
                       <div className="w-32">
                         <TimeSelect
@@ -338,7 +337,7 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
                         />
                       </div>
                       {availabilityStatus === "outside" && (
-                        <div className="flex items-center gap-1 text-xs text-amber-600">
+                        <div className="flex w-full items-center gap-1 pl-6 text-xs text-amber-600 sm:w-auto sm:pl-0">
                           <AlertTriangle className="size-3.5 shrink-0" />
                           <span>Fora da disponibilidade</span>
                         </div>

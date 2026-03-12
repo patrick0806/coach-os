@@ -107,6 +107,25 @@ export async function getPublicAvailableSlots(
   return data;
 }
 
+export interface DayAvailabilityDTO {
+  dayOfWeek: number;
+  freeSlots: { startTime: string; endTime: string }[];
+  occupiedSlots: { startTime: string; endTime: string }[];
+}
+
+export interface PublicWeeklyAvailability {
+  days: DayAvailabilityDTO[];
+}
+
+export async function getPublicWeeklyAvailability(
+  slug: string,
+): Promise<PublicWeeklyAvailability> {
+  const { data } = await api.get<PublicWeeklyAvailability>(
+    `/personals/${slug}/weekly-availability`,
+  );
+  return data;
+}
+
 export async function copyAvailability(
   payload: CopyAvailabilityPayload,
 ): Promise<CopyAvailabilityResponse> {

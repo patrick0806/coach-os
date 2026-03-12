@@ -18,6 +18,8 @@ import { GetPublicProfileController } from "./contexts/public-profile/get-public
 import { GetPublicProfileService } from "./contexts/public-profile/get-public-profile/get-public-profile.service";
 import { GetAvailableSlotsController } from "./contexts/public-profile/get-available-slots/get-available-slots.controller";
 import { GetAvailableSlotsService } from "./contexts/public-profile/get-available-slots/get-available-slots.service";
+import { GetWeeklyAvailabilityController } from "./contexts/public-profile/get-weekly-availability/get-weekly-availability.controller";
+import { GetWeeklyAvailabilityService } from "./contexts/public-profile/get-weekly-availability/get-weekly-availability.service";
 
 @Module({
   controllers: [
@@ -26,6 +28,7 @@ import { GetAvailableSlotsService } from "./contexts/public-profile/get-availabl
     UploadImageController,
     GetPublicProfileController,
     GetAvailableSlotsController,
+    GetWeeklyAvailabilityController,
   ],
   providers: [
     GetProfileService,
@@ -33,6 +36,7 @@ import { GetAvailableSlotsService } from "./contexts/public-profile/get-availabl
     UploadImageService,
     GetPublicProfileService,
     GetAvailableSlotsService,
+    GetWeeklyAvailabilityService,
     UsersRepository,
     PersonalsRepository,
     ServicePlansRepository,
@@ -42,4 +46,4 @@ import { GetAvailableSlotsService } from "./contexts/public-profile/get-availabl
     S3Provider,
   ],
 })
-export class PersonalsModule {}
+export class PersonalsModule { }

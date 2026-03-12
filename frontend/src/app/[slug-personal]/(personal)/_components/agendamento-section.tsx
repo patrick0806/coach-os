@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Clock, CheckCircle2, Loader2 } from "lucide-react";
-import { getPublicAvailableSlots } from "@/services/availability.service";
+import { getPublicWeeklyAvailability, DAY_LABELS, DAYS_ORDER } from "@/services/availability.service";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,29 +16,13 @@ interface AgendamentoSectionProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getNextDays(count = 7): { date: string; label: string; short: string }[] {
-  const days = [];
-  for (let i = 0; i < count; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    const date = d.toISOString().split("T")[0];
-    const label = d.toLocaleDateString("pt-BR", {
-      weekday: "long",
-      day: "2-digit",
-      month: "2-digit",
-    });
-    const short = d.toLocaleDateString("pt-BR", {
-      weekday: "short",
-      day: "2-digit",
-    });
-    days.push({ date, label, short });
-  }
-  return days;
-}
-
 function whatsAppUrl(phone: string, message: string): string {
   const digits = phone.replace(/\D/g, "");
   return `https://wa.me/55${digits}?text=${encodeURIComponent(message)}`;
+}
+
+function getDayPrefix(day: number): string {
+  return [0, 6].includes(day) ? "no" : "na";
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -49,22 +33,32 @@ export function AgendamentoSection({
   personalName,
   themeColor,
 }: AgendamentoSectionProps) {
-  const days = getNextDays(7);
-  const [selectedDate, setSelectedDate] = useState(days[0].date);
-
   const { data, isLoading } = useQuery({
-    queryKey: ["public-available-slots", slug, selectedDate],
-    queryFn: () => getPublicAvailableSlots(slug, selectedDate),
-    staleTime: 2 * 60 * 1000,
+    queryKey: ["public-weekly-availability", slug],
+    queryFn: () => getPublicWeeklyAvailability(slug),
+    staleTime: 5 * 60 * 1000,
   });
 
-  const freeSlots = data?.freeSlots ?? [];
-  const hasAnyAvailability = freeSlots.length > 0 || (data?.occupiedSlots ?? []).length > 0;
+  const daysAvailability = data?.days ?? [];
+  const hasAnyAvailability = daysAvailability.some(d => d.freeSlots.length > 0 || d.occupiedSlots.length > 0);
+
+  const [selectedDayOfWeek, setSelectedDayOfWeek] = useState<number | null>(null);
+
+  // Default to the first day with free slots, or Monday if none
+  const firstAvailableDay = DAYS_ORDER.find(d =>
+    daysAvailability.find(da => da.dayOfWeek === d)?.freeSlots.length
+  ) ?? DAYS_ORDER[0];
+
+  const activeDayIndex = selectedDayOfWeek !== null ? selectedDayOfWeek : firstAvailableDay;
+  const activeDayDto = daysAvailability.find(d => d.dayOfWeek === activeDayIndex);
+
+  const freeSlots = activeDayDto?.freeSlots ?? [];
 
   function handleSlotSelect(startTime: string, endTime: string) {
     if (!phoneNumber) return;
-    const selectedDay = days.find((d) => d.date === selectedDate);
-    const message = `Olá ${personalName}! Vi seu perfil e tenho interesse em agendar uma sessão no dia ${selectedDay?.label ?? selectedDate} das ${startTime} às ${endTime}. Poderia me dar mais informações?`;
+    const dayLabel = DAY_LABELS[activeDayIndex as keyof typeof DAY_LABELS];
+    const prefix = getDayPrefix(activeDayIndex);
+    const message = `Olá ${personalName}! Vi seu perfil e tenho interesse em agendar uma sessão ${prefix} ${dayLabel} das ${startTime} às ${endTime}. Poderia me dar mais informações?`;
     window.open(whatsAppUrl(phoneNumber, message), "_blank", "noopener,noreferrer");
   }
 
@@ -78,30 +72,32 @@ export function AgendamentoSection({
             style={{ backgroundColor: themeColor }}
           >
             <CalendarDays className="size-4" />
-            Disponibilidade
+            Disponibilidade Padrão
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Horários disponíveis</h2>
           <p className="mt-3 text-gray-500">
-            Selecione um dia para ver os horários em que atendo.
+            Selecione um dia da semana para ver os horários em que atendo.
           </p>
         </div>
 
         {/* Day picker */}
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
-          {days.map((day) => {
-            const isSelected = day.date === selectedDate;
+          {DAYS_ORDER.map((dayOfWeek) => {
+            const isSelected = dayOfWeek === activeDayIndex;
+            const label = DAY_LABELS[dayOfWeek as keyof typeof DAY_LABELS];
+            const short = label.substring(0, 3);
+
             return (
               <button
-                key={day.date}
-                onClick={() => setSelectedDate(day.date)}
-                className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
-                  isSelected
+                key={dayOfWeek}
+                onClick={() => setSelectedDayOfWeek(dayOfWeek)}
+                className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${isSelected
                     ? "text-white shadow-md"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
                 style={isSelected ? { backgroundColor: themeColor } : undefined}
               >
-                <span className="capitalize">{day.short}</span>
+                <span className="capitalize">{short}</span>
               </button>
             );
           })}
@@ -113,7 +109,7 @@ export function AgendamentoSection({
             <div className="flex h-32 items-center justify-center">
               <Loader2 className="size-6 animate-spin text-gray-400" />
             </div>
-          ) : !hasAnyAvailability ? (
+          ) : !hasAnyAvailability || !activeDayDto ? (
             <div className="flex h-32 flex-col items-center justify-center text-center text-gray-400">
               <CalendarDays className="mb-2 size-8 opacity-40" />
               <p className="text-sm">Sem atendimento neste dia.</p>
@@ -137,11 +133,10 @@ export function AgendamentoSection({
                     key={`${slot.startTime}-${slot.endTime}`}
                     onClick={() => handleSlotSelect(slot.startTime, slot.endTime)}
                     disabled={!phoneNumber}
-                    className={`flex items-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all ${
-                      phoneNumber
+                    className={`flex items-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all ${phoneNumber
                         ? "cursor-pointer hover:shadow-md hover:scale-[1.02]"
                         : "cursor-default"
-                    }`}
+                      }`}
                     style={{ borderColor: themeColor, color: themeColor }}
                   >
                     <CheckCircle2 className="size-4 shrink-0" />

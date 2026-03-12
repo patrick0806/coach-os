@@ -22,21 +22,23 @@
 ---
 
 ## 📋 Histórias de Usuário e Tarefas Técnicas
-
 ### US-075 — Gestão de Horários de Trabalho e Visibilidade Unificada
 - [ ] **Preservação da UI/UX de Disponibilidade:** Manter a interface atual de `/painel/agenda/disponibilidade` para o Personal definir seu grid base.
-- [ ] **Nova Página de Agenda (Painel):** Refatorar a visualização principal da agenda para mostrar um resumo diário (começando por "Hoje") que unifique agendamentos manuais, treinos planejados e disponibilidade, com navegação simples para semana/mês.
+- [ ] **Nova Página de Agenda (Painel):**
+    - Refatorar visualização para focar no "Hoje" (resumo do dia).
+    - Criar aba "Horários da Semana" exclusiva para visualização do grid de disponibilidade (substituindo a lista no topo do calendário).
+    - **[BUG-004] Aumentar responsividade:** Garantir que o calendário web/mobile tenha largura mínima legível para os cards.
+- [ ] **Limpeza do Calendário:** Remover a exibição duplicada de horários de atendimento onde já existe um treino presencial marcado.
 - [ ] **Bloqueios Manuais:** Permitir o bloqueio de horários diretamente na nova visualização de agenda.
-- [x] **Visualização Unificada (Calendário):** Aba "Calendário de Treinos" em `/painel/agenda` com grid semanal que sobrepoê:
-    - Fundo: slots de disponibilidade ativos do dia (chips azuis).
-    - Camada: training sessions de todos alunos (cards presencial=verde, online=azul).
-    - Indicador de status por ponto colorido (pendente/concluído/cancelado).
-    - Novo endpoint `GET /training-sessions/personal-calendar?from&to` com join de studentName.
 
 ---
 
 ### US-076 — Planejador de Treinos do Aluno (Refinado)
+- [ ] **[BUG-003] Correção de Layout:** Garantir que o aviso "Fora da disponibilidade" não quebre o grid dos seletores de treino.
+- [ ] **Fix do Seletor de Treino:** Garantir que o treino selecionado apareça corretamente em todos os cenários, independente de avisos.
 - [x] **Evolução da `schedule_rule`:**
+...
+
     - `sessionType` já cobre os tipos (`presential`, `online`, `rest`).
     - `startTime` e `endTime` adicionados (migration 0019, schema, repositórios).
 - [x] **Validação em Tempo Real (UX):** No `student-schedule-planner.tsx`, validar instantaneamente se o horário escolhido para o aluno está dentro da disponibilidade do Personal e se não há conflitos.
