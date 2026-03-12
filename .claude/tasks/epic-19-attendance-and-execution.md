@@ -1,6 +1,6 @@
 # Epic 19 — Atendimento e Execução Gamificada
 
-Status: `[~]` em andamento
+Status: `[x]` done
 
 > **Visão Premium:** Transformar o treino em uma experiência imersiva e viciante. O foco é reduzir a fricção operacional (marcar como feito) e aumentar a dopamina (streaks e visual high-end).
 
@@ -68,22 +68,22 @@ Status: `[~]` em andamento
 
 ## US-057 — Gamificação e Streaks (Retenção)
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 19
 
 ### Tarefas Backend
-- [ ] Implementar `StreakService`:
+- [x] Implementar `StreakService`:
     - Se `hoje - last_workout_date == 1 dia`, incrementa streak.
     - Se `== 0 dias` (mesmo dia), mantém.
     - Se `> 1 dia`, reseta para 1.
-- [ ] Integrar o cálculo no fluxo de `complete_workout`.
+- [x] Integrar o cálculo no fluxo de `complete_workout`.
 
 ### Tarefas Frontend
-- [ ] **Dashboard do Aluno:** Adicionar widget `StreakCounter` (Ícone de fogo pulsante + número).
-- [ ] **Feedback de Conclusão:**
+- [x] **Dashboard do Aluno:** Adicionar widget `StreakCounter` (Ícone de fogo pulsante + número).
+- [x] **Feedback de Conclusão:**
     - Modal de "Treino Finalizado" com confetes (`canvas-confetti`).
     - Resumo: "Você treinou por 45 minutos. 🔥 5 dias seguidos!".
-- [ ] **Notificações:** Toast motivacional ao abrir o app se estiver prestes a quebrar o streak.
+- [x] **Notificações:** Toast motivacional ao abrir o app se estiver prestes a quebrar o streak.
 
 ---
 

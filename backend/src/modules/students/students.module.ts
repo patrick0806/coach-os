@@ -10,6 +10,7 @@ import { BookingsRepository } from "@shared/repositories/bookings.repository";
 import { StudentNotesRepository } from "@shared/repositories/student-notes.repository";
 import { ServicePlansRepository } from "@shared/repositories/service-plans.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
+import { StudentStatsRepository } from "@shared/repositories/student-stats.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { CreateStudentController } from "./contexts/create-student/create-student.controller";
@@ -30,6 +31,8 @@ import { MyWorkoutPlansController } from "./contexts/my-workout-plans/my-workout
 import { MyWorkoutPlansService } from "./contexts/my-workout-plans/my-workout-plans.service";
 import { MyWorkoutPlanDetailController } from "./contexts/my-workout-plan-detail/my-workout-plan-detail.controller";
 import { MyWorkoutPlanDetailService } from "./contexts/my-workout-plan-detail/my-workout-plan-detail.service";
+import { MyStatsController } from "./contexts/my-stats/my-stats.controller";
+import { MyStatsService } from "./contexts/my-stats/my-stats.service";
 import { CreateStudentNoteController } from "./contexts/create-student-note/create-student-note.controller";
 import { CreateStudentNoteService } from "./contexts/create-student-note/create-student-note.service";
 import { ListStudentNotesController } from "./contexts/list-student-notes/list-student-notes.controller";
@@ -56,6 +59,7 @@ import { DeleteStudentNoteService } from "./contexts/delete-student-note/delete-
     // US-010 — student views own plans (static path must come before :id routes)
     MyWorkoutPlansController,
     MyWorkoutPlanDetailController,
+    MyStatsController,
   ],
   providers: [
     CreateStudentService,
@@ -71,6 +75,7 @@ import { DeleteStudentNoteService } from "./contexts/delete-student-note/delete-
     DeleteStudentNoteService,
     MyWorkoutPlansService,
     MyWorkoutPlanDetailService,
+    MyStatsService,
     UsersRepository,
     StudentsRepository,
     PersonalsRepository,
@@ -81,6 +86,7 @@ import { DeleteStudentNoteService } from "./contexts/delete-student-note/delete-
     StudentNotesRepository,
     ServicePlansRepository,
     PlansRepository,
+    StudentStatsRepository,
     ResendProvider,
   ],
 })

@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { use, useMemo } from "react";
+import { use, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, CalendarDays, ChevronRight, Dumbbell, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMyBookings, type Booking } from "@/services/bookings.service";
 import { getMeWorkoutPlans } from "@/services/workout-plans.service";
+import { getMyStats, isStreakAtRisk } from "@/services/student-stats.service";
 import { NextSessionCard } from "./_components/next-session-card";
 import { ProgressRing } from "./_components/progress-ring";
+import { StreakCounter } from "./_components/streak-counter";
 
 interface AlunoPainelPageProps {
   params: Promise<{ "slug-personal": string }>;
@@ -41,6 +44,22 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
     queryFn: getMeWorkoutPlans,
   });
 
+  const { data: stats } = useQuery({
+    queryKey: ["my-stats"],
+    queryFn: getMyStats,
+  });
+
+  // Motivational toast when streak is at risk (last workout was yesterday)
+  useEffect(() => {
+    if (stats && isStreakAtRisk(stats) && stats.currentStreak > 0) {
+      toast(`🔥 Sequência de ${stats.currentStreak} dias em risco! Treine hoje para não perder.`, {
+        duration: 6000,
+      });
+    }
+  // Show once per mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stats?.currentStreak, stats?.lastWorkoutDate]);
+
   const upcomingBookings = useMemo(() => {
     const now = new Date();
     const bookings = Array.isArray(bookingsData) ? bookingsData : [];
@@ -70,6 +89,12 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
         <h1 className="premium-heading text-3xl">Painel do Aluno</h1>
         <p className="premium-subheading">Sua rotina, suas próximas sessões e seu progresso em um só lugar.</p>
       </div>
+
+      {stats ? (
+        <div className="mb-6">
+          <StreakCounter streak={stats.currentStreak} totalWorkouts={stats.totalWorkouts} />
+        </div>
+      ) : null}
 
       <section className="mb-6 space-y-4">
         {loadingBookings ? (

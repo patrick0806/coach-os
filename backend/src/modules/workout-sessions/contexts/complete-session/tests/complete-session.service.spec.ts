@@ -28,13 +28,15 @@ describe("CompleteSessionService", () => {
     findByIdAndStudent: ReturnType<typeof vi.fn>;
     complete: ReturnType<typeof vi.fn>;
   };
+  let streakService: { updateStudentStats: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     workoutSessionsRepository = {
       findByIdAndStudent: vi.fn(),
       complete: vi.fn(),
     };
-    service = new CompleteSessionService(workoutSessionsRepository as any);
+    streakService = { updateStudentStats: vi.fn().mockResolvedValue(undefined) };
+    service = new CompleteSessionService(workoutSessionsRepository as any, streakService as any);
   });
 
   describe("execute", () => {

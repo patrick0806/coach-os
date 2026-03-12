@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { WorkoutSessionsRepository } from "@shared/repositories/workout-sessions.repository";
 import { WorkoutPlanStudentsRepository } from "@shared/repositories/workout-plan-students.repository";
+import { StudentStatsRepository } from "@shared/repositories/student-stats.repository";
 
 import { StartSessionController } from "./contexts/start-session/start-session.controller";
 import { StartSessionService } from "./contexts/start-session/start-session.service";
@@ -9,6 +10,7 @@ import { UpdateStepController } from "./contexts/update-step/update-step.control
 import { UpdateStepService } from "./contexts/update-step/update-step.service";
 import { CompleteSessionController } from "./contexts/complete-session/complete-session.controller";
 import { CompleteSessionService } from "./contexts/complete-session/complete-session.service";
+import { StreakService } from "./streak/streak.service";
 
 @Module({
   controllers: [StartSessionController, UpdateStepController, CompleteSessionController],
@@ -16,8 +18,10 @@ import { CompleteSessionService } from "./contexts/complete-session/complete-ses
     StartSessionService,
     UpdateStepService,
     CompleteSessionService,
+    StreakService,
     WorkoutSessionsRepository,
     WorkoutPlanStudentsRepository,
+    StudentStatsRepository,
   ],
 })
 export class WorkoutSessionsModule {}

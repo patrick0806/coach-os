@@ -30,6 +30,7 @@ import {
   completeWorkoutSession,
   type WorkoutSession,
 } from "@/services/workout-plans.service";
+import { getMyStats } from "@/services/student-stats.service";
 
 interface PageProps {
   params: Promise<{ "slug-personal": string; planId: string }>;
@@ -120,10 +121,19 @@ interface CompletionModalProps {
   planName: string;
   slug: string;
   totalSets: number;
+  durationMinutes: number;
   onClose: () => void;
 }
 
-function CompletionModal({ planName, slug, totalSets, onClose }: CompletionModalProps) {
+function CompletionModal({
+  planName,
+  slug,
+  totalSets,
+  durationMinutes,
+  onClose,
+}: CompletionModalProps) {
+  const [streak, setStreak] = useState<number | null>(null);
+
   useEffect(() => {
     confetti({
       particleCount: 120,
@@ -131,6 +141,10 @@ function CompletionModal({ planName, slug, totalSets, onClose }: CompletionModal
       origin: { y: 0.6 },
       colors: ["#a855f7", "#8b5cf6", "#6366f1", "#ffffff"],
     });
+    // Fetch updated streak after completing
+    getMyStats()
+      .then((s) => setStreak(s.currentStreak))
+      .catch(() => {});
   }, []);
 
   return (
@@ -138,11 +152,30 @@ function CompletionModal({ planName, slug, totalSets, onClose }: CompletionModal
       <div className="premium-glass w-full max-w-sm rounded-3xl p-8 text-center">
         <Flame className="mx-auto mb-4 size-12 text-primary" />
         <h2 className="premium-heading text-2xl">Treino concluído!</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {planName} · {totalSets} séries completadas
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{planName}</p>
 
-        <div className="mt-8 flex flex-col gap-3">
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="premium-surface rounded-2xl px-3 py-3">
+            <p className="text-xl font-bold">{durationMinutes}</p>
+            <p className="text-xs text-muted-foreground">min</p>
+          </div>
+          <div className="premium-surface rounded-2xl px-3 py-3">
+            <p className="text-xl font-bold">{totalSets}</p>
+            <p className="text-xs text-muted-foreground">séries</p>
+          </div>
+          <div className="premium-surface rounded-2xl px-3 py-3">
+            <p className="text-xl font-bold">{streak !== null ? streak : "—"}</p>
+            <p className="text-xs text-muted-foreground">🔥 dias</p>
+          </div>
+        </div>
+
+        {streak !== null && streak > 1 ? (
+          <p className="mt-4 text-sm font-medium text-primary">
+            🔥 {streak} dias seguidos! Continue assim!
+          </p>
+        ) : null}
+
+        <div className="mt-6 flex flex-col gap-3">
           <Link href={`/${slug}/alunos/treinos`}>
             <Button variant="premium" className="w-full rounded-2xl" onClick={onClose}>
               <Check className="size-4" />
@@ -164,6 +197,7 @@ export default function ExecutarPage({ params }: PageProps) {
   const queryClient = useQueryClient();
 
   const [session, setSession] = useState<WorkoutSession | null>(null);
+  const [sessionStartedAt] = useState<Date>(() => new Date());
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [exerciseProgress, setExerciseProgress] = useState<Record<string, ExerciseProgressState>>(
     {},
@@ -172,6 +206,7 @@ export default function ExecutarPage({ params }: PageProps) {
   const [restTotal, setRestTotal] = useState(0);
   const [restActive, setRestActive] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [durationMinutes, setDurationMinutes] = useState(0);
 
   // Debounce ref for step sync to avoid too many requests
   const stepSyncTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -235,8 +270,11 @@ export default function ExecutarPage({ params }: PageProps) {
   const completeMutation = useMutation({
     mutationFn: () => completeWorkoutSession(session!.id),
     onSuccess: () => {
+      const elapsed = Math.round((Date.now() - sessionStartedAt.getTime()) / 60000);
+      setDurationMinutes(Math.max(1, elapsed));
       setCompleted(true);
       queryClient.invalidateQueries({ queryKey: ["me-workout-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["my-stats"] });
     },
   });
 
@@ -335,6 +373,7 @@ export default function ExecutarPage({ params }: PageProps) {
           planName={plan.name}
           slug={slug}
           totalSets={completedSetsTotal}
+          durationMinutes={durationMinutes}
           onClose={() => setCompleted(false)}
         />
       ) : null}

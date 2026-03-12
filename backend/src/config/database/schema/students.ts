@@ -5,6 +5,8 @@ import {
   index,
   uniqueIndex,
   text,
+  integer,
+  date,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
 import { relations } from "drizzle-orm";
@@ -20,6 +22,10 @@ export const students = pgTable(
     userId: varchar("user_id", { length: 36 }).notNull().unique(),
     personalId: varchar("personal_id", { length: 36 }).notNull(),
     servicePlanId: varchar("service_plan_id", { length: 36 }).notNull(),
+    // Gamification stats
+    currentStreak: integer("current_streak").notNull().default(0),
+    lastWorkoutDate: date("last_workout_date"),
+    totalWorkouts: integer("total_workouts").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
