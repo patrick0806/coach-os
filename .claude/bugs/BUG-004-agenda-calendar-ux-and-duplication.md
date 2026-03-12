@@ -6,18 +6,20 @@
 **Módulo:** `frontend/painel/agenda`
 
 ## 📝 Descrição do Bug / UX
-A aba "Calendário de Treinos" apresenta falhas de usabilidade e visualização:
-1.  **Informação Duplicada:** Na Segunda-feira (Seg), aparece o treino da Maria (10:00–11:00) e simultaneamente o horário de atendimento (10:00–11:00) na lista de disponibilidade do topo, gerando ruído visual.
-2.  **Grid Apertado:** A visualização está muito pequena tanto no desktop quanto no mobile, dificultando a leitura dos nomes dos alunos e dos horários.
-3.  **Visualização Poluída:** Mostrar todos os horários de atendimento no topo de cada coluna consome muito espaço vertical, "empurrando" os treinos reais para baixo.
+A aba "Calendário de Treinos" apresenta falhas de usabilidade e visualização que dificultam a gestão do Personal:
 
-## 🎯 Melhoria Sugerida (Integrada ao Épico 23)
-- [ ] **Desacoplar Disponibilidade:** Remover a lista de horários do topo das colunas do calendário.
-- [ ] **Nova Aba de Disponibilidade:** Criar uma aba específica "Horários da Semana" para o Personal visualizar rapidamente sua grade base, deixando o Calendário focado apenas em compromissos reais e mostrar quais horários estão disponíveis para agendamento.
-- [ ] **Responsividade:** Aumentar o tamanho dos cards de treino e permitir scroll horizontal no mobile para que as colunas tenham largura mínima legível.
-- [ ] **Diferenciação Visual:** O Calendário deve mostrar apenas os treinos agendados; a disponibilidade deve ser apenas o "fundo" ou estar em outra aba.
+1.  **Informação Duplicada:** No dia de hoje (ex: Seg), aparece o treino da Maria (10:00–11:00) e simultaneamente a lista de horários de atendimento (09:00, 10:00, 11:00...) no topo da coluna. Isso gera poluição visual e confusão sobre o que é compromisso e o que é apenas horário vago.
+2.  **Grid Apertado:** A visualização está muito pequena. No mobile, as colunas ficam ilegíveis. No desktop, os nomes dos alunos e horários nos cards (como o da Maria) ficam esmagados.
+3.  **Visualização Poluída:** A lista de "chips" de horários de atendimento no topo de cada coluna consome quase todo o espaço vertical, empurrando os treinos reais para fora da área visível inicial.
+
+## 🎯 Melhoria Sugerida (Conforme Screenshot de Referência 18:35:28)
+- [ ] **Remover Lista de Horários do Topo:** Eliminar os chips de horários (ex: 09:00-10:00, 10:00-11:00) que aparecem dentro de cada coluna do dia.
+- [ ] **Nova Aba "Horários da Semana":** Criar uma aba específica para o Personal visualizar sua grade horária base de forma limpa, separada dos compromissos diários.
+- [ ] **Expandir Cards de Treino:** Aumentar o tamanho e o padding dos cards de treino (ex: Maria Oliveira) para que o nome, horário e status (ponto colorido) fiquem bem legíveis.
+- [ ] **Responsividade:** Implementar largura mínima por coluna com scroll horizontal no mobile para evitar que o calendário "esmague" as informações.
+- [ ] **Foco no "Hoje":** Ao abrir a agenda, o sistema deve centralizar/destacar o dia atual automaticamente.
 
 ## ✅ Critérios de Aceite
-- [ ] Treinos ocupados não aparecem simultaneamente na lista de disponibilidade do mesmo dia.
-- [ ] O grid do calendário deve ser expansível para melhor leitura no mobile/web.
-- [ ] Limpeza visual da interface de calendário para focar nos compromissos.
+- [ ] O calendário de treinos exibe apenas os compromissos reais, sem a lista de disponibilidade "poluindo" o topo.
+- [ ] Visualização limpa seguindo o padrão da screenshot de referência (cards espaçados e legíveis).
+- [ ] Presença de uma aba dedicada para consulta da grade horária base (disponibilidade).

@@ -232,23 +232,22 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
           return (
             <Card
               key={day.dayOfWeek}
-              className={`border transition-colors duration-200 ${styles.bg} ${availabilityStatus === "outside" ? "border-amber-300" : ""
+              className={`border transition-colors duration-200 ${styles.bg} ${availabilityStatus === "outside" ? "border-amber-300 shadow-sm" : ""
                 }`}
             >
-              <CardContent className="p-4">
-                <div className="flex flex-wrap items-center gap-3">
-                  {/* Day label */}
-                  <div className="flex w-28 shrink-0 items-center gap-2">
+              <CardContent className="p-4 flex flex-col gap-4">
+                {/* Top Row: Day Label + Session Type */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${styles.badge}`}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold shadow-sm ${styles.badge}`}
                     >
                       {styles.icon}
-                      {day.short}
+                      {day.label}
                     </span>
                   </div>
 
-                  {/* Session type selector */}
-                  <div className="w-44 shrink-0">
+                  <div className="w-full sm:w-[240px] shrink-0">
                     <Select
                       value={config.sessionType}
                       onValueChange={(value: SessionType) =>
@@ -260,48 +259,51 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
                         })
                       }
                     >
-                      <SelectTrigger className="h-9 bg-white text-sm">
+                      <SelectTrigger className="h-10 bg-white/70 backdrop-blur-sm shadow-sm text-sm border-0 ring-1 ring-black/5 hover:bg-white transition-colors">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="rest">
                           <span className="flex items-center gap-2">
-                            <Moon className="size-3.5 text-gray-400" />
+                            <Moon className="size-4 text-gray-400" />
                             Descanso
                           </span>
                         </SelectItem>
                         <SelectItem value="online">
                           <span className="flex items-center gap-2">
-                            <Wifi className="size-3.5 text-blue-500" />
+                            <Wifi className="size-4 text-blue-500" />
                             Treino Online
                           </span>
                         </SelectItem>
                         <SelectItem value="presential">
                           <span className="flex items-center gap-2">
-                            <Dumbbell className="size-3.5 text-emerald-500" />
+                            <Dumbbell className="size-4 text-emerald-500" />
                             Treino Presencial
                           </span>
                         </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
 
-                  {/* Workout plan selector */}
-                  {isTraining ? (
-                    <div className="min-w-0 flex-1">
+                {/* Bottom Row / Section: Plan + Time (Only if not resting) */}
+                {isTraining && (
+                  <div className="flex flex-col xl:flex-row gap-4 pt-3 border-t border-black/5">
+                    {/* Workout Plan Selector */}
+                    <div className="flex-1 min-w-0">
                       <Select
                         value={config.workoutPlanId || ""}
                         onValueChange={(value) =>
                           updateDay(day.dayOfWeek, { workoutPlanId: value })
                         }
                       >
-                        <SelectTrigger className="h-9 w-full bg-white text-sm">
-                          <SelectValue placeholder="Selecione o treino..." />
+                        <SelectTrigger className="h-10 w-full bg-white text-sm">
+                          <SelectValue placeholder="Selecione o plano de treino..." />
                         </SelectTrigger>
                         <SelectContent>
                           {workoutPlans.length === 0 ? (
                             <div className="px-3 py-2 text-sm text-muted-foreground">
-                              Nenhum treino atribuído ao aluno
+                              Nenhum treino atribuído
                             </div>
                           ) : (
                             workoutPlans.map((plan) => (
@@ -313,38 +315,42 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
                         </SelectContent>
                       </Select>
                     </div>
-                  ) : (
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-muted-foreground">Dia de descanso</p>
-                    </div>
-                  )}
 
-                  {/* Time range selector (presential only) */}
-                  {isPresential ? (
-                    <div className="flex shrink-0 flex-wrap items-center gap-2">
-                      <Clock className="size-3.5 shrink-0 text-muted-foreground" />
-                      <div className="w-32">
-                        <TimeSelect
-                          value={config.startTime || ""}
-                          onChange={(value) => updateDay(day.dayOfWeek, { startTime: value })}
-                        />
-                      </div>
-                      <span className="text-xs text-muted-foreground">até</span>
-                      <div className="w-32">
-                        <TimeSelect
-                          value={config.endTime || ""}
-                          onChange={(value) => updateDay(day.dayOfWeek, { endTime: value })}
-                        />
-                      </div>
-                      {availabilityStatus === "outside" && (
-                        <div className="flex w-full items-center gap-1 pl-6 text-xs text-amber-600 sm:w-auto sm:pl-0">
-                          <AlertTriangle className="size-3.5 shrink-0" />
-                          <span>Fora da disponibilidade</span>
+                    {/* Time Selector (Presential Only) */}
+                    {isPresential && (
+                      <div className="flex flex-col gap-2 w-full xl:w-[320px] shrink-0">
+                        <div className="flex items-center gap-2 bg-white rounded-md p-1 border shadow-sm">
+                          <div className="pl-2 h-full flex items-center justify-center">
+                            <Clock className="size-4 shrink-0 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1">
+                            <TimeSelect
+                              value={config.startTime || ""}
+                              onChange={(value) => updateDay(day.dayOfWeek, { startTime: value })}
+                              className="border-0 shadow-none focus-visible:ring-0 focus:ring-0 px-1 text-center"
+                            />
+                          </div>
+                          <span className="text-xs font-medium text-muted-foreground shrink-0 uppercase tracking-wider">até</span>
+                          <div className="flex-1">
+                            <TimeSelect
+                              value={config.endTime || ""}
+                              onChange={(value) => updateDay(day.dayOfWeek, { endTime: value })}
+                              className="border-0 shadow-none focus-visible:ring-0 focus:ring-0 px-1 text-center"
+                            />
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ) : null}
-                </div>
+
+                        {/* Error Indicator */}
+                        {availabilityStatus === "outside" && (
+                          <div className="flex items-center gap-1.5 px-1 py-1 text-xs font-semibold text-amber-700 bg-amber-100/50 rounded-md">
+                            <AlertTriangle className="size-3.5 shrink-0" />
+                            <span>Horário fora da sua disponibilidade padrão</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           );

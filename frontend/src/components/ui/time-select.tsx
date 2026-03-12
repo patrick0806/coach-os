@@ -16,6 +16,7 @@ interface TimeSelectProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   id?: string;
+  className?: string;
 }
 
 export function TimeSelect({ value, onChange, disabled, id }: TimeSelectProps) {
