@@ -16,8 +16,14 @@ import {
   workoutPlans,
   availabilitySlots,
   servicePlans,
+  bookingSeries,
   bookings,
   passwordSetupTokens,
+  studentNotes,
+  NewServicePlan,
+  CreateWorkoutPlan,
+  CreateWorkoutExercise,
+  CreateWorkoutPlanStudent,
 } from "./schema";
 import { ApplicationRoles } from "@shared/enums";
 
@@ -33,10 +39,12 @@ async function cleanDatabase() {
     await db.delete(workoutPlanStudents);
     await db.delete(workoutPlans);
     await db.delete(bookings);
+    await db.delete(bookingSeries);
+    await db.delete(studentNotes);
+    await db.delete(students);
     await db.delete(servicePlans);
     await db.delete(availabilitySlots);
     await db.delete(passwordSetupTokens);
-    await db.delete(students);
     await db.delete(admins);
     await db.delete(personals);
     await db.delete(exercises);
@@ -83,9 +91,23 @@ async function seed() {
         role: ApplicationRoles.STUDENT,
         isActive: true,
       },
+      {
+        name: "Maria Oliveira",
+        email: "maria.oliveira@example.com",
+        password: await hash("studentPassword" + env.HASH_PEPPER, { type: 2 }),
+        role: ApplicationRoles.STUDENT,
+        isActive: true,
+      },
+      {
+        name: "Carlos Santos",
+        email: "carlos.santos@example.com",
+        password: await hash("studentPassword" + env.HASH_PEPPER, { type: 2 }),
+        role: ApplicationRoles.STUDENT,
+        isActive: true,
+      },
     ];
 
-    const [adminUser, personalUser, studentUser] = await db
+    const [adminUser, personalUser, studentUser, student2User, student3User] = await db
       .insert(users)
       .values(usersToInsert)
       .returning();
@@ -174,23 +196,53 @@ async function seed() {
 
     // --- SERVICE PLANS ---
     console.log("Inserting service plans...");
-    const [defaultServicePlan] = await db
-      .insert(servicePlans)
-      .values({
+    const servicePlansData: any[] = [
+      {
         personalId: insertedPersonal.id,
-        name: "Plano Mensal 3x",
+        name: "Consultoria Online",
+        sessionsPerWeek: 0,
+        price: "149.90",
+        attendanceType: "online" as const,
+      },
+      {
+        personalId: insertedPersonal.id,
+        name: "Presencial 3x na Semana",
         sessionsPerWeek: 3,
-        price: "249.90",
-      })
+        price: "349.90",
+        attendanceType: "presential" as const,
+      },
+      {
+        personalId: insertedPersonal.id,
+        name: "Presencial Todos os Dias",
+        sessionsPerWeek: 5,
+        price: "549.90",
+        attendanceType: "presential" as const,
+      }
+    ];
+    const [planOnline, plan3x, plan5x] = await db
+      .insert(servicePlans)
+      .values(servicePlansData as any)
       .returning();
 
     // --- STUDENTS ---
     console.log("Inserting student profile...");
-    await db.insert(students).values({
-      userId: studentUser.id,
-      personalId: insertedPersonal.id,
-      servicePlanId: defaultServicePlan.id,
-    });
+    const [joao, maria, carlos] = await db.insert(students).values([
+      {
+        userId: studentUser.id,
+        personalId: insertedPersonal.id,
+        servicePlanId: planOnline.id,
+      },
+      {
+        userId: student2User.id,
+        personalId: insertedPersonal.id,
+        servicePlanId: plan3x.id,
+      },
+      {
+        userId: student3User.id,
+        personalId: insertedPersonal.id,
+        servicePlanId: plan5x.id,
+      }
+    ]).returning();
 
     // --- EXERCISES ---
     console.log("Inserting global exercises...");
@@ -340,13 +392,181 @@ async function seed() {
       exercisedbGifUrl: null,
       youtubeUrl: null,
     }));
-    await db.insert(exercises).values(exercisesData);
+    const insertedExercises = await db.insert(exercises).values(exercisesData).returning();
+
+    // --- GENERIC TEMPLATES ---
+    console.log("Inserting workout generic templates...");
+    const genericTemplates: any[] = [
+      {
+        personalId: insertedPersonal.id,
+        name: "Peito e Tríceps",
+        description: "Treino focado em superiores (Peitoral e Tríceps)",
+        planKind: "template" as const,
+      },
+      {
+        personalId: insertedPersonal.id,
+        name: "Costas e Bíceps",
+        description: "Treino focado em superiores (Dorsais e Bíceps)",
+        planKind: "template" as const,
+      },
+      {
+        personalId: insertedPersonal.id,
+        name: "Pernas e Glúteos",
+        description: "Treino focado em inferiores",
+        planKind: "template" as const,
+      }
+    ];
+    const [chestTriceps, backBiceps, legsGlutes] = await db.insert(workoutPlans).values(genericTemplates as any).returning();
+
+    const getExerciseId = (nameMatch: string) => insertedExercises.find(e => e.name.toLowerCase().includes(nameMatch.toLowerCase()))?.id;
+    const chestIds = [getExerciseId("supino reto"), getExerciseId("supino inclinado"), getExerciseId("crucifixo reto")];
+    const tricepsIds = [getExerciseId("triceps testa"), getExerciseId("triceps corda")];
+    const backIds = [getExerciseId("puxada frontal"), getExerciseId("remada curvada"), getExerciseId("remada baixa")];
+    const bicepsIds = [getExerciseId("rosca direta"), getExerciseId("rosca alternada")];
+    const legIds = [getExerciseId("agachamento livre"), getExerciseId("leg press"), getExerciseId("cadeira extensora")];
+    const gluteIds = [getExerciseId("abducao quadril"), getExerciseId("gluteo 4 apoios")];
+
+    // Generic function to map workout exercises
+    const mapExercises = (planId: string, exerciseIds: (string | undefined)[], load: string | null, rest: string, exec: string) =>
+      exerciseIds.filter(Boolean).map((id, index) => ({
+        workoutPlanId: planId,
+        exerciseId: id as string,
+        sets: 3,
+        repetitions: 12,
+        order: index,
+        load, restTime: rest, executionTime: exec
+      }));
+
+    const workoutExercisesToInsert = [
+      ...mapExercises(chestTriceps.id, [...chestIds, ...tricepsIds], null, "60s", "45s"),
+      ...mapExercises(backBiceps.id, [...backIds, ...bicepsIds], null, "60s", "45s"),
+      ...mapExercises(legsGlutes.id, [...legIds, ...gluteIds], null, "90s", "60s")
+    ];
+
+    await db.insert(workoutExercises).values(workoutExercisesToInsert);
+
+    // --- STUDENT PLANS ---
+    console.log("Inserting specific student workout plans...");
+    const joaoPlansToInsert: any[] = [
+      { personalId: insertedPersonal.id, name: "Treino A - Joao", planKind: "student" as const, sourceTemplateId: chestTriceps.id }
+    ];
+    const [joaoPlan1] = await db.insert(workoutPlans).values(joaoPlansToInsert as any).returning();
+    await db.insert(workoutPlanStudents).values([{ workoutPlanId: joaoPlan1.id, studentId: joao.id } as CreateWorkoutPlanStudent]);
+    await db.insert(workoutExercises).values([
+      ...mapExercises(joaoPlan1.id, [...chestIds, ...tricepsIds], "20kg", "45s", "40s")
+    ]);
+
+    const mariaPlansToInsert: any[] = [
+      { personalId: insertedPersonal.id, name: "Treino A - Maria (Segunda)", planKind: "student" as const, sourceTemplateId: legsGlutes.id },
+      { personalId: insertedPersonal.id, name: "Treino B - Maria (Quarta)", planKind: "student" as const, sourceTemplateId: chestTriceps.id },
+      { personalId: insertedPersonal.id, name: "Treino C - Maria (Sexta)", planKind: "student" as const, sourceTemplateId: backBiceps.id },
+    ];
+    const [mariaPlanA, mariaPlanB, mariaPlanC] = await db.insert(workoutPlans).values(mariaPlansToInsert).returning();
+    await db.insert(workoutPlanStudents).values([
+      { workoutPlanId: mariaPlanA.id, studentId: maria.id },
+      { workoutPlanId: mariaPlanB.id, studentId: maria.id },
+      { workoutPlanId: mariaPlanC.id, studentId: maria.id },
+    ] as any[]);
+    await db.insert(workoutExercises).values([
+      ...mapExercises(mariaPlanA.id, [...legIds, ...gluteIds], "30kg", "120s", "60s"),
+      ...mapExercises(mariaPlanB.id, [...chestIds, ...tricepsIds], "15kg", "60s", "45s"),
+      ...mapExercises(mariaPlanC.id, [...backIds, ...bicepsIds], "25kg", "90s", "45s"),
+    ]);
+
+    const [carlosPlanA, carlosPlanB, carlosPlanC] = await db.insert(workoutPlans).values([
+      { personalId: insertedPersonal.id, name: "Treino A - Carlos (Peito/Tríceps)", planKind: "student" as const, sourceTemplateId: chestTriceps.id },
+      { personalId: insertedPersonal.id, name: "Treino B - Carlos (Costas/Bíceps)", planKind: "student" as const, sourceTemplateId: backBiceps.id },
+      { personalId: insertedPersonal.id, name: "Treino C - Carlos (Perna)", planKind: "student" as const, sourceTemplateId: legsGlutes.id },
+    ] as any).returning();
+    await db.insert(workoutPlanStudents).values([
+      { workoutPlanId: carlosPlanA.id, studentId: carlos.id },
+      { workoutPlanId: carlosPlanB.id, studentId: carlos.id },
+      { workoutPlanId: carlosPlanC.id, studentId: carlos.id },
+    ] as any[]);
+    await db.insert(workoutExercises).values([
+      ...mapExercises(carlosPlanA.id, [...chestIds, ...tricepsIds], "40kg", "90s", "50s"),
+      ...mapExercises(carlosPlanB.id, [...backIds, ...bicepsIds], "50kg", "90s", "50s"),
+      ...mapExercises(carlosPlanC.id, [...legIds], "80kg", "120s", "60s"),
+    ]);
+
+    // --- BOOKING SERIES & BOOKINGS ---
+    console.log("Inserting schedule and bookings...");
+    const nextMonday = new Date();
+    nextMonday.setDate(nextMonday.getDate() + ((1 + 7 - nextMonday.getDay()) % 7 || 7));
+    const nextFriday = new Date(nextMonday);
+    nextFriday.setDate(nextFriday.getDate() + 4);
+    const endOfMonthTS = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+
+    const [mariaSeries, carlosSeries] = await db.insert(bookingSeries).values([
+      {
+        personalId: insertedPersonal.id,
+        studentId: maria.id,
+        servicePlanId: plan3x.id,
+        daysOfWeek: [1, 3, 5],
+        startTime: "08:00",
+        endTime: "09:00",
+        seriesStartDate: nextMonday.toISOString().split("T")[0],
+        seriesEndDate: endOfMonthTS.toISOString().split("T")[0],
+      },
+      {
+        personalId: insertedPersonal.id,
+        studentId: carlos.id,
+        servicePlanId: plan5x.id,
+        daysOfWeek: [1, 2, 3, 4, 5],
+        startTime: "14:00",
+        endTime: "15:00",
+        seriesStartDate: nextMonday.toISOString().split("T")[0],
+        seriesEndDate: endOfMonthTS.toISOString().split("T")[0],
+      }
+    ]).returning();
+
+    const bookingsToInsert = [];
+    let currentDate = new Date(nextMonday);
+    while (currentDate <= endOfMonthTS) {
+      const day = currentDate.getDay();
+      if ([1, 3, 5].includes(day)) {
+        bookingsToInsert.push({
+          personalId: insertedPersonal.id,
+          studentId: maria.id,
+          servicePlanId: plan3x.id,
+          seriesId: mariaSeries.id,
+          scheduledDate: new Date(currentDate),
+          startTime: "08:00",
+          endTime: "09:00",
+          status: "scheduled",
+        });
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    currentDate = new Date(nextMonday);
+    while (currentDate <= endOfMonthTS) {
+      const day = currentDate.getDay();
+      if ([1, 2, 3, 4, 5].includes(day)) {
+        bookingsToInsert.push({
+          personalId: insertedPersonal.id,
+          studentId: carlos.id,
+          servicePlanId: plan5x.id,
+          seriesId: carlosSeries.id,
+          scheduledDate: new Date(currentDate),
+          startTime: "14:00",
+          endTime: "15:00",
+          status: "scheduled",
+        });
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    if (bookingsToInsert.length > 0) {
+      await db.insert(bookings).values(bookingsToInsert);
+    }
 
     console.log("Seed data inserted successfully!");
     console.log("\n--- Credenciais da Seed ---");
     console.log("Admin:    admin@example.com / testPassword");
     console.log("Personal: personal@example.com / testPassword");
-    console.log("Student:  joao.silva@example.com / studentPassword");
+    console.log("Student (Online):        joao.silva@example.com / studentPassword");
+    console.log("Student (Presential 3x): maria.oliveira@example.com / studentPassword");
+    console.log("Student (Presential 5x): carlos.santos@example.com / studentPassword");
   } catch (error) {
     console.error("Seed failed:", error);
     throw error;
