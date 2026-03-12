@@ -13,6 +13,7 @@ import { StudentBookingsSection } from "./_components/student-bookings-section";
 import { StudentEditForm } from "./_components/student-edit-form";
 import { StudentNotesTimeline } from "./_components/student-notes-timeline";
 import { StudentWorkoutPlans } from "./_components/student-workout-plans";
+import { StudentSchedulePlanner } from "./_components/student-schedule-planner";
 
 interface AlunoDetailPageProps {
   params: Promise<{ id: string }>;
@@ -22,7 +23,7 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
   const { id } = use(params);
   const router = useRouter();
   const [deactivateOpen, setDeactivateOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"resumo" | "agendamentos" | "notas">("resumo");
+  const [activeTab, setActiveTab] = useState<"resumo" | "planejador" | "agendamentos" | "notas">("resumo");
 
   const { data: student, isLoading } = useQuery({
     queryKey: ["students", id],
@@ -96,6 +97,14 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
           </Button>
           <Button
             type="button"
+            variant={activeTab === "planejador" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("planejador")}
+          >
+            Planejador
+          </Button>
+          <Button
+            type="button"
             variant={activeTab === "agendamentos" ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("agendamentos")}
@@ -118,6 +127,8 @@ export default function AlunoDetailPage({ params }: AlunoDetailPageProps) {
 
             <StudentWorkoutPlans studentId={id} />
           </div>
+        ) : activeTab === "planejador" ? (
+          <StudentSchedulePlanner studentId={id} />
         ) : activeTab === "agendamentos" ? (
           <StudentBookingsSection studentId={id} />
         ) : (

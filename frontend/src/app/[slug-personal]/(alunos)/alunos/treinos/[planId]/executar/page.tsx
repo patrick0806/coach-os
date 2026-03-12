@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   Check,
@@ -31,9 +32,11 @@ import {
   type WorkoutSession,
 } from "@/services/workout-plans.service";
 import { getMyStats } from "@/services/student-stats.service";
+import { completeTrainingSession } from "@/services/training-schedule.service";
 
 interface PageProps {
   params: Promise<{ "slug-personal": string; planId: string }>;
+  searchParams: Promise<{ trainingSessionId?: string }>;
 }
 
 interface ExerciseProgressState {
@@ -191,9 +194,11 @@ function CompletionModal({
 // ------------------------------------------------------------------
 // Main Page
 // ------------------------------------------------------------------
-export default function ExecutarPage({ params }: PageProps) {
+export default function ExecutarPage({ params, searchParams }: PageProps) {
   const resolvedParams = use(params);
+  const resolvedSearch = use(searchParams);
   const { "slug-personal": slug, planId } = resolvedParams;
+  const trainingSessionId = resolvedSearch.trainingSessionId ?? null;
   const queryClient = useQueryClient();
 
   const [session, setSession] = useState<WorkoutSession | null>(null);
@@ -268,13 +273,23 @@ export default function ExecutarPage({ params }: PageProps) {
   );
 
   const completeMutation = useMutation({
-    mutationFn: () => completeWorkoutSession(session!.id),
+    mutationFn: async () => {
+      const workoutSession = await completeWorkoutSession(session!.id);
+      // Link the training session (today's schedule) as completed when a workout session finishes
+      if (trainingSessionId) {
+        await completeTrainingSession(trainingSessionId, workoutSession.id).catch(() => {
+          // Non-critical — workout session is already saved
+        });
+      }
+      return workoutSession;
+    },
     onSuccess: () => {
       const elapsed = Math.round((Date.now() - sessionStartedAt.getTime()) / 60000);
       setDurationMinutes(Math.max(1, elapsed));
       setCompleted(true);
       queryClient.invalidateQueries({ queryKey: ["me-workout-plans"] });
       queryClient.invalidateQueries({ queryKey: ["my-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["training-sessions"] });
     },
   });
 
@@ -406,50 +421,62 @@ export default function ExecutarPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Exercise name + set info */}
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              {MUSCLE_GROUP_LABELS[currentExercise.muscleGroup as MuscleGroup] ??
-                currentExercise.muscleGroup}
-            </p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              {currentExercise.exerciseName}
-            </h1>
-            <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  MUSCLE_GROUP_COLORS[currentExercise.muscleGroup as MuscleGroup] ??
-                  "bg-gray-100 text-gray-600"
-                }`}
-              >
-                Série {currentSetNumber} de {currentExercise.sets}
-              </span>
-              <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs">
-                Meta: {currentExercise.sets} × {currentExercise.repetitions} reps
-              </span>
-              {currentExercise.load ? (
-                <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs">
-                  Última carga: {currentExercise.load}
-                </span>
+          {/* Animated exercise card — slides on navigation */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentExercise.id}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.22, ease: "easeInOut" }}
+              className="space-y-4"
+            >
+              {/* Exercise name + set info */}
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                  {MUSCLE_GROUP_LABELS[currentExercise.muscleGroup as MuscleGroup] ??
+                    currentExercise.muscleGroup}
+                </p>
+                <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                  {currentExercise.exerciseName}
+                </h1>
+                <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      MUSCLE_GROUP_COLORS[currentExercise.muscleGroup as MuscleGroup] ??
+                      "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    Série {currentSetNumber} de {currentExercise.sets}
+                  </span>
+                  <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs">
+                    Meta: {currentExercise.sets} × {currentExercise.repetitions} reps
+                  </span>
+                  {currentExercise.load ? (
+                    <span className="rounded-full border border-white/10 px-2.5 py-0.5 text-xs">
+                      Última carga: {currentExercise.load}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Media */}
+              <div className="overflow-hidden rounded-[32px] border border-white/10 bg-black shadow-[var(--premium-shadow-strong)]">
+                <ExerciseMedia
+                  exercisedbGifUrl={currentExercise.exercisedbGifUrl}
+                  youtubeUrl={currentExercise.youtubeUrl}
+                  exerciseName={currentExercise.exerciseName}
+                />
+              </div>
+
+              {/* Notes */}
+              {currentExercise.notes ? (
+                <div className="premium-surface rounded-2xl px-4 py-3 text-sm text-muted-foreground">
+                  {currentExercise.notes}
+                </div>
               ) : null}
-            </div>
-          </div>
-
-          {/* Media */}
-          <div className="overflow-hidden rounded-[32px] border border-white/10 bg-black shadow-[var(--premium-shadow-strong)]">
-            <ExerciseMedia
-              exercisedbGifUrl={currentExercise.exercisedbGifUrl}
-              youtubeUrl={currentExercise.youtubeUrl}
-              exerciseName={currentExercise.exerciseName}
-            />
-          </div>
-
-          {/* Notes */}
-          {currentExercise.notes ? (
-            <div className="premium-surface rounded-2xl px-4 py-3 text-sm text-muted-foreground">
-              {currentExercise.notes}
-            </div>
-          ) : null}
+            </motion.div>
+          </AnimatePresence>
 
           {/* Exercise queue */}
           <div className="premium-glass rounded-3xl p-4">

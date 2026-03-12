@@ -1,0 +1,315 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CalendarDays, Clock, Dumbbell, Moon, Save, Wifi } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TimeSelect } from "@/components/ui/time-select";
+import { getApiErrorMessage } from "@/lib/api-error";
+import { getStudentWorkoutPlans } from "@/services/workout-plans.service";
+import { getScheduleRules, upsertScheduleRules } from "@/services/training-schedule.service";
+import type { ScheduleRule } from "@/services/training-schedule.service";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const DAYS = [
+  { label: "Segunda-feira", short: "Seg", dayOfWeek: 1 },
+  { label: "Terça-feira", short: "Ter", dayOfWeek: 2 },
+  { label: "Quarta-feira", short: "Qua", dayOfWeek: 3 },
+  { label: "Quinta-feira", short: "Qui", dayOfWeek: 4 },
+  { label: "Sexta-feira", short: "Sex", dayOfWeek: 5 },
+  { label: "Sábado", short: "Sáb", dayOfWeek: 6 },
+  { label: "Domingo", short: "Dom", dayOfWeek: 0 },
+];
+
+type SessionType = "online" | "presential" | "rest";
+
+interface DayConfig {
+  sessionType: SessionType;
+  workoutPlanId: string;
+  scheduledTime: string;
+}
+
+type WeekConfig = Record<number, DayConfig>;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getDefaultWeekConfig(): WeekConfig {
+  return Object.fromEntries(
+    DAYS.map((d) => [d.dayOfWeek, { sessionType: "rest", workoutPlanId: "", scheduledTime: "" }]),
+  );
+}
+
+function rulesToWeekConfig(rules: ScheduleRule[]): WeekConfig {
+  const config = getDefaultWeekConfig();
+  for (const rule of rules) {
+    config[rule.dayOfWeek] = {
+      sessionType: rule.sessionType,
+      workoutPlanId: rule.workoutPlanId ?? "",
+      scheduledTime: rule.scheduledTime ?? "",
+    };
+  }
+  return config;
+}
+
+const SESSION_TYPE_STYLES: Record<SessionType, { bg: string; badge: string; icon: React.ReactNode }> = {
+  rest: {
+    bg: "bg-gray-50 border-gray-100",
+    badge: "bg-gray-100 text-gray-500",
+    icon: <Moon className="size-3.5" />,
+  },
+  online: {
+    bg: "bg-blue-50 border-blue-100",
+    badge: "bg-blue-100 text-blue-600",
+    icon: <Wifi className="size-3.5" />,
+  },
+  presential: {
+    bg: "bg-emerald-50 border-emerald-100",
+    badge: "bg-emerald-100 text-emerald-600",
+    icon: <Dumbbell className="size-3.5" />,
+  },
+};
+
+const SESSION_TYPE_LABEL: Record<SessionType, string> = {
+  rest: "Descanso",
+  online: "Online",
+  presential: "Presencial",
+};
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+
+interface StudentSchedulePlannerProps {
+  studentId: string;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProps) {
+  const queryClient = useQueryClient();
+  const [weekConfig, setWeekConfig] = useState<WeekConfig>(getDefaultWeekConfig);
+  const initialized = useRef(false);
+
+  const rulesQuery = useQuery({
+    queryKey: ["schedule-rules", studentId],
+    queryFn: () => getScheduleRules(studentId),
+  });
+
+  const plansQuery = useQuery({
+    queryKey: ["workout-plans", "student", studentId],
+    queryFn: () => getStudentWorkoutPlans(studentId),
+  });
+
+  // Initialize local state from server data (only on first load)
+  useEffect(() => {
+    if (rulesQuery.data && !initialized.current) {
+      setWeekConfig(rulesToWeekConfig(rulesQuery.data));
+      initialized.current = true;
+    }
+  }, [rulesQuery.data]);
+
+  const mutation = useMutation({
+    mutationFn: (config: WeekConfig) => {
+      const days = DAYS.map((d) => {
+        const day = config[d.dayOfWeek];
+        return {
+          dayOfWeek: d.dayOfWeek,
+          sessionType: day.sessionType,
+          workoutPlanId: day.sessionType !== "rest" ? (day.workoutPlanId || null) : null,
+          scheduledTime:
+            day.sessionType === "presential" ? (day.scheduledTime || null) : null,
+        };
+      });
+      return upsertScheduleRules(studentId, { days });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedule-rules", studentId] });
+      toast.success("Planejador semanal salvo com sucesso!");
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível salvar o planejador."));
+    },
+  });
+
+  function updateDay(dayOfWeek: number, updates: Partial<DayConfig>) {
+    setWeekConfig((prev) => ({
+      ...prev,
+      [dayOfWeek]: { ...prev[dayOfWeek], ...updates },
+    }));
+  }
+
+  if (rulesQuery.isLoading || plansQuery.isLoading) {
+    return (
+      <div className="space-y-3">
+        {DAYS.map((d) => (
+          <Skeleton key={d.dayOfWeek} className="h-20 w-full rounded-xl" />
+        ))}
+      </div>
+    );
+  }
+
+  const workoutPlans = plansQuery.data ?? [];
+  const hasUnsavedChanges = true; // always allow saving
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CalendarDays className="size-4" />
+          <span>Configure os treinos de cada dia da semana</span>
+        </div>
+        <Button
+          size="sm"
+          onClick={() => mutation.mutate(weekConfig)}
+          disabled={mutation.isPending}
+          className="gap-2"
+        >
+          <Save className="size-3.5" />
+          {mutation.isPending ? "Salvando..." : "Salvar planejador"}
+        </Button>
+      </div>
+
+      {/* Day cards */}
+      <div className="space-y-2">
+        {DAYS.map((day) => {
+          const config = weekConfig[day.dayOfWeek];
+          const styles = SESSION_TYPE_STYLES[config.sessionType];
+          const isTraining = config.sessionType !== "rest";
+          const isPresential = config.sessionType === "presential";
+
+          return (
+            <Card
+              key={day.dayOfWeek}
+              className={`border transition-colors duration-200 ${styles.bg}`}
+            >
+              <CardContent className="p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Day label */}
+                  <div className="flex w-28 shrink-0 items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${styles.badge}`}
+                    >
+                      {styles.icon}
+                      {day.short}
+                    </span>
+                  </div>
+
+                  {/* Session type selector */}
+                  <div className="w-44 shrink-0">
+                    <Select
+                      value={config.sessionType}
+                      onValueChange={(value: SessionType) =>
+                        updateDay(day.dayOfWeek, {
+                          sessionType: value,
+                          workoutPlanId: value === "rest" ? "" : config.workoutPlanId,
+                          scheduledTime: value === "presential" ? config.scheduledTime : "",
+                        })
+                      }
+                    >
+                      <SelectTrigger className="h-9 bg-white text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="rest">
+                          <span className="flex items-center gap-2">
+                            <Moon className="size-3.5 text-gray-400" />
+                            Descanso
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="online">
+                          <span className="flex items-center gap-2">
+                            <Wifi className="size-3.5 text-blue-500" />
+                            Treino Online
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="presential">
+                          <span className="flex items-center gap-2">
+                            <Dumbbell className="size-3.5 text-emerald-500" />
+                            Treino Presencial
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Workout plan selector */}
+                  {isTraining ? (
+                    <div className="min-w-0 flex-1">
+                      <Select
+                        value={config.workoutPlanId || ""}
+                        onValueChange={(value) =>
+                          updateDay(day.dayOfWeek, { workoutPlanId: value })
+                        }
+                      >
+                        <SelectTrigger className="h-9 w-full bg-white text-sm">
+                          <SelectValue placeholder="Selecione o treino..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {workoutPlans.length === 0 ? (
+                            <div className="px-3 py-2 text-sm text-muted-foreground">
+                              Nenhum treino atribuído ao aluno
+                            </div>
+                          ) : (
+                            workoutPlans.map((plan) => (
+                              <SelectItem key={plan.id} value={plan.id}>
+                                {plan.name}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : (
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-muted-foreground">Dia de descanso</p>
+                    </div>
+                  )}
+
+                  {/* Time selector (presential only) */}
+                  {isPresential ? (
+                    <div className="flex w-36 shrink-0 items-center gap-1.5">
+                      <Clock className="size-3.5 shrink-0 text-muted-foreground" />
+                      <TimeSelect
+                        value={config.scheduledTime || ""}
+                        onChange={(value) =>
+                          updateDay(day.dayOfWeek, { scheduledTime: value })
+                        }
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 pt-1 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-gray-300" />
+          Descanso
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-blue-400" />
+          Online
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2 rounded-full bg-emerald-400" />
+          Presencial
+        </span>
+      </div>
+    </div>
+  );
+}

@@ -11,9 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMyBookings, type Booking } from "@/services/bookings.service";
 import { getMeWorkoutPlans } from "@/services/workout-plans.service";
 import { getMyStats, isStreakAtRisk } from "@/services/student-stats.service";
+import { getTodaySession, getWeekSessions, getActivityHistory } from "@/services/training-schedule.service";
+import { ActivityCalendar } from "./_components/activity-calendar";
 import { NextSessionCard } from "./_components/next-session-card";
 import { ProgressRing } from "./_components/progress-ring";
 import { StreakCounter } from "./_components/streak-counter";
+import { TodayTrainingCard } from "./_components/today-training-card";
+import { WeekScroller } from "./_components/week-scroller";
 
 interface AlunoPainelPageProps {
   params: Promise<{ "slug-personal": string }>;
@@ -48,6 +52,38 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
     queryKey: ["my-stats"],
     queryFn: getMyStats,
   });
+
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const { data: todaySession = null } = useQuery({
+    queryKey: ["training-sessions", "today"],
+    queryFn: getTodaySession,
+  });
+
+  const { data: weekSessions = [] } = useQuery({
+    queryKey: ["training-sessions", "week"],
+    queryFn: getWeekSessions,
+  });
+
+  const { data: activityHistory = [] } = useQuery({
+    queryKey: ["training-sessions", "history"],
+    queryFn: () => getActivityHistory(84),
+  });
+
+  // Resolve workout plan name from today's session
+  const todayPlanName = useMemo(() => {
+    if (!todaySession?.workoutPlanId) return null;
+    return plans.find((p) => p.id === todaySession.workoutPlanId)?.name ?? null;
+  }, [todaySession, plans]);
+
+  // Toast when there is a pending training session today
+  useEffect(() => {
+    if (todaySession && todaySession.status === "pending" && todaySession.sessionType !== "rest") {
+      toast("Você tem um treino agendado para hoje! 💪", { duration: 5000 });
+    }
+  // Show once per mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todaySession?.id]);
 
   // Motivational toast when streak is at risk (last workout was yesterday)
   useEffect(() => {
@@ -91,10 +127,19 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
       </div>
 
       {stats ? (
-        <div className="mb-6">
+        <div className="mb-4 space-y-3">
           <StreakCounter streak={stats.currentStreak} totalWorkouts={stats.totalWorkouts} />
+          {activityHistory.length > 0 && (
+            <ActivityCalendar sessions={activityHistory} weeks={12} />
+          )}
         </div>
       ) : null}
+
+      {/* Week scroller + today's training — Epic 20 */}
+      <section className="mb-6 space-y-3">
+        <WeekScroller sessions={weekSessions} todayStr={todayStr} />
+        <TodayTrainingCard session={todaySession} workoutPlanName={todayPlanName} slug={slug} />
+      </section>
 
       <section className="mb-6 space-y-4">
         {loadingBookings ? (

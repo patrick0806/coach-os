@@ -1,6 +1,6 @@
 # Épico 20 — Agenda Inteligente e Performance (Unified Experience)
 
-**Status:** `[ ]` todo
+**Status:** `[~]` in progress
 **Prioridade:** Crítica
 **Responsáveis:** Minerva McGonagall (PO), Albus Dumbledore (Arquiteto), Luna Lovegood (Design)
 
@@ -27,10 +27,10 @@
 **Descricao:** Como personal, quero definir o cronograma semanal do meu aluno (dias, horários e quais treinos(horários são apenas para alunos presenciais)) para automatizar a gestão de sessões.
 
 **Criterios de Aceite:**
-- [ ] Grade de 7 dias para configurar o padrão recorrente.
-- [ ] Seleção de Treino (ex: Treino A, B, C) e Horário para cada dia.
-- [ ] Opção de marcar dia como "Descanso".
-- [ ] Diferenciação visual entre treino "Presencial" e "Online" (Consultoria).
+- [x] Grade de 7 dias para configurar o padrão recorrente.
+- [x] Seleção de Treino (ex: Treino A, B, C) e Horário para cada dia.
+- [x] Opção de marcar dia como "Descanso".
+- [x] Diferenciação visual entre treino "Presencial" e "Online" (Consultoria).
 
 ---
 
@@ -38,9 +38,9 @@
 **Descricao:** Como sistema, devo garantir que as sessões de treino estejam criadas até 60 dias à frente com base nas regras do planejador semanal.
 
 **Criterios de Aceite:**
-- [ ] Cron Job que expande as regras de `schedule_rules` para `training_sessions`.
-- [ ] Índice único para evitar duplicidade de sessões no mesmo horário.
-- [ ] Sincronização automática: se o personal altera o planejador semanal, as sessões futuras não iniciadas devem ser atualizadas/recriadas.
+- [x] Cron Job que expande as regras de `schedule_rules` para `training_sessions`.
+- [x] Índice único para evitar duplicidade de sessões no mesmo horário.
+- [x] Sincronização automática: se o personal altera o planejador semanal, as sessões futuras não iniciadas devem ser atualizadas/recriadas.
 
 ---
 
@@ -48,9 +48,9 @@
 **Descricao:** Como aluno, quero ver o que tenho planejado para hoje e para a semana de forma clara e motivadora.
 
 **Criterios de Aceite:**
-- [ ] Widget "Treino de Hoje" com status (Pendente, Concluído, Descanso).
-- [ ] "Scroller" semanal no topo exibindo a rotina dos próximos 7 dias.
-- [ ] Botão "Iniciar Treino" proeminente quando houver sessão pendente.
+- [x] Widget "Treino de Hoje" com status (Pendente, Concluído, Descanso).
+- [x] "Scroller" semanal no topo exibindo a rotina dos próximos 7 dias.
+- [x] Botão "Iniciar Treino" proeminente quando houver sessão pendente.
 
 ---
 
@@ -58,10 +58,10 @@
 **Descricao:** Como aluno, quero uma interface imersiva para realizar meu treino passo a passo, registrando cargas e tempos de descanso.
 
 **Criterios de Aceite:**
-- [ ] UI de execução (Exercício Atual → Próximo).
-- [ ] Timer de descanso configurável por exercício.
-- [ ] Checkpoint de carga usada em cada série.
-- [ ] Finalização com feedback visual (celebração).
+- [x] UI de execução (Exercício Atual → Próximo).
+- [x] Timer de descanso configurável por exercício.
+- [x] Checkpoint de carga usada em cada série.
+- [x] Finalização com feedback visual (celebração).
 
 ---
 
@@ -69,8 +69,8 @@
 **Descricao:** Como personal ou aluno, quero cancelar aulas específicas sem afetar o padrão semanal futuro.
 
 **Criterios de Aceite:**
-- [ ] Status `cancelled` para sessões individuais na agenda.
-- [ ] Modal de confirmação ao cancelar uma aula, com opção de "Notificar Aluno".
+- [x] Status `cancelled` para sessões individuais na agenda.
+- [ ] Modal de confirmação ao cancelar uma aula, com opção de "Notificar Aluno". (próxima: US-062)
 
 ---
 
@@ -78,9 +78,9 @@
 **Descricao:** Como aluno, quero ver meu histórico de consistência (sequência de dias treinados) para me manter motivado.
 
 **Criterios de Aceite:**
-- [ ] Lógica de `current_streak` nos metadados do aluno.
-- [ ] Histórico visual de treinos concluídos (Calendário de atividade).
-- [ ] Atualização automática de `total_workouts` e `last_workout_date`.
+- [x] Lógica de `current_streak` nos metadados do aluno.
+- [x] Histórico visual de treinos concluídos (Calendário de atividade).
+- [x] Atualização automática de `total_workouts` e `last_workout_date`.
 
 ---
 
@@ -88,17 +88,17 @@
 **Descricao:** Como sistema, devo lembrar o aluno do seu treino agendado para garantir a disciplina.
 
 **Criterios de Aceite:**
-- [ ] Toast/Notificação interna ao logar se houver treino hoje.
-- [ ] Alerta se o streak estiver prestes a quebrar (Ex: "Falta pouco para completar 5 dias seguidos!").
+- [x] Toast/Notificação interna ao logar se houver treino hoje.
+- [x] Alerta se o streak estiver prestes a quebrar (Ex: "Falta pouco para completar 5 dias seguidos!").
 
 ---
 
 ## 🛠️ Sub-tarefas de Implementação
 
-- [ ] **B1 (Migration):** Tabelas `schedule_rules` e `training_sessions`.
-- [ ] **B2 (Service):** Motor de geração de datas (Cron Job).
-- [ ] **B3 (API):** Endpoints de Planejador e Execução de Treino.
-- [ ] **F1 (UI):** Planejador semanal Draggable/Dropdown no painel do Personal.
-- [ ] **F2 (UI):** Dashboard do Aluno (Foco diário).
-- [ ] **F3 (UI):** Modo Player (Framer Motion).
-- [ ] **F4 (UI):** Widgets de Streak e Estatísticas.
+- [x] **B1 (Migration):** Tabelas `schedule_rules` e `training_sessions`.
+- [x] **B2 (Service):** Motor de geração de datas (Cron Job).
+- [x] **B3 (API):** Endpoints de Planejador e Execução de Treino.
+- [x] **F1 (UI):** Planejador semanal Draggable/Dropdown no painel do Personal.
+- [x] **F2 (UI):** Dashboard do Aluno (Foco diário).
+- [x] **F3 (UI):** Modo Player (Framer Motion).
+- [x] **F4 (UI):** Widgets de Streak e Estatísticas (ActivityCalendar + toasts).
