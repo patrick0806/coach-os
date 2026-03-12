@@ -30,13 +30,19 @@ describe("CancelTrainingSessionService", () => {
     findById: ReturnType<typeof vi.fn>;
     updateStatus: ReturnType<typeof vi.fn>;
   };
+  const studentsRepo = { findById: vi.fn() };
+  const resendProvider = { sendSessionCancellation: vi.fn().mockResolvedValue(undefined) };
 
   beforeEach(() => {
     trainingSessionsRepo = {
       findById: vi.fn(),
       updateStatus: vi.fn(),
     };
-    service = new CancelTrainingSessionService(trainingSessionsRepo as any);
+    service = new CancelTrainingSessionService(
+      trainingSessionsRepo as any,
+      studentsRepo as any,
+      resendProvider as any,
+    );
   });
 
   it("should throw NotFoundException when session does not exist", async () => {

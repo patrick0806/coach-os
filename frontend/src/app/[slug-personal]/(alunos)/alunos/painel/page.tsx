@@ -137,7 +137,7 @@ export default function AlunoPainelPage({ params }: AlunoPainelPageProps) {
 
       {/* Week scroller + today's training — Epic 20 */}
       <section className="mb-6 space-y-3">
-        <WeekScroller sessions={weekSessions} todayStr={todayStr} />
+        <WeekScroller sessions={weekSessions} todayStr={todayStr} slug={slug} />
         <TodayTrainingCard session={todaySession} workoutPlanName={todayPlanName} slug={slug} />
       </section>
 

@@ -4,6 +4,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { ScheduleRulesRepository } from "@shared/repositories/schedule-rules.repository";
 import { TrainingSessionsRepository } from "@shared/repositories/training-sessions.repository";
+import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { ScheduleEngineService } from "./contexts/schedule-engine/schedule-engine.service";
 
@@ -59,6 +60,8 @@ import { ActivityHistoryService } from "./contexts/activity-history/activity-his
     StudentsRepository,
     ScheduleRulesRepository,
     TrainingSessionsRepository,
+    // Providers
+    ResendProvider,
   ],
   exports: [
     ScheduleEngineService,

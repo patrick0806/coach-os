@@ -1,17 +1,24 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { TrainingSessionsRepository } from "@shared/repositories/training-sessions.repository";
+import { StudentsRepository } from "@shared/repositories/students.repository";
+import { ResendProvider } from "@shared/providers/resend.provider";
 import { TrainingSession } from "@config/database/schema/schedule";
 import { IAccessToken } from "@shared/interfaces";
 import { ApplicationRoles } from "@shared/enums";
 
 export interface CancelTrainingSessionInput {
   reason?: string;
+  notifyStudent?: boolean;
 }
 
 @Injectable()
 export class CancelTrainingSessionService {
-  constructor(private trainingSessionsRepository: TrainingSessionsRepository) {}
+  constructor(
+    private trainingSessionsRepository: TrainingSessionsRepository,
+    private studentsRepository: StudentsRepository,
+    private resendProvider: ResendProvider,
+  ) {}
 
   async execute(
     sessionId: string,
@@ -55,6 +62,21 @@ export class CancelTrainingSessionService {
         cancellationReason: dto.reason ?? null,
       },
     );
+
+    // Send email notification to the student (only when a personal cancels and requests it)
+    if (dto.notifyStudent && currentUser.role === ApplicationRoles.PERSONAL && currentUser.personalId) {
+      const student = await this.studentsRepository.findById(session.studentId, currentUser.personalId);
+      if (student) {
+        this.resendProvider
+          .sendSessionCancellation({
+            to: student.email,
+            studentName: student.name,
+            scheduledDate: session.scheduledDate,
+            reason: dto.reason,
+          })
+          .catch(() => {});
+      }
+    }
 
     return updated!;
   }

@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, Clock, Dumbbell, Moon, Save, Wifi } from "lucide-react";
+import { CalendarDays, Clock, Dumbbell, Moon, Save, Wifi, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -16,10 +17,11 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TimeSelect } from "@/components/ui/time-select";
+import { CancelTrainingSessionDialog } from "@/components/shared/cancel-training-session-dialog";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { getStudentWorkoutPlans } from "@/services/workout-plans.service";
-import { getScheduleRules, upsertScheduleRules } from "@/services/training-schedule.service";
-import type { ScheduleRule } from "@/services/training-schedule.service";
+import { getScheduleRules, listTrainingSessions, upsertScheduleRules } from "@/services/training-schedule.service";
+import type { ScheduleRule, TrainingSession } from "@/services/training-schedule.service";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -99,6 +101,10 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
   const queryClient = useQueryClient();
   const [weekConfig, setWeekConfig] = useState<WeekConfig>(getDefaultWeekConfig);
   const initialized = useRef(false);
+  const [cancelSession, setCancelSession] = useState<TrainingSession | null>(null);
+
+  const today = new Date().toISOString().split("T")[0];
+  const in14Days = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
   const rulesQuery = useQuery({
     queryKey: ["schedule-rules", studentId],
@@ -108,6 +114,11 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
   const plansQuery = useQuery({
     queryKey: ["workout-plans", "student", studentId],
     queryFn: () => getStudentWorkoutPlans(studentId),
+  });
+
+  const upcomingSessionsQuery = useQuery({
+    queryKey: ["training-sessions", "student", studentId, today],
+    queryFn: () => listTrainingSessions(studentId, { from: today, to: in14Days }),
   });
 
   // Initialize local state from server data (only on first load)
@@ -310,6 +321,109 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
           Presencial
         </span>
       </div>
+
+      {/* ─── Próximas sessões ──────────────────────────────────────────────── */}
+      <UpcomingSessionsList
+        sessions={upcomingSessionsQuery.data ?? []}
+        isLoading={upcomingSessionsQuery.isLoading}
+        onCancel={setCancelSession}
+      />
+
+      <CancelTrainingSessionDialog
+        session={cancelSession}
+        showNotifyStudent
+        open={!!cancelSession}
+        onOpenChange={(open) => { if (!open) setCancelSession(null); }}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["training-sessions", "student", studentId] });
+        }}
+      />
     </div>
+  );
+}
+
+// ─── Upcoming Sessions ────────────────────────────────────────────────────────
+
+const STATUS_BADGE: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  pending: { label: "Pendente", variant: "secondary" },
+  completed: { label: "Concluído", variant: "default" },
+  cancelled: { label: "Cancelado", variant: "destructive" },
+};
+
+function UpcomingSessionsList({
+  sessions,
+  isLoading,
+  onCancel,
+}: {
+  sessions: TrainingSession[];
+  isLoading: boolean;
+  onCancel: (session: TrainingSession) => void;
+}) {
+  const trainingSessions = sessions.filter((s) => s.sessionType !== "rest");
+
+  return (
+    <Card className="border">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-sm font-medium">
+          <CalendarDays className="size-4 text-muted-foreground" />
+          Próximas sessões (14 dias)
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        {isLoading ? (
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : trainingSessions.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            Nenhuma sessão de treino nos próximos 14 dias.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {trainingSessions.map((session) => {
+              const formattedDate = new Date(`${session.scheduledDate}T00:00:00`).toLocaleDateString("pt-BR", {
+                weekday: "short",
+                day: "2-digit",
+                month: "2-digit",
+              });
+              const badge = STATUS_BADGE[session.status] ?? { label: session.status, variant: "outline" as const };
+
+              return (
+                <div
+                  key={session.id}
+                  className="flex items-center justify-between rounded-lg border bg-card px-3 py-2.5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium capitalize">{formattedDate}</span>
+                      {session.scheduledTime ? (
+                        <span className="text-xs text-muted-foreground">{session.scheduledTime}</span>
+                      ) : null}
+                    </div>
+                    <Badge variant={badge.variant} className="text-xs">
+                      {badge.label}
+                    </Badge>
+                  </div>
+
+                  {session.status === "pending" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1.5 text-xs text-destructive hover:text-destructive"
+                      onClick={() => onCancel(session)}
+                    >
+                      <XCircle className="size-3.5" />
+                      Cancelar
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

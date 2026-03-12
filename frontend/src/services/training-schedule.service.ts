@@ -93,10 +93,11 @@ export async function completeTrainingSession(
 export async function cancelTrainingSession(
   sessionId: string,
   reason?: string,
+  notifyStudent?: boolean,
 ): Promise<TrainingSession> {
   const { data } = await api.patch<TrainingSession>(
     `/training-sessions/${sessionId}/cancel`,
-    { reason },
+    { reason, notifyStudent },
   );
   return data;
 }

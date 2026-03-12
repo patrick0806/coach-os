@@ -336,6 +336,52 @@ export class ResendProvider {
     }
   }
 
+  async sendSessionCancellation(params: {
+    to: string;
+    studentName: string;
+    scheduledDate: string;
+    reason?: string;
+  }): Promise<void> {
+    if (!this.client) return;
+    const { to, studentName, scheduledDate, reason } = params;
+
+    const formattedDate = new Date(`${scheduledDate}T00:00:00`).toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+
+    const html = this.getEmailLayout(`
+      <h2>Olá, ${studentName}!</h2>
+      <p>Seu personal trainer cancelou a sessão de treino do dia abaixo.</p>
+
+      <div class="details">
+        <div class="detail-row">
+          <span class="label">Data:</span>
+          <span class="value">${formattedDate}</span>
+        </div>
+        ${reason ? `<div class="detail-row">
+          <span class="label">Motivo:</span>
+          <span class="value">${reason}</span>
+        </div>` : ""}
+      </div>
+
+      <p>Entre em contato com seu personal para reagendar ou tirar dúvidas.</p>
+    `);
+
+    try {
+      await this.client.emails.send({
+        from: "Coach OS <no-reply@geeknizado.com.br>",
+        to,
+        subject: "Sessão de treino cancelada",
+        html,
+      });
+    } catch (error) {
+      this.logger.error("Failed to send session cancellation email", error);
+    }
+  }
+
   async sendSupportContact(params: SendSupportContactParams): Promise<void> {
     if (!this.client) return;
     const { name, email, subject, message } = params;

@@ -1,6 +1,6 @@
 # Épico 20 — Agenda Inteligente e Performance (Unified Experience)
 
-**Status:** `[~]` in progress
+**Status:** `[x]` concluído
 **Prioridade:** Crítica
 **Responsáveis:** Minerva McGonagall (PO), Albus Dumbledore (Arquiteto), Luna Lovegood (Design)
 
@@ -70,7 +70,7 @@
 
 **Criterios de Aceite:**
 - [x] Status `cancelled` para sessões individuais na agenda.
-- [ ] Modal de confirmação ao cancelar uma aula, com opção de "Notificar Aluno". (próxima: US-062)
+- [x] Modal de confirmação ao cancelar uma aula, com opção de "Notificar Aluno".
 
 ---
 
