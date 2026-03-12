@@ -1,13 +1,20 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { z } from "zod";
 
+const timeRegex = /^\d{2}:\d{2}$/;
+
 const DayRuleSchema = z.object({
   dayOfWeek: z.number().int().min(0).max(6),
   sessionType: z.enum(["presential", "online", "rest"]),
   workoutPlanId: z.string().uuid().nullable().optional(),
-  scheduledTime: z
+  startTime: z
     .string()
-    .regex(/^\d{2}:\d{2}$/, "scheduledTime deve estar no formato HH:mm")
+    .regex(timeRegex, "startTime deve estar no formato HH:mm")
+    .nullable()
+    .optional(),
+  endTime: z
+    .string()
+    .regex(timeRegex, "endTime deve estar no formato HH:mm")
     .nullable()
     .optional(),
 });
@@ -29,7 +36,10 @@ class DayRuleDTO {
   workoutPlanId?: string | null;
 
   @ApiProperty({ example: "07:00", nullable: true, required: false })
-  scheduledTime?: string | null;
+  startTime?: string | null;
+
+  @ApiProperty({ example: "08:00", nullable: true, required: false })
+  endTime?: string | null;
 }
 
 export class UpsertScheduleRulesDTO implements UpsertScheduleRulesInput {

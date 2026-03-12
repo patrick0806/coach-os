@@ -41,6 +41,31 @@ export class UpsertScheduleRulesService {
           `Dia de treino (dayOfWeek: ${day.dayOfWeek}) precisa de um treino vinculado`,
         );
       }
+      if (day.sessionType === "presential") {
+        if (!day.startTime) {
+          throw new BadRequestException(
+            `Sessão presencial (dayOfWeek: ${day.dayOfWeek}) precisa de horário de início (startTime)`,
+          );
+        }
+        if (!day.endTime) {
+          throw new BadRequestException(
+            `Sessão presencial (dayOfWeek: ${day.dayOfWeek}) precisa de horário de término (endTime)`,
+          );
+        }
+
+        // Validate that the presential slot fits within the personal's availability
+        const isCovered = await this.scheduleEngineService.isPresentialCoveredByAvailability(
+          personalId,
+          day.dayOfWeek,
+          day.startTime,
+          day.endTime,
+        );
+        if (!isCovered) {
+          throw new BadRequestException(
+            `O horário ${day.startTime}–${day.endTime} (dayOfWeek: ${day.dayOfWeek}) está fora da disponibilidade do profissional`,
+          );
+        }
+      }
     }
 
     // Upsert each day rule and sync its future sessions
@@ -52,7 +77,8 @@ export class UpsertScheduleRulesService {
         studentId,
         dayOfWeek: day.dayOfWeek,
         workoutPlanId: day.workoutPlanId ?? null,
-        scheduledTime: day.scheduledTime ?? null,
+        startTime: day.startTime ?? null,
+        endTime: day.endTime ?? null,
         sessionType: day.sessionType,
       });
 

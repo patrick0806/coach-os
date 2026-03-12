@@ -27,30 +27,32 @@
 - [ ] **Preservação da UI/UX de Disponibilidade:** Manter a interface atual de `/painel/agenda/disponibilidade` (cards por dia, `DisponibilidadeDiaForm`, `CopiarDisponibilidadeModal`), garantindo que a usabilidade que o personal já aprovou seja mantida.
 - [ ] **Refatoração do Backend para Disponibilidade:** Migrar o salvamento desses horários para a nova estrutura de `availability_slots` que servirá de grid para o motor unificado.
 - [ ] **Bloqueios Manuais:** Adicionar a capacidade de marcar horários específicos como "Ocupado" diretamente na visualização de agenda, usando um padrão visual consistente com os slots de treino.
-- [ ] **Visualização Unificada (Calendário):** Implementar uma visão de calendário mensal/semanal que sobreponha:
-    - Fundo: Horário de atendimento (os slots definidos na US-075).
-    - Camada 1: Bloqueios manuais e feriados.
-    - Camada 2: Treinos de alunos (Sessions), com distinção visual entre Presencial e Online.
+- [x] **Visualização Unificada (Calendário):** Aba "Calendário de Treinos" em `/painel/agenda` com grid semanal que sobrepoê:
+    - Fundo: slots de disponibilidade ativos do dia (chips azuis).
+    - Camada: training sessions de todos alunos (cards presencial=verde, online=azul).
+    - Indicador de status por ponto colorido (pendente/concluído/cancelado).
+    - Novo endpoint `GET /training-sessions/personal-calendar?from&to` com join de studentName.
 
 ---
 
 ### US-076 — Planejador de Treinos do Aluno (Refinado)
-- [ ] **Evolução da `schedule_rule`:**
-    - Adicionar campo `attendanceType` (`online`, `presential`, `residential`).
-    - Garantir que `startTime` e `endTime` sejam campos cidadãos de primeira classe na regra.
-- [ ] **Validação em Tempo Real (UX):** No `student-schedule-planner.tsx`, validar instantaneamente se o horário escolhido para o aluno está dentro da disponibilidade do Personal e se não há conflitos.
-- [ ] **Sincronização com `training_sessions`:** Ao salvar, o motor deve regenerar as sessões futuras, respeitando os novos parâmetros de tipo de atendimento e horário.
+- [x] **Evolução da `schedule_rule`:**
+    - `sessionType` já cobre os tipos (`presential`, `online`, `rest`) — campo `attendanceType` mapeado para este.
+    - `startTime` e `endTime` adicionados como cidadãos de primeira classe (migration 0019, schema, repositórios).
+- [x] **Validação em Tempo Real (UX):** No `student-schedule-planner.tsx`, validar instantaneamente se o horário escolhido para o aluno está dentro da disponibilidade do Personal e se não há conflitos. Campos `startTime`/`endTime` duplos para presencial, badge âmbar "Fora da disponibilidade" quando conflito.
+- [x] **Sincronização com `training_sessions`:** ScheduleEngine propaga `startTime`/`endTime` para as sessões geradas. Validação de disponibilidade no `UpsertScheduleRulesService` antes de salvar.
 
 ---
 
 ### US-077 — Engine de Disponibilidade Pública (Landing Page)
-- [ ] **Cálculo de Slots Livres (Backend):**
-    1. Base: `availability_slots` ativos.
-    2. Subtrair: `schedule_rules` presenciais ativas.
-    3. Subtrair: `training_sessions` (exceções/alterações pontuais).
-    4. Subtrair: Bloqueios manuais.
-- [ ] **Componente de Agendamento na LP:** Criar/Refinar o componente na página pública do Personal para exibir os horários resultantes do cálculo acima, mantendo a facilidade de uso para o visitante.
-- [ ] **Suporte a Timezones:** Garantir que o visitante veja os horários no seu fuso, mas a reserva seja gravada no fuso do Personal (UTC no banco).
+- [x] **Cálculo de Slots Livres (Backend):**
+    - `GET /personals/:slug/available-slots?date=YYYY-MM-DD` (público, sem auth)
+    - Base: `availability_slots` ativos para o dayOfWeek.
+    - Subtrai: `schedule_rules` presenciais ativas (ocupação recorrente).
+    - Subtrai: `training_sessions` presenciais na data específica (status != cancelled).
+    - Retorna: `{ freeSlots, occupiedSlots }`.
+- [x] **Componente de Agendamento na LP:** `AgendamentoSection` — seletor dos próximos 7 dias, exibe slots livres com botão que abre WhatsApp pré-preenchido.
+- [x] **Suporte a Timezones:** Nota "Horários no fuso do profissional" exibida ao visitante.
 
 ---
 

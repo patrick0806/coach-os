@@ -6,7 +6,8 @@ export class ScheduleRuleDTO {
   @ApiProperty() studentId: string;
   @ApiProperty() dayOfWeek: number;
   @ApiProperty({ nullable: true }) workoutPlanId: string | null;
-  @ApiProperty({ nullable: true }) scheduledTime: string | null;
+  @ApiProperty({ nullable: true }) startTime: string | null;
+  @ApiProperty({ nullable: true }) endTime: string | null;
   @ApiProperty({ enum: ["presential", "online", "rest"] }) sessionType: string;
   @ApiProperty() isActive: boolean;
   @ApiProperty() createdAt: Date;
@@ -21,7 +22,8 @@ export class TrainingSessionDTO {
   @ApiProperty({ nullable: true }) workoutPlanId: string | null;
   @ApiProperty({ nullable: true }) workoutSessionId: string | null;
   @ApiProperty() scheduledDate: string;
-  @ApiProperty({ nullable: true }) scheduledTime: string | null;
+  @ApiProperty({ nullable: true }) startTime: string | null;
+  @ApiProperty({ nullable: true }) endTime: string | null;
   @ApiProperty({ enum: ["pending", "completed", "cancelled"] }) status: string;
   @ApiProperty({ enum: ["presential", "online", "rest"] }) sessionType: string;
   @ApiProperty({ nullable: true }) cancelledAt: Date | null;

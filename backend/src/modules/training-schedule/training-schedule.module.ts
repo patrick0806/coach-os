@@ -4,6 +4,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { ScheduleRulesRepository } from "@shared/repositories/schedule-rules.repository";
 import { TrainingSessionsRepository } from "@shared/repositories/training-sessions.repository";
+import { AvailabilityRepository } from "@shared/repositories/availability.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { ScheduleEngineService } from "./contexts/schedule-engine/schedule-engine.service";
@@ -31,6 +32,9 @@ import { CompleteTrainingSessionService } from "./contexts/complete-training-ses
 import { ActivityHistoryController } from "./contexts/activity-history/activity-history.controller";
 import { ActivityHistoryService } from "./contexts/activity-history/activity-history.service";
 
+import { PersonalCalendarController } from "./contexts/personal-calendar/personal-calendar.controller";
+import { PersonalCalendarService } from "./contexts/personal-calendar/personal-calendar.service";
+
 @Module({
   imports: [
     // Enables the NestJS cron job system
@@ -45,6 +49,7 @@ import { ActivityHistoryService } from "./contexts/activity-history/activity-his
     CancelTrainingSessionController,
     CompleteTrainingSessionController,
     ActivityHistoryController,
+    PersonalCalendarController,
   ],
   providers: [
     ScheduleEngineService,
@@ -56,10 +61,12 @@ import { ActivityHistoryService } from "./contexts/activity-history/activity-his
     CancelTrainingSessionService,
     CompleteTrainingSessionService,
     ActivityHistoryService,
+    PersonalCalendarService,
     // Repositories
     StudentsRepository,
     ScheduleRulesRepository,
     TrainingSessionsRepository,
+    AvailabilityRepository,
     // Providers
     ResendProvider,
   ],
@@ -67,6 +74,7 @@ import { ActivityHistoryService } from "./contexts/activity-history/activity-his
     ScheduleEngineService,
     ScheduleRulesRepository,
     TrainingSessionsRepository,
+    AvailabilityRepository,
   ],
 })
 export class TrainingScheduleModule {}

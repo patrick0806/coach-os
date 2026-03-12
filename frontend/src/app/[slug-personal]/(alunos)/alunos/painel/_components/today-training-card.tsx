@@ -104,9 +104,10 @@ export function TodayTrainingCard({ session, workoutPlanName, slug }: TodayTrain
             </span>
           </div>
 
-          {session.scheduledTime ? (
+          {session.startTime ? (
             <span className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-primary-foreground">
-              {session.scheduledTime}
+              {session.startTime}
+              {session.endTime ? ` – ${session.endTime}` : ""}
             </span>
           ) : null}
         </div>

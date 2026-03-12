@@ -37,7 +37,8 @@ export const scheduleRules = pgTable(
       { onDelete: "set null" }
     ),
     // HH:mm format — only relevant for presential sessions
-    scheduledTime: varchar("scheduled_time", { length: 5 }),
+    startTime: varchar("start_time", { length: 5 }),
+    endTime: varchar("end_time", { length: 5 }),
     // Session type: "presential" | "online" | "rest"
     sessionType: varchar("session_type", { length: 20 })
       .$type<"presential" | "online" | "rest">()
@@ -92,7 +93,8 @@ export const trainingSessions = pgTable(
     ),
     scheduledDate: date("scheduled_date").notNull(),
     // HH:mm format — inherited from schedule_rule at generation time
-    scheduledTime: varchar("scheduled_time", { length: 5 }),
+    startTime: varchar("start_time", { length: 5 }),
+    endTime: varchar("end_time", { length: 5 }),
     // Status: "pending" | "completed" | "cancelled"
     status: varchar("status", { length: 20 })
       .$type<"pending" | "completed" | "cancelled">()

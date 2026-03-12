@@ -91,6 +91,22 @@ export async function bulkAvailability(
   return data;
 }
 
+export interface PublicAvailableSlots {
+  freeSlots: { startTime: string; endTime: string }[];
+  occupiedSlots: { startTime: string; endTime: string }[];
+}
+
+export async function getPublicAvailableSlots(
+  slug: string,
+  date: string,
+): Promise<PublicAvailableSlots> {
+  const { data } = await api.get<PublicAvailableSlots>(
+    `/personals/${slug}/available-slots`,
+    { params: { date } },
+  );
+  return data;
+}
+
 export async function copyAvailability(
   payload: CopyAvailabilityPayload,
 ): Promise<CopyAvailabilityResponse> {

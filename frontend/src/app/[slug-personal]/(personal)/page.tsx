@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
+import { AgendamentoSection } from "./_components/agendamento-section";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
 
@@ -349,6 +350,12 @@ export default async function PersonalLandingPage({ params }: PersonalLandingPag
       <HeroSection profile={profile} />
       <AboutSection profile={profile} />
       <PlansSection profile={profile} />
+      <AgendamentoSection
+        slug={profile.slug}
+        phoneNumber={profile.phoneNumber}
+        personalName={profile.name}
+        themeColor={profile.themeColor}
+      />
       <ContactSection profile={profile} />
     </main>
   );

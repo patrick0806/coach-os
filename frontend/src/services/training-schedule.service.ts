@@ -6,7 +6,8 @@ export interface ScheduleRule {
   studentId: string;
   dayOfWeek: number;
   workoutPlanId: string | null;
-  scheduledTime: string | null;
+  startTime: string | null;
+  endTime: string | null;
   sessionType: "presential" | "online" | "rest";
   isActive: boolean;
   createdAt: string;
@@ -21,7 +22,8 @@ export interface TrainingSession {
   workoutPlanId: string | null;
   workoutSessionId: string | null;
   scheduledDate: string;
-  scheduledTime: string | null;
+  startTime: string | null;
+  endTime: string | null;
   status: "pending" | "completed" | "cancelled";
   sessionType: "presential" | "online" | "rest";
   cancelledAt: string | null;
@@ -35,7 +37,8 @@ export interface DayRuleInput {
   dayOfWeek: number;
   sessionType: "presential" | "online" | "rest";
   workoutPlanId?: string | null;
-  scheduledTime?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
 }
 
 export interface UpsertScheduleRulesPayload {
@@ -99,6 +102,17 @@ export async function cancelTrainingSession(
     `/training-sessions/${sessionId}/cancel`,
     { reason, notifyStudent },
   );
+  return data;
+}
+
+export interface CalendarSession extends TrainingSession {
+  studentName: string;
+}
+
+export async function getPersonalCalendar(query: { from: string; to: string }): Promise<CalendarSession[]> {
+  const { data } = await api.get<CalendarSession[]>("/training-sessions/personal-calendar", {
+    params: query,
+  });
   return data;
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, Clock, Dumbbell, Moon, Save, Wifi, XCircle } from "lucide-react";
+import { AlertTriangle, CalendarDays, Clock, Dumbbell, Moon, Save, Wifi, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import { TimeSelect } from "@/components/ui/time-select";
 import { CancelTrainingSessionDialog } from "@/components/shared/cancel-training-session-dialog";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { getStudentWorkoutPlans } from "@/services/workout-plans.service";
+import { listAvailability } from "@/services/availability.service";
+import type { AvailabilitySlot } from "@/services/availability.service";
 import { getScheduleRules, listTrainingSessions, upsertScheduleRules } from "@/services/training-schedule.service";
 import type { ScheduleRule, TrainingSession } from "@/services/training-schedule.service";
 
@@ -40,7 +42,8 @@ type SessionType = "online" | "presential" | "rest";
 interface DayConfig {
   sessionType: SessionType;
   workoutPlanId: string;
-  scheduledTime: string;
+  startTime: string;
+  endTime: string;
 }
 
 type WeekConfig = Record<number, DayConfig>;
@@ -49,7 +52,7 @@ type WeekConfig = Record<number, DayConfig>;
 
 function getDefaultWeekConfig(): WeekConfig {
   return Object.fromEntries(
-    DAYS.map((d) => [d.dayOfWeek, { sessionType: "rest", workoutPlanId: "", scheduledTime: "" }]),
+    DAYS.map((d) => [d.dayOfWeek, { sessionType: "rest", workoutPlanId: "", startTime: "", endTime: "" }]),
   );
 }
 
@@ -59,10 +62,27 @@ function rulesToWeekConfig(rules: ScheduleRule[]): WeekConfig {
     config[rule.dayOfWeek] = {
       sessionType: rule.sessionType,
       workoutPlanId: rule.workoutPlanId ?? "",
-      scheduledTime: rule.scheduledTime ?? "",
+      startTime: rule.startTime ?? "",
+      endTime: rule.endTime ?? "",
     };
   }
   return config;
+}
+
+// Returns whether a presential [startTime, endTime] is covered by availability slots.
+// "no-slots" = personal has no slots for that day (no restriction to show)
+// "covered"  = fits within a slot
+// "outside"  = slots exist but none covers the requested range
+function checkAvailabilityCoverage(
+  slots: AvailabilitySlot[],
+  dayOfWeek: number,
+  startTime: string,
+  endTime: string,
+): "covered" | "outside" | "no-slots" {
+  const daySlots = slots.filter((s) => s.dayOfWeek === dayOfWeek && s.isActive);
+  if (daySlots.length === 0) return "no-slots";
+  const covered = daySlots.some((s) => s.startTime <= startTime && s.endTime >= endTime);
+  return covered ? "covered" : "outside";
 }
 
 const SESSION_TYPE_STYLES: Record<SessionType, { bg: string; badge: string; icon: React.ReactNode }> = {
@@ -81,12 +101,6 @@ const SESSION_TYPE_STYLES: Record<SessionType, { bg: string; badge: string; icon
     badge: "bg-emerald-100 text-emerald-600",
     icon: <Dumbbell className="size-3.5" />,
   },
-};
-
-const SESSION_TYPE_LABEL: Record<SessionType, string> = {
-  rest: "Descanso",
-  online: "Online",
-  presential: "Presencial",
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -116,6 +130,11 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
     queryFn: () => getStudentWorkoutPlans(studentId),
   });
 
+  const availabilityQuery = useQuery({
+    queryKey: ["availability"],
+    queryFn: listAvailability,
+  });
+
   const upcomingSessionsQuery = useQuery({
     queryKey: ["training-sessions", "student", studentId, today],
     queryFn: () => listTrainingSessions(studentId, { from: today, to: in14Days }),
@@ -137,8 +156,8 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
           dayOfWeek: d.dayOfWeek,
           sessionType: day.sessionType,
           workoutPlanId: day.sessionType !== "rest" ? (day.workoutPlanId || null) : null,
-          scheduledTime:
-            day.sessionType === "presential" ? (day.scheduledTime || null) : null,
+          startTime: day.sessionType === "presential" ? (day.startTime || null) : null,
+          endTime: day.sessionType === "presential" ? (day.endTime || null) : null,
         };
       });
       return upsertScheduleRules(studentId, { days });
@@ -170,7 +189,7 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
   }
 
   const workoutPlans = plansQuery.data ?? [];
-  const hasUnsavedChanges = true; // always allow saving
+  const availabilitySlots = availabilityQuery.data ?? [];
 
   return (
     <div className="space-y-4">
@@ -199,10 +218,23 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
           const isTraining = config.sessionType !== "rest";
           const isPresential = config.sessionType === "presential";
 
+          // Real-time availability validation for presential sessions
+          const availabilityStatus =
+            isPresential && config.startTime && config.endTime
+              ? checkAvailabilityCoverage(
+                  availabilitySlots,
+                  day.dayOfWeek,
+                  config.startTime,
+                  config.endTime,
+                )
+              : null;
+
           return (
             <Card
               key={day.dayOfWeek}
-              className={`border transition-colors duration-200 ${styles.bg}`}
+              className={`border transition-colors duration-200 ${styles.bg} ${
+                availabilityStatus === "outside" ? "border-amber-300" : ""
+              }`}
             >
               <CardContent className="p-4">
                 <div className="flex flex-wrap items-center gap-3">
@@ -224,7 +256,8 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
                         updateDay(day.dayOfWeek, {
                           sessionType: value,
                           workoutPlanId: value === "rest" ? "" : config.workoutPlanId,
-                          scheduledTime: value === "presential" ? config.scheduledTime : "",
+                          startTime: value === "presential" ? config.startTime : "",
+                          endTime: value === "presential" ? config.endTime : "",
                         })
                       }
                     >
@@ -287,16 +320,29 @@ export function StudentSchedulePlanner({ studentId }: StudentSchedulePlannerProp
                     </div>
                   )}
 
-                  {/* Time selector (presential only) */}
+                  {/* Time range selector (presential only) */}
                   {isPresential ? (
-                    <div className="flex w-36 shrink-0 items-center gap-1.5">
+                    <div className="flex shrink-0 items-center gap-2">
                       <Clock className="size-3.5 shrink-0 text-muted-foreground" />
-                      <TimeSelect
-                        value={config.scheduledTime || ""}
-                        onChange={(value) =>
-                          updateDay(day.dayOfWeek, { scheduledTime: value })
-                        }
-                      />
+                      <div className="w-32">
+                        <TimeSelect
+                          value={config.startTime || ""}
+                          onChange={(value) => updateDay(day.dayOfWeek, { startTime: value })}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground">até</span>
+                      <div className="w-32">
+                        <TimeSelect
+                          value={config.endTime || ""}
+                          onChange={(value) => updateDay(day.dayOfWeek, { endTime: value })}
+                        />
+                      </div>
+                      {availabilityStatus === "outside" && (
+                        <div className="flex items-center gap-1 text-xs text-amber-600">
+                          <AlertTriangle className="size-3.5 shrink-0" />
+                          <span>Fora da disponibilidade</span>
+                        </div>
+                      )}
                     </div>
                   ) : null}
                 </div>
@@ -398,8 +444,11 @@ function UpcomingSessionsList({
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium capitalize">{formattedDate}</span>
-                      {session.scheduledTime ? (
-                        <span className="text-xs text-muted-foreground">{session.scheduledTime}</span>
+                      {session.startTime ? (
+                        <span className="text-xs text-muted-foreground">
+                          {session.startTime}
+                          {session.endTime ? ` – ${session.endTime}` : ""}
+                        </span>
                       ) : null}
                     </div>
                     <Badge variant={badge.variant} className="text-xs">

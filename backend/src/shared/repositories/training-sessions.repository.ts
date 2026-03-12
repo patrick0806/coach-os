@@ -9,6 +9,12 @@ import {
   TrainingSession,
   NewTrainingSession,
 } from "@config/database/schema/schedule";
+import { students } from "@config/database/schema/students";
+import { users } from "@config/database/schema/users";
+
+export interface TrainingSessionWithStudent extends TrainingSession {
+  studentName: string;
+}
 
 type DrizzleDb = NodePgDatabase<typeof schema>;
 
@@ -18,7 +24,8 @@ export interface CreateTrainingSessionInput {
   scheduleRuleId: string;
   workoutPlanId?: string | null;
   scheduledDate: string;
-  scheduledTime?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
   status: "pending" | "completed" | "cancelled";
   sessionType: "presential" | "online" | "rest";
 }
@@ -158,6 +165,49 @@ export class TrainingSessionsRepository {
         ),
       )
       .orderBy(trainingSessions.scheduledDate);
+  }
+
+  // Returns all sessions for a personal in a date range, joined with student name.
+  // Used by the personal calendar view to see all students' sessions in one week.
+  async findByPersonalAndDateRange(
+    personalId: string,
+    from: string,
+    to: string,
+    tx?: DrizzleDb,
+  ): Promise<TrainingSessionWithStudent[]> {
+    const db = tx ?? this.drizzle.db;
+    const rows = await db
+      .select({
+        id: trainingSessions.id,
+        personalId: trainingSessions.personalId,
+        studentId: trainingSessions.studentId,
+        scheduleRuleId: trainingSessions.scheduleRuleId,
+        workoutPlanId: trainingSessions.workoutPlanId,
+        workoutSessionId: trainingSessions.workoutSessionId,
+        scheduledDate: trainingSessions.scheduledDate,
+        startTime: trainingSessions.startTime,
+        endTime: trainingSessions.endTime,
+        status: trainingSessions.status,
+        sessionType: trainingSessions.sessionType,
+        cancelledAt: trainingSessions.cancelledAt,
+        cancellationReason: trainingSessions.cancellationReason,
+        notes: trainingSessions.notes,
+        createdAt: trainingSessions.createdAt,
+        updatedAt: trainingSessions.updatedAt,
+        studentName: users.name,
+      })
+      .from(trainingSessions)
+      .innerJoin(students, eq(trainingSessions.studentId, students.id))
+      .innerJoin(users, eq(students.userId, users.id))
+      .where(
+        and(
+          eq(trainingSessions.personalId, personalId),
+          gte(trainingSessions.scheduledDate, from),
+          lte(trainingSessions.scheduledDate, to),
+        ),
+      )
+      .orderBy(trainingSessions.scheduledDate, trainingSessions.startTime);
+    return rows as TrainingSessionWithStudent[];
   }
 
   async updateStatus(

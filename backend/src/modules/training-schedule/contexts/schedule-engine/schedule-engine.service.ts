@@ -3,6 +3,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 
 import { ScheduleRulesRepository } from "@shared/repositories/schedule-rules.repository";
 import { TrainingSessionsRepository, CreateTrainingSessionInput } from "@shared/repositories/training-sessions.repository";
+import { AvailabilityRepository } from "@shared/repositories/availability.repository";
 import { ScheduleRule } from "@config/database/schema/schedule";
 
 // How many days ahead to generate training sessions
@@ -15,6 +16,7 @@ export class ScheduleEngineService {
   constructor(
     private scheduleRulesRepository: ScheduleRulesRepository,
     private trainingSessionsRepository: TrainingSessionsRepository,
+    private availabilityRepository: AvailabilityRepository,
   ) {}
 
   // Runs daily at midnight — expands all active rules into concrete training sessions
@@ -40,6 +42,28 @@ export class ScheduleEngineService {
   async syncRule(rule: ScheduleRule): Promise<void> {
     await this.trainingSessionsRepository.deletePendingFutureByRule(rule.id);
     await this.processRule(rule);
+  }
+
+  // Returns true if:
+  //   - The personal has no active availability slots for that day (no restriction applies), OR
+  //   - A slot exists that fully covers [startTime, endTime].
+  // Returns false only when slots exist for the day but none covers the requested time.
+  async isPresentialCoveredByAvailability(
+    personalId: string,
+    dayOfWeek: number,
+    startTime: string,
+    endTime: string,
+  ): Promise<boolean> {
+    const hasSlots = await this.availabilityRepository.hasActiveForDay(personalId, dayOfWeek);
+    if (!hasSlots) return true;
+
+    const coveringSlot = await this.availabilityRepository.findCovering(
+      personalId,
+      dayOfWeek,
+      startTime,
+      endTime,
+    );
+    return coveringSlot !== null;
   }
 
   // Generates the concrete session payloads for a rule and persists them (idempotent)
@@ -87,7 +111,8 @@ export class ScheduleEngineService {
       scheduleRuleId: rule.id,
       workoutPlanId: rule.workoutPlanId ?? null,
       scheduledDate: date,
-      scheduledTime: rule.scheduledTime ?? null,
+      startTime: rule.startTime ?? null,
+      endTime: rule.endTime ?? null,
       status: "pending" as const,
       sessionType: rule.sessionType as "presential" | "online" | "rest",
     }));

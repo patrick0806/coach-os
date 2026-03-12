@@ -8,7 +8,8 @@ const makeRule = (overrides = {}) => ({
   dayOfWeek: 1, // Monday
   workoutPlanId: "wp-1",
   sessionType: "online" as const,
-  scheduledTime: null as string | null,
+  startTime: null as string | null,
+  endTime: null as string | null,
   isActive: true,
   createdAt: new Date("2026-03-12"),
   updatedAt: new Date("2026-03-12"),
@@ -22,6 +23,10 @@ describe("ScheduleEngineService", () => {
     createManyIgnoreDuplicates: ReturnType<typeof vi.fn>;
     deletePendingFutureByRule: ReturnType<typeof vi.fn>;
   };
+  let availabilityRepo: {
+    hasActiveForDay: ReturnType<typeof vi.fn>;
+    findCovering: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     scheduleRulesRepo = { findAllActive: vi.fn() };
@@ -29,9 +34,14 @@ describe("ScheduleEngineService", () => {
       createManyIgnoreDuplicates: vi.fn().mockResolvedValue([]),
       deletePendingFutureByRule: vi.fn().mockResolvedValue(undefined),
     };
+    availabilityRepo = {
+      hasActiveForDay: vi.fn().mockResolvedValue(false),
+      findCovering: vi.fn().mockResolvedValue(null),
+    };
     service = new ScheduleEngineService(
       scheduleRulesRepo as any,
       trainingSessionsRepo as any,
+      availabilityRepo as any,
     );
   });
 
@@ -103,10 +113,23 @@ describe("ScheduleEngineService", () => {
         scheduleRuleId: "rule-1",
         workoutPlanId: "wp-1",
         scheduledDate: "2026-03-16",
-        scheduledTime: null,
+        startTime: null,
+        endTime: null,
         sessionType: "online",
         status: "pending",
       });
+    });
+
+    it("should propagate startTime and endTime from rule for presential sessions", () => {
+      const rule = makeRule({
+        sessionType: "presential",
+        startTime: "07:00",
+        endTime: "08:00",
+      });
+      const payloads = service.buildSessionPayloads(rule, ["2026-03-16"]);
+
+      expect(payloads[0].startTime).toBe("07:00");
+      expect(payloads[0].endTime).toBe("08:00");
     });
 
     it("should set workoutPlanId to null for rest day rules", () => {
@@ -171,6 +194,53 @@ describe("ScheduleEngineService", () => {
       await service.syncRule(makeRule());
 
       expect(callOrder).toEqual(["delete", "create"]);
+    });
+  });
+
+  // ─── isPresentialCoveredByAvailability ───────────────────────────────────
+
+  describe("isPresentialCoveredByAvailability", () => {
+    it("should return true when no active slots exist for the day (no restriction applies)", async () => {
+      availabilityRepo.hasActiveForDay.mockResolvedValue(false);
+
+      const result = await service.isPresentialCoveredByAvailability(
+        "personal-1",
+        1,
+        "07:00",
+        "08:00",
+      );
+
+      expect(result).toBe(true);
+      expect(availabilityRepo.findCovering).not.toHaveBeenCalled();
+    });
+
+    it("should return true when availability slot covers the presential time range", async () => {
+      availabilityRepo.hasActiveForDay.mockResolvedValue(true);
+      availabilityRepo.findCovering.mockResolvedValue({ id: "slot-1", startTime: "06:00", endTime: "10:00" });
+
+      const result = await service.isPresentialCoveredByAvailability(
+        "personal-1",
+        1,
+        "07:00",
+        "08:00",
+      );
+
+      expect(result).toBe(true);
+      expect(availabilityRepo.findCovering).toHaveBeenCalledWith("personal-1", 1, "07:00", "08:00");
+    });
+
+    it("should return false when slots exist for the day but none covers the requested time", async () => {
+      availabilityRepo.hasActiveForDay.mockResolvedValue(true);
+      availabilityRepo.findCovering.mockResolvedValue(null);
+
+      const result = await service.isPresentialCoveredByAvailability(
+        "personal-1",
+        1,
+        "07:00",
+        "08:00",
+      );
+
+      expect(result).toBe(false);
     });
   });
 });

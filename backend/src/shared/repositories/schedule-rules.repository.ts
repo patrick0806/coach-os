@@ -13,7 +13,8 @@ export interface UpsertScheduleRuleInput {
   studentId: string;
   dayOfWeek: number;
   workoutPlanId?: string | null;
-  scheduledTime?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
   sessionType: "presential" | "online" | "rest";
 }
 
@@ -42,6 +43,27 @@ export class ScheduleRulesRepository {
       );
   }
 
+  // Returns active presential rules for a personal on a given day of week.
+  // Used by the public availability engine to compute occupied slots.
+  async findActivePresentialByDay(
+    personalId: string,
+    dayOfWeek: number,
+    tx?: DrizzleDb,
+  ): Promise<ScheduleRule[]> {
+    const db = tx ?? this.drizzle.db;
+    return db
+      .select()
+      .from(scheduleRules)
+      .where(
+        and(
+          eq(scheduleRules.personalId, personalId),
+          eq(scheduleRules.dayOfWeek, dayOfWeek),
+          eq(scheduleRules.sessionType, "presential"),
+          eq(scheduleRules.isActive, true),
+        ),
+      );
+  }
+
   async upsert(data: UpsertScheduleRuleInput, tx?: DrizzleDb): Promise<ScheduleRule> {
     const db = tx ?? this.drizzle.db;
     const result = await (db as any)
@@ -51,7 +73,8 @@ export class ScheduleRulesRepository {
         target: [scheduleRules.studentId, scheduleRules.dayOfWeek],
         set: {
           workoutPlanId: data.workoutPlanId ?? null,
-          scheduledTime: data.scheduledTime ?? null,
+          startTime: data.startTime ?? null,
+          endTime: data.endTime ?? null,
           sessionType: data.sessionType,
           isActive: true,
           updatedAt: new Date(),
