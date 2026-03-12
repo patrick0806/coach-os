@@ -25,4 +25,4 @@ RUN npm ci --omit=dev --ignore-scripts
 
 EXPOSE 30001
 
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/main.js"]
