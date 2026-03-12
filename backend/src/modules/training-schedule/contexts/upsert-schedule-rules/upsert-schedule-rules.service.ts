@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { ScheduleRulesRepository } from "@shared/repositories/schedule-rules.repository";
@@ -14,7 +14,7 @@ export class UpsertScheduleRulesService {
     private studentsRepository: StudentsRepository,
     private scheduleRulesRepository: ScheduleRulesRepository,
     private scheduleEngineService: ScheduleEngineService,
-  ) {}
+  ) { }
 
   async execute(
     dto: UpsertScheduleRulesInput,
@@ -63,6 +63,20 @@ export class UpsertScheduleRulesService {
         if (!isCovered) {
           throw new BadRequestException(
             `O horário ${day.startTime}–${day.endTime} (dayOfWeek: ${day.dayOfWeek}) está fora da disponibilidade do profissional`,
+          );
+        }
+
+        const conflicts = await this.scheduleRulesRepository.findConflictingRules(
+          personalId,
+          studentId,
+          day.dayOfWeek,
+          day.startTime,
+          day.endTime,
+        );
+
+        if (conflicts.length > 0) {
+          throw new ConflictException(
+            `Já existe um treino presencial agendado nesse horário (${conflicts[0].startTime} às ${conflicts[0].endTime}) para outro aluno`,
           );
         }
       }

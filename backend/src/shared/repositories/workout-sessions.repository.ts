@@ -64,7 +64,7 @@ export class WorkoutSessionsRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(workoutSessions)
-      .set({ currentStep })
+      .set({ currentStep } as any)
       .where(and(eq(workoutSessions.id, id), eq(workoutSessions.studentId, studentId)))
       .returning();
     return result[0] ?? null;
@@ -78,7 +78,7 @@ export class WorkoutSessionsRepository {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(workoutSessions)
-      .set({ status: "completed", completedAt: new Date() })
+      .set({ status: "completed", completedAt: new Date() } as any)
       .where(and(eq(workoutSessions.id, id), eq(workoutSessions.studentId, studentId)))
       .returning();
     return result[0] ?? null;

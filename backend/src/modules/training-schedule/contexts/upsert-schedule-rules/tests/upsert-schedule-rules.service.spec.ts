@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException, ConflictException } from "@nestjs/common";
 import { UpsertScheduleRulesService } from "../upsert-schedule-rules.service";
 
 const mockUser = { sub: "user-1", role: "PERSONAL", profileId: "personal-1", personalId: "personal-1", personalSlug: "coach" };
@@ -17,7 +17,7 @@ const makePayload = (overrides = {}) => ({
 describe("UpsertScheduleRulesService", () => {
   let service: UpsertScheduleRulesService;
   let studentsRepo: { findById: ReturnType<typeof vi.fn> };
-  let scheduleRulesRepo: { upsert: ReturnType<typeof vi.fn> };
+  let scheduleRulesRepo: { upsert: ReturnType<typeof vi.fn>; findConflictingRules: ReturnType<typeof vi.fn> };
   let scheduleEngine: {
     syncRule: ReturnType<typeof vi.fn>;
     isPresentialCoveredByAvailability: ReturnType<typeof vi.fn>;
@@ -25,7 +25,7 @@ describe("UpsertScheduleRulesService", () => {
 
   beforeEach(() => {
     studentsRepo = { findById: vi.fn() };
-    scheduleRulesRepo = { upsert: vi.fn() };
+    scheduleRulesRepo = { upsert: vi.fn(), findConflictingRules: vi.fn().mockResolvedValue([]) };
     scheduleEngine = {
       syncRule: vi.fn().mockResolvedValue(undefined),
       isPresentialCoveredByAvailability: vi.fn().mockResolvedValue(true),
@@ -118,6 +118,20 @@ describe("UpsertScheduleRulesService", () => {
 
     await expect(service.execute(payload, studentId, mockUser as any))
       .rejects.toThrow(BadRequestException);
+  });
+
+  it("should throw ConflictException when presential time overlaps with another student's session", async () => {
+    studentsRepo.findById.mockResolvedValue({ id: studentId, personalId: "personal-1" });
+    scheduleRulesRepo.findConflictingRules.mockResolvedValue([
+      { startTime: "07:30", endTime: "08:30" }
+    ]);
+
+    const payload = makePayload({
+      days: [{ dayOfWeek: 3, sessionType: "presential", workoutPlanId: "wp-2", startTime: "07:00", endTime: "08:00" }],
+    });
+
+    await expect(service.execute(payload, studentId, mockUser as any))
+      .rejects.toThrow(ConflictException);
   });
 
   it("should not validate availability for online sessions", async () => {

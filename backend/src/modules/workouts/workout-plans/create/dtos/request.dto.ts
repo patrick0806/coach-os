@@ -7,7 +7,7 @@ export const CreateWorkoutPlanSchema = z.object({
   planKind: z.enum(["template", "student"]).default("template"),
 });
 
-export type CreateWorkoutPlanInput = z.infer<typeof CreateWorkoutPlanSchema>;
+export type CreateWorkoutPlanInput = z.input<typeof CreateWorkoutPlanSchema>;
 
 export class CreateWorkoutPlanDTO implements CreateWorkoutPlanInput {
   @ApiProperty({ example: "Treino A" })
@@ -17,5 +17,5 @@ export class CreateWorkoutPlanDTO implements CreateWorkoutPlanInput {
   description?: string;
 
   @ApiProperty({ required: false, enum: ["template", "student"], default: "template" })
-  planKind: "template" | "student";
+  planKind?: "template" | "student";
 }

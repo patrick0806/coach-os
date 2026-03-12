@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, eq } from "drizzle-orm";
+import { and, eq, lt, gt, ne } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -20,7 +20,7 @@ export interface UpsertScheduleRuleInput {
 
 @Injectable()
 export class ScheduleRulesRepository {
-  constructor(private drizzle: DrizzleProvider) {}
+  constructor(private drizzle: DrizzleProvider) { }
 
   async findAllActive(tx?: DrizzleDb): Promise<ScheduleRule[]> {
     const db = tx ?? this.drizzle.db;
@@ -60,6 +60,31 @@ export class ScheduleRulesRepository {
           eq(scheduleRules.dayOfWeek, dayOfWeek),
           eq(scheduleRules.sessionType, "presential"),
           eq(scheduleRules.isActive, true),
+        ),
+      );
+  }
+
+  async findConflictingRules(
+    personalId: string,
+    studentIdToExclude: string,
+    dayOfWeek: number,
+    startTime: string,
+    endTime: string,
+    tx?: DrizzleDb,
+  ): Promise<ScheduleRule[]> {
+    const db = tx ?? this.drizzle.db;
+    return db
+      .select()
+      .from(scheduleRules)
+      .where(
+        and(
+          eq(scheduleRules.personalId, personalId),
+          eq(scheduleRules.dayOfWeek, dayOfWeek),
+          eq(scheduleRules.sessionType, "presential"),
+          eq(scheduleRules.isActive, true),
+          ne(scheduleRules.studentId, studentIdToExclude),
+          lt(scheduleRules.startTime, endTime),
+          gt(scheduleRules.endTime, startTime),
         ),
       );
   }

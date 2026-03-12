@@ -40,6 +40,7 @@
 ---
 
 ### US-072 — [MÉDIO] Correção de Bugs de Lógica e Dados (Nível 2) ✅
+- [ ] **[BUG-001] Impedir Sobreposição de Treinos Presenciais:** Implementar validação no `UpsertScheduleRulesService` para garantir que um Personal não possa ter dois treinos `presential` no mesmo horário/dia para alunos diferentes.
 - [x] **Correção de Range de Datas:** Adicionado filtro `lte` no `findByStudentAndDateRange`.
 - [x] **Desacoplar Nome de Plano Básico:** Campo `isDefault` no schema, migration `0018`, método `findDefault()` no `PlansRepository`, `register.service.ts` atualizado.
 - [x] **Sincronização de Status de Assinatura:** `TenantAccessGuard` refatorado — `subscriptionStatus` (Stripe) tem precedência; sync é fire-and-forget eliminando race condition.
