@@ -20,6 +20,7 @@ const mockPlan = {
   sessionsPerWeek: 3,
   durationMinutes: 60,
   price: "299.90",
+  attendanceType: "presential" as const,
   isActive: true,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
@@ -85,6 +86,38 @@ describe("CreateServicePlanService", () => {
       expect(servicePlansRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({ durationMinutes: 60 }),
       );
+    });
+
+    it("should use default attendanceType 'presential' when not provided", async () => {
+      servicePlansRepository.create.mockResolvedValue(mockPlan);
+
+      await service.execute({ name: "Plano", sessionsPerWeek: 3, price: 299.9 }, mockCurrentUser);
+
+      expect(servicePlansRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ attendanceType: "presential" }),
+      );
+    });
+
+    it("should persist the provided attendanceType", async () => {
+      servicePlansRepository.create.mockResolvedValue({ ...mockPlan, attendanceType: "online" });
+
+      await service.execute(
+        { name: "Plano", sessionsPerWeek: 3, price: 299.9, attendanceType: "online" },
+        mockCurrentUser,
+      );
+
+      expect(servicePlansRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ attendanceType: "online" }),
+      );
+    });
+
+    it("should throw BadRequestException for invalid attendanceType", async () => {
+      await expect(
+        service.execute(
+          { name: "Plano", sessionsPerWeek: 3, price: 299.9, attendanceType: "invalid" as any },
+          mockCurrentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

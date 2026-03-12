@@ -24,6 +24,7 @@ export class CreateServicePlanService {
       durationMinutes: parsed.data.durationMinutes,
       // Convert number to string for numeric DB column
       price: parsed.data.price.toFixed(2),
+      attendanceType: parsed.data.attendanceType,
     });
   }
 }

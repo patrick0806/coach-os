@@ -15,6 +15,7 @@ export interface CreateServicePlanInput {
   sessionsPerWeek: number;
   durationMinutes: number;
   price: string;
+  attendanceType: "online" | "presential" | "residential";
 }
 
 export interface UpdateServicePlanInput {
@@ -23,6 +24,7 @@ export interface UpdateServicePlanInput {
   sessionsPerWeek?: number;
   durationMinutes?: number;
   price?: string;
+  attendanceType?: "online" | "presential" | "residential";
 }
 
 @Injectable()

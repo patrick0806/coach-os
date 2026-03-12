@@ -1,6 +1,6 @@
 # Epic 19 — Atendimento e Execução Gamificada
 
-Status: `[ ]` todo
+Status: `[~]` em andamento
 
 > **Visão Premium:** Transformar o treino em uma experiência imersiva e viciante. O foco é reduzir a fricção operacional (marcar como feito) e aumentar a dopamina (streaks e visual high-end).
 
@@ -29,40 +29,40 @@ Status: `[ ]` todo
 
 ## US-055 — Tipos de Atendimento nos Planos de Serviço
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 19
 
 ### Tarefas Backend
-- [ ] Criar migration para `attendance_type` em `service_plans`.
-- [ ] Atualizar `CreateServicePlanDto` e `UpdateServicePlanDto` com validação Zod.
-- [ ] Ajustar `ServicePlansRepository` para persistir o novo campo.
+- [x] Criar migration para `attendance_type` em `service_plans`.
+- [x] Atualizar `CreateServicePlanDto` e `UpdateServicePlanDto` com validação Zod.
+- [x] Ajustar `ServicePlansRepository` para persistir o novo campo.
 
 ### Tarefas Frontend
-- [ ] Adicionar `Select` com ícones (WiFi, Home, Users) no formulário de criação de planos.
-- [ ] Criar componente `AttendanceBadge` com efeito glassmorphism.
-- [ ] Renderizar o badge nos cards de planos da Landing Page e do Painel.
+- [x] Adicionar `Select` com ícones (WiFi, Home, Users) no formulário de criação de planos.
+- [x] Criar componente `AttendanceBadge` com efeito glassmorphism.
+- [x] Renderizar o badge nos cards de planos da Landing Page e do Painel.
 
 ---
 
 ## US-056 — Modo Player: Execução Imersiva de Treino
 
-**Status:** `[ ]` todo
+**Status:** `[x]` done
 **Sprint:** 19
 
 ### Tarefas Backend
-- [ ] Criar migration da tabela `workout_sessions`.
-- [ ] Endpoint `POST /workout-sessions/start`: Verifica se já existe sessão ativa (retoma) ou cria nova.
-- [ ] Endpoint `PATCH /workout-sessions/:id/step`: Atualiza o exercício atual (`current_step`).
-- [ ] Endpoint `POST /workout-sessions/:id/complete`: Finaliza a sessão e calcula o tempo total.
+- [x] Criar migration da tabela `workout_sessions`.
+- [x] Endpoint `POST /workout-sessions/start`: Verifica se já existe sessão ativa (retoma) ou cria nova.
+- [x] Endpoint `PATCH /workout-sessions/:id/step`: Atualiza o exercício atual (`current_step`).
+- [x] Endpoint `POST /workout-sessions/:id/complete`: Finaliza a sessão e calcula o tempo total.
 
 ### Tarefas Frontend
-- [ ] **Layout `ModoPlayer`:** Rota `app/[slug]/alunos/treinos/[id]/executar`. Layout em tela cheia sem sidebar/navbar.
-- [ ] **Componente `ExerciseStep`:**
+- [x] **Layout `ModoPlayer`:** Rota `app/[slug]/alunos/treinos/[id]/executar`. Layout em tela cheia sem sidebar/navbar.
+- [x] **Componente `ExerciseStep`:**
     - Cabeçalho com barra de progresso fina e elegante.
     - Área central: Mídia (Vídeo/GIF) + Título + Carga/Séries/Reps grandes.
     - Área inferior fixa: Botão "Concluir" (destaque primário) + Botão "Pular/Próximo".
-- [ ] **Timer de Descanso:** Overlay circular elegante que aparece automaticamente após "Concluir" (configurável).
-- [ ] **Sincronização:** Salvar o progresso no backend a cada mudança de exercício.
+- [x] **Timer de Descanso:** Overlay circular elegante que aparece automaticamente após "Concluir" (configurável).
+- [x] **Sincronização:** Salvar o progresso no backend a cada mudança de exercício.
 
 ---
 

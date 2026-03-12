@@ -60,6 +60,11 @@ export const servicePlans = pgTable(
     sessionsPerWeek: integer("sessions_per_week").notNull(),
     durationMinutes: integer("duration_minutes").notNull().default(60),
     price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+    // Attendance type: "online" | "presential" | "residential"
+    attendanceType: text("attendance_type")
+      .$type<"online" | "presential" | "residential">()
+      .notNull()
+      .default("presential"),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

@@ -20,6 +20,7 @@ const mockPlan = {
   sessionsPerWeek: 3,
   durationMinutes: 60,
   price: "299.90",
+  attendanceType: "presential" as const,
   isActive: true,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
@@ -76,6 +77,35 @@ describe("UpdateServicePlanService", () => {
 
       await expect(
         service.execute("plan-id", { price: -50 }, mockCurrentUser),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should update attendanceType when provided", async () => {
+      const updated = { ...mockPlan, attendanceType: "online" as const };
+      servicePlansRepository.findOwnedById.mockResolvedValue(mockPlan);
+      servicePlansRepository.update.mockResolvedValue(updated);
+
+      const result = await service.execute(
+        "plan-id",
+        { attendanceType: "online" },
+        mockCurrentUser,
+      );
+
+      expect(servicePlansRepository.update).toHaveBeenCalledWith("plan-id", "personal-id", {
+        attendanceType: "online",
+      });
+      expect(result.attendanceType).toBe("online");
+    });
+
+    it("should throw BadRequestException for invalid attendanceType", async () => {
+      servicePlansRepository.findOwnedById.mockResolvedValue(mockPlan);
+
+      await expect(
+        service.execute(
+          "plan-id",
+          { attendanceType: "invalid" as any },
+          mockCurrentUser,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });

@@ -12,6 +12,7 @@ export const UpdateServicePlanSchema = z.object({
     .optional(),
   durationMinutes: z.number().int().min(1).optional(),
   price: z.number().nonnegative("Preço deve ser maior ou igual a zero").optional(),
+  attendanceType: z.enum(["online", "presential", "residential"]).optional(),
 });
 
 export type UpdateServicePlanInput = z.infer<typeof UpdateServicePlanSchema>;
@@ -31,4 +32,11 @@ export class UpdateServicePlanDTO implements UpdateServicePlanInput {
 
   @ApiProperty({ required: false, example: 399.9 })
   price?: number;
+
+  @ApiProperty({
+    required: false,
+    enum: ["online", "presential", "residential"],
+    example: "online",
+  })
+  attendanceType?: "online" | "presential" | "residential";
 }

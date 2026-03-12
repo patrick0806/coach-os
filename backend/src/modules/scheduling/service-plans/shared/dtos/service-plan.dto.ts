@@ -22,6 +22,9 @@ export class ServicePlanDTO {
   @ApiProperty({ example: "299.90", description: "Price as string (numeric from DB)" })
   price: string;
 
+  @ApiProperty({ enum: ["online", "presential", "residential"], example: "presential" })
+  attendanceType: "online" | "presential" | "residential";
+
   @ApiProperty({ example: true })
   isActive: boolean;
 

@@ -26,6 +26,7 @@ import {
   listServicePlans,
   type ServicePlan,
 } from "@/services/service-plans.service";
+import { AttendanceBadge } from "./_components/attendance-badge";
 import { ServicePlanDialog } from "./_components/service-plan-dialog";
 
 export default function PlanosServicoPage() {
@@ -173,6 +174,7 @@ function PlanCard({ plan, onEdit, onDeactivate }: PlanCardProps) {
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium text-foreground">{plan.name}</span>
+          <AttendanceBadge type={plan.attendanceType} />
           {!plan.isActive ? (
             <Badge variant="secondary" className="text-xs">
               Inativo

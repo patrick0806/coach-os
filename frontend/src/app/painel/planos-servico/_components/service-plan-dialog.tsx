@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { Wifi, Home, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
@@ -50,6 +58,7 @@ const schema = z.object({
     .string()
     .min(1, "Preço é obrigatório")
     .refine((value) => parseCurrencyInput(value) >= 0, "Preço é obrigatório"),
+  attendanceType: z.enum(["online", "presential", "residential"]).default("presential"),
 });
 
 type FormValues = z.input<typeof schema>;
@@ -73,6 +82,7 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
       sessionsPerWeek: 3,
       durationMinutes: 60,
       price: formatCurrencyInput(""),
+      attendanceType: "presential" as const,
     },
   });
   const priceValue = useWatch({ control: form.control, name: "price" }) ?? formatCurrencyInput("");
@@ -87,6 +97,7 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
               sessionsPerWeek: plan.sessionsPerWeek,
               durationMinutes: plan.durationMinutes,
               price: formatCurrencyInput(plan.price),
+              attendanceType: plan.attendanceType ?? "presential",
             }
           : {
               name: "",
@@ -94,6 +105,7 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
               sessionsPerWeek: 3,
               durationMinutes: 60,
               price: formatCurrencyInput(""),
+              attendanceType: "presential" as const,
             },
       );
     }
@@ -108,6 +120,7 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
             sessionsPerWeek: values.sessionsPerWeek,
             durationMinutes: values.durationMinutes,
             price: parseCurrencyInput(values.price),
+            attendanceType: values.attendanceType,
           })
         : createServicePlan({
             name: values.name,
@@ -115,6 +128,7 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
             sessionsPerWeek: values.sessionsPerWeek,
             durationMinutes: values.durationMinutes,
             price: parseCurrencyInput(values.price),
+            attendanceType: values.attendanceType,
           }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["service-plans"] });
@@ -186,6 +200,44 @@ export function ServicePlanDialog({ open, onOpenChange, plan }: ServicePlanDialo
                 </p>
               ) : null}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tipo de atendimento</Label>
+            <Select
+              value={form.watch("attendanceType")}
+              onValueChange={(value) =>
+                form.setValue(
+                  "attendanceType",
+                  value as "online" | "presential" | "residential",
+                  { shouldDirty: true },
+                )
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="presential">
+                  <span className="flex items-center gap-2">
+                    <Users className="size-4" />
+                    Presencial
+                  </span>
+                </SelectItem>
+                <SelectItem value="online">
+                  <span className="flex items-center gap-2">
+                    <Wifi className="size-4" />
+                    Online
+                  </span>
+                </SelectItem>
+                <SelectItem value="residential">
+                  <span className="flex items-center gap-2">
+                    <Home className="size-4" />
+                    Residencial
+                  </span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

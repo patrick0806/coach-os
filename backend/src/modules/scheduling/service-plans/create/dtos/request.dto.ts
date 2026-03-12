@@ -11,6 +11,10 @@ export const CreateServicePlanSchema = z.object({
     .max(7, "sessionsPerWeek deve ser entre 1 e 7"),
   durationMinutes: z.number().int().min(1).optional().default(60),
   price: z.number().nonnegative("Preço deve ser maior ou igual a zero"),
+  attendanceType: z
+    .enum(["online", "presential", "residential"])
+    .optional()
+    .default("presential"),
 });
 
 export type CreateServicePlanInput = z.input<typeof CreateServicePlanSchema>;
@@ -30,4 +34,12 @@ export class CreateServicePlanDTO implements CreateServicePlanInput {
 
   @ApiProperty({ example: 299.9 })
   price: number;
+
+  @ApiProperty({
+    required: false,
+    enum: ["online", "presential", "residential"],
+    default: "presential",
+    example: "presential",
+  })
+  attendanceType?: "online" | "presential" | "residential";
 }

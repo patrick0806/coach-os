@@ -214,3 +214,35 @@ export async function getMeWorkoutPlan(planId: string): Promise<WorkoutPlanDetai
   );
   return normalizeWorkoutPlanDetail(data);
 }
+
+// Workout Sessions
+
+export interface WorkoutSession {
+  id: string;
+  studentId: string;
+  workoutPlanId: string;
+  status: "active" | "completed";
+  currentStep: number;
+  startedAt: string;
+  completedAt: string | null;
+}
+
+export async function startWorkoutSession(workoutPlanId: string): Promise<WorkoutSession> {
+  const { data } = await api.post<WorkoutSession>("/workout-sessions/start", { workoutPlanId });
+  return data;
+}
+
+export async function updateSessionStep(
+  sessionId: string,
+  currentStep: number,
+): Promise<WorkoutSession> {
+  const { data } = await api.patch<WorkoutSession>(`/workout-sessions/${sessionId}/step`, {
+    currentStep,
+  });
+  return data;
+}
+
+export async function completeWorkoutSession(sessionId: string): Promise<WorkoutSession> {
+  const { data } = await api.post<WorkoutSession>(`/workout-sessions/${sessionId}/complete`);
+  return data;
+}

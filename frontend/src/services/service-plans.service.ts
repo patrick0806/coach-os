@@ -1,5 +1,7 @@
 import { api } from "@/lib/api";
 
+export type AttendanceType = "online" | "presential" | "residential";
+
 export interface ServicePlan {
   id: string;
   personalId: string;
@@ -8,6 +10,7 @@ export interface ServicePlan {
   sessionsPerWeek: number;
   durationMinutes: number;
   price: string;
+  attendanceType: AttendanceType;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -32,6 +35,7 @@ export interface CreateServicePlanPayload {
   sessionsPerWeek: number;
   durationMinutes: number;
   price: number;
+  attendanceType?: AttendanceType;
 }
 
 export interface UpdateServicePlanPayload {
@@ -41,6 +45,7 @@ export interface UpdateServicePlanPayload {
   durationMinutes?: number;
   price?: number;
   isActive?: boolean;
+  attendanceType?: AttendanceType;
 }
 
 export function formatPrice(price: string): string {

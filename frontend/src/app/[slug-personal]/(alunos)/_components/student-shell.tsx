@@ -17,7 +17,7 @@ export function StudentShell({ slug, children }: StudentShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { signOut } = useAuth();
-  const isWorkoutExecutionRoute = /^\/[^/]+\/alunos\/treinos\/[^/]+$/.test(pathname);
+  const isWorkoutExecutionRoute = /^\/[^/]+\/alunos\/treinos\/[^/]+(\/executar)?$/.test(pathname);
 
   const navItems = [
     { href: `/${slug}/alunos/painel`, label: "Início", icon: LayoutDashboard },

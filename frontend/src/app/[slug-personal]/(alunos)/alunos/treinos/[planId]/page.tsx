@@ -13,6 +13,7 @@ import {
   Minus,
   Pause,
   Play,
+  Zap,
 } from "lucide-react";
 
 import { ExerciseMedia } from "@/components/shared/exercise-media";
@@ -387,6 +388,17 @@ export default function AlunoTreinoDetailPage({ params }: AlunoTreinoDetailPageP
                   </div>
                   <Dumbbell className="size-5 text-primary" />
                 </div>
+
+                <Link href={`/${slug}/alunos/treinos/${planId}/executar`}>
+                  <Button
+                    type="button"
+                    variant="premium"
+                    className="h-14 w-full rounded-2xl font-semibold"
+                  >
+                    <Zap className="size-5" />
+                    Modo Player
+                  </Button>
+                </Link>
 
                 <div className="grid grid-cols-2 gap-3">
                   <Button

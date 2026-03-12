@@ -161,6 +161,43 @@ export const workoutPlanStudentsRelations = relations(
   })
 );
 
+// Workout Sessions — tracks execution of workout plans by students
+export const workoutSessions = pgTable(
+  "workout_sessions",
+  {
+    id: varchar("id", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    studentId: varchar("student_id", { length: 36 })
+      .notNull()
+      .references(() => students.id),
+    workoutPlanId: varchar("workout_plan_id", { length: 36 })
+      .notNull()
+      .references(() => workoutPlans.id),
+    // Status: "active" | "completed"
+    status: varchar("status", { length: 20 }).notNull().default("active"),
+    currentStep: integer("current_step").notNull().default(0),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("idx_workout_sessions_student_id").on(table.studentId),
+    index("idx_workout_sessions_plan_id").on(table.workoutPlanId),
+    index("idx_workout_sessions_status").on(table.status),
+  ]
+);
+
+export const workoutSessionsRelations = relations(workoutSessions, ({ one }) => ({
+  student: one(students, {
+    fields: [workoutSessions.studentId],
+    references: [students.id],
+  }),
+  workoutPlan: one(workoutPlans, {
+    fields: [workoutSessions.workoutPlanId],
+    references: [workoutPlans.id],
+  }),
+}));
+
 // Types
 export type Exercise = typeof exercises.$inferSelect;
 export type CreateExercise = typeof exercises.$inferInsert;
@@ -173,3 +210,6 @@ export type CreateWorkoutPlanStudent = typeof workoutPlanStudents.$inferInsert;
 
 export type WorkoutExercise = typeof workoutExercises.$inferSelect;
 export type CreateWorkoutExercise = typeof workoutExercises.$inferInsert;
+
+export type WorkoutSession = typeof workoutSessions.$inferSelect;
+export type CreateWorkoutSession = typeof workoutSessions.$inferInsert;

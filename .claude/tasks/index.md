@@ -33,63 +33,13 @@
 | 17 - Checkout Transparente e Conversão SaaS | [epic-17-checkout-flow.md](epic-17-checkout-flow.md) | [ ] | [ ] |
 | 18 - Treinos Customizados e Independentes | [epic-18-custom-workouts.md](epic-18-custom-workouts.md) | [ ] | [ ] |
 | 19 - Atendimento e Execução Gamificada | [epic-19-attendance-and-execution.md](epic-19-attendance-and-execution.md) | [ ] | [ ] |
+| 20 - Periodização e Cronograma Semanal | [epic-20-weekly-periodization.md](epic-20-weekly-periodization.md) | [ ] | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
 
 ```
-PRE-SPRINT — Schema Reset (fazer antes de tudo)
-  Reescrever schema → deletar migrations → gerar nova migration limpa → atualizar seed
-
-Sprint 1 — Fundacao Auth
-  US-001 → US-002
-  (US-006 removida — absorvida por US-002)
-
-Sprint 2 — Personal Area Core
-  US-003 → US-004 → US-005
-
-Sprint 3 — Gestao de Treinos
-  US-007 → US-008 → US-009 → US-010
-
-Sprint 4 — Agenda e Booking
-  US-011 → US-012 → US-013 → US-014
-
-Sprint 5 — Monetizacao
-  US-015 → US-016
-
-Sprint 6 — Admin Area
-  US-017 → US-018
-
-Sprint 7 — Freemium e Conversao
-  US-021 → US-022 → US-023
-
-Sprint 8 — Agenda Operacional do Personal
-  US-032 (disponibilidade em lote) → US-024 (sessao avulsa + recorrencia + exclusao por escopo) → US-025
-
-Sprint 9 — Busca e Midia
-  US-026 → US-027 → US-028
-
-Sprint 10 — Organizacao de Treinos
-  US-029 → US-030
-
-Sprint 11 — Tema do Painel Personal e Marketing
-  US-031 → US-033 → US-034
-
-Sprint 12 — Suporte e Retenção
-  US-035
-
-Sprint 13 — Redesign e UX de Autenticação
-  US-037 → US-038 → US-039
-
-Sprint 14 — Refinamento Visual Premium
-  US-040 → US-041 → US-042 → US-043
-
-Sprint 15 — SEO e Indexação
-  US-044 → US-045 → US-046
-
-Sprint 16 — Excelência em Testes e Automação
-  US-050 → US-051 → US-052 → US-053
-
+...
 Sprint 17 — Funil de Conversão e Checkout Stripe
   US-047 → US-048 → US-049
 
@@ -98,6 +48,9 @@ Sprint 18 — Treinos Customizados e Independentes
 
 Sprint 19 — Atendimento e Execução Gamificada
   US-055 → US-056 → US-057
+
+Sprint 20 — Periodização e Cronograma Semanal
+  US-058 → US-059 → US-060
 ```
 
 > **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).
