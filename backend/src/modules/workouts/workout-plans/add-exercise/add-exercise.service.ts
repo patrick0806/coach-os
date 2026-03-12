@@ -38,6 +38,8 @@ export class AddExerciseService {
       sets: parsed.data.sets,
       repetitions: parsed.data.repetitions,
       load: parsed.data.load,
+      restTime: parsed.data.restTime,
+      executionTime: parsed.data.executionTime,
       order: parsed.data.order ?? 0,
       notes: parsed.data.notes,
     });

@@ -21,6 +21,8 @@ export interface WorkoutExerciseRow {
   sets: number;
   repetitions: number;
   load: string | null;
+  restTime: string | null;
+  executionTime: string | null;
   order: number;
   notes: string | null;
 }
@@ -31,6 +33,8 @@ export interface CreateWorkoutExerciseInput {
   sets: number;
   repetitions: number;
   load?: string | null;
+  restTime?: string | null;
+  executionTime?: string | null;
   order?: number;
   notes?: string | null;
 }
@@ -60,6 +64,8 @@ export class WorkoutExercisesRepository {
         sets: workoutExercises.sets,
         repetitions: workoutExercises.repetitions,
         load: workoutExercises.load,
+        restTime: workoutExercises.restTime,
+        executionTime: workoutExercises.executionTime,
         order: workoutExercises.order,
         notes: workoutExercises.notes,
       })
@@ -111,6 +117,8 @@ export class WorkoutExercisesRepository {
       sets: we.sets,
       repetitions: we.repetitions,
       load: we.load ?? null,
+      restTime: we.restTime ?? null,
+      executionTime: we.executionTime ?? null,
       order: we.order,
       notes: we.notes ?? null,
     };

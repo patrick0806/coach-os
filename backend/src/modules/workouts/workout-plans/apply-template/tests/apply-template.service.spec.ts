@@ -93,6 +93,8 @@ describe("ApplyTemplateService", () => {
         load: "20kg",
         order: 0,
         notes: "Controlado",
+        restTime: "60s",
+        executionTime: "3s",
       },
     ]);
     workoutExercisesRepository.create.mockResolvedValue(undefined);
@@ -123,6 +125,8 @@ describe("ApplyTemplateService", () => {
         load: "20kg",
         order: 0,
         notes: "Controlado",
+        restTime: "60s",
+        executionTime: "3s",
       },
       {},
     );
@@ -167,6 +171,58 @@ describe("ApplyTemplateService", () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it("clona exercicios sem restTime e executionTime quando template nao possui esses campos", async () => {
+    workoutPlansRepository.findById.mockResolvedValue({
+      id: "template-id",
+      personalId: "personal-id",
+      name: "Treino Base",
+      description: null,
+      planKind: "template",
+    });
+    workoutPlansRepository.create.mockResolvedValue({
+      id: "new-plan-id",
+      personalId: "personal-id",
+      name: "Copia de Treino Base",
+      description: null,
+      planKind: "student",
+      sourceTemplateId: "template-id",
+      studentNames: [],
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-01-01"),
+    });
+    workoutExercisesRepository.findByWorkoutPlanId.mockResolvedValue([
+      {
+        id: "we-1",
+        exerciseId: "exercise-id",
+        sets: 4,
+        repetitions: 10,
+        load: null,
+        order: 0,
+        notes: null,
+        restTime: null,
+        executionTime: null,
+      },
+    ]);
+    workoutExercisesRepository.create.mockResolvedValue(undefined);
+
+    await service.execute("template-id", {}, mockCurrentUser);
+
+    expect(workoutExercisesRepository.create).toHaveBeenCalledWith(
+      {
+        workoutPlanId: "new-plan-id",
+        exerciseId: "exercise-id",
+        sets: 4,
+        repetitions: 10,
+        load: null,
+        order: 0,
+        notes: null,
+        restTime: null,
+        executionTime: null,
+      },
+      {},
+    );
+  });
+
   it("rollback completo se insercao de exercicios falhar", async () => {
     workoutPlansRepository.findById.mockResolvedValue({
       id: "template-id",
@@ -195,6 +251,8 @@ describe("ApplyTemplateService", () => {
         load: null,
         order: 0,
         notes: null,
+        restTime: null,
+        executionTime: null,
       },
     ]);
     workoutExercisesRepository.create.mockRejectedValue(new Error("insert failed"));

@@ -79,6 +79,8 @@ export class ApplyTemplateService {
             sets: exercise.sets,
             repetitions: exercise.repetitions,
             load: exercise.load,
+            restTime: exercise.restTime,
+            executionTime: exercise.executionTime,
             order: exercise.order,
             notes: exercise.notes,
           },

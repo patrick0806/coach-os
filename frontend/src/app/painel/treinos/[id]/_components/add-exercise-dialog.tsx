@@ -48,6 +48,8 @@ const addExerciseSchema = z.object({
   sets: z.coerce.number().int().min(1, "Mínimo 1 série"),
   repetitions: z.coerce.number().int().min(1, "Mínimo 1 repetição"),
   load: z.string().optional(),
+  restTime: z.string().optional(),
+  executionTime: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -107,7 +109,7 @@ export function AddExerciseDialog({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const addForm = useForm<AddExerciseValues, any, AddExerciseValues>({
     resolver: zodResolver(addExerciseSchema) as any,
-    defaultValues: { sets: 3, repetitions: 12, load: "", notes: "" },
+    defaultValues: { sets: 3, repetitions: 12, load: "", restTime: "", executionTime: "", notes: "" },
   });
 
   const createForm = useForm<CreateExerciseValues>({
@@ -122,6 +124,8 @@ export function AddExerciseDialog({
         sets: values.sets,
         repetitions: values.repetitions,
         load: values.load || undefined,
+        restTime: values.restTime || undefined,
+        executionTime: values.executionTime || undefined,
         notes: values.notes || undefined,
         order: currentCount,
       }),
@@ -179,7 +183,7 @@ export function AddExerciseDialog({
     setMuscleFilter("all");
     setSelected(null);
     setView("search");
-    addForm.reset({ sets: 3, repetitions: 12, load: "", notes: "" });
+    addForm.reset({ sets: 3, repetitions: 12, load: "", restTime: "", executionTime: "", notes: "" });
     createForm.reset({ name: "", muscleGroup: undefined, description: "", youtubeUrl: "" });
     onOpenChange(false);
   }
@@ -268,6 +272,25 @@ export function AddExerciseDialog({
                   placeholder="ex: 20kg, peso corporal"
                   {...addForm.register("load")}
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="ex-rest-time">Descanso (opcional)</Label>
+                  <Input
+                    id="ex-rest-time"
+                    placeholder="ex: 60s, 1min"
+                    {...addForm.register("restTime")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ex-exec-time">Tempo de execução (opcional)</Label>
+                  <Input
+                    id="ex-exec-time"
+                    placeholder="ex: 3s, 30s"
+                    {...addForm.register("executionTime")}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

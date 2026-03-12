@@ -10,6 +10,8 @@ export interface WorkoutExercise {
   sets: number;
   repetitions: number;
   load: string | null;
+  restTime: string | null;
+  executionTime: string | null;
   order: number;
   notes: string | null;
 }
@@ -88,8 +90,23 @@ export interface AddExercisePayload {
   sets: number;
   repetitions: number;
   load?: string;
+  restTime?: string;
+  executionTime?: string;
   order?: number;
   notes?: string;
+}
+
+export interface CreateStudentPlanPayload {
+  name: string;
+  description?: string;
+  studentId: string;
+}
+
+export async function createStudentWorkoutPlan(
+  payload: CreateStudentPlanPayload,
+): Promise<WorkoutPlan> {
+  const { data } = await api.post<WorkoutPlanApiResponse>("/workout-plans/student", payload);
+  return normalizeWorkoutPlan(data);
 }
 
 export async function listWorkoutPlans(

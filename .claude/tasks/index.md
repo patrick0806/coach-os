@@ -32,6 +32,7 @@
 | 16 - Excelência em Testes e Garantia de Qualidade | [epic-16-testing.md](epic-16-testing.md) | [ ] | [ ] |
 | 17 - Checkout Transparente e Conversão SaaS | [epic-17-checkout-flow.md](epic-17-checkout-flow.md) | [ ] | [ ] |
 | 18 - Treinos Customizados e Independentes | [epic-18-custom-workouts.md](epic-18-custom-workouts.md) | [ ] | [ ] |
+| 19 - Atendimento e Execução Gamificada | [epic-19-attendance-and-execution.md](epic-19-attendance-and-execution.md) | [ ] | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
@@ -94,6 +95,9 @@ Sprint 17 — Funil de Conversão e Checkout Stripe
 
 Sprint 18 — Treinos Customizados e Independentes
   US-054
+
+Sprint 19 — Atendimento e Execução Gamificada
+  US-055 → US-056 → US-057
 ```
 
 > **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).

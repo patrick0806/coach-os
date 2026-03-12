@@ -106,6 +106,8 @@ export class WorkoutPlansRepository {
           sets: workoutExercises.sets,
           repetitions: workoutExercises.repetitions,
           load: workoutExercises.load,
+          restTime: workoutExercises.restTime,
+          executionTime: workoutExercises.executionTime,
           order: workoutExercises.order,
           notes: workoutExercises.notes,
         },
@@ -138,6 +140,8 @@ export class WorkoutPlansRepository {
         sets: r.we.sets!,
         repetitions: r.we.repetitions!,
         load: r.we.load ?? null,
+        restTime: r.we.restTime ?? null,
+        executionTime: r.we.executionTime ?? null,
         order: r.we.order!,
         notes: r.we.notes ?? null,
       }));

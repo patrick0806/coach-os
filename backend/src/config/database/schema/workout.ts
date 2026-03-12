@@ -110,6 +110,8 @@ export const workoutExercises = pgTable(
     sets: integer("sets").notNull(),
     repetitions: integer("repetitions").notNull(),
     load: varchar("load", { length: 50 }),
+    restTime: varchar("rest_time", { length: 50 }),
+    executionTime: varchar("execution_time", { length: 50 }),
     order: integer("order").notNull().default(0),
     notes: text("notes"),
   },

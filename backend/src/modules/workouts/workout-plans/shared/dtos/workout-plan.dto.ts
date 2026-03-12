@@ -28,6 +28,12 @@ export class WorkoutExerciseDTO {
   @ApiProperty({ nullable: true })
   load: string | null;
 
+  @ApiProperty({ nullable: true })
+  restTime: string | null;
+
+  @ApiProperty({ nullable: true })
+  executionTime: string | null;
+
   @ApiProperty()
   order: number;
 

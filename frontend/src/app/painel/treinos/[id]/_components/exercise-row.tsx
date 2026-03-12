@@ -69,6 +69,13 @@ export function ExerciseRow({
             {exercise.sets} séries × {exercise.repetitions} reps
             {exercise.load ? ` — ${exercise.load}` : ""}
           </p>
+          {(exercise.restTime || exercise.executionTime) ? (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {exercise.restTime ? `Descanso: ${exercise.restTime}` : ""}
+              {exercise.restTime && exercise.executionTime ? " · " : ""}
+              {exercise.executionTime ? `Execução: ${exercise.executionTime}` : ""}
+            </p>
+          ) : null}
           {exercise.notes ? (
             <p className="mt-0.5 text-xs italic text-muted-foreground">{exercise.notes}</p>
           ) : null}

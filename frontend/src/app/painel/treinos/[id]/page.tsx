@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Pencil, Plus, Trash2 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -163,7 +164,14 @@ export default function TreinoDetailPage({ params }: TreinoDetailPageProps) {
 
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold text-foreground">{plan.name}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold text-foreground">{plan.name}</h1>
+              {plan.planKind === "student" ? (
+                <Badge variant="secondary" className="text-xs">
+                  Treino personalizado
+                </Badge>
+              ) : null}
+            </div>
             {plan.description ? (
               <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
             ) : null}

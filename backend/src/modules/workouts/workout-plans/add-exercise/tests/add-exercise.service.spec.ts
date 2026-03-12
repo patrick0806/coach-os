@@ -32,6 +32,8 @@ const mockAddedExercise = {
   sets: 3,
   repetitions: 12,
   load: "20kg",
+  restTime: null,
+  executionTime: null,
   order: 0,
   notes: null,
 };
@@ -65,10 +67,31 @@ describe("AddExerciseService", () => {
         sets: 3,
         repetitions: 12,
         load: "20kg",
+        restTime: undefined,
+        executionTime: undefined,
         order: 0,
         notes: undefined,
       });
       expect(result).toEqual(mockAddedExercise);
+    });
+
+    it("should persist restTime and executionTime when provided", async () => {
+      workoutPlansRepository.findById.mockResolvedValue(mockPlan);
+      workoutExercisesRepository.create.mockResolvedValue({
+        ...mockAddedExercise,
+        restTime: "60s",
+        executionTime: "3s",
+      });
+
+      await service.execute(
+        "plan-id",
+        { exerciseId: VALID_EXERCISE_UUID, sets: 3, repetitions: 12, restTime: "60s", executionTime: "3s" },
+        mockCurrentUser,
+      );
+
+      expect(workoutExercisesRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ restTime: "60s", executionTime: "3s" }),
+      );
     });
 
     it("should throw NotFoundException when plan does not belong to personal", async () => {

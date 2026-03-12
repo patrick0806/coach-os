@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ChevronRight, Dumbbell, Plus, X } from "lucide-react";
 
@@ -26,14 +29,116 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { getApiErrorMessage } from "@/lib/api-error";
 import {
   assignStudentsToPlan,
+  createStudentWorkoutPlan,
   getStudentWorkoutPlans,
   listWorkoutPlans,
   revokeStudentFromPlan,
   type WorkoutPlan,
 } from "@/services/workout-plans.service";
+
+// ─── Create Manual Plan Dialog ─────────────────────────────────────────────────
+
+const createManualPlanSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório").max(150),
+  description: z.string().max(1000).optional(),
+});
+
+type CreateManualPlanValues = z.infer<typeof createManualPlanSchema>;
+
+interface CreateManualPlanDialogProps {
+  studentId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreated: (planId: string) => void;
+}
+
+function CreateManualPlanDialog({
+  studentId,
+  open,
+  onOpenChange,
+  onCreated,
+}: CreateManualPlanDialogProps) {
+  const form = useForm<CreateManualPlanValues>({
+    resolver: zodResolver(createManualPlanSchema),
+    defaultValues: { name: "", description: "" },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (values: CreateManualPlanValues) =>
+      createStudentWorkoutPlan({
+        name: values.name,
+        description: values.description || undefined,
+        studentId,
+      }),
+    onSuccess: (plan) => {
+      toast.success("Treino criado.");
+      form.reset();
+      onOpenChange(false);
+      onCreated(plan.id);
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Não foi possível criar o treino."));
+    },
+  });
+
+  function handleClose() {
+    form.reset();
+    onOpenChange(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Criar treino manual</DialogTitle>
+          <DialogDescription>
+            Crie um treino do zero diretamente para este aluno.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+          className="space-y-4"
+          noValidate
+        >
+          <div className="space-y-2">
+            <Label htmlFor="mp-name">Nome do treino</Label>
+            <Input
+              id="mp-name"
+              placeholder="ex: Treino A — Membros Superiores"
+              {...form.register("name")}
+            />
+            {form.formState.errors.name ? (
+              <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
+            ) : null}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="mp-desc">Descrição (opcional)</Label>
+            <Textarea
+              id="mp-desc"
+              placeholder="ex: Foco em membros superiores"
+              rows={2}
+              {...form.register("description")}
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Criando..." : "Criar e abrir"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 // ─── Assign Plan Dialog ────────────────────────────────────────────────────────
 
@@ -129,6 +234,7 @@ export function StudentWorkoutPlans({ studentId }: StudentWorkoutPlansProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [assignOpen, setAssignOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [revoking, setRevoking] = useState<WorkoutPlan | null>(null);
 
   const { data: plans = [], isLoading } = useQuery({
@@ -152,6 +258,11 @@ export function StudentWorkoutPlans({ studentId }: StudentWorkoutPlansProps) {
     queryClient.invalidateQueries({ queryKey: ["student-workout-plans", studentId] });
   }
 
+  function handleCreated(planId: string) {
+    queryClient.invalidateQueries({ queryKey: ["student-workout-plans", studentId] });
+    router.push(`/painel/treinos/${planId}?studentId=${studentId}`);
+  }
+
   return (
     <>
       <Card>
@@ -167,7 +278,15 @@ export function StudentWorkoutPlans({ studentId }: StudentWorkoutPlansProps) {
               className="gap-1.5"
               onClick={() => setAssignOpen(true)}
             >
-              Atribuir modelo
+              Atribuir de template
+            </Button>
+            <Button
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setCreateOpen(true)}
+            >
+              <Plus className="size-3.5" />
+              Criar treino manual
             </Button>
           </div>
         </CardHeader>
@@ -203,6 +322,13 @@ export function StudentWorkoutPlans({ studentId }: StudentWorkoutPlansProps) {
           )}
         </CardContent>
       </Card>
+
+      <CreateManualPlanDialog
+        studentId={studentId}
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={handleCreated}
+      />
 
       <AssignPlanDialog
         studentId={studentId}
