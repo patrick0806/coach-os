@@ -120,6 +120,13 @@
       "when": 1773900000002,
       "tag": "0016_add_student_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "8",
+      "when": 1773900000003,
+      "tag": "0017_add_schedule_rules_and_training_sessions",
+      "breakpoints": true
     }
   ]
 }

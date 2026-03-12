@@ -7,3 +7,4 @@ export * from "./workout";
 export * from "./availability";
 export * from "./password-setup-tokens";
 export * from "./password-reset-tokens";
+export * from "./schedule";

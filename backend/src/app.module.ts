@@ -17,6 +17,7 @@ import { SubscriptionsModule } from "@modules/subscriptions/subscriptions.module
 import { AdminModule } from "@modules/admin/admin.module";
 import { SupportModule } from "@modules/support/support.module";
 import { WorkoutSessionsModule } from "@modules/workout-sessions/workout-sessions.module";
+import { TrainingScheduleModule } from "@modules/training-schedule/training-schedule.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -37,6 +38,7 @@ import { DatabaseModule } from "@config/database/database.module";
     AdminModule,
     SupportModule,
     WorkoutSessionsModule,
+    TrainingScheduleModule,
     RouterModule.register([
       {
         path: "health",
@@ -93,6 +95,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "workout-sessions",
         module: WorkoutSessionsModule,
+      },
+      {
+        path: "",
+        module: TrainingScheduleModule,
       },
     ]),
   ],
