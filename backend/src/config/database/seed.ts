@@ -127,6 +127,7 @@ async function seed() {
         order: 0,
         highlighted: false,
         isActive: true,
+        isDefault: true,
         maxStudents: 3,
       },
       {

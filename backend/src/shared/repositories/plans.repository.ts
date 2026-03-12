@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -27,6 +27,17 @@ export interface ReorderItem {
 @Injectable()
 export class PlansRepository {
   constructor(private drizzle: DrizzleProvider) {}
+
+  async findDefault(tx?: DrizzleDb): Promise<Plans | null> {
+    const db = tx ?? this.drizzle.db;
+    const result = await db
+      .select()
+      .from(plans)
+      .where(eq(plans.isDefault, true))
+      .orderBy(asc(plans.order))
+      .limit(1);
+    return result[0] ?? null;
+  }
 
   async findById(id: string, tx?: DrizzleDb): Promise<Plans | null> {
     const db = tx ?? this.drizzle.db;

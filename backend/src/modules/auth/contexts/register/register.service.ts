@@ -27,11 +27,9 @@ export class RegisterService {
     }
 
     const slug = await generateUniqueSlug(dto.name, this.personalsRepository);
-    const activePlans = await this.plansRepository.findAllActive();
-    const basicPlan =
-      activePlans.find((plan) => plan.name.toLowerCase() === "basico") ?? activePlans[0];
+    const basicPlan = await this.plansRepository.findDefault();
     if (!basicPlan) {
-      throw new NotFoundException("Nenhum plano ativo disponível para cadastro");
+      throw new NotFoundException("Nenhum plano padrão disponível para cadastro");
     }
 
     const hashedPassword = await argon2.hash(

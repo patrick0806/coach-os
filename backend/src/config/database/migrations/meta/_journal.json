@@ -127,6 +127,13 @@
       "when": 1773900000003,
       "tag": "0017_add_schedule_rules_and_training_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "8",
+      "when": 1773900000004,
+      "tag": "0018_add_is_default_to_plans",
+      "breakpoints": true
     }
   ]
 }

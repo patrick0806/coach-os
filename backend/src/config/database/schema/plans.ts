@@ -21,6 +21,7 @@ export const plans = pgTable("plans", {
   benefits: json("benefits").$type<string[]>().notNull(),
   maxStudents: integer("max_students"), // null = unlimited
   stripePriceId: varchar("stripe_price_id", { length: 255 }),
+  isDefault: boolean("is_default").notNull().default(false),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

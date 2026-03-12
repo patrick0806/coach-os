@@ -75,7 +75,7 @@ describe("TenantAccessGuard", () => {
 
     personalsRepository = {
       findById: vi.fn(),
-      updateSubscription: vi.fn(),
+      updateSubscription: vi.fn().mockResolvedValue(undefined),
     };
 
     guard = new TenantAccessGuard(reflector as any, personalsRepository as any);
@@ -186,6 +186,51 @@ describe("TenantAccessGuard", () => {
     expect(personalsRepository.updateSubscription).toHaveBeenCalledWith("personal-id", {
       accessStatus: "active",
     });
+  });
+
+  it("deve priorizar subscriptionStatus (Stripe) sobre accessStatus desatualizado", async () => {
+    // Divergência: Stripe já atualizou para "active" mas accessStatus ainda está como "expired"
+    personalsRepository.findById.mockResolvedValue(
+      makePersonal({
+        accessStatus: "expired",
+        subscriptionPlanId: "plan-id",
+        subscriptionStatus: "active",
+      }),
+    );
+
+    const result = await guard.canActivate(
+      makeContext({ role: ApplicationRoles.PERSONAL, personalId: "personal-id" }),
+    );
+
+    // Com Stripe ativo, o acesso deve ser liberado mesmo que accessStatus esteja desatualizado
+    expect(result).toBe(true);
+  });
+
+  it("deve sincronizar accessStatus de forma não-bloqueante (fire-and-forget)", async () => {
+    // O guard não deve aguardar o write de sincronização para responder
+    let resolveUpdate!: () => void;
+    personalsRepository.updateSubscription.mockReturnValue(
+      new Promise<void>((resolve) => { resolveUpdate = resolve; }),
+    );
+    personalsRepository.findById.mockResolvedValue(
+      makePersonal({
+        accessStatus: "trialing",
+        subscriptionPlanId: "plan-id",
+        subscriptionStatus: "active",
+      }),
+    );
+
+    // canActivate deve resolver IMEDIATAMENTE sem esperar o updateSubscription
+    const resultPromise = guard.canActivate(
+      makeContext({ role: ApplicationRoles.PERSONAL, personalId: "personal-id" }),
+    );
+
+    // Resolve antes do updateSubscription terminar
+    const result = await resultPromise;
+    expect(result).toBe(true);
+
+    // Agora resolve o update para não vazar promises
+    resolveUpdate();
   });
 
   it("should use route metadata cache and avoid repeated reflector reads", async () => {

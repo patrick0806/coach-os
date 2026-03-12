@@ -71,10 +71,11 @@ export class TenantAccessGuard implements CanActivate {
 
     const blockResult = this.resolveBlockReason(personal);
 
+    // Sync accessStatus fire-and-forget — avoids blocking the request path and race conditions
     if (blockResult.normalizedStatus && personal.accessStatus !== blockResult.normalizedStatus) {
-      await this.personalsRepository.updateSubscription(personal.id, {
-        accessStatus: blockResult.normalizedStatus,
-      });
+      this.personalsRepository
+        .updateSubscription(personal.id, { accessStatus: blockResult.normalizedStatus })
+        .catch(() => {});
     }
 
     if (blockResult.code) {
@@ -112,10 +113,26 @@ export class TenantAccessGuard implements CanActivate {
   }
 
   private resolveBlockReason(personal: Personal): BlockResult {
-    if (personal.accessStatus === "expired") {
-      return { code: "trial_expired", normalizedStatus: "expired" };
+    // subscriptionStatus from Stripe is the source of truth for paid subscriptions —
+    // always check it first to prevent stale accessStatus from wrongly blocking active users
+    if (personal.subscriptionStatus) {
+      if (PAYMENT_REQUIRED_SUBSCRIPTION_STATUSES.has(personal.subscriptionStatus)) {
+        return { code: "payment_required", normalizedStatus: "past_due" };
+      }
+
+      if (INACTIVE_SUBSCRIPTION_STATUSES.has(personal.subscriptionStatus)) {
+        return { code: "subscription_inactive", normalizedStatus: "canceled" };
+      }
+
+      if (ACTIVE_SUBSCRIPTION_STATUSES.has(personal.subscriptionStatus)) {
+        return { code: null, normalizedStatus: "active" };
+      }
+
+      // Unknown Stripe status — block for safety
+      return { code: "subscription_inactive", normalizedStatus: "canceled" };
     }
 
+    // No Stripe subscription — fall back to accessStatus and trial dates
     if (personal.accessStatus === "past_due") {
       return { code: "payment_required", normalizedStatus: "past_due" };
     }
@@ -124,30 +141,15 @@ export class TenantAccessGuard implements CanActivate {
       return { code: "subscription_inactive", normalizedStatus: "canceled" };
     }
 
-    if (!personal.subscriptionPlanId) {
-      if (personal.trialEndsAt && personal.trialEndsAt.getTime() < Date.now()) {
-        return { code: "trial_expired", normalizedStatus: "expired" };
-      }
-
-      return { code: null, normalizedStatus: "trialing" };
+    if (personal.accessStatus === "expired") {
+      return { code: "trial_expired", normalizedStatus: "expired" };
     }
 
-    if (!personal.subscriptionStatus) {
-      return { code: "subscription_inactive", normalizedStatus: "canceled" };
+    // Detect trial expiry from the actual date (more reliable than accessStatus alone)
+    if (personal.trialEndsAt && personal.trialEndsAt.getTime() < Date.now()) {
+      return { code: "trial_expired", normalizedStatus: "expired" };
     }
 
-    if (PAYMENT_REQUIRED_SUBSCRIPTION_STATUSES.has(personal.subscriptionStatus)) {
-      return { code: "payment_required", normalizedStatus: "past_due" };
-    }
-
-    if (INACTIVE_SUBSCRIPTION_STATUSES.has(personal.subscriptionStatus)) {
-      return { code: "subscription_inactive", normalizedStatus: "canceled" };
-    }
-
-    if (ACTIVE_SUBSCRIPTION_STATUSES.has(personal.subscriptionStatus)) {
-      return { code: null, normalizedStatus: "active" };
-    }
-
-    return { code: "subscription_inactive", normalizedStatus: "canceled" };
+    return { code: null, normalizedStatus: "trialing" };
   }
 }

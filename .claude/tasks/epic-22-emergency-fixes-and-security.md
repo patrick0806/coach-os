@@ -1,6 +1,6 @@
 # Épico 22 — Correções de Emergência e Fortalecimento de Segurança
 
-**Status:** `[ ]` todo
+**Status:** `[~]` in progress
 **Prioridade:** CRÍTICA (Urgência Máxima)
 **Responsáveis:** Harry Potter (Security), Dumbledore (Architect), Snape (Backend), Hermione (Frontend)
 
@@ -26,23 +26,23 @@
 
 ## 📋 Histórias de Usuário e Tarefas Técnicas
 
-### US-070 — [CRÍTICO] Segurança de Infraestrutura e Segredos (Nível 0)
-- [ ] **Remover logs de credenciais AWS:** Limpar `console.log` em `s3.provider.ts`.
-- [ ] **Validar Variáveis de Ambiente:** Implementar validação Zod no `env/index.ts` para falhar rápido se segredos (JWT, Pepper, AWS) não forem definidos ou forem inseguros.
-- [ ] **Limpeza de Logs de Produção:** Revisar e remover `console.log` de variáveis de ambiente no `register.service.ts`.
+### US-070 — [CRÍTICO] Segurança de Infraestrutura e Segredos (Nível 0) ✅
+- [x] **Remover logs de credenciais AWS:** Limpar `console.log` em `s3.provider.ts`.
+- [x] **Validar Variáveis de Ambiente:** Implementar validação Zod no `env/index.ts` para falhar rápido se segredos (JWT, Pepper, AWS) não forem definidos ou forem inseguros.
+- [x] **Limpeza de Logs de Produção:** Revisar e remover `console.log` de variáveis de ambiente no `register.service.ts`.
 
 ---
 
-### US-071 — [ALTO] Integridade de Isolamento (Multi-tenancy) (Nível 1)
-- [ ] **Corrigir Tenant Leak em ScheduleRules:** Adicionar o filtro de `personalId` esquecido no método `findByStudent` do repositório.
-- [ ] **Auditoria de Tenant Guards:** Validar se todos os repositórios críticos utilizam o `personalId` do contexto para filtragem.
+### US-071 — [ALTO] Integridade de Isolamento (Multi-tenancy) (Nível 1) ✅
+- [x] **Corrigir Tenant Leak em ScheduleRules:** Adicionado filtro de `personalId` no `findByStudent`. Teste regressivo criado.
+- [x] **Auditoria de Tenant Guards:** 10 métodos corrigidos em `training-sessions`, `student-notes`, `exercises` e `schedule-rules`. 12 testes de repositório + 9 specs de service atualizados.
 
 ---
 
-### US-072 — [MÉDIO] Correção de Bugs de Lógica e Dados (Nível 2)
-- [ ] **Correção de Range de Datas:** Adicionar o filtro `lte` (até) no método `findByStudentAndDateRange` de `training-sessions.repository.ts`.
-- [ ] **Desacoplar Nome de Plano Básico:** Substituir a busca hardcoded por `"basico"` por uma referência mais estável (ID ou flag no banco).
-- [ ] **Sincronização de Status de Assinatura:** Refatorar a lógica entre `subscriptionStatus` e `accessStatus` para evitar divergências e condições de corrida no `TenantAccessGuard`.
+### US-072 — [MÉDIO] Correção de Bugs de Lógica e Dados (Nível 2) ✅
+- [x] **Correção de Range de Datas:** Adicionado filtro `lte` no `findByStudentAndDateRange`.
+- [x] **Desacoplar Nome de Plano Básico:** Campo `isDefault` no schema, migration `0018`, método `findDefault()` no `PlansRepository`, `register.service.ts` atualizado.
+- [x] **Sincronização de Status de Assinatura:** `TenantAccessGuard` refatorado — `subscriptionStatus` (Stripe) tem precedência; sync é fire-and-forget eliminando race condition.
 
 ---
 
@@ -53,13 +53,9 @@
 
 ---
 
-### US-074 — [BAIXO/ESTRATÉGICO] Convergência de Sistemas de Agendamento (Nível 4) -- pular temos o épico 23 para isso
-- [ ] **Documentar Depreciação de Bookings:** Criar guia de transição do sistema legado de `bookings` para o novo `training-schedule`.
-- [ ] **Refatorar Componentes Monolíticos:** Decompor `StudentSchedulePlanner` e `executar/page.tsx` em componentes menores e mais testáveis.
-
-### US-075 — [BAIXO/ESTRATÉGICO] calculos complexos de datas (Nível 5)
-- [ ] **Refatorar Componentes Monolíticos:** Decompor `StudentSchedulePlanner` e `executar/page.tsx` em componentes menores e mais testáveis.
+### US-074 — [BAIXO/ESTRATÉGICO] calculos complexos de datas (Nível 4)
 - [ ] Onde tiver calculos de datas utilizar o datefns, trocar as implementações atuais para utilizar o datefns.
+
 ---
 
 ## 🚀 Recomendações de Execução

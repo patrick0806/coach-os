@@ -34,6 +34,8 @@ const mockPersonal = {
   updatedAt: new Date(),
 };
 
+const mockDefaultPlan = { id: "plan-basico-id", name: "Basico", isDefault: true, order: 0 };
+
 describe("RegisterService", () => {
   let service: RegisterService;
   let usersRepository: {
@@ -45,7 +47,7 @@ describe("RegisterService", () => {
     create: ReturnType<typeof vi.fn>;
   };
   let plansRepository: {
-    findAllActive: ReturnType<typeof vi.fn>;
+    findDefault: ReturnType<typeof vi.fn>;
   };
   let drizzleProvider: {
     db: { transaction: ReturnType<typeof vi.fn> };
@@ -61,7 +63,7 @@ describe("RegisterService", () => {
       create: vi.fn(),
     };
     plansRepository = {
-      findAllActive: vi.fn(),
+      findDefault: vi.fn(),
     };
     drizzleProvider = {
       db: {
@@ -87,9 +89,7 @@ describe("RegisterService", () => {
 
       usersRepository.findByEmail.mockResolvedValue(null);
       personalsRepository.findBySlug.mockResolvedValue(null);
-      plansRepository.findAllActive.mockResolvedValue([
-        { id: "plan-basico-id", name: "Basico" },
-      ]);
+      plansRepository.findDefault.mockResolvedValue(mockDefaultPlan);
 
       drizzleProvider.db.transaction.mockImplementation(async (cb: any) => {
         usersRepository.create.mockResolvedValue(mockUser);
@@ -110,9 +110,8 @@ describe("RegisterService", () => {
         },
       });
 
-      expect(usersRepository.findByEmail).toHaveBeenCalledWith(
-        "john@example.com",
-      );
+      expect(usersRepository.findByEmail).toHaveBeenCalledWith("john@example.com");
+      expect(plansRepository.findDefault).toHaveBeenCalled();
       expect(drizzleProvider.db.transaction).toHaveBeenCalled();
     });
 
@@ -141,9 +140,7 @@ describe("RegisterService", () => {
       personalsRepository.findBySlug
         .mockResolvedValueOnce({ slug: "john-doe" })
         .mockResolvedValueOnce(null);
-      plansRepository.findAllActive.mockResolvedValue([
-        { id: "plan-basico-id", name: "Basico" },
-      ]);
+      plansRepository.findDefault.mockResolvedValue(mockDefaultPlan);
 
       drizzleProvider.db.transaction.mockImplementation(async (cb: any) => {
         usersRepository.create.mockResolvedValue(mockUser);
@@ -169,9 +166,7 @@ describe("RegisterService", () => {
 
       usersRepository.findByEmail.mockResolvedValue(null);
       personalsRepository.findBySlug.mockResolvedValue(null);
-      plansRepository.findAllActive.mockResolvedValue([
-        { id: "plan-basico-id", name: "Basico" },
-      ]);
+      plansRepository.findDefault.mockResolvedValue(mockDefaultPlan);
       drizzleProvider.db.transaction.mockRejectedValue(
         new Error("Database error"),
       );
@@ -179,7 +174,7 @@ describe("RegisterService", () => {
       await expect(service.execute(dto)).rejects.toThrow("Database error");
     });
 
-    it("should throw NotFoundException when there is no active plan", async () => {
+    it("should throw NotFoundException when there is no default plan", async () => {
       const dto = {
         name: "John Doe",
         email: "john@example.com",
@@ -188,7 +183,7 @@ describe("RegisterService", () => {
 
       usersRepository.findByEmail.mockResolvedValue(null);
       personalsRepository.findBySlug.mockResolvedValue(null);
-      plansRepository.findAllActive.mockResolvedValue([]);
+      plansRepository.findDefault.mockResolvedValue(null);
 
       await expect(service.execute(dto)).rejects.toThrow(NotFoundException);
       expect(drizzleProvider.db.transaction).not.toHaveBeenCalled();

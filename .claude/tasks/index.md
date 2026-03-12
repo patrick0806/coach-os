@@ -35,7 +35,7 @@
 | 19 - Atendimento e Execução Gamificada | [epic-19-attendance-and-execution.md](epic-19-attendance-and-execution.md) | [ ] | [ ] |
 | 20 - Agenda Inteligente e Performance | [epic-20-weekly-periodization.md](epic-20-weekly-periodization.md) | [ ] | [ ] |
 | 21 - Qualidade, Segurança e Resiliência | [epic-21-quality-security-and-resilience.md](epic-21-quality-security-and-resilience.md) | [ ] | [ ] |
-| 22 - Correções de Emergência e Fortalecimento | [epic-22-emergency-fixes-and-security.md](epic-22-emergency-fixes-and-security.md) | [ ] | [ ] |
+| 22 - Correções de Emergência e Fortalecimento | [epic-22-emergency-fixes-and-security.md](epic-22-emergency-fixes-and-security.md) | [~] | [ ] |
 | 23 - Motor de Agendamento Unificado | [epic-23-unified-scheduling-engine.md](epic-23-unified-scheduling-engine.md) | [ ] | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
