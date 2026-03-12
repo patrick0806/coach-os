@@ -1,0 +1,95 @@
+Você está realizando um code review técnico profundo em um monorepo.
+
+O projeto possui duas aplicações principais:
+- backend
+- frontend
+
+Analise exclusivamente o código dentro dos diretórios:
+
+backend/src
+frontend/src
+
+Ignore completamente qualquer outro diretório como:
+node_modules, dist, build, coverage, .next, .turbo, .cache ou arquivos gerados automaticamente.
+
+Objetivos da análise:
+
+1. Identificar código não utilizado
+- imports não utilizados
+- funções ou classes nunca utilizadas
+- arquivos mortos (dead code)
+- variáveis declaradas mas não utilizadas
+- utilitários ou serviços que não são referenciados
+
+2. Identificar pontos de melhoria no código
+- complexidade desnecessária
+- funções muito grandes
+- responsabilidades misturadas
+- nomes de variáveis ou funções pouco claros
+- duplicação de lógica
+
+3. Encontrar oportunidades de refatoração
+- extração de funções
+- extração de módulos
+- melhoria de separação de responsabilidades
+- melhoria de arquitetura
+- redução de acoplamento
+- melhoria na organização de pastas
+
+4. Avaliar manutenibilidade e extensibilidade
+- partes do código difíceis de modificar
+- pontos com alto risco de regressão
+- padrões inconsistentes
+- lugares onde abstrações ajudariam
+
+5. Problemas de segurança
+- validação insuficiente de inputs
+- possíveis vulnerabilidades
+- exposição de dados sensíveis
+- falta de sanitização
+- uso inseguro de dependências ou APIs
+
+6. Problemas de performance
+- loops desnecessários
+- consultas ou operações custosas
+- recomputações evitáveis
+- uso ineficiente de memória
+- oportunidades de caching ou memoização
+
+Formato da resposta:
+
+Produza um relatório em Markdown estruturado com as seguintes seções:
+
+# Code Review Report
+
+## 1. Visão geral da base de código
+Resumo da arquitetura e organização observada.
+
+## 2. Código não utilizado
+Liste arquivos, funções ou imports que parecem não ser utilizados.
+
+## 3. Problemas de qualidade de código
+Explique problemas encontrados e mostre exemplos.
+
+## 4. Oportunidades de refatoração
+Sugira refatorações específicas com justificativa.
+
+## 5. Problemas de segurança
+Liste possíveis vulnerabilidades ou riscos.
+
+## 6. Problemas de performance
+Explique gargalos ou possíveis melhorias.
+
+## 7. Melhorias recomendadas para manutenção futura
+Sugestões estruturais que podem melhorar a evolução do projeto.
+
+## 8. Quick wins
+Pequenas melhorias que podem ser aplicadas rapidamente.
+
+Sempre que possível:
+- cite o arquivo e caminho completo
+- mostre pequenos trechos de código relevantes
+- explique o motivo do problema
+- sugira uma solução clara
+
+Evite sugestões genéricas. Prefira recomendações práticas e aplicáveis ao código analisado.

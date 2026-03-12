@@ -1,90 +1,104 @@
-# Epic 20 — Periodização e Cronograma Semanal
-
-Status: `[ ]` todo
-
-> **Visão Premium:** Um calendário de elite. O aluno abre o app e vê exatamente o caminho do sucesso para a semana, com cards elegantes e indicação clara de dias de treino vs. dias de descanso.
-
----
-
-## Plano de Implementação Técnica
-
-### Mudanças no Banco de Dados (Drizzle Schema)
-
-1.  **Tabela `workout_schedules` (Nova):**
-    *   `id`: uuid (PK)
-    *   `student_id`: uuid (FK students)
-    *   `workout_plan_id`: uuid (FK workout_plans - opcional, null pode significar descanso)
-    *   `day_of_week`: integer (0-6, onde 0 = Domingo)
-    *   `notes`: text (ex: "Foco em progressão de carga" ou "Cardio em jejum")
-    *   `is_rest_day`: boolean (se for true, ignora o workout_plan_id)
-
----
-
-## US-058 — Organização Semanal (Visão do Personal)
+# Épico 20 — Agenda Inteligente e Performance (Unified Experience)
 
 **Status:** `[ ]` todo
-**Sprint:** 20
-**Dependencias:** US-054
+**Prioridade:** Crítica
+**Responsáveis:** Minerva McGonagall (PO), Albus Dumbledore (Arquiteto), Luna Lovegood (Design)
 
-**Descricao:**
-Como personal, quero definir o que meu aluno treinará em cada dia da semana para que eu possa periodizar o treinamento de forma profissional e organizada.
-
-### Criterios de Aceite
-- [ ] Grade de 7 dias (Seg-Dom) na aba de treinos do aluno.
-- [ ] Possibilidade de atribuir um treino específico para um ou mais dias.
-- [ ] Opção de marcar dias como "Descanso".
-- [ ] Adição de notas rápidas por dia (ex: "Fazer 20 min de esteira após").
-
-### Tarefas Backend
-- [ ] Criar migration para `workout_schedules`.
-- [ ] Endpoint `PUT /students/:id/workout-schedule`: Atualiza a grade semanal completa do aluno (bulk update).
-- [ ] Garantir que o `workout_plan_id` pertença ao personal/tenant.
-
-### Tarefas Frontend
-- [ ] **UI `WeeklyPlanner`:** Uma grade horizontal ou vertical elegante.
-- [ ] **Interação:** Seletor (Dropdown ou Modal) em cada dia da semana para escolher entre os treinos atribuídos ao aluno ou "Descanso".
-- [ ] Indicadores visuais de "Treino A", "Treino B", etc., nos dias da grade.
+> **Objetivo:** Unificar o planejamento semanal do Personal Trainer com a execução diária do aluno. O sistema agora automatiza a agenda recorrente para os próximos 60 dias, permitindo que a periodização (Treino A, B, C...) seja aplicada de forma inteligente e gamificada, com métricas de retenção (streaks) integradas.
 
 ---
 
-## US-059 — Dashboard de Treino do Dia (Visão do Aluno)
+## 🎙️ Perspectivas dos Especialistas
 
-**Status:** `[ ]` todo
-**Sprint:** 20
-**Dependencias:** US-058, US-056
+### 🧙‍♂️ Albus Dumbledore (Arquitetura)
+*"Ao unificar as regras de agendamento com a periodização semanal, eliminamos redundância de dados. Teremos a tabela `schedule_rules` que define o 'Padrão Semanal' (ex: Seg/Qua/Sex às 07:00 com o 'Treino A') e o Cron Job gerará as instâncias em `training_sessions`. Isso garante que o sistema seja escalável e as queries de performance sejam simples."*
 
-**Descricao:**
-Como aluno, quero que o Dashboard destaque automaticamente o treino agendado para hoje, para que eu possa iniciar minha rotina com um único clique.
+### 🌙 Luna Lovegood (Design)
+*"O planejamento semanal para o Personal será uma grade visual onde ele 'arrasta' os treinos para os dias da semana. Para o aluno, a experiência é mágica: o 'Treino de Hoje' aparece no topo com um grande botão 'Iniciar'. Quando ele termina, o fogo do streak brilha, dando aquela sensação de missão cumprida."*
 
-### Criterios de Aceite
-- [ ] O Dashboard do Aluno deve ler o cronograma e exibir:
-    - Se hoje tem treino: Card de destaque "Treino de Hoje: [Nome]" com botão "Iniciar".
-    - Se hoje é descanso: Card elegante "Hoje é dia de descanso. Recupere-se bem! 🔋".
-- [ ] Visualização da "Minha Semana": Um scroller horizontal no topo com os dias e o que está planejado para cada um.
-
-### Tarefas Frontend
-- [ ] Lógica para identificar o `day_of_week` atual e filtrar o cronograma.
-- [ ] Implementar o `WeeklyScroller` (mini calendário semanal) no topo do Dashboard.
-- [ ] Integrar o botão "Iniciar" do cronograma com o Modo Player (US-056).
+### 🧙‍♂️ Minerva McGonagall (Product Owner)
+*"O valor de negócio aqui é imenso. O Personal gasta 0 minutos por semana gerindo a agenda de alunos recorrentes e o Aluno se sente acompanhado todos os dias. Focaremos no fluxo: Planejar → Gerar → Executar → Medir."*
 
 ---
 
-## US-060 — Notificações e Lembretes de Cronograma
+## 📋 Histórias de Usuário (US)
 
-**Status:** `[ ]` todo
-**Sprint:** 20
+### US-058 — Planejador Semanal de Elite (Visão Personal)
+**Descricao:** Como personal, quero definir o cronograma semanal do meu aluno (dias, horários e quais treinos(horários são apenas para alunos presenciais)) para automatizar a gestão de sessões.
 
-**Descricao:**
-Como aluno, quero ser lembrado do que tenho para treinar hoje para manter o engajamento e a disciplina.
-
-### Criterios de Aceite
-- [ ] Sistema de notificações (inicialmente Toast ou In-app) ao abrir o sistema.
-- [ ] Integração futura com e-mail/push (conforme infraestrutura permitir).
+**Criterios de Aceite:**
+- [ ] Grade de 7 dias para configurar o padrão recorrente.
+- [ ] Seleção de Treino (ex: Treino A, B, C) e Horário para cada dia.
+- [ ] Opção de marcar dia como "Descanso".
+- [ ] Diferenciação visual entre treino "Presencial" e "Online" (Consultoria).
 
 ---
 
-## Detalhes de UX e Estilo Premium
-- **Glassmorphism nos Cards:** Os cards de cada dia no cronograma devem ter transparência e bordas finas com brilho suave (`border-primary/20`).
-- **Estados Vazios:** Se o personal não definiu cronograma, exibir um estado "Livre" ou convite para o personal configurar.
-- **Animações de Transição:** Ao mudar de dia no cronograma, usar transições suaves de opacidade (`framer-motion`).
-- **Ergonomia Mobile:** O `WeeklyScroller` deve ser deslizante com o polegar, com o dia atual centralizado automaticamente.
+### US-059 — Automação de Agenda e Cron (Backend, nestjs cron)
+**Descricao:** Como sistema, devo garantir que as sessões de treino estejam criadas até 60 dias à frente com base nas regras do planejador semanal.
+
+**Criterios de Aceite:**
+- [ ] Cron Job que expande as regras de `schedule_rules` para `training_sessions`.
+- [ ] Índice único para evitar duplicidade de sessões no mesmo horário.
+- [ ] Sincronização automática: se o personal altera o planejador semanal, as sessões futuras não iniciadas devem ser atualizadas/recriadas.
+
+---
+
+### US-060 — Dashboard do Aluno e Foco Diário
+**Descricao:** Como aluno, quero ver o que tenho planejado para hoje e para a semana de forma clara e motivadora.
+
+**Criterios de Aceite:**
+- [ ] Widget "Treino de Hoje" com status (Pendente, Concluído, Descanso).
+- [ ] "Scroller" semanal no topo exibindo a rotina dos próximos 7 dias.
+- [ ] Botão "Iniciar Treino" proeminente quando houver sessão pendente.
+
+---
+
+### US-061 — Modo Player: Execução Gamificada
+**Descricao:** Como aluno, quero uma interface imersiva para realizar meu treino passo a passo, registrando cargas e tempos de descanso.
+
+**Criterios de Aceite:**
+- [ ] UI de execução (Exercício Atual → Próximo).
+- [ ] Timer de descanso configurável por exercício.
+- [ ] Checkpoint de carga usada em cada série.
+- [ ] Finalização com feedback visual (celebração).
+
+---
+
+### US-062 — Gestão de Sessões e Cancelamentos
+**Descricao:** Como personal ou aluno, quero cancelar aulas específicas sem afetar o padrão semanal futuro.
+
+**Criterios de Aceite:**
+- [ ] Status `cancelled` para sessões individuais na agenda.
+- [ ] Modal de confirmação ao cancelar uma aula, com opção de "Notificar Aluno".
+
+---
+
+### US-063 — Streaks e Engajamento
+**Descricao:** Como aluno, quero ver meu histórico de consistência (sequência de dias treinados) para me manter motivado.
+
+**Criterios de Aceite:**
+- [ ] Lógica de `current_streak` nos metadados do aluno.
+- [ ] Histórico visual de treinos concluídos (Calendário de atividade).
+- [ ] Atualização automática de `total_workouts` e `last_workout_date`.
+
+---
+
+### US-064 — Notificações e Lembretes
+**Descricao:** Como sistema, devo lembrar o aluno do seu treino agendado para garantir a disciplina.
+
+**Criterios de Aceite:**
+- [ ] Toast/Notificação interna ao logar se houver treino hoje.
+- [ ] Alerta se o streak estiver prestes a quebrar (Ex: "Falta pouco para completar 5 dias seguidos!").
+
+---
+
+## 🛠️ Sub-tarefas de Implementação
+
+- [ ] **B1 (Migration):** Tabelas `schedule_rules` e `training_sessions`.
+- [ ] **B2 (Service):** Motor de geração de datas (Cron Job).
+- [ ] **B3 (API):** Endpoints de Planejador e Execução de Treino.
+- [ ] **F1 (UI):** Planejador semanal Draggable/Dropdown no painel do Personal.
+- [ ] **F2 (UI):** Dashboard do Aluno (Foco diário).
+- [ ] **F3 (UI):** Modo Player (Framer Motion).
+- [ ] **F4 (UI):** Widgets de Streak e Estatísticas.

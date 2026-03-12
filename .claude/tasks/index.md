@@ -33,27 +33,20 @@
 | 17 - Checkout Transparente e Conversão SaaS | [epic-17-checkout-flow.md](epic-17-checkout-flow.md) | [ ] | [ ] |
 | 18 - Treinos Customizados e Independentes | [epic-18-custom-workouts.md](epic-18-custom-workouts.md) | [ ] | [ ] |
 | 19 - Atendimento e Execução Gamificada | [epic-19-attendance-and-execution.md](epic-19-attendance-and-execution.md) | [ ] | [ ] |
-| 20 - Periodização e Cronograma Semanal | [epic-20-weekly-periodization.md](epic-20-weekly-periodization.md) | [ ] | [ ] |
+| 20 - Agenda Inteligente e Performance | [epic-20-weekly-periodization.md](epic-20-weekly-periodization.md) | [ ] | [ ] |
+| 21 - Qualidade, Segurança e Resiliência | [epic-21-quality-security-and-resilience.md](epic-21-quality-security-and-resilience.md) | [ ] | [ ] |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
 
 ```
 ...
-Sprint 17 — Funil de Conversão e Checkout Stripe
-  US-047 → US-048 → US-049
-
-Sprint 18 — Treinos Customizados e Independentes
-  US-054
-
 Sprint 19 — Atendimento e Execução Gamificada
   US-055 → US-056 → US-057
 
-Sprint 20 — Periodização e Cronograma Semanal
-  US-058 → US-059 → US-060
+Sprint 20 — Agenda Inteligente e Performance
+  US-058 → US-059 → US-060 → US-061 → US-062 → US-063 → US-064
+
+Sprint 21 — Qualidade, Segurança e Resiliência (E2E)
+  US-065 → US-066 → US-067 → US-068 → US-069
 ```
-
-> **Nota Sprint 8:** US-032 adicionada antes de US-024 — corrige UX critica de disponibilidade (configurar slot por slot e inviavel na pratica).
-> **Aluno multi-personal:** Adiado para pos-MVP. Ver [post-mvp-backlog.md](post-mvp-backlog.md).
-
-...
