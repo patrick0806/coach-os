@@ -70,9 +70,10 @@ export class TrainingSessionsRepository {
       .from(trainingSessions)
       .where(
         and(
-          eq(trainingSessions.studentId, studentId),
           eq(trainingSessions.personalId, personalId),
+          eq(trainingSessions.studentId, studentId),
           gte(trainingSessions.scheduledDate, from),
+          lte(trainingSessions.scheduledDate, to),
         ),
       );
   }
@@ -87,7 +88,7 @@ export class TrainingSessionsRepository {
     return result[0] ?? null;
   }
 
-  async findTodayByStudent(studentId: string, tx?: DrizzleDb): Promise<TrainingSession | null> {
+  async findTodayByStudent(studentId: string, personalId: string, tx?: DrizzleDb): Promise<TrainingSession | null> {
     const db = tx ?? this.drizzle.db;
     const today = new Date().toISOString().split("T")[0];
     const result = await db
@@ -95,6 +96,7 @@ export class TrainingSessionsRepository {
       .from(trainingSessions)
       .where(
         and(
+          eq(trainingSessions.personalId, personalId),
           eq(trainingSessions.studentId, studentId),
           eq(trainingSessions.scheduledDate, today),
         ),
@@ -103,7 +105,7 @@ export class TrainingSessionsRepository {
     return result[0] ?? null;
   }
 
-  async findWeekByStudent(studentId: string, tx?: DrizzleDb): Promise<TrainingSession[]> {
+  async findWeekByStudent(studentId: string, personalId: string, tx?: DrizzleDb): Promise<TrainingSession[]> {
     const db = tx ?? this.drizzle.db;
     const today = new Date().toISOString().split("T")[0];
     const end = new Date();
@@ -115,6 +117,7 @@ export class TrainingSessionsRepository {
       .from(trainingSessions)
       .where(
         and(
+          eq(trainingSessions.personalId, personalId),
           eq(trainingSessions.studentId, studentId),
           gte(trainingSessions.scheduledDate, today),
           lte(trainingSessions.scheduledDate, endStr),
@@ -122,16 +125,22 @@ export class TrainingSessionsRepository {
       );
   }
 
-  async findByStudent(studentId: string, tx?: DrizzleDb): Promise<TrainingSession[]> {
+  async findByStudent(studentId: string, personalId: string, tx?: DrizzleDb): Promise<TrainingSession[]> {
     const db = tx ?? this.drizzle.db;
     return db
       .select()
       .from(trainingSessions)
-      .where(eq(trainingSessions.studentId, studentId));
+      .where(
+        and(
+          eq(trainingSessions.personalId, personalId),
+          eq(trainingSessions.studentId, studentId),
+        ),
+      );
   }
 
   async findHistoryByStudent(
     studentId: string,
+    personalId: string,
     fromDate: string,
     toDate: string,
     tx?: DrizzleDb,
@@ -142,6 +151,7 @@ export class TrainingSessionsRepository {
       .from(trainingSessions)
       .where(
         and(
+          eq(trainingSessions.personalId, personalId),
           eq(trainingSessions.studentId, studentId),
           gte(trainingSessions.scheduledDate, fromDate),
           lte(trainingSessions.scheduledDate, toDate),
@@ -153,6 +163,7 @@ export class TrainingSessionsRepository {
   async updateStatus(
     id: string,
     status: "completed" | "cancelled",
+    personalId: string,
     extras: { cancelledAt?: Date; cancellationReason?: string; workoutSessionId?: string } = {},
     tx?: DrizzleDb,
   ): Promise<TrainingSession | null> {
@@ -160,7 +171,12 @@ export class TrainingSessionsRepository {
     const result = await (db as any)
       .update(trainingSessions)
       .set({ status, updatedAt: new Date(), ...extras })
-      .where(eq(trainingSessions.id, id))
+      .where(
+        and(
+          eq(trainingSessions.id, id),
+          eq(trainingSessions.personalId, personalId),
+        ),
+      )
       .returning();
     return result[0] ?? null;
   }

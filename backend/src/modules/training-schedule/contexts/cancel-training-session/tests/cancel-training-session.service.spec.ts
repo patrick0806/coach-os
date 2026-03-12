@@ -86,6 +86,7 @@ describe("CancelTrainingSessionService", () => {
     expect(trainingSessionsRepo.updateStatus).toHaveBeenCalledWith(
       "session-1",
       "cancelled",
+      "personal-1",
       expect.objectContaining({ cancellationReason: "Indisponível" }),
     );
     expect(result.status).toBe("cancelled");

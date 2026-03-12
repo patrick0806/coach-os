@@ -38,7 +38,7 @@ describe("TodaySessionService", () => {
     const result = await service.execute(mockUser as any);
 
     expect(result).toEqual(session);
-    expect(trainingSessionsRepo.findTodayByStudent).toHaveBeenCalledWith("student-1");
+    expect(trainingSessionsRepo.findTodayByStudent).toHaveBeenCalledWith("student-1", "personal-1");
   });
 
   it("should return null when there is no session today", async () => {

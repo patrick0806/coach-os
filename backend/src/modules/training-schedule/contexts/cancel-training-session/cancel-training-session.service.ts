@@ -57,6 +57,7 @@ export class CancelTrainingSessionService {
     const updated = await this.trainingSessionsRepository.updateStatus(
       sessionId,
       "cancelled",
+      session.personalId,
       {
         cancelledAt: new Date(),
         cancellationReason: dto.reason ?? null,

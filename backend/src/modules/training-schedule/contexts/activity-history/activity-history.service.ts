@@ -18,6 +18,7 @@ export class ActivityHistoryService {
 
     return this.trainingSessionsRepository.findHistoryByStudent(
       currentUser.profileId,
+      currentUser.personalId as string,
       fromStr,
       toStr,
     );

@@ -89,19 +89,21 @@ export class StudentNotesRepository {
     };
   }
 
-  async update(id: string, note: string, tx?: DrizzleDb): Promise<StudentNote | null> {
+  async update(id: string, note: string, personalId: string, tx?: DrizzleDb): Promise<StudentNote | null> {
     const db = tx ?? this.drizzle.db;
     const result = await db
       .update(studentNotes)
       .set({ note })
-      .where(eq(studentNotes.id, id))
+      .where(and(eq(studentNotes.id, id), eq(studentNotes.personalId, personalId)))
       .returning();
 
     return result[0] ?? null;
   }
 
-  async delete(id: string, tx?: DrizzleDb): Promise<void> {
+  async delete(id: string, personalId: string, tx?: DrizzleDb): Promise<void> {
     const db = tx ?? this.drizzle.db;
-    await db.delete(studentNotes).where(eq(studentNotes.id, id));
+    await db
+      .delete(studentNotes)
+      .where(and(eq(studentNotes.id, id), eq(studentNotes.personalId, personalId)));
   }
 }

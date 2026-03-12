@@ -43,7 +43,7 @@ describe("UpdateStudentNoteService", () => {
 
     const result = await service.execute("note-id", { note: "Nova nota" }, mockCurrentUser);
 
-    expect(studentNotesRepository.update).toHaveBeenCalledWith("note-id", "Nova nota");
+    expect(studentNotesRepository.update).toHaveBeenCalledWith("note-id", "Nova nota", "personal-id");
     expect(result).toEqual(updated);
   });
 

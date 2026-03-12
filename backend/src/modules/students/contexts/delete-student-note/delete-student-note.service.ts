@@ -17,6 +17,6 @@ export class DeleteStudentNoteService {
       throw new ForbiddenException("Você não pode deletar esta nota");
     }
 
-    await this.studentNotesRepository.delete(noteId);
+    await this.studentNotesRepository.delete(noteId, currentUser.personalId as string);
   }
 }

@@ -80,6 +80,7 @@ describe("CompleteTrainingSessionService", () => {
     expect(trainingSessionsRepo.updateStatus).toHaveBeenCalledWith(
       "session-1",
       "completed",
+      "personal-1",
       expect.any(Object),
     );
     expect(result.status).toBe("completed");
@@ -96,6 +97,7 @@ describe("CompleteTrainingSessionService", () => {
     expect(trainingSessionsRepo.updateStatus).toHaveBeenCalledWith(
       "session-1",
       "completed",
+      "personal-1",
       expect.objectContaining({ workoutSessionId: "ws-1" }),
     );
   });

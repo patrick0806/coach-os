@@ -86,14 +86,14 @@ export class ExercisesRepository {
   async updateYoutubeUrl(
     exerciseId: string,
     youtubeUrl: string | null,
+    personalId: string,
     tx?: DrizzleDb,
   ): Promise<void> {
     const db = tx ?? this.drizzle.db;
     await db
       .update(exercises)
-       
       .set({ youtubeUrl } as any)
-      .where(eq(exercises.id, exerciseId));
+      .where(and(eq(exercises.id, exerciseId), eq(exercises.personalId, personalId)));
   }
 
   async isInUse(id: string, tx?: DrizzleDb): Promise<boolean> {
@@ -106,8 +106,10 @@ export class ExercisesRepository {
     return result.length > 0;
   }
 
-  async delete(id: string, tx?: DrizzleDb): Promise<void> {
+  async delete(id: string, personalId: string, tx?: DrizzleDb): Promise<void> {
     const db = tx ?? this.drizzle.db;
-    await db.delete(exercises).where(eq(exercises.id, id));
+    await db
+      .delete(exercises)
+      .where(and(eq(exercises.id, id), eq(exercises.personalId, personalId)));
   }
 }

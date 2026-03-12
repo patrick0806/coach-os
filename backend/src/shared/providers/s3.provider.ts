@@ -34,11 +34,6 @@ export class S3Provider {
       ContentType: mimeType,
     });
 
-    console.log("bucket", this.bucket);
-    console.log("region", this.region);
-    console.log("accessKey", env.AWS_ACCESS_KEY_ID);
-    console.log("secretKey", env.AWS_SECRET_ACCESS_KEY);
-
     const uploadUrl = await getSignedUrl(this.client, command, {
       expiresIn: PRESIGNED_URL_EXPIRES_IN,
     });

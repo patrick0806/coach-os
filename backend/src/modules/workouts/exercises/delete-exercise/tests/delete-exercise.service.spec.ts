@@ -52,7 +52,7 @@ describe("DeleteExerciseService", () => {
         "personal-id",
       );
       expect(exercisesRepository.isInUse).toHaveBeenCalledWith("exercise-own-1");
-      expect(exercisesRepository.delete).toHaveBeenCalledWith("exercise-own-1");
+      expect(exercisesRepository.delete).toHaveBeenCalledWith("exercise-own-1", "personal-id");
     });
 
     it("should throw NotFoundException when exercise does not belong to the personal", async () => {

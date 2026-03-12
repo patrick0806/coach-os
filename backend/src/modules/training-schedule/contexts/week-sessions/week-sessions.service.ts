@@ -10,6 +10,6 @@ export class WeekSessionsService {
 
   async execute(currentUser: IAccessToken): Promise<TrainingSession[]> {
     const studentId = currentUser.profileId;
-    return this.trainingSessionsRepository.findWeekByStudent(studentId);
+    return this.trainingSessionsRepository.findWeekByStudent(studentId, currentUser.personalId as string);
   }
 }

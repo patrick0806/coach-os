@@ -56,6 +56,14 @@ Objetivos da análise:
 - uso ineficiente de memória
 - oportunidades de caching ou memoização
 
+7. Schema de banco de dados
+- campos desnecessários
+- relacionamentos desnecessários
+- índices desnecessários
+- índices ausentes
+- ausência de constraints
+- tabelas ou melhor estruturação
+
 Formato da resposta:
 
 Produza um relatório em Markdown estruturado com as seguintes seções:
@@ -93,3 +101,4 @@ Sempre que possível:
 - sugira uma solução clara
 
 Evite sugestões genéricas. Prefira recomendações práticas e aplicáveis ao código analisado.
+E de uma avalição geral do status do projeto

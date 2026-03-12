@@ -41,6 +41,7 @@ export class UpdateYoutubeUrlService {
     await this.exercisesRepository.updateYoutubeUrl(
       exerciseId,
       parsed.data.youtubeUrl,
+      currentUser.personalId as string,
     );
 
     return { youtubeUrl: parsed.data.youtubeUrl };

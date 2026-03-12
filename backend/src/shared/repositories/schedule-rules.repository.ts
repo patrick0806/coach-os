@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -35,7 +35,10 @@ export class ScheduleRulesRepository {
       .select()
       .from(scheduleRules)
       .where(
-        eq(scheduleRules.studentId, studentId),
+        and(
+          eq(scheduleRules.personalId, personalId),
+          eq(scheduleRules.studentId, studentId),
+        ),
       );
   }
 
@@ -58,11 +61,11 @@ export class ScheduleRulesRepository {
     return result[0];
   }
 
-  async deactivate(id: string, tx?: DrizzleDb): Promise<void> {
+  async deactivate(id: string, personalId: string, tx?: DrizzleDb): Promise<void> {
     const db = tx ?? this.drizzle.db;
     await (db as any)
       .update(scheduleRules)
       .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(scheduleRules.id, id));
+      .where(and(eq(scheduleRules.id, id), eq(scheduleRules.personalId, personalId)));
   }
 }

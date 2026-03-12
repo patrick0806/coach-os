@@ -18,7 +18,6 @@ export class RegisterService {
   ) { }
 
   async execute(dto: RegisterServiceInput): Promise<RegisterResponseDTO> {
-    console.log(env.CAN_CREATE_ADMIN);
     if (!env.CAN_CREATE_ADMIN) {
       throw new ForbiddenException("Não é possível criar administradores");
     }

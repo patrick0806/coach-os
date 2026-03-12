@@ -35,7 +35,7 @@ describe("DeleteStudentNoteService", () => {
 
     await service.execute("note-id", mockCurrentUser);
 
-    expect(studentNotesRepository.delete).toHaveBeenCalledWith("note-id");
+    expect(studentNotesRepository.delete).toHaveBeenCalledWith("note-id", "personal-id");
   });
 
   it("should block deleting another personal's note", async () => {

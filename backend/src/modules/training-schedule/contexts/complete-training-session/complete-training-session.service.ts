@@ -34,6 +34,7 @@ export class CompleteTrainingSessionService {
     const updated = await this.trainingSessionsRepository.updateStatus(
       sessionId,
       "completed",
+      session.personalId,
       { workoutSessionId: workoutSessionId ?? undefined },
     );
 

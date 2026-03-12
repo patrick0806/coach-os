@@ -24,6 +24,6 @@ export class DeleteExerciseService {
       );
     }
 
-    await this.exercisesRepository.delete(id);
+    await this.exercisesRepository.delete(id, currentUser.personalId as string);
   }
 }

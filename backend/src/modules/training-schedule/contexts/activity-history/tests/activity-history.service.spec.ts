@@ -51,7 +51,7 @@ describe("ActivityHistoryService", () => {
 
     const result = await service.execute(mockUser, 84);
 
-    expect(repo.findHistoryByStudent).toHaveBeenCalledWith("student-1", expect.any(String), expect.any(String));
+    expect(repo.findHistoryByStudent).toHaveBeenCalledWith("student-1", "personal-1", expect.any(String), expect.any(String));
     expect(result).toHaveLength(2);
   });
 

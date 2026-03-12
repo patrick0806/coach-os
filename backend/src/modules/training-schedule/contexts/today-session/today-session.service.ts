@@ -10,6 +10,6 @@ export class TodaySessionService {
 
   async execute(currentUser: IAccessToken): Promise<TrainingSession | null> {
     const studentId = currentUser.profileId;
-    return this.trainingSessionsRepository.findTodayByStudent(studentId);
+    return this.trainingSessionsRepository.findTodayByStudent(studentId, currentUser.personalId as string);
   }
 }

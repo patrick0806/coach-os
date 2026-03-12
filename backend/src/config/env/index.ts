@@ -1,40 +1,83 @@
 import "dotenv/config";
+import { z } from "zod";
 
-export const env = {
-  PORT: process.env.PORT || 3001,
-  NODE_ENV: process.env.NODE_ENV || "development",
+const isProduction = process.env.NODE_ENV === "production";
 
-  JWT_SECRET: process.env.JWT_SECRET || "jwt_secret_change_in_production",
-  JWT_EXPIRATION: (process.env.JWT_EXPIRATION || "15m") as string,
-  JWT_REFRESH_SECRET:
-    process.env.JWT_REFRESH_SECRET || "jwt_refresh_secret_change_in_production",
-  JWT_REFRESH_EXPIRATION: (
-    process.env.JWT_REFRESH_EXPIRATION || "7d"
-  ) as string,
+const INSECURE_DEFAULTS = [
+  "jwt_secret_change_in_production",
+  "jwt_refresh_secret_change_in_production",
+  "hash_pepper_change_in_production",
+];
 
-  DATABASE_HOST: process.env.DATABASE_HOST || "localhost",
-  DATABASE_PORT: parseInt(process.env.DATABASE_PORT || "5432", 10),
-  DATABASE_USER: process.env.DATABASE_USER || "postgres",
-  DATABASE_PASSWORD: process.env.DATABASE_PASSWORD || "123",
-  DATABASE_NAME: process.env.DATABASE_NAME || "my-personal-db",
-  DATABASE_SSL: process.env.DATABASE_SSL === "true",
+const secureSecret = (fieldName: string) =>
+  z
+    .string()
+    .min(1, `${fieldName} é obrigatório`)
+    .refine(
+      (val) => !isProduction || !INSECURE_DEFAULTS.includes(val),
+      `${fieldName} está usando valor padrão inseguro em produção`,
+    )
+    .refine(
+      (val) => !isProduction || val.length >= 32,
+      `${fieldName} deve ter ao menos 32 caracteres em produção`,
+    );
 
-  HASH_PEPPER: process.env.HASH_PEPPER || "hash_pepper_change_in_production",
+const envSchema = z.object({
+  PORT: z.coerce.number().default(3001),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
 
-  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || "",
-  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || "",
-  AWS_REGION: process.env.AWS_REGION || "us-east-1",
-  AWS_S3_BUCKET: process.env.AWS_S3_BUCKET || "",
+  JWT_SECRET: secureSecret("JWT_SECRET").default(
+    "jwt_secret_change_in_production",
+  ),
+  JWT_EXPIRATION: z.string().default("15m"),
+  JWT_REFRESH_SECRET: secureSecret("JWT_REFRESH_SECRET").default(
+    "jwt_refresh_secret_change_in_production",
+  ),
+  JWT_REFRESH_EXPIRATION: z.string().default("7d"),
 
-  RESEND_API_KEY: process.env.RESEND_API_KEY || "",
-  APP_URL: process.env.APP_URL || "http://localhost:3000",
-  SUPPORT_EMAIL: process.env.SUPPORT_EMAIL || "suporte@coachos.com.br",
+  DATABASE_HOST: z.string().default("localhost"),
+  DATABASE_PORT: z.coerce.number().default(5432),
+  DATABASE_USER: z.string().default("postgres"),
+  DATABASE_PASSWORD: z.string().default("123"),
+  DATABASE_NAME: z.string().default("my-personal-db"),
+  DATABASE_SSL: z
+    .string()
+    .transform((val) => val === "true")
+    .default(false),
 
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
-  STRIPE_PRICE_BASICO: process.env.STRIPE_PRICE_BASICO || "",
-  STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO || "",
-  STRIPE_PRICE_EMPRESARIAL: process.env.STRIPE_PRICE_EMPRESARIAL || "",
+  HASH_PEPPER: secureSecret("HASH_PEPPER").default(
+    "hash_pepper_change_in_production",
+  ),
 
-  CAN_CREATE_ADMIN: process.env.CAN_CREATE_ADMIN === "true" || false,
-};
+  AWS_ACCESS_KEY_ID: z.string().default(""),
+  AWS_SECRET_ACCESS_KEY: z.string().default(""),
+  AWS_REGION: z.string().default("us-east-1"),
+  AWS_S3_BUCKET: z.string().default(""),
+
+  RESEND_API_KEY: z.string().default(""),
+  APP_URL: z.string().default("http://localhost:3000"),
+  SUPPORT_EMAIL: z.string().default("suporte@coachos.com.br"),
+
+  STRIPE_SECRET_KEY: z.string().default(""),
+  STRIPE_WEBHOOK_SECRET: z.string().default(""),
+  STRIPE_PRICE_BASICO: z.string().default(""),
+  STRIPE_PRICE_PRO: z.string().default(""),
+  STRIPE_PRICE_EMPRESARIAL: z.string().default(""),
+
+  CAN_CREATE_ADMIN: z
+    .string()
+    .transform((val) => val === "true")
+    .default(false),
+});
+
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  const errors = parsed.error.flatten().fieldErrors;
+  console.error("❌ Variáveis de ambiente inválidas:", JSON.stringify(errors, null, 2));
+  process.exit(1);
+}
+
+export const env = parsed.data;

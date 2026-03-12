@@ -34,7 +34,7 @@ export class UpdateStudentNoteService {
       throw new ForbiddenException("Você não pode editar esta nota");
     }
 
-    const updated = await this.studentNotesRepository.update(noteId, parsed.data.note);
+    const updated = await this.studentNotesRepository.update(noteId, parsed.data.note, currentUser.personalId as string);
     if (!updated) {
       throw new NotFoundException("Nota não encontrada");
     }

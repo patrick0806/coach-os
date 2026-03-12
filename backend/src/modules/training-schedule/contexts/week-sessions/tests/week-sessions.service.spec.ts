@@ -38,7 +38,7 @@ describe("WeekSessionsService", () => {
     const result = await service.execute(mockUser as any);
 
     expect(result).toHaveLength(2);
-    expect(trainingSessionsRepo.findWeekByStudent).toHaveBeenCalledWith("student-1");
+    expect(trainingSessionsRepo.findWeekByStudent).toHaveBeenCalledWith("student-1", "personal-1");
   });
 
   it("should return empty array when no sessions this week", async () => {

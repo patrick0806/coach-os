@@ -47,6 +47,7 @@ describe("UpdateYoutubeUrlService", () => {
     expect(exercisesRepository.updateYoutubeUrl).toHaveBeenCalledWith(
       "exercise-id",
       "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "personal-id",
     );
     expect(result).toEqual({
       youtubeUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -66,7 +67,7 @@ describe("UpdateYoutubeUrlService", () => {
       mockCurrentUser,
     );
 
-    expect(exercisesRepository.updateYoutubeUrl).toHaveBeenCalledWith("exercise-id", null);
+    expect(exercisesRepository.updateYoutubeUrl).toHaveBeenCalledWith("exercise-id", null, "personal-id");
     expect(result).toEqual({ youtubeUrl: null });
   });
 
@@ -150,6 +151,7 @@ describe("UpdateYoutubeUrlService", () => {
     expect(exercisesRepository.updateYoutubeUrl).toHaveBeenCalledWith(
       "exercise-id",
       "https://youtu.be/dQw4w9WgXcQ",
+      "personal-id",
     );
   });
 
@@ -169,6 +171,7 @@ describe("UpdateYoutubeUrlService", () => {
     expect(exercisesRepository.updateYoutubeUrl).toHaveBeenCalledWith(
       "exercise-id",
       "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "personal-id",
     );
   });
 });
