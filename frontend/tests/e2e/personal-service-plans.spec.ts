@@ -27,7 +27,7 @@ const ACTIVE_SUBSCRIPTION = {
   planName: "Basico",
   status: "active",
   trialEndsAt: null,
-  subscriptionExpiresAt: null,
+  expiresAt: null,
 };
 
 const MOCK_ACTIVE_PLAN = {

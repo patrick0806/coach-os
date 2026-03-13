@@ -86,7 +86,7 @@ async function mockDashboardApis(page: Page) {
         planName: "Basico",
         status: "trialing",
         trialEndsAt: "2099-01-10T00:00:00.000Z",
-        subscriptionExpiresAt: null,
+        expiresAt: null,
       }),
     });
   });
@@ -127,6 +127,31 @@ test("deve navegar do login para o painel com APIs mockadas", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Início" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Alunos ativos/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /Planos de treino/i })).toBeVisible();
+});
+
+test("deve exibir erro ao tentar login com credenciais inválidas", async ({ page }) => {
+  await page.route("**/auth/login", async (route) => {
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ message: "Credenciais inválidas" }),
+    });
+  });
+
+  await page.goto("/login");
+  await page.getByLabel("E-mail").fill("invalido@coachos.test");
+  await page.getByLabel("Senha").fill("SenhaErrada123!");
+  await page.getByRole("button", { name: "Entrar na plataforma" }).click();
+
+  await expect(page.getByText(/Credenciais inválidas|e-mail ou senha incorretos/i)).toBeVisible();
+});
+
+test("deve validar campos obrigatórios no login no client side", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Entrar na plataforma" }).click();
+
+  await expect(page.getByText("Informe um e-mail válido.")).toBeVisible();
+  await expect(page.getByText("Informe sua senha.")).toBeVisible();
 });
 
 test("deve exibir navegação móvel no painel", async ({ page, isMobile }) => {

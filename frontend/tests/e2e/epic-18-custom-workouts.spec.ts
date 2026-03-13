@@ -69,6 +69,40 @@ const mockExercise = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function mockStudentDetailApis(page: Page, plans: object[] = []) {
+  await page.route("**/auth/refresh", async (route) => {
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ message: "unauthorized" }),
+    });
+  });
+
+  await page.route("**/personals/me/profile", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: "personal-id",
+        userId: "user-id",
+        name: "Joao Silva",
+        email: "joao@coachos.test",
+        slug: "joao-silva",
+        bio: null,
+        profilePhoto: null,
+        themeColor: "#10b981",
+        phoneNumber: null,
+        lpTitle: null,
+        lpSubtitle: null,
+        lpHeroImage: null,
+        lpAboutTitle: null,
+        lpAboutText: null,
+        lpImage1: null,
+        lpImage2: null,
+        lpImage3: null,
+      }),
+    });
+  });
+
   await page.route("**/students/*/workout-plans", async (route) => {
     await route.fulfill({
       status: 200,
@@ -125,7 +159,7 @@ async function mockStudentDetailApis(page: Page, plans: object[] = []) {
         planName: "Basico",
         status: "active",
         trialEndsAt: null,
-        subscriptionExpiresAt: null,
+        expiresAt: null,
       }),
     });
   });

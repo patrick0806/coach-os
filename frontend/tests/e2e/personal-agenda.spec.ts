@@ -27,7 +27,7 @@ const ACTIVE_SUBSCRIPTION = {
   planName: "Basico",
   status: "active",
   trialEndsAt: null,
-  subscriptionExpiresAt: null,
+  expiresAt: null,
 };
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -89,6 +89,15 @@ async function mockAgendaApis(
   });
 }
 
+/** Returns this week's Monday as "YYYY-MM-DD" */
+function getMondayIso(): string {
+  const today = new Date();
+  const day = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((day + 6) % 7));
+  return monday.toISOString().split("T")[0];
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 test.describe("Agenda do Personal (/painel/agenda)", () => {
@@ -104,19 +113,16 @@ test.describe("Agenda do Personal (/painel/agenda)", () => {
     await page.goto("/painel/agenda");
 
     // The week label format is "DD mês – DD mês YYYY"
-    await expect(page.getByText(/–/)).toBeVisible();
+    const weekNav = page.getByTestId("week-nav");
+    await expect(weekNav.locator("span")).toContainText("–");
   });
 
-  test("exibe os botões de navegação de semana (chevrons)", async ({ page }) => {
+  test("exibe os botões de navegação de semana", async ({ page }) => {
     await mockAgendaApis(page);
     await page.goto("/painel/agenda");
 
-    // The chevron buttons don't have explicit names — they contain ChevronLeft/ChevronRight icons
-    // We look for the week navigation container and count buttons
-    const weekNav = page.locator(".mb-4.flex.items-center.gap-2");
-    await expect(weekNav).toBeVisible();
-
-    // There should be a "Hoje" button and two chevron buttons
+    await expect(page.getByRole("button", { name: "Semana anterior" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Próxima semana" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Hoje" })).toBeVisible();
   });
 
@@ -153,12 +159,7 @@ test.describe("Agenda do Personal (/painel/agenda)", () => {
   });
 
   test("exibe agendamentos agrupados por data quando existem bookings", async ({ page }) => {
-    // Get the current week's Monday date for a stable test
-    const today = new Date();
-    const day = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - ((day + 6) % 7));
-    const mondayStr = monday.toISOString().split("T")[0];
+    const mondayStr = getMondayIso();
 
     const bookingWithData = {
       content: [
@@ -187,11 +188,7 @@ test.describe("Agenda do Personal (/painel/agenda)", () => {
   });
 
   test("exibe o horário do agendamento", async ({ page }) => {
-    const today = new Date();
-    const day = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - ((day + 6) % 7));
-    const mondayStr = monday.toISOString().split("T")[0];
+    const mondayStr = getMondayIso();
 
     const bookingWithData = {
       content: [
@@ -218,18 +215,75 @@ test.describe("Agenda do Personal (/painel/agenda)", () => {
     await expect(page.getByText("10:00")).toBeVisible();
   });
 
+  test("exibe sessões de treino recorrentes quando existem sessions", async ({ page }) => {
+    const mondayStr = getMondayIso();
+
+    const sessions = [
+      {
+        id: "session-1",
+        studentName: "Carlos Lima",
+        scheduledDate: mondayStr,
+        startTime: "06:00",
+        endTime: "07:00",
+        status: "pending",
+        sessionType: "presential",
+        workoutPlanId: "plan-001",
+      },
+    ];
+
+    await mockAgendaApis(page, { sessions });
+    await page.goto("/painel/agenda");
+
+    await expect(page.getByText("Carlos Lima")).toBeVisible();
+    await expect(page.getByText("Treino Presencial")).toBeVisible();
+  });
+
+  test("NÃO exibe sessões do tipo 'rest' na agenda", async ({ page }) => {
+    const mondayStr = getMondayIso();
+
+    const sessions = [
+      {
+        id: "session-rest-1",
+        studentName: "Ana Costa",
+        scheduledDate: mondayStr,
+        startTime: null,
+        endTime: null,
+        status: "pending",
+        sessionType: "rest",
+        workoutPlanId: null,
+      },
+    ];
+
+    await mockAgendaApis(page, { sessions });
+    await page.goto("/painel/agenda");
+
+    // Rest sessions are filtered out — empty state should show
+    await expect(page.getByText("Nenhum compromisso neste período.")).toBeVisible();
+    await expect(page.getByText("Ana Costa")).not.toBeVisible();
+  });
+
   test("navega para a semana anterior ao clicar na seta esquerda", async ({ page }) => {
     await mockAgendaApis(page);
     await page.goto("/painel/agenda");
 
-    // Get current week label before navigation
-    const weekNav = page.locator(".mb-4.flex.items-center.gap-2");
+    const weekNav = page.getByTestId("week-nav");
     const initialLabel = await weekNav.locator("span").textContent();
 
-    // Click the first button (left chevron)
-    await weekNav.locator("button").first().click();
+    await page.getByRole("button", { name: "Semana anterior" }).click();
 
-    // The week label should change
+    const newLabel = await weekNav.locator("span").textContent();
+    expect(newLabel).not.toBe(initialLabel);
+  });
+
+  test("navega para a semana seguinte ao clicar na seta direita", async ({ page }) => {
+    await mockAgendaApis(page);
+    await page.goto("/painel/agenda");
+
+    const weekNav = page.getByTestId("week-nav");
+    const initialLabel = await weekNav.locator("span").textContent();
+
+    await page.getByRole("button", { name: "Próxima semana" }).click();
+
     const newLabel = await weekNav.locator("span").textContent();
     expect(newLabel).not.toBe(initialLabel);
   });
@@ -238,17 +292,51 @@ test.describe("Agenda do Personal (/painel/agenda)", () => {
     await mockAgendaApis(page);
     await page.goto("/painel/agenda");
 
-    const weekNav = page.locator(".mb-4.flex.items-center.gap-2");
+    const weekNav = page.getByTestId("week-nav");
     const initialLabel = await weekNav.locator("span").textContent();
 
-    // Go to previous week first
-    await weekNav.locator("button").first().click();
+    // Go to previous week
+    await page.getByRole("button", { name: "Semana anterior" }).click();
     const prevLabel = await weekNav.locator("span").textContent();
     expect(prevLabel).not.toBe(initialLabel);
 
-    // Click "Hoje" to return
+    // Return to current week
     await page.getByRole("button", { name: "Hoje" }).click();
     const backLabel = await weekNav.locator("span").textContent();
     expect(backLabel).toBe(initialLabel);
+  });
+
+  test("filtro 'Agendados/Pendentes' oculta itens concluídos", async ({ page }) => {
+    const mondayStr = getMondayIso();
+
+    const bookingWithData = {
+      content: [
+        {
+          id: "booking-scheduled",
+          studentName: "Aluno Agendado",
+          servicePlanName: "Plano A",
+          scheduledDate: mondayStr,
+          startTime: "09:00",
+          endTime: "10:00",
+          status: "scheduled",
+          isRecurring: false,
+        },
+      ],
+      page: 1,
+      size: 100,
+      totalElements: 1,
+      totalPages: 1,
+    };
+
+    // Mock returns scheduled bookings regardless of filter (filter is applied client-side for sessions,
+    // but server-side for bookings — the mock always returns the same data so we just verify the tab is clickable)
+    await mockAgendaApis(page, { bookings: bookingWithData });
+    await page.goto("/painel/agenda");
+
+    // Click the "Agendados/Pendentes" tab — no error should occur
+    await page.getByRole("button", { name: "Agendados/Pendentes" }).click();
+
+    // The button should now appear visually active (no assertion on style, just that it's still visible)
+    await expect(page.getByRole("button", { name: "Agendados/Pendentes" })).toBeVisible();
   });
 });

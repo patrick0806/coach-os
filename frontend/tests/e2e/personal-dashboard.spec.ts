@@ -7,7 +7,7 @@ const ACTIVE_SUBSCRIPTION = {
   planName: "Basico",
   status: "active",
   trialEndsAt: null,
-  subscriptionExpiresAt: null,
+  expiresAt: null,
 };
 
 const TRIALING_SOON_SUBSCRIPTION = {
@@ -16,7 +16,7 @@ const TRIALING_SOON_SUBSCRIPTION = {
   status: "trialing",
   // 3 days from now so the trial warning banner is shown
   trialEndsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-  subscriptionExpiresAt: null,
+  expiresAt: null,
 };
 
 const TRIALING_FAR_SUBSCRIPTION = {
@@ -25,7 +25,7 @@ const TRIALING_FAR_SUBSCRIPTION = {
   status: "trialing",
   // 30 days from now — banner should NOT appear
   trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-  subscriptionExpiresAt: null,
+  expiresAt: null,
 };
 
 const MOCK_PERSONAL = {

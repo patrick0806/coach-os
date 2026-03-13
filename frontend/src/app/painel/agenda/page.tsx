@@ -198,12 +198,12 @@ export default function AgendaPage() {
         </div>
 
         {/* Week navigation */}
-        <div className="mb-4 flex items-center gap-2">
-          <Button variant="premium-ghost" size="sm" onClick={prevWeek}>
+        <div data-testid="week-nav" className="mb-4 flex items-center gap-2">
+          <Button variant="premium-ghost" size="sm" onClick={prevWeek} aria-label="Semana anterior">
             <ChevronLeft className="size-4" />
           </Button>
           <span className="flex-1 text-center text-sm font-medium text-foreground">{week.label}</span>
-          <Button variant="premium-ghost" size="sm" onClick={nextWeek}>
+          <Button variant="premium-ghost" size="sm" onClick={nextWeek} aria-label="Próxima semana">
             <ChevronRight className="size-4" />
           </Button>
           <Button variant="ghost" size="sm" onClick={goToday} className="text-xs text-muted-foreground">

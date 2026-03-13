@@ -27,7 +27,7 @@ const ACTIVE_SUBSCRIPTION = {
   planName: "Basico",
   status: "active",
   trialEndsAt: null,
-  subscriptionExpiresAt: null,
+  expiresAt: null,
 };
 
 const TEMPLATE_PLAN = {
