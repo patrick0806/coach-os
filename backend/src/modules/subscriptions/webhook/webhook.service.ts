@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import Stripe from "stripe";
+import { fromUnixTime } from "date-fns";
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
@@ -92,7 +93,7 @@ export class WebhookService {
 
     // cancel_at is set when cancel_at_period_end = true — use it as the expiration date
     const expiresAt = subscription.cancel_at
-      ? new Date(subscription.cancel_at * 1000)
+      ? fromUnixTime(subscription.cancel_at)
       : null;
 
     await this.personalsRepository.updateSubscription(personal.id, {

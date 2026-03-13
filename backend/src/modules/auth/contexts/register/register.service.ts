@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import * as argon2 from "argon2";
+import { addDays } from "date-fns";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { UsersRepository } from "@shared/repositories/users.repository";
@@ -39,8 +40,7 @@ export class RegisterService {
 
     const result = await this.drizzle.db.transaction(async (tx) => {
       const now = new Date();
-      const trialEndsAt = new Date(now);
-      trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+      const trialEndsAt = addDays(now, 30);
 
       const user = await this.usersRepository.create(
         {

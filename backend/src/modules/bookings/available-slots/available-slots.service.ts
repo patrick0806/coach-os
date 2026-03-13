@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { getDay, parseISO } from "date-fns";
 
 import { BookingsRepository, AvailableSlot } from "@shared/repositories/bookings.repository";
 import { IAccessToken } from "@shared/interfaces";
@@ -8,9 +9,8 @@ export class AvailableSlotsService {
   constructor(private readonly bookingsRepository: BookingsRepository) {}
 
   async execute(date: string, currentUser: IAccessToken): Promise<AvailableSlot[]> {
-    const parsedDate = new Date(date + "T00:00:00Z");
-    // getUTCDay: 0=Sunday, 1=Monday, ..., 6=Saturday
-    const dayOfWeek = parsedDate.getUTCDay();
+    // getDay: 0=Sunday, 1=Monday, ..., 6=Saturday
+    const dayOfWeek = getDay(parseISO(date));
 
     return this.bookingsRepository.findAvailableSlots(
       currentUser.personalId as string,

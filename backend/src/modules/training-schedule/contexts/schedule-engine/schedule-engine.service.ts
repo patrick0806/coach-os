@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { addDays, addWeeks, format, parseISO, getDay } from "date-fns";
 
 import { ScheduleRulesRepository } from "@shared/repositories/schedule-rules.repository";
 import { TrainingSessionsRepository, CreateTrainingSessionInput } from "@shared/repositories/training-sessions.repository";
@@ -84,21 +85,17 @@ export class ScheduleEngineService {
     const todayStr = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(referenceDate);
 
     // Start from today so that rules created on the same day take effect immediately
-    const start = new Date(todayStr + "T00:00:00Z");
-
-    const end = new Date(todayStr + "T00:00:00Z");
-    end.setUTCDate(end.getUTCDate() + SCHEDULE_HORIZON_DAYS);
-    end.setUTCHours(23, 59, 59, 999);
+    let current = parseISO(todayStr);
+    const end = addDays(parseISO(todayStr), SCHEDULE_HORIZON_DAYS);
 
     // Advance to the first occurrence of the desired day of week
-    const current = new Date(start);
-    while (current.getUTCDay() !== dayOfWeek) {
-      current.setUTCDate(current.getUTCDate() + 1);
+    while (getDay(current) !== dayOfWeek) {
+      current = addDays(current, 1);
     }
 
     while (current <= end) {
-      dates.push(current.toISOString().split("T")[0]);
-      current.setUTCDate(current.getUTCDate() + 7);
+      dates.push(format(current, "yyyy-MM-dd"));
+      current = addWeeks(current, 1);
     }
 
     return dates;

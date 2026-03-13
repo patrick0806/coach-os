@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { subDays } from "date-fns";
 
 import { DashboardRepository } from "@shared/repositories/dashboard.repository";
 
@@ -12,7 +13,7 @@ function resolvePeriod(period: PeriodFilter): { since: Date | null; until: Date 
 
   const daysMap: Record<string, number> = { "7d": 7, "30d": 30, "90d": 90 };
   const daysBack = daysMap[period];
-  const since = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+  const since = subDays(now, daysBack);
   return { since, until: now };
 }
 

@@ -1,4 +1,5 @@
 import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import { addDays, format, getDay, parseISO, isAfter } from "date-fns";
 
 import { BookingSeriesRepository } from "@shared/repositories/booking-series.repository";
 import { BookingsRepository } from "@shared/repositories/bookings.repository";
@@ -13,13 +14,6 @@ import {
 } from "./dtos/request.dto";
 import { CreateBookingSeriesResponseDTO } from "./dtos/response.dto";
 
-function toIsoDate(value: Date): string {
-  const year = value.getUTCFullYear();
-  const month = String(value.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(value.getUTCDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 function buildRecurringDates(
   startDate: string,
   endDate: string,
@@ -27,16 +21,14 @@ function buildRecurringDates(
 ): string[] {
   const result: string[] = [];
   const daySet = new Set(daysOfWeek);
-  let current = new Date(`${startDate}T00:00:00.000Z`);
-  const end = new Date(`${endDate}T00:00:00.000Z`);
+  let current = parseISO(startDate);
+  const end = parseISO(endDate);
 
-  while (current.getTime() <= end.getTime()) {
-    if (daySet.has(current.getUTCDay())) {
-      result.push(toIsoDate(current));
+  while (!isAfter(current, end)) {
+    if (daySet.has(getDay(current))) {
+      result.push(format(current, "yyyy-MM-dd"));
     }
-
-    current = new Date(current);
-    current.setUTCDate(current.getUTCDate() + 1);
+    current = addDays(current, 1);
   }
 
   return result;

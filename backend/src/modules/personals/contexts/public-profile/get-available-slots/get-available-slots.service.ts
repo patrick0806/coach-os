@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { getDay, parseISO } from "date-fns";
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { AvailabilityRepository } from "@shared/repositories/availability.repository";
@@ -28,7 +29,7 @@ export class GetAvailableSlotsService {
     }
 
     // Determine day of week from the requested date (0=Sunday … 6=Saturday)
-    const dayOfWeek = new Date(date + "T00:00:00").getDay();
+    const dayOfWeek = getDay(parseISO(date));
 
     // 1. Base: active availability slots for that day
     const allSlots = await this.availabilityRepository.findByDay(personal.id, dayOfWeek);

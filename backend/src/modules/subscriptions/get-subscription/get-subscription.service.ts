@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { isBefore } from "date-fns";
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
@@ -25,7 +26,7 @@ export class GetSubscriptionService {
 
     // No paid subscription linked: access comes from trial window.
     if (!personal.subscriptionPlanId) {
-      const isExpired = trialEndsAt ? trialEndsAt.getTime() < now.getTime() : false;
+      const isExpired = trialEndsAt ? isBefore(trialEndsAt, now) : false;
       const status = isExpired ? "expired" : "trialing";
 
       if (isExpired && personal.accessStatus !== "expired") {

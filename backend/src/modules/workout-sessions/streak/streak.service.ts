@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { differenceInDays, format, parseISO, startOfDay } from "date-fns";
 
 import { StudentStatsRepository } from "@shared/repositories/student-stats.repository";
 
@@ -15,14 +16,9 @@ export class StreakService {
   calculateNewStreak(lastWorkoutDate: string | null, currentStreak: number): number {
     if (!lastWorkoutDate) return 1;
 
-    // Use UTC to avoid timezone shifts between local and ISO string dates
-    const now = new Date();
-    const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
-    const [year, month, day] = lastWorkoutDate.split("-").map(Number);
-    const lastUTC = Date.UTC(year, month - 1, day);
-
-    const diffDays = Math.round((todayUTC - lastUTC) / (1000 * 60 * 60 * 24));
+    const today = startOfDay(new Date());
+    const last = startOfDay(parseISO(lastWorkoutDate));
+    const diffDays = differenceInDays(today, last);
 
     if (diffDays === 0) return currentStreak;
     if (diffDays === 1) return currentStreak + 1;
@@ -30,11 +26,7 @@ export class StreakService {
   }
 
   private todayUTCString(): string {
-    const now = new Date();
-    const y = now.getUTCFullYear();
-    const m = String(now.getUTCMonth() + 1).padStart(2, "0");
-    const d = String(now.getUTCDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
+    return format(new Date(), "yyyy-MM-dd");
   }
 
   async updateStudentStats(studentId: string): Promise<void> {
