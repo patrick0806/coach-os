@@ -79,7 +79,7 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <Link
             href="/login"
-            className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Entrar
           </Link>

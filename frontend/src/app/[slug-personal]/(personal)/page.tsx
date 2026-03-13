@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
@@ -347,6 +348,16 @@ export default async function PersonalLandingPage({ params }: PersonalLandingPag
 
   return (
     <main>
+      {/* Student access bar */}
+      <div className="fixed right-4 top-4 z-50">
+        <Link
+          href={`/${profile.slug}/login`}
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-xs font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
+        >
+          Já sou aluno — Entrar
+        </Link>
+      </div>
+
       <HeroSection profile={profile} />
       <AboutSection profile={profile} />
       <PlansSection profile={profile} />

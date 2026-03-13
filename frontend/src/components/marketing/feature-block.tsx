@@ -55,17 +55,17 @@ export function FeatureBlock({
         </div>
 
         {/* Image / Mockup Placeholder */}
-        <div className="relative flex-1">
-          <div className="relative aspect-[4/3] w-full max-w-xl overflow-hidden rounded-2xl border border-border/60 bg-muted/40 p-4 shadow-2xl">
+        <div className="relative w-full flex-1">
+          <div className="relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-2xl border border-border/60 bg-muted/40 p-4 shadow-2xl">
             <div className="h-full w-full rounded-xl bg-gradient-to-br from-primary/10 via-background to-muted/80 flex items-center justify-center border border-border/40">
               <span className="text-sm font-medium text-muted-foreground italic">
                 [Mockup de {imageAlt}]
               </span>
             </div>
-            {/* Visual Decorative Blobs */}
-            <div className="absolute -right-10 -top-10 -z-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute -bottom-10 -left-10 -z-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
           </div>
+          {/* Visual Decorative Blobs — outside overflow-hidden to avoid clipping */}
+          <div className="pointer-events-none absolute -right-10 -top-10 -z-10 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-10 -left-10 -z-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
         </div>
       </div>
     </div>
