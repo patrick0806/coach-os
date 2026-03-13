@@ -37,15 +37,16 @@
 | 21 - Qualidade, Segurança e Resiliência | [epic-21-quality-security-and-resilience.md](epic-21-quality-security-and-resilience.md) | [ ] | [ ] |
 | 22 - Correções de Emergência e Fortalecimento | [epic-22-emergency-fixes-and-security.md](epic-22-emergency-fixes-and-security.md) | [~] | [ ] |
 | 23 - Motor de Agendamento Unificado | [epic-23-unified-scheduling-engine.md](epic-23-unified-scheduling-engine.md) | [ ] | [ ] |
+| 24 - Padronização date-fns (Backend) | [epic-24-date-fns-refactoring.md](epic-24-date-fns-refactoring.md) | [ ] | — |
 | Backlog Pos-MVP | [post-mvp-backlog.md](post-mvp-backlog.md) | — | — |
 
 ## Roadmap por Sprint
 
 ```
 ...
-Sprint 22 — Correções de Emergência e Fortalecimento de Segurança
-  US-070 → US-071 → US-072 → US-073 → US-074
-
 Sprint 23 — Motor de Agendamento Unificado (Agenda & Treinos)
   US-075 → US-076 → US-077 → US-078
+
+Sprint 24 — Padronização e Refatoração Técnica (Backend)
+  Refatoração date-fns em Auth, Admin, Training Schedule, Bookings e Repositórios
 ```

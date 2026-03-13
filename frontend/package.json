@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "fuser -k 3100/tcp 2>/dev/null; playwright test"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
