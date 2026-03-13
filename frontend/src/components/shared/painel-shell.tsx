@@ -10,6 +10,7 @@ import { PainelQuickActionsFab } from "@/components/shared/painel-quick-actions-
 import { PainelSidebar } from "@/components/shared/painel-sidebar";
 import { Button } from "@/components/ui/button";
 import { getMySubscription } from "@/services/subscriptions.service";
+import { daysUntil } from "@/lib/date";
 
 interface PainelShellProps {
   children: React.ReactNode;
@@ -42,11 +43,7 @@ export function PainelShell({ children }: PainelShellProps) {
     pathname.startsWith("/painel/assinatura") || pathname.startsWith("/painel/bloqueado");
 
   const trialEndsAt = subscription?.trialEndsAt ? new Date(subscription.trialEndsAt) : null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const msUntilTrialEnds = trialEndsAt ? trialEndsAt.getTime() - today.getTime() : null;
-  const trialDaysRemaining =
-    msUntilTrialEnds === null ? null : Math.ceil(msUntilTrialEnds / (1000 * 60 * 60 * 24));
+  const trialDaysRemaining = trialEndsAt ? daysUntil(trialEndsAt) : null;
   const shouldShowTrialWarning =
     !shouldHideWarning &&
     subscription?.status === "trialing" &&

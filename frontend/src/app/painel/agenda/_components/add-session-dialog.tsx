@@ -12,6 +12,12 @@ import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/lib/api-error";
+import {
+  buildRecurringDates,
+  formatIsoDate,
+  formatShortDate,
+  diffInDays,
+} from "@/lib/date";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -109,9 +115,7 @@ const schema = z
     }
 
     if (data.seriesStartDate && data.seriesEndDate) {
-      const start = new Date(`${data.seriesStartDate}T00:00:00.000Z`);
-      const end = new Date(`${data.seriesEndDate}T00:00:00.000Z`);
-      const diffDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      const diffDays = diffInDays(data.seriesStartDate, data.seriesEndDate);
 
       if (diffDays > MAX_SERIES_DAYS) {
         ctx.addIssue({
@@ -137,10 +141,6 @@ const WEEK_DAY_OPTIONS = [
 ] as const;
 const EMPTY_DAYS: number[] = [];
 
-function toDateLabel(dateIso: string): string {
-  return new Date(`${dateIso}T00:00:00.000Z`).toLocaleDateString("pt-BR");
-}
-
 function parseIsoDate(value?: string): Date | undefined {
   if (!value) return undefined;
   const [year, month, day] = value.split("-").map(Number);
@@ -148,36 +148,6 @@ function parseIsoDate(value?: string): Date | undefined {
   return new Date(year, month - 1, day, 12, 0, 0);
 }
 
-function formatIsoDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function buildRecurringDates(daysOfWeek: number[], startDate: string, endDate: string): string[] {
-  if (!startDate || !endDate || daysOfWeek.length === 0) {
-    return [];
-  }
-
-  const selectedDays = new Set(daysOfWeek);
-  const dates: string[] = [];
-  let current = new Date(`${startDate}T00:00:00.000Z`);
-  const end = new Date(`${endDate}T00:00:00.000Z`);
-
-  while (current.getTime() <= end.getTime()) {
-    if (selectedDays.has(current.getUTCDay())) {
-      const year = current.getUTCFullYear();
-      const month = String(current.getUTCMonth() + 1).padStart(2, "0");
-      const day = String(current.getUTCDate()).padStart(2, "0");
-      dates.push(`${year}-${month}-${day}`);
-    }
-    current = new Date(current);
-    current.setUTCDate(current.getUTCDate() + 1);
-  }
-
-  return dates;
-}
 
 interface AddSessionDialogProps {
   open: boolean;
@@ -595,8 +565,8 @@ export function AddSessionDialog({ open, onOpenChange }: AddSessionDialogProps) 
                 {recurringDates.length > 0 ? (
                   <p className="text-sm text-muted-foreground">
                     Serão criadas <strong>{recurringDates.length}</strong> sessões entre{" "}
-                    <strong>{toDateLabel(recurringDates[0])}</strong> e{" "}
-                    <strong>{toDateLabel(recurringDates[recurringDates.length - 1])}</strong>.
+                    <strong>{formatShortDate(recurringDates[0])}</strong> e{" "}
+                    <strong>{formatShortDate(recurringDates[recurringDates.length - 1])}</strong>.
                   </p>
                 ) : (
                   <p className="text-sm text-amber-700">

@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
+import { addDays, subDays, startOfWeek, isAfter, startOfDay } from "date-fns";
 import { TrainingSession } from "@/services/training-schedule.service";
+import { formatIsoDate, isIsoPast } from "@/lib/date";
 
 interface ActivityCalendarProps {
   sessions: TrainingSession[];
@@ -18,11 +20,10 @@ interface CalendarDay {
 
 function buildCalendarGrid(sessions: TrainingSession[], weeks: number): CalendarDay[][] {
   const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
 
-  // Go back to the most recent Sunday to align columns
-  const start = new Date(today);
-  start.setDate(start.getDate() - (start.getDay() + weeks * 7 - 1));
+  // Go back to the most recent Sunday to align columns, then back weeks * 7 - 1 days
+  const recentSunday = startOfWeek(today, { weekStartsOn: 0 });
+  const start = subDays(recentSunday, weeks * 7 - 1);
 
   const sessionMap = new Map<string, TrainingSession>();
   for (const s of sessions) {
@@ -34,11 +35,10 @@ function buildCalendarGrid(sessions: TrainingSession[], weeks: number): Calendar
   for (let col = 0; col < weeks; col++) {
     const column: CalendarDay[] = [];
     for (let row = 0; row < 7; row++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + col * 7 + row);
-      const dateStr = d.toISOString().split("T")[0];
+      const d = addDays(start, col * 7 + row);
+      const dateStr = formatIsoDate(d);
 
-      if (d > today) {
+      if (isAfter(startOfDay(d), startOfDay(today))) {
         column.push({ date: dateStr, status: "future" });
         continue;
       }
@@ -56,7 +56,7 @@ function buildCalendarGrid(sessions: TrainingSession[], weeks: number): Calendar
         status = "completed";
       } else if (session.status === "cancelled") {
         status = "cancelled";
-      } else if (dateStr < todayStr) {
+      } else if (isIsoPast(dateStr)) {
         // pending but in the past = missed
         status = "missed";
       } else {
@@ -88,7 +88,7 @@ export function ActivityCalendar({ sessions, weeks = 12 }: ActivityCalendarProps
 
   const completedCount = sessions.filter((s) => s.status === "completed").length;
   const missedCount = sessions.filter(
-    (s) => s.status === "pending" && s.scheduledDate < new Date().toISOString().split("T")[0],
+    (s) => s.status === "pending" && isIsoPast(s.scheduledDate),
   ).length;
 
   return (

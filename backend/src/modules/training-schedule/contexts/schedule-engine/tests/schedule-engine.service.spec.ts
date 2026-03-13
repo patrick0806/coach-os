@@ -59,13 +59,19 @@ describe("ScheduleEngineService", () => {
       });
     });
 
-    it("should not include today or past dates", () => {
-      const ref = new Date("2026-03-12T12:00:00Z"); // Thursday
-      // Request Thursday (day 4) — should start from next Thursday, not today
-      const dates = service.generateSessionDates(4, ref);
+    it("should include today when the rule matches today's day of week", () => {
+      // 2026-03-12T12:00:00Z = Thursday UTC = Thursday Brazil (09:00 Brasília)
+      const ref = new Date("2026-03-12T12:00:00Z");
+      const dates = service.generateSessionDates(4, ref); // dayOfWeek 4 = Thursday
 
-      const todayStr = "2026-03-12";
-      expect(dates).not.toContain(todayStr);
+      expect(dates).toContain("2026-03-12");
+    });
+
+    it("should not include today when rule does not match today's day of week", () => {
+      const ref = new Date("2026-03-12T12:00:00Z"); // Thursday
+      const dates = service.generateSessionDates(1, ref); // requesting Monday
+
+      expect(dates).not.toContain("2026-03-12");
     });
 
     it("should generate dates within the 60-day window", () => {

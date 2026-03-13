@@ -3,6 +3,7 @@ import { and, eq, gte, lte } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { getTodayInBrazil } from "@shared/utils";
 import * as schema from "@config/database/schema";
 import {
   trainingSessions,
@@ -52,7 +53,7 @@ export class TrainingSessionsRepository {
   // Deletes all PENDING future sessions generated from a given rule (used on rule sync)
   async deletePendingFutureByRule(ruleId: string, tx?: DrizzleDb): Promise<void> {
     const db = tx ?? this.drizzle.db;
-    const today = new Date().toISOString().split("T")[0];
+    const today = getTodayInBrazil();
     await (db as any)
       .delete(trainingSessions)
       .where(
@@ -97,7 +98,7 @@ export class TrainingSessionsRepository {
 
   async findTodayByStudent(studentId: string, personalId: string, tx?: DrizzleDb): Promise<TrainingSession | null> {
     const db = tx ?? this.drizzle.db;
-    const today = new Date().toISOString().split("T")[0];
+    const today = getTodayInBrazil();
     const result = await db
       .select()
       .from(trainingSessions)
@@ -114,10 +115,10 @@ export class TrainingSessionsRepository {
 
   async findWeekByStudent(studentId: string, personalId: string, tx?: DrizzleDb): Promise<TrainingSession[]> {
     const db = tx ?? this.drizzle.db;
-    const today = new Date().toISOString().split("T")[0];
-    const end = new Date();
-    end.setDate(end.getDate() + 7);
-    const endStr = end.toISOString().split("T")[0];
+    const today = getTodayInBrazil();
+    const endDate = new Date(today + "T00:00:00Z");
+    endDate.setUTCDate(endDate.getUTCDate() + 7);
+    const endStr = endDate.toISOString().split("T")[0];
 
     return db
       .select()

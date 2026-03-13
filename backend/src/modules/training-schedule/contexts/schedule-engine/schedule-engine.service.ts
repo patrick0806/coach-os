@@ -76,18 +76,19 @@ export class ScheduleEngineService {
   }
 
   // Returns an array of ISO date strings ("YYYY-MM-DD") for the given day of week,
-  // starting from tomorrow up to SCHEDULE_HORIZON_DAYS ahead.
+  // starting from today up to SCHEDULE_HORIZON_DAYS ahead.
   generateSessionDates(dayOfWeek: number, referenceDate: Date = new Date()): string[] {
     const dates: string[] = [];
 
-    // Start from tomorrow to avoid generating sessions for today mid-day
-    const start = new Date(referenceDate);
-    start.setDate(start.getDate() + 1);
-    start.setHours(0, 0, 0, 0);
+    // Use Brazil timezone to determine "today" — avoids UTC midnight edge cases for Brazilian users
+    const todayStr = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(referenceDate);
 
-    const end = new Date(referenceDate);
-    end.setDate(end.getDate() + SCHEDULE_HORIZON_DAYS);
-    end.setHours(23, 59, 59, 999);
+    // Start from today so that rules created on the same day take effect immediately
+    const start = new Date(todayStr + "T00:00:00Z");
+
+    const end = new Date(todayStr + "T00:00:00Z");
+    end.setUTCDate(end.getUTCDate() + SCHEDULE_HORIZON_DAYS);
+    end.setUTCHours(23, 59, 59, 999);
 
     // Advance to the first occurrence of the desired day of week
     const current = new Date(start);

@@ -1,6 +1,6 @@
 # BUG-005 — Treino de Hoje não aparece no Painel do Aluno
 
-**Status:** `[ ]` todo
+**Status:** `[x]` resolvido
 **Prioridade:** CRÍTICA
 **Relatado em:** 2026-03-12
 **Módulo:** `frontend/student-panel`, `backend/training-schedule`
@@ -20,6 +20,18 @@ Existem duas possibilidades principais:
 3.  **Isolamento de Aluno:** O endpoint pode estar buscando sessões de outro `studentId` devido a uma falha na passagem do token de aluno.
 
 ## ✅ Critérios de Aceite
-- [ ] O card principal do painel do aluno deve exibir o botão de "Iniciar Treino" sempre que houver uma sessão `pending` para a data atual (fuso local).
-- [ ] A mensagem "Sem treino hoje" só deve aparecer se realmente não houver sessão planejada.
-- [ ] O fuso horário deve ser consistente entre o que o Personal vê na agenda e o que o Aluno vê no painel.
+- [x] O card principal do painel do aluno deve exibir o botão de "Iniciar Treino" sempre que houver uma sessão `pending` para a data atual (fuso local).
+- [x] A mensagem "Sem treino hoje" só deve aparecer se realmente não houver sessão planejada.
+- [x] O fuso horário deve ser consistente entre o que o Personal vê na agenda e o que o Aluno vê no painel.
+
+## 🔧 Correções Aplicadas
+
+### Bug 1 (Principal): `generateSessionDates` ignorava o dia atual
+**Arquivo:** `backend/src/modules/training-schedule/contexts/schedule-engine/schedule-engine.service.ts`
+**Problema:** `start.setDate(start.getDate() + 1)` forçava o início das sessões a partir de amanhã. Ao criar uma `ScheduleRule` para quinta-feira na própria quinta-feira, `syncRule` deletava as sessões pendentes a partir de hoje e as recriava apenas a partir de amanhã — nunca gerando a sessão de hoje.
+**Correção:** Removido o offset `+1`. Sessões agora começam a ser geradas a partir do dia atual.
+
+### Bug 2 (Timezone): UTC vs Brasília (UTC-3)
+**Arquivos:** `backend/src/shared/utils/date.util.ts` (novo), `backend/src/shared/repositories/training-sessions.repository.ts`
+**Problema:** `new Date().toISOString().split("T")[0]` retornava a data em UTC. Para usuários em Brasília (UTC-3), entre 21h e 23h59 o servidor retornava a data de "amanhã" ao invés de "hoje".
+**Correção:** Criada função `getTodayInBrazil()` usando `Intl.DateTimeFormat` com `timeZone: "America/Sao_Paulo"`. Aplicada nos métodos `findTodayByStudent`, `findWeekByStudent` e `deletePendingFutureByRule`.

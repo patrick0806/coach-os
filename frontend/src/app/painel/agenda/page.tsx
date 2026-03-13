@@ -17,6 +17,7 @@ import {
 import { getPersonalCalendar, type CalendarSession } from "@/services/training-schedule.service";
 import { BookingDetailDialog } from "./_components/booking-detail-dialog";
 import { AddSessionDialog } from "./_components/add-session-dialog";
+import { getWeekBounds, formatDateHeader, todayIso } from "@/lib/date";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -50,19 +51,6 @@ interface AgendaItem {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getWeekBounds(ref: Date): { from: string; to: string; label: string } {
-  const d = new Date(ref);
-  const day = d.getDay();
-  const monday = new Date(d);
-  monday.setDate(d.getDate() - ((day + 6) % 7));
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-
-  const fmt = (dt: Date) => dt.toISOString().split("T")[0];
-  const label = `${monday.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} – ${sunday.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}`;
-  return { from: fmt(monday), to: fmt(sunday), label };
-}
-
 function groupByDate(items: AgendaItem[]): [string, AgendaItem[]][] {
   const map = new Map<string, AgendaItem[]>();
   for (const item of items) {
@@ -71,16 +59,6 @@ function groupByDate(items: AgendaItem[]): [string, AgendaItem[]][] {
     map.set(item.scheduledDate, list);
   }
   return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
-}
-
-function formatDateHeader(dateStr: string): string {
-  const isToday = dateStr === new Date().toISOString().split("T")[0];
-  const dateStrFmt = new Date(dateStr + "T00:00:00").toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-  });
-  return isToday ? `Hoje, ${dateStrFmt}` : dateStrFmt;
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -96,7 +74,7 @@ export default function AgendaPage() {
   const [addSessionOpen, setAddSessionOpen] = useState(shouldStartAddSessionOpen);
 
   const week = getWeekBounds(weekRef);
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = todayIso();
 
   const { data: bookingsData, isLoading: isLoadingBookings } = useQuery({
     queryKey: ["bookings", { from: week.from, to: week.to, status: statusFilter }],

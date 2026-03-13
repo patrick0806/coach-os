@@ -1,4 +1,6 @@
+import { differenceInCalendarDays } from "date-fns";
 import { api } from "@/lib/api";
+import { parseIsoDate } from "@/lib/date";
 
 export interface StudentStats {
   currentStreak: number;
@@ -14,13 +16,6 @@ export async function getMyStats(): Promise<StudentStats> {
 /** Returns true if the student risks losing their streak today (last workout was yesterday) */
 export function isStreakAtRisk(stats: StudentStats): boolean {
   if (!stats.lastWorkoutDate || stats.currentStreak === 0) return false;
-
-  const now = new Date();
-  const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-
-  const [year, month, day] = stats.lastWorkoutDate.split("-").map(Number);
-  const lastUTC = Date.UTC(year, month - 1, day);
-
-  const diffDays = Math.round((todayUTC - lastUTC) / (1000 * 60 * 60 * 24));
-  return diffDays === 1;
+  const diff = differenceInCalendarDays(new Date(), parseIsoDate(stats.lastWorkoutDate));
+  return diff === 1;
 }

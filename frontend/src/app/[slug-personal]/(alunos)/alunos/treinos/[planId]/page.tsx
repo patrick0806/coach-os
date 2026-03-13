@@ -115,6 +115,7 @@ export default function AlunoTreinoDetailPage({ params }: AlunoTreinoDetailPageP
   const { data: plan, isLoading } = useQuery({
     queryKey: ["me-workout-plan", planId],
     queryFn: () => getMeWorkoutPlan(planId),
+    retry: false,
   });
 
   const sortedExercises = useMemo(

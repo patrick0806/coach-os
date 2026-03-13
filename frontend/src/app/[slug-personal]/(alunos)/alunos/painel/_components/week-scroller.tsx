@@ -6,6 +6,7 @@ import { Check, Moon, Play, X } from "lucide-react";
 
 import { CancelTrainingSessionDialog } from "@/components/shared/cancel-training-session-dialog";
 import type { TrainingSession } from "@/services/training-schedule.service";
+import { generateNextNDays, getDayNum, getDayAbbr } from "@/lib/date";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,26 +14,6 @@ interface WeekScrollerProps {
   sessions: TrainingSession[];
   todayStr: string;
   slug: string;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const DAY_ABBR = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
-function generateNext7Days(todayStr: string): string[] {
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(`${todayStr}T00:00:00`);
-    d.setDate(d.getDate() + i);
-    return d.toISOString().split("T")[0];
-  });
-}
-
-function formatDayNum(dateStr: string): string {
-  return String(new Date(`${dateStr}T00:00:00`).getDate()).padStart(2, "0");
-}
-
-function getDayAbbr(dateStr: string): string {
-  return DAY_ABBR[new Date(`${dateStr}T00:00:00`).getDay()];
 }
 
 function buildExecutarUrl(slug: string, session: TrainingSession): string {
@@ -105,7 +86,7 @@ export function WeekScroller({ sessions, todayStr, slug }: WeekScrollerProps) {
   const router = useRouter();
   const [cancelSession, setCancelSession] = useState<TrainingSession | null>(null);
 
-  const days = generateNext7Days(todayStr);
+  const days = generateNextNDays(todayStr, 7);
   const sessionMap = new Map(sessions.map((s) => [s.scheduledDate, s]));
 
   function handleDayClick(dateStr: string, session: TrainingSession | undefined) {
@@ -176,7 +157,7 @@ export function WeekScroller({ sessions, todayStr, slug }: WeekScrollerProps) {
                     isToday ? "text-primary-foreground" : "text-foreground/70"
                   }`}
                 >
-                  {formatDayNum(dateStr)}
+                  {getDayNum(dateStr)}
                 </span>
 
                 <StatusDot status={status} isToday={isToday} />
