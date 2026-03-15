@@ -66,8 +66,8 @@ Last updated: 2026-03-15
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Database schema** | completed | 27 tables across 12 schema files (Drizzle ORM) |
-| **Migration file** | completed | `0000_mushy_black_bolt.sql` generated |
+| **Database schema** | completed | 28 tables across 13 schema files (Drizzle ORM) — updated students, personals, new studentInvitationTokens |
+| **Migration files** | completed | `0000_mushy_black_bolt.sql` (initial) + `0001_loose_young_avengers.sql` (schema updates) |
 | **Migration applied** | not started | Pending: run `npm run db:migrate` |
 | **Seed data** | not started | Pending: plans (Basic, Pro, Elite) + global exercises |
 | **PostgreSQL** | completed | Database configured |
@@ -95,6 +95,7 @@ All schemas are defined and migration is generated. Reference:
 | `admins.ts` | admins | global |
 | `personals.ts` | personals | global (tenant = personal) |
 | `passwordTokens.ts` | password_setup_tokens, password_reset_tokens | global |
+| `studentInvitationTokens.ts` | student_invitation_tokens | tenant-scoped |
 | `students.ts` | students | tenant-scoped |
 | `exercises.ts` | exercises | nullable tenantId (global + private) |
 | `coaching.ts` | coach_student_relations, service_plans, coaching_contracts, student_notes | tenant-scoped |
@@ -111,6 +112,11 @@ All schemas are defined and migration is generated. Reference:
 
 The current sprint is focused on the **auth module**, which is the first backend module to implement. This unblocks all subsequent development since every route requires authentication.
 
+Prerequisites (must complete first):
+1. Passport JWT Strategy — JWTAuthGuard depends on it
+2. TenantAccessGuard implementation — tests exist, implementation missing
+3. PersonalsRepository — dependency for TenantAccessGuard and RegisterUseCase
+
 Sprint tasks:
 1. Coach registration (POST /auth/register) — creates user + personal + Stripe subscription
 2. Login (POST /auth/login) — JWT + refresh token in http-only cookie
@@ -119,7 +125,7 @@ Sprint tasks:
 Immediately after:
 - Password recovery and reset flows
 - Plans listing endpoint + seed script
-- Apply database migration
+- Apply database migrations (0000 + 0001)
 
 ---
 

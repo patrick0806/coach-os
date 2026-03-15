@@ -78,6 +78,12 @@ Represents the platform administrator.
 
 Represents a professional using the platform.
 
+**Attributes:**
+
+-   logoUrl (white-label branding)
+-   onboardingCompleted (tracks onboarding wizard completion)
+-   specialties (displayed on public page)
+
 **Capabilities:**
 
 -   manage students
@@ -99,6 +105,14 @@ Each coach belongs to a tenant.
 
 Represents a client using the platform.
 
+**Attributes:**
+
+-   status (`active` | `paused` | `archived`)
+-   phoneNumber
+-   goal
+-   observations
+-   physicalRestrictions
+
 **Capabilities:**
 
 -   access assigned training programs
@@ -110,6 +124,28 @@ Represents a client using the platform.
 Students belong to a tenant.
 
 Students may have relationships with one or more coaches.
+
+------------------------------------------------------------------------
+
+## StudentInvitationToken
+
+Represents a token used to invite a student to the platform.
+
+**Attributes:**
+
+-   tenantId
+-   email
+-   tokenHash
+-   expiresAt
+-   usedAt
+-   createdAt
+
+**Business rules:**
+
+-   tokens expire after 48 hours
+-   tokens are single-use (usedAt is set on acceptance)
+-   tokenHash is stored instead of the raw token for security
+-   only one active (unused, non-expired) token per email per tenant
 
 ------------------------------------------------------------------------
 
@@ -491,7 +527,8 @@ Notes are ordered chronologically.
      ├ Exercises (private)
      ├ AvailabilityRules
      ├ Appointments
-     └ ServicePlans
+     ├ ServicePlans
+     └ StudentInvitationTokens
 
     Student
      ├ StudentPrograms

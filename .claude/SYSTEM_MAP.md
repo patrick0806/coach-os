@@ -172,13 +172,13 @@ User selects plan
 ↓
 Registration form submitted
 ↓
-POST /users
+POST /auth/register
 ↓
-Account created
+Account created (User + Personal + Stripe customer)
 ↓
 Stripe subscription created
 ↓
-User authenticated
+JWT + refresh token returned
 
 ---
 
@@ -412,7 +412,7 @@ POST /coaching-contracts
 
 Coach records note
 ↓
-POST /notes
+POST /students/:studentId/notes
 
 ---
 
@@ -426,3 +426,116 @@ Frontend uploads file directly to S3
 Frontend sends final file URL to backend
 ↓
 Backend stores metadata
+
+---
+
+# Student Invitation Flows
+
+## Invite Student By Email
+
+Coach submits student email
+↓
+POST /students/invite
+↓
+Invitation token created (expires in 48h)
+↓
+Email sent via Resend with invite link
+
+---
+
+## Generate Shareable Invite Link
+
+Coach requests link for WhatsApp sharing
+↓
+POST /students/invite-link
+↓
+Shareable link returned with embedded token
+
+---
+
+## Accept Student Invitation
+
+Student clicks invite link
+↓
+POST /students/accept-invite
+↓
+Token validated (not expired, not used)
+↓
+User + Student created
+↓
+Coach-student relation established
+↓
+Token marked as used
+
+Business rule:
+
+Student limit must be checked against plan.maxStudents before accepting.
+
+---
+
+# Subscription Lifecycle Flows
+
+## Stripe Webhook
+
+Stripe sends event
+↓
+POST /webhooks/stripe
+↓
+Subscription status updated on personal record
+
+Events handled:
+
+- subscription.updated
+- subscription.deleted
+- invoice.paid
+
+---
+
+## Change Subscription Plan
+
+Coach requests plan change
+↓
+PATCH /subscriptions/plan
+↓
+Stripe subscription updated
+↓
+Local subscription record updated
+
+---
+
+## Cancel Subscription
+
+Coach cancels subscription
+↓
+POST /subscriptions/cancel
+↓
+Stripe subscription cancelled
+↓
+Local status updated
+
+---
+
+# Onboarding Flow
+
+## Coach Onboarding
+
+After registration
+↓
+Complete profile (bio, photo, specialties)
+↓
+Create first student
+↓
+Create first training program
+↓
+Invite student
+↓
+onboardingCompleted set to true
+
+---
+
+# Business Rules
+
+- All timestamps must be stored in UTC
+- Student limit enforcement: check plan.maxStudents when creating or inviting students
+- Cross-tenant data access is strictly forbidden
+- Every database query must filter by tenantId

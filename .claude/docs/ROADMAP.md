@@ -12,6 +12,9 @@ This phase establishes the core platform that every other feature depends on.
 - [x] Migration generation
 - [ ] Apply database migration
 - [ ] Seed data script (plans, global exercises)
+- [ ] Passport JWT Strategy (required for all authenticated routes)
+- [ ] TenantAccessGuard implementation (required for tenant isolation)
+- [ ] PersonalsRepository (base operations for auth and tenant guard)
 - [ ] Multi-tenant isolation (tenantId filtering on all queries)
 - [ ] Coach registration with plan selection
 - [ ] Stripe subscription creation on registration
@@ -70,6 +73,8 @@ Student CRUD, invitations, and coach-student relationships.
 ## Phase 4 — Exercise Library
 
 Global and private exercise catalog with media support.
+
+> **Plan gating:** Private/custom exercises require **Pro plan or above** (PRD Section 4).
 
 - [ ] List global exercises
 - [ ] Create private exercise (coach-scoped)
@@ -146,6 +151,8 @@ Real-time workout tracking and session recording.
 
 Body metrics, progress photos, and historical visualization.
 
+> **Plan gating:** Advanced metrics require **Elite plan** (PRD Section 4).
+
 - [ ] Record body metrics (weight, body fat, measurements)
 - [ ] List progress records per student (chronological)
 - [ ] Upload progress photos (presigned URL to S3)
@@ -218,6 +225,8 @@ Dedicated student-facing experience.
 ## Phase 12 — Coach Public Page & Branding
 
 Public profile and white-label customization.
+
+> **Plan gating:** Public page and branding customization require **Pro plan or above** (PRD Section 4).
 
 - [ ] Coach public profile page (photo, bio, specialties)
 - [ ] Custom URL per coach (app.com/personal/slug)
