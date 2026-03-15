@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
 import { InferSelectModel, relations } from "drizzle-orm";
 import {
+  boolean,
+  json,
   pgTable,
   text,
   timestamp,
@@ -23,8 +25,11 @@ export const personals = pgTable(
     slug: varchar("slug", { length: 100 }).notNull(),
     bio: text("bio"),
     profilePhoto: varchar("profile_photo", { length: 500 }),
+    logoUrl: varchar("logo_url", { length: 500 }),
     themeColor: varchar("theme_color", { length: 7 }),
     phoneNumber: varchar("phone_number", { length: 20 }),
+    specialties: json("specialties").$type<string[]>().default([]),
+    onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
     lpTitle: varchar("lp_title", { length: 200 }),
     lpSubtitle: varchar("lp_subtitle", { length: 300 }),
     lpHeroImage: varchar("lp_hero_image", { length: 500 }),

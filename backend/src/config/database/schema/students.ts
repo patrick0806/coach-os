@@ -4,6 +4,7 @@ import {
   index,
   integer,
   pgTable,
+  text,
   timestamp,
   uniqueIndex,
   varchar,
@@ -24,6 +25,14 @@ export const students = pgTable(
     tenantId: varchar("tenant_id", { length: 36 })
       .notNull()
       .references(() => personals.id),
+    status: varchar("status", { length: 20 })
+      .notNull()
+      .default("active")
+      .$type<"active" | "paused" | "archived">(),
+    phoneNumber: varchar("phone_number", { length: 20 }),
+    goal: varchar("goal", { length: 300 }),
+    observations: text("observations"),
+    physicalRestrictions: text("physical_restrictions"),
     currentStreak: integer("current_streak").default(0),
     lastWorkoutDate: timestamp("last_workout_date", { withTimezone: true }),
     totalWorkouts: integer("total_workouts").default(0),

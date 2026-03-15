@@ -3,6 +3,7 @@ export * from "./users";
 export * from "./admins";
 export * from "./personals";
 export * from "./passwordTokens";
+export * from "./studentInvitationTokens";
 export * from "./students";
 export * from "./exercises";
 export * from "./coaching";

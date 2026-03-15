@@ -31,7 +31,8 @@ async function resetMigrations() {
       'DROP TABLE IF EXISTS "availability_rules" CASCADE',
       'DROP TABLE IF EXISTS "progress_photos" CASCADE',
       'DROP TABLE IF EXISTS "progress_records" CASCADE',
-      // Layer 2: Students, exercises
+      // Layer 2: Students, exercises, invitations
+      'DROP TABLE IF EXISTS "student_invitation_tokens" CASCADE',
       'DROP TABLE IF EXISTS "students" CASCADE',
       'DROP TABLE IF EXISTS "exercises" CASCADE',
       // Layer 1: Auth profiles, tokens
