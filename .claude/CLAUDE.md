@@ -149,4 +149,11 @@ Use:
 If you need to create a new file or folder always use the cammelCase naming convention.
 For the code always use the cammelCase naming convention.
 
-For the business logic questions always check the @prd.md file or ask the user.sss
+For the business logic questions always check the @prd.md file or ask the user
+
+All planing and documentation about the project must be in the /.claude/docs folder.
+Always update the @SYSTEM_MAP.md file when you need to update the system architecture.
+Always update the @docs/SYSTEM_STATUS.md when finish a task.
+
+## For extensions
+If a tasks need a new entity or extends the domain, always update the @DOMAIN_MAP.md file.
