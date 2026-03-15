@@ -1,1 +1,0 @@
-ALTER TABLE "plans" ADD COLUMN "max_students" integer;

@@ -1,1 +1,0 @@
-ALTER TABLE "service_plans" ADD COLUMN "attendance_type" text DEFAULT 'presential' NOT NULL;
