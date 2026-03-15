@@ -7,25 +7,23 @@ seus alunos, treinos e progresso**, oferecendo também um **portal de
 acesso para os alunos** com identidade visual do personal (white‑label
 básico).
 
-A plataforma deve funcionar tanto para:
+A plataforma deve funcionar tanto para: - personal presencial
+(academia) - personal online (consultoria)
 
--   personal **presencial (academia)**
--   personal **online (consultoria)**
-
-O sistema também ajudará o personal a **parecer mais profissional e
-melhorar retenção de alunos**.
+Cada personal terá um workspace isolado (**multi‑tenant**).
 
 ------------------------------------------------------------------------
 
 # 2. Objetivos do Produto
 
-## Objetivos principais
+Objetivos principais:
 
-1.  Centralizar a gestão de alunos
-2.  Facilitar criação e acompanhamento de treinos
+1.  Centralizar gestão de alunos
+2.  Facilitar criação de treinos
 3.  Melhorar retenção de alunos
-4.  Oferecer uma experiência profissional para o aluno
-5.  Permitir personalização básica de marca
+4.  Aumentar profissionalismo do personal
+5.  Permitir branding básico
+6.  Criar histórico estruturado de evolução do aluno
 
 ------------------------------------------------------------------------
 
@@ -33,14 +31,15 @@ melhorar retenção de alunos**.
 
 ## Personal Trainer
 
-Usuário principal da plataforma.
+Usuário principal.
 
 Necessidades:
 
 -   gerenciar alunos
--   montar treinos
+-   montar treinos rapidamente
 -   acompanhar evolução
 -   organizar agenda
+-   registrar observações
 -   parecer profissional
 
 ## Aluno
@@ -49,44 +48,80 @@ Usuário secundário.
 
 Necessidades:
 
--   ver treino
--   registrar progresso
+-   acessar treino
+-   registrar execução
 -   acompanhar evolução
 -   visualizar agenda
+-   registrar cargas usadas
 
 ------------------------------------------------------------------------
 
-# 4. Escopo do MVP
+# 4. Planos SaaS
 
-## Painel do Personal
+## Plano Básico
 
-### Autenticação
+Preço: R\$ 29,90 / mês
+
+Limite: - até 10 alunos
+
+Recursos: - gestão de alunos - criação de treinos - biblioteca de
+exercícios - portal do aluno
+
+## Plano Pro
+
+Preço: R\$ 49,90 / mês
+
+Limite: - até 30 alunos
+
+Recursos: - todos do plano básico - exercícios personalizados - página
+pública - personalização de marca
+
+## Plano Elite
+
+Preço: R\$ 99,90 / mês
+
+Limite: - até 100 alunos
+
+Recursos: - todos os recursos anteriores - métricas avançadas -
+histórico completo - maior armazenamento de mídia
+
+------------------------------------------------------------------------
+
+# 5. Painel do Personal
+
+## Autenticação
 
 -   login
 -   cadastro
 -   recuperação de senha
 
-### Perfil do Personal
+## Onboarding
 
-Campos:
+Fluxo inicial:
 
--   nome
--   foto
--   bio
--   especialidade
--   redes sociais
--   cor da marca
--   logo
+1.  completar perfil
+2.  criar primeiro aluno
+3.  criar primeiro treino
+4.  convidar aluno
 
-### Gestão de Alunos
+------------------------------------------------------------------------
 
-Funções:
+# 6. Gestão de Alunos
 
--   criar aluno
--   editar aluno
--   arquivar aluno
+## Criar aluno
 
-Campos:
+Personal pode:
+
+-   criar aluno manualmente
+-   enviar convite por email
+-   gerar link de convite
+
+Convite pode ser compartilhado por:
+
+-   email
+-   WhatsApp
+
+## Campos do aluno
 
 -   nome
 -   email
@@ -95,47 +130,101 @@ Campos:
 -   observações
 -   restrições físicas
 
-### Perfil do Aluno
+## Status do aluno
 
-Contém:
+-   active
+-   paused
+-   archived
 
--   informações básicas
--   histórico de progresso
--   treinos atribuídos
--   fotos de evolução
+------------------------------------------------------------------------
 
-### Criador de Treinos
+# 7. Notas do Aluno
 
-Treino composto por:
+Personal pode registrar notas internas.
 
--   nome
--   exercícios
--   séries
--   repetições
--   descanso
--   observações
+Exemplos:
 
-Funcionalidades:
+-   histórico de lesões
+-   observações de atendimento
+-   estratégias de treino
 
--   adicionar exercícios
--   ordenar exercícios
--   duplicar treino
--   aplicar treino para aluno
+Notas são ordenadas por data.
 
-### Biblioteca de Exercícios
+------------------------------------------------------------------------
+
+# 8. Biblioteca de Exercícios
 
 Cada exercício possui:
 
 -   nome
 -   grupo muscular
 -   descrição
--   imagem ou vídeo
+-   instruções
+-   mídia (imagem ou vídeo)
 
-Inicialmente:
+Tipos:
 
--   biblioteca padrão do sistema
+### Exercícios globais
 
-### Registro de Progresso
+Criados pela plataforma.
+
+### Exercícios personalizados
+
+Criados pelo personal e visíveis apenas para ele.
+
+------------------------------------------------------------------------
+
+# 9. Templates de Treino
+
+Personal pode criar **templates reutilizáveis**.
+
+Funções:
+
+-   criar template
+-   duplicar template
+-   editar template
+-   aplicar template para alunos
+
+------------------------------------------------------------------------
+
+# 10. Programas de Treino para Alunos
+
+Quando um template é aplicado a um aluno, cria-se um **programa
+independente**.
+
+Personal pode customizar:
+
+-   exercícios
+-   carga sugerida
+-   repetições
+
+Estados do programa:
+
+-   active
+-   finished
+-   cancelled
+
+------------------------------------------------------------------------
+
+# 11. Execução de Treino
+
+Fluxo do aluno:
+
+1 iniciar treino\
+2 registrar sets\
+3 registrar carga usada\
+4 marcar exercício concluído\
+5 finalizar treino
+
+Sistema registra:
+
+-   tempo total
+-   sets executados
+-   carga utilizada
+
+------------------------------------------------------------------------
+
+# 12. Registro de Progresso
 
 Personal pode registrar:
 
@@ -144,16 +233,18 @@ Personal pode registrar:
 -   percentual de gordura
 -   fotos
 
-Exibir:
+Sistema exibe:
 
--   gráfico de evolução
+-   gráficos
 -   histórico
 
-### Agenda
+------------------------------------------------------------------------
+
+# 13. Agenda
 
 Personal pode:
 
--   marcar sessão
+-   criar sessão
 -   reagendar
 -   cancelar
 
@@ -161,266 +252,152 @@ Campos:
 
 -   aluno
 -   data
--   tipo (presencial / online)
+-   duração
+-   tipo (online ou presencial)
 -   observações
+
+Regra:
+
+-   personal não pode ter sessões sobrepostas
 
 ------------------------------------------------------------------------
 
-# 5. Portal do Aluno
+# 14. Portal do Aluno
 
 Aluno terá login próprio.
 
-Funções disponíveis:
+Funções:
 
-### Visualizar Treino
-
-Mostrar:
+## Visualizar Treino
 
 -   treino atual
 -   exercícios
 -   séries
 -   repetições
 
-### Registrar Treino
+## Executar Treino
 
-Aluno pode registrar:
+-   iniciar treino
+-   registrar carga
+-   finalizar treino
 
--   carga usada
--   observações
+## Evolução
 
-### Ver Evolução
+-   gráficos
+-   histórico
 
-Mostrar:
+## Agenda
 
--   gráfico de peso
--   progresso
-
-### Agenda
-
-Aluno pode ver:
-
--   próximas sessões
+-   visualizar sessões
 
 ------------------------------------------------------------------------
 
-# 6. White‑Label Básico
+# 15. Notificações
+
+Sistema envia:
+
+-   lembrete de treino
+-   lembrete de sessão
+-   treino não realizado
+
+Inicialmente via email.
+
+------------------------------------------------------------------------
+
+# 16. White‑Label Básico
 
 Personal pode configurar:
 
 -   logo
 -   cor principal
 
-Essas configurações alteram:
+Afeta:
 
 -   portal do aluno
--   painel visual
+-   páginas públicas
 
 ------------------------------------------------------------------------
 
-# 7. Marketing Básico
+# 17. Página Pública do Personal
 
-Página pública simples para cada personal:
+Exemplo:
 
-    app.com/personal/joao-silva
+app.com/personal/joao-silva
 
 Contém:
 
+-   foto
 -   bio
 -   especialidades
--   botão de contato
+-   botão WhatsApp
 
 ------------------------------------------------------------------------
 
-# 8. Pagamentos (fase final)
-
-Não será implementado no MVP inicial.
-
-Planejado para fase final:
-
--   assinatura mensal
--   limites de alunos por plano
-
-Gateway provável:
-
--   Stripe
-
-------------------------------------------------------------------------
-
-# 9. Arquitetura Técnica
+# 18. Arquitetura Técnica
 
 ## Backend
 
-Framework:
-
--   NestJS
+NestJS
 
 Responsável por:
 
 -   API REST
--   autenticação
 -   regras de negócio
--   upload de arquivos
+-   autenticação
+-   uploads
 
 ## Frontend
 
-Framework:
+Next.js
 
--   Next.js
-
-Responsável por:
-
--   painel do personal
--   portal do aluno
--   páginas públicas
-
-## Banco de Dados
+## Banco
 
 PostgreSQL
 
-Principais entidades:
-
--   users
--   trainers
--   students
--   workouts
--   exercises
--   workout_logs
--   progress_logs
--   sessions
-
-## Armazenamento de arquivos
+## Armazenamento
 
 AWS S3
-
-Usado para:
-
--   fotos de evolução
--   imagens de exercícios
--   logos
 
 ## Monitoramento
 
 Better Stack
 
-Monitorar:
+------------------------------------------------------------------------
 
--   uptime
--   logs de erro
--   performance básica
+# 19. Roadmap
+
+Fase 1 --- Fundação - autenticação - multi tenant - estrutura inicial
+
+Fase 2 --- Alunos - CRUD alunos - notas - convite
+
+Fase 3 --- Treinos - biblioteca exercícios - templates
+
+Fase 4 --- Execução - registrar sets - histórico
+
+Fase 5 --- Evolução - progresso - gráficos
+
+Fase 6 --- Branding - página pública
+
+Fase 7 --- Ajustes - testes - melhorias
 
 ------------------------------------------------------------------------
 
-# 10. Custos (estratégia)
+# 20. Métricas de Sucesso
 
-Manter infraestrutura mínima.
-
-Estratégia:
-
--   1 servidor backend
--   1 banco de dados pequeno
--   S3 somente para mídia
-
-Evitar inicialmente:
-
--   microserviços
--   filas complexas
--   infra distribuída
-
-------------------------------------------------------------------------
-
-# 11. Roadmap de Desenvolvimento
-
-## Fase 1 --- Fundação (semanas 1--2)
-
-Implementar:
-
--   autenticação
--   estrutura base do projeto
--   banco de dados
--   CRUD de usuários
-
-## Fase 2 --- Gestão de alunos (semanas 3--4)
-
-Implementar:
-
--   CRUD alunos
--   perfil do aluno
--   upload de foto
-
-## Fase 3 --- Treinos (semanas 5--6)
-
-Implementar:
-
--   biblioteca de exercícios
--   criação de treino
--   associação treino ↔ aluno
-
-## Fase 4 --- Portal do aluno (semana 7)
-
-Implementar:
-
--   login aluno
--   visualização de treino
--   registro de carga
-
-## Fase 5 --- Evolução + agenda (semana 8)
-
-Implementar:
-
--   registro de progresso
--   gráficos
--   agenda
-
-## Fase 6 --- Branding (semana 9)
-
-Implementar:
-
--   logo
--   cores
--   página pública
-
-## Fase 7 --- Ajustes e testes (semana 10--12)
-
--   otimizações
--   correções
--   monitoramento
--   preparação para lançamento
-
-------------------------------------------------------------------------
-
-# 12. Métricas de Sucesso
-
-Após lançamento:
-
--   número de personais cadastrados
+-   personais cadastrados
 -   alunos ativos
+-   treinos executados
+-   taxa de conclusão de treino
 -   retenção semanal
--   treinos registrados
 
 ------------------------------------------------------------------------
 
-# 13. Riscos
+# 21. Riscos
 
-Principais riscos:
-
-1.  escopo crescer demais
-2.  baixa adoção por personal trainers
-3.  UX ruim para criação de treinos
+1 escopo crescer demais\
+2 baixa adoção\
+3 UX ruim na criação de treinos
 
 Mitigação:
 
--   lançar MVP rápido
 -   validar com personais reais
-
-------------------------------------------------------------------------
-
-# 14. Futuras Funcionalidades
-
-Após MVP:
-
--   pagamentos
--   app mobile
--   notificações
--   templates de treino
--   gamificação
--   sistema de indicação
