@@ -8,9 +8,9 @@ Last updated: 2026-03-15
 
 ### Prerequisites (must complete before auth module)
 
-- [ ] Implement Passport JWT Strategy (register strategy so JWTAuthGuard can validate tokens)
-- [ ] Implement TenantAccessGuard (tenantAccess.guard.ts — tests already exist at shared/guards/tests/tenant-access.guard.spec.ts)
-- [ ] Implement PersonalsRepository (findById, updateSubscription — required by TenantAccessGuard and RegisterUseCase)
+- [x] Implement Passport JWT Strategy (register strategy so JWTAuthGuard can validate tokens)
+- [x] Implement TenantAccessGuard (tenant-access.guard.ts — 17 tests passing)
+- [x] Implement PersonalsRepository (findById, updateSubscription — required by TenantAccessGuard and RegisterUseCase)
 
 ### Module: auth
 
@@ -65,12 +65,8 @@ Last updated: 2026-03-15
 - [x] Create studentInvitationTokens schema (id, tenantId, email, tokenHash, expiresAt, usedAt, createdAt)
 - [x] Update schema index exports and reset-migrations script
 - [x] Generate migration 0001_loose_young_avengers.sql
-- [ ] Apply database migration (run db:migrate — includes 0000 + 0001)
-- [ ] Implement seed data script with PRD values:
-  - Plan Basic: R$29.90/month, 10 students, features: student management, training creation, exercise library, student portal
-  - Plan Pro: R$49.90/month, 30 students, features: all Basic + private exercises, public page, branding
-  - Plan Elite: R$99.90/month, 100 students, features: all Pro + advanced metrics, full history, more media storage
-  - Global exercises (base exercise library)
+- [x] Apply database migration (run db:migrate — includes 0000 + 0001)
+- [x] Implement seed data script with PRD values (3 plans + 26 global exercises)
 
 ---
 

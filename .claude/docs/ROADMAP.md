@@ -10,14 +10,14 @@ This phase establishes the core platform that every other feature depends on.
 - [x] Project setup (backend + frontend)
 - [x] Database schema definition (Drizzle ORM)
 - [x] Migration generation
-- [ ] Apply database migration
-- [ ] Seed data script (plans, global exercises)
-- [ ] Passport JWT Strategy (required for all authenticated routes)
-- [ ] TenantAccessGuard implementation (required for tenant isolation)
-- [ ] PersonalsRepository (base operations for auth and tenant guard)
+- [x] Apply database migration
+- [x] Seed data script (3 plans + 26 global exercises)
+- [x] Passport JWT Strategy (required for all authenticated routes)
+- [x] TenantAccessGuard implementation (17 tests passing)
+- [x] PersonalsRepository (findById, updateSubscription)
 - [ ] Multi-tenant isolation (tenantId filtering on all queries)
 - [ ] Coach registration with plan selection
-- [ ] Stripe subscription creation on registration
+- [ ] Stripe subscription creation on registration(not for basic plan)
 - [ ] Login (JWT access token + refresh token in http-only cookie)
 - [ ] Password recovery and reset (token-based via email)
 - [ ] Role-based access control (admin, coach, student)

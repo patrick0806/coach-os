@@ -157,3 +157,4 @@ Always update the @docs/SYSTEM_STATUS.md when finish a task.
 
 ## For extensions
 If a tasks need a new entity or extends the domain, always update the @DOMAIN_MAP.md file.
+If need manipulate dates always use the date-fns library.

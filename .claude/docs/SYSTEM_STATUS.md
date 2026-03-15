@@ -8,10 +8,10 @@ Last updated: 2026-03-15
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
-| **auth** | not started | Current sprint: register, login, refresh token, password reset |
-| **platform/plans** | not started | Next: list plans, seed script |
+| **auth** | in progress | Prerequisites done (JWT Strategy, TenantAccessGuard, PersonalsRepository). Next: register, login, refresh token |
+| **platform/plans** | not started | Next: list plans endpoint. Seed data already applied (3 plans) |
 | **platform/admins** | not started | Next: admin guard, admin repository |
 | **platform/subscriptions** | not started | Backlog: Stripe webhooks, plan changes |
 | **platform/tenants** | not started | Backlog: admin tenant management |
@@ -68,8 +68,8 @@ Last updated: 2026-03-15
 |-----------|--------|-------|
 | **Database schema** | completed | 28 tables across 13 schema files (Drizzle ORM) — updated students, personals, new studentInvitationTokens |
 | **Migration files** | completed | `0000_mushy_black_bolt.sql` (initial) + `0001_loose_young_avengers.sql` (schema updates) |
-| **Migration applied** | not started | Pending: run `npm run db:migrate` |
-| **Seed data** | not started | Pending: plans (Basic, Pro, Elite) + global exercises |
+| **Migration applied** | completed | Both migrations applied successfully |
+| **Seed data** | completed | 3 plans (Básico R$29.90/10, Pro R$49.90/30, Elite R$99.90/100) + 26 global exercises |
 | **PostgreSQL** | completed | Database configured |
 | **Stripe provider** | completed | Provider initialized in shared/providers |
 | **AWS S3 provider** | completed | Provider initialized in shared/providers |
@@ -112,20 +112,21 @@ All schemas are defined and migration is generated. Reference:
 
 The current sprint is focused on the **auth module**, which is the first backend module to implement. This unblocks all subsequent development since every route requires authentication.
 
-Prerequisites (must complete first):
-1. Passport JWT Strategy — JWTAuthGuard depends on it
-2. TenantAccessGuard implementation — tests exist, implementation missing
-3. PersonalsRepository — dependency for TenantAccessGuard and RegisterUseCase
+Completed prerequisites:
+- ~~Passport JWT Strategy~~ — done
+- ~~TenantAccessGuard~~ — done (17 tests passing)
+- ~~PersonalsRepository~~ — done (findById, updateSubscription)
+- ~~Seed data~~ — done (3 plans + 26 global exercises)
+- ~~Database migrations~~ — done (0000 + 0001 applied)
 
-Sprint tasks:
+Current sprint tasks:
 1. Coach registration (POST /auth/register) — creates user + personal + Stripe subscription
 2. Login (POST /auth/login) — JWT + refresh token in http-only cookie
 3. Token refresh (POST /auth/refresh) — rotate refresh token
 
 Immediately after:
 - Password recovery and reset flows
-- Plans listing endpoint + seed script
-- Apply database migrations (0000 + 0001)
+- Plans listing endpoint
 
 ---
 
