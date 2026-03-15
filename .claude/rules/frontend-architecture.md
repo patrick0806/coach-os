@@ -17,3 +17,5 @@ Organized into **features/** (e.g., `auth/`, `training/`, `scheduling/`, `studen
 - **State Management**: Use **React Query** for server state.
 - **API Isolation**: All API communication must be abstracted within service layers.
 - **Shared Directory**: Shared components, UI elements, and hooks go under `shared/`.
+- **Styling**: Use **Tailwind CSS** for styling and **shadcn/ui** for components. Use theme colors avoid using hardcoded colors.
+- **Forms**: Use **React Hook Form** for forms and **Zod** for validation.
