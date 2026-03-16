@@ -14,17 +14,17 @@ Last updated: 2026-03-15
 
 ### Module: auth
 
-- [ ] Implement RegisterUseCase (create user + personal + Stripe customer + subscription)
-- [ ] Implement register request/response DTOs with Zod validation
-- [ ] Implement register controller (POST /auth/register)
-- [ ] Implement register unit tests
-- [ ] Implement LoginUseCase (validate credentials, generate JWT + refresh token)
-- [ ] Implement login request/response DTOs with Zod validation
-- [ ] Implement login controller (POST /auth/login)
-- [ ] Implement login unit tests
-- [ ] Implement RefreshTokenUseCase (rotate refresh token, issue new JWT)
-- [ ] Implement refresh token controller (POST /auth/refresh)
-- [ ] Implement refresh token unit tests
+- [x] Implement RegisterUseCase (create user + personal + Stripe customer + subscription)
+- [x] Implement register request/response DTOs with Zod validation
+- [x] Implement register controller (POST /auth/register)
+- [x] Implement register unit tests
+- [x] Implement LoginUseCase (validate credentials, generate JWT + refresh token)
+- [x] Implement login request/response DTOs with Zod validation
+- [x] Implement login controller (POST /auth/login)
+- [x] Implement login unit tests
+- [x] Implement RefreshTokenUseCase (rotate refresh token, issue new JWT)
+- [x] Implement refresh token controller (POST /auth/refresh)
+- [x] Implement refresh token unit tests
 
 ---
 
@@ -32,16 +32,16 @@ Last updated: 2026-03-15
 
 ### Module: auth (continued)
 
-- [ ] Implement RequestPasswordResetUseCase (generate token, send email via Resend)
-- [ ] Implement password reset request DTO with Zod validation
-- [ ] Implement password reset controller (POST /auth/password-reset/request)
-- [ ] Implement password reset request unit tests
-- [ ] Implement ResetPasswordUseCase (validate token, update password)
-- [ ] Implement reset password controller (POST /auth/password-reset/confirm)
-- [ ] Implement reset password unit tests
-- [ ] Implement SetupPasswordUseCase (first-time password setup for invited users)
-- [ ] Implement setup password controller (POST /auth/password-setup)
-- [ ] Implement setup password unit tests
+- [x] Implement RequestPasswordResetUseCase (generate token, send email via Resend)
+- [x] Implement password reset request DTO with Zod validation
+- [x] Implement password reset controller (POST /auth/password-reset/request)
+- [x] Implement password reset request unit tests
+- [x] Implement ResetPasswordUseCase (validate token, update password)
+- [x] Implement reset password controller (POST /auth/password-reset/confirm)
+- [x] Implement reset password unit tests
+- [x] Implement SetupPasswordUseCase (first-time password setup for invited users)
+- [x] Implement setup password controller (POST /auth/password-setup)
+- [x] Implement setup password unit tests
 
 ### Module: platform/plans
 

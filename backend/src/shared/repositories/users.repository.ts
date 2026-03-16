@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { eq } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { users } from "@config/database/schema/users";
 import type { InferSelectModel } from "drizzle-orm";
 
@@ -45,12 +45,23 @@ export class UsersRepository {
     return result[0];
   }
 
-  async updateRefreshTokenHash(id: string, refreshTokenHash: string | null): Promise<void> {
+  async updateRefreshTokenHash(
+    id: string,
+    refreshTokenHash: string | null,
+    tx?: DbTransaction,
+  ): Promise<void> {
     // Drizzle ORM type inference limitation: refreshTokenHash is not inferred in the SET type
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await this.drizzle.db
+    await (tx ?? this.drizzle.db)
       .update(users)
       .set({ refreshTokenHash } as any)
+      .where(eq(users.id, id));
+  }
+
+  async updatePassword(id: string, hashedPassword: string, tx?: DbTransaction): Promise<void> {
+    await (tx ?? this.drizzle.db)
+      .update(users)
+      .set({ password: hashedPassword })
       .where(eq(users.id, id));
   }
 }

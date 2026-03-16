@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-15
+Last updated: 2026-03-15 (updated)
 
 ---
 
@@ -8,9 +8,9 @@ Last updated: 2026-03-15
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
-| **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection |
+| **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
 | **platform/plans** | not started | Next: list plans endpoint. Seed data already applied (3 plans) |
 | **platform/admins** | not started | Next: admin guard, admin repository |
 | **platform/subscriptions** | not started | Backlog: Stripe webhooks, plan changes |
@@ -110,20 +110,23 @@ All schemas are defined and migration is generated. Reference:
 
 **Phase 1 — Foundation** (Roadmap) — COMPLETE
 
-Phase 1 is done. All auth module endpoints are implemented with 85 tests passing.
+Phase 1 is done. All auth module endpoints are implemented with 119 tests passing.
 
 Completed:
 - ~~Passport JWT Strategy~~ — done
 - ~~TenantAccessGuard~~ — done (17 tests passing)
-- ~~PersonalsRepository, UsersRepository, PlansRepository~~ — done
+- ~~PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository~~ — done
 - ~~Seed data~~ — done (3 plans + 26 global exercises)
 - ~~Database migrations~~ — done (0000, 0001, 0002 generated)
 - ~~POST /auth/register~~ — done (15 tests)
 - ~~POST /auth/login~~ — done (10 tests)
 - ~~POST /auth/refresh~~ — done (11 tests)
+- ~~POST /auth/password-reset/request~~ — done (11 tests, anti-enumeration)
+- ~~POST /auth/password-reset/confirm~~ — done (12 tests)
+- ~~POST /auth/password-setup~~ — done (10 tests)
+- ~~Apply database migrations (`npm run db:migrate`)
 
 Next sprint: **Phase 2 — Student Management**
-- Apply database migrations (`npm run db:migrate`)
 - Plans listing endpoint (GET /plans)
 - Student CRUD with plan limit enforcement
 - Student invitations (email + link)

@@ -194,6 +194,50 @@ Frontend stores session
 
 ---
 
+## Request Password Reset
+
+User submits email
+↓
+POST /auth/password-reset/request
+↓
+Previous tokens invalidated
+↓
+Token generated (hash stored, raw sent via email)
+↓
+Always returns 200 (anti-enumeration — no leak if email not found)
+
+---
+
+## Reset Password
+
+User submits token + new password
+↓
+POST /auth/password-reset/confirm
+↓
+Token hash verified (exists, not expired, not used)
+↓
+Password updated with argon2id + pepper
+↓
+Token marked as used
+↓
+Refresh token invalidated (force re-login)
+
+---
+
+## Setup Password (invited users)
+
+Student clicks invite link with token
+↓
+POST /auth/password-setup
+↓
+Token hash verified (exists, not expired, not used)
+↓
+Password set with argon2id + pepper
+↓
+Token marked as used
+
+---
+
 # Training Template Flows
 
 ## Create Program Template

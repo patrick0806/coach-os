@@ -1,5 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle, NodePgDatabase, NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
+import type { PgTransaction } from "drizzle-orm/pg-core";
 import { Pool } from "pg";
 
 import { createDatabasePool } from "@config/database/database.config";
@@ -7,6 +9,13 @@ import { createDatabasePool } from "@config/database/database.config";
 import { LogBuilderService } from "./LogBuilder.service";
 
 import * as schema from "@config/database/schema";
+
+/** Drizzle transaction context — accepted by repository methods that support transactional writes. */
+export type DbTransaction = PgTransaction<
+  NodePgQueryResultHKT,
+  typeof schema,
+  ExtractTablesWithRelations<typeof schema>
+>;
 
 @Injectable()
 export class DrizzleProvider implements OnModuleInit, OnModuleDestroy {
