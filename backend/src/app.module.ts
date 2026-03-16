@@ -9,6 +9,7 @@ import { PlansModule } from "@modules/platform/plans/plans.module";
 import { StudentsModule } from "@modules/students/students.module";
 import { CoachingNotesModule } from "@modules/coaching/notes/notes.module";
 import { CoachingRelationsModule } from "@modules/coaching/relations/relations.module";
+import { ExercisesModule } from "@modules/exercises/exercises.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -21,6 +22,7 @@ import { DatabaseModule } from "@config/database/database.module";
     StudentsModule,
     CoachingNotesModule,
     CoachingRelationsModule,
+    ExercisesModule,
     RouterModule.register([
       {
         path: "health",
@@ -41,6 +43,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "coach-student-relations",
         module: CoachingRelationsModule,
+      },
+      {
+        path: "exercises",
+        module: ExercisesModule,
       },
     ]),
   ],

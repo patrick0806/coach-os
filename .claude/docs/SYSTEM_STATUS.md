@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ---
 
@@ -8,7 +8,7 @@ Last updated: 2026-03-16
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
 | **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
 | **platform/plans** | completed | GET /plans endpoint (public, 6 tests). Lists active plans with public fields only |
@@ -24,7 +24,7 @@ Last updated: 2026-03-16
 | **coaching/notes** | not started | Backlog: student notes CRUD |
 | **coaching/servicePlans** | not started | Backlog: service plan CRUD |
 | **coaching/contracts** | not started | Backlog: coaching contract management |
-| **exercises** | not started | Backlog: exercise library, media upload |
+| **exercises** | completed | POST /exercises (6 tests), GET /exercises (6 tests), GET /exercises/:id (4 tests), PUT /exercises/:id (6 tests), DELETE /exercises/:id (5 tests), POST /exercises/:id/upload-url (6 tests). Global + private visibility, tenant isolation, S3 presigned URL upload flow |
 | **training/programTemplates** | not started | Backlog: template CRUD, duplicate |
 | **training/workoutTemplates** | not started | Backlog: workout template CRUD, reorder |
 | **training/exerciseTemplates** | not started | Backlog: exercise template CRUD, reorder |
@@ -111,9 +111,9 @@ All schemas are defined and migration is generated. Reference:
 
 ## Current Focus
 
-**Phase 2 — Student Management** (Roadmap) — COMPLETE
+**Phase 3 — Exercise Library** (Roadmap) — COMPLETE
 
-Phase 2 is done. Student management fully implemented with 203 tests passing.
+Phase 3 (exercises) is done. Exercise library fully implemented with 236 tests passing.
 
 Completed:
 - ~~StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository~~ — done

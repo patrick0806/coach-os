@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ---
 
@@ -139,30 +139,24 @@ Last updated: 2026-03-16
 - [x] Implement ListRelationsUseCase (3 tests — returns relations with student info)
 - [x] Implement UpdateRelationStatusUseCase (5 tests — status update, archive sets endDate, validation)
 
-### Module: exercises
+### Module: exercises ✅ COMPLETE
 
-- [ ] Implement ExerciseRepository (create, findAll, findById, update, delete)
-- [ ] Implement CreateExerciseUseCase (private exercise, scoped to coach)
-- [ ] Implement create exercise request/response DTOs with Zod validation
-- [ ] Implement create exercise controller (POST /exercises)
-- [ ] Implement create exercise unit tests
-- [ ] Implement ListExercisesUseCase (global + coach private, with filters)
-- [ ] Implement list exercises response DTO
-- [ ] Implement list exercises controller (GET /exercises)
-- [ ] Implement list exercises unit tests
-- [ ] Implement GetExerciseUseCase
-- [ ] Implement get exercise controller (GET /exercises/:id)
-- [ ] Implement get exercise unit tests
-- [ ] Implement UpdateExerciseUseCase (only own private exercises)
-- [ ] Implement update exercise request DTO with Zod validation
-- [ ] Implement update exercise controller (PUT /exercises/:id)
-- [ ] Implement update exercise unit tests
-- [ ] Implement DeleteExerciseUseCase (only own private exercises)
-- [ ] Implement delete exercise controller (DELETE /exercises/:id)
-- [ ] Implement delete exercise unit tests
-- [ ] Implement exercise media upload (generate presigned URL for S3)
-- [ ] Implement media upload controller (POST /exercises/:id/upload-url)
-- [ ] Implement media upload unit tests
+- [x] Implement ExerciseRepository (create, findAllVisible, findById, update, delete)
+- [x] Implement CreateExerciseUseCase (private exercise, scoped to coach — 6 tests)
+- [x] Implement create exercise request/response DTOs with Zod validation
+- [x] Implement create exercise controller (POST /exercises)
+- [x] Implement ListExercisesUseCase (global + coach private, with filters — 6 tests)
+- [x] Implement list exercises response DTO
+- [x] Implement list exercises controller (GET /exercises)
+- [x] Implement GetExerciseUseCase (global visible to all, private tenant-scoped — 4 tests)
+- [x] Implement get exercise controller (GET /exercises/:id)
+- [x] Implement UpdateExerciseUseCase (only own private exercises — 6 tests)
+- [x] Implement update exercise request/response DTOs with Zod validation
+- [x] Implement update exercise controller (PUT /exercises/:id)
+- [x] Implement DeleteExerciseUseCase (only own private exercises — 5 tests)
+- [x] Implement delete exercise controller (DELETE /exercises/:id)
+- [x] Implement RequestUploadUrlUseCase (S3 presigned URL, mime validation — 6 tests)
+- [x] Implement media upload controller (POST /exercises/:id/upload-url)
 
 ### Module: training/programTemplates
 
