@@ -6,6 +6,9 @@ import { JWTAuthGuard, RolesGuard, TenantAccessGuard } from "@shared/guards";
 import { HealthModule } from "@modules/health/health.module";
 import { AuthModule } from "@modules/auth/auth.module";
 import { PlansModule } from "@modules/platform/plans/plans.module";
+import { StudentsModule } from "@modules/students/students.module";
+import { CoachingNotesModule } from "@modules/coaching/notes/notes.module";
+import { CoachingRelationsModule } from "@modules/coaching/relations/relations.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -15,6 +18,9 @@ import { DatabaseModule } from "@config/database/database.module";
     AuthModule,
     HealthModule,
     PlansModule,
+    StudentsModule,
+    CoachingNotesModule,
+    CoachingRelationsModule,
     RouterModule.register([
       {
         path: "health",
@@ -27,6 +33,14 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "plans",
         module: PlansModule,
+      },
+      {
+        path: "students",
+        module: StudentsModule,
+      },
+      {
+        path: "coach-student-relations",
+        module: CoachingRelationsModule,
       },
     ]),
   ],

@@ -5,6 +5,8 @@ export const API_TAGS = {
   EXERCISES: 'Exercises',
   WORKOUT_PLANS: 'Workout Plans',
   STUDENTS: 'Students',
+  NOTES: 'Notes',
+  COACHING_RELATIONS: 'Coach-Student Relations',
   SERVICE_PLANS: 'Service Plans',
   AVAILABILITY: 'Availability',
   BOOKINGS: 'Bookings',

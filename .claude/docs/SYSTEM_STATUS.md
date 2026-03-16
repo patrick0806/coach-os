@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-15 (updated)
+Last updated: 2026-03-16
 
 ---
 
@@ -8,10 +8,13 @@ Last updated: 2026-03-15 (updated)
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
 | **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
 | **platform/plans** | completed | GET /plans endpoint (public, 6 tests). Lists active plans with public fields only |
+| **students** | completed | POST /students (9 tests), GET /students (6 tests), GET /students/:id (4 tests), PUT /students/:id (5 tests), PATCH /students/:id/status (6 tests), POST /students/invite (7 tests), POST /students/invite-link (6 tests), POST /students/accept-invite (12 tests). Student limit enforcement, invitation flow with Resend email, shareable invite links, tenant isolation |
+| **coaching/notes** | completed | POST /students/:studentId/notes (4 tests), GET /students/:studentId/notes (3 tests), PUT /notes/:id (4 tests), DELETE /notes/:id (3 tests). Ordered by createdAt DESC, tenant isolation |
+| **coaching/relations** | completed | GET /coach-student-relations (3 tests), PATCH /coach-student-relations/:id/status (5 tests). Archives with endDate, includes student name/email |
 | **platform/admins** | not started | Next: admin guard, admin repository |
 | **platform/subscriptions** | not started | Backlog: Stripe webhooks, plan changes |
 | **platform/tenants** | not started | Backlog: admin tenant management |
@@ -108,30 +111,28 @@ All schemas are defined and migration is generated. Reference:
 
 ## Current Focus
 
-**Phase 1 — Foundation** (Roadmap) — COMPLETE
+**Phase 2 — Student Management** (Roadmap) — COMPLETE
 
-Phase 1 is done. All auth module endpoints are implemented with 119 tests passing.
+Phase 2 is done. Student management fully implemented with 203 tests passing.
 
 Completed:
-- ~~Passport JWT Strategy~~ — done
-- ~~TenantAccessGuard~~ — done (17 tests passing)
-- ~~PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository~~ — done
-- ~~Seed data~~ — done (3 plans + 26 global exercises)
-- ~~Database migrations~~ — done (0000, 0001, 0002 generated)
-- ~~POST /auth/register~~ — done (15 tests)
-- ~~POST /auth/login~~ — done (10 tests)
-- ~~POST /auth/refresh~~ — done (11 tests)
-- ~~POST /auth/password-reset/request~~ — done (11 tests, anti-enumeration)
-- ~~POST /auth/password-reset/confirm~~ — done (12 tests)
-- ~~POST /auth/password-setup~~ — done (10 tests)
-- ~~Apply database migrations (`npm run db:migrate`) ~~ -- done
+- ~~StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository~~ — done
+- ~~POST /students~~ — done (9 tests, limit enforcement)
+- ~~GET /students~~ — done (6 tests, pagination + search + status filter)
+- ~~GET /students/:id~~ — done (4 tests)
+- ~~PUT /students/:id~~ — done (5 tests)
+- ~~PATCH /students/:id/status~~ — done (6 tests, archives relation)
+- ~~POST /students/invite~~ — done (7 tests, Resend email)
+- ~~POST /students/invite-link~~ — done (6 tests, shareable link)
+- ~~POST /students/accept-invite~~ — done (12 tests, public endpoint)
+- ~~POST /students/:studentId/notes~~ — done (4 tests)
+- ~~GET /students/:studentId/notes~~ — done (3 tests)
+- ~~PUT /notes/:id~~ — done (4 tests)
+- ~~DELETE /notes/:id~~ — done (3 tests)
+- ~~GET /coach-student-relations~~ — done (3 tests)
+- ~~PATCH /coach-student-relations/:id/status~~ — done (5 tests)
 
-Next sprint: **Phase 2 — Student Management**
-- Plans listing endpoint (GET /plans)
-- Student CRUD with plan limit enforcement
-- Student invitations (email + link)
-- Coach-student relationships
-- Student notes
+Next sprint: **Phase 3 — Exercise Library + Training Templates**
 
 ---
 

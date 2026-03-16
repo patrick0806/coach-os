@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-15
+Last updated: 2026-03-16
 
 ---
 
@@ -110,65 +110,34 @@ Last updated: 2026-03-15
 - [ ] Implement update profile controller (PUT /profile)
 - [ ] Implement update profile unit tests
 
-### Module: students
+### Module: students ✅ COMPLETE
 
-- [ ] Implement StudentRepository (create, findAll, findById, update)
-- [ ] Implement CreateStudentUseCase (create user + student + coach-student relation)
-- [ ] Implement create student request/response DTOs with Zod validation
-- [ ] Implement create student controller (POST /students)
-- [ ] Implement create student unit tests
-- [ ] Implement ListStudentsUseCase (with pagination, tenant-scoped)
-- [ ] Implement list students response DTO
-- [ ] Implement list students controller (GET /students)
-- [ ] Implement list students unit tests
-- [ ] Implement GetStudentUseCase
-- [ ] Implement get student controller (GET /students/:id)
-- [ ] Implement get student unit tests
-- [ ] Implement UpdateStudentUseCase
-- [ ] Implement update student request DTO with Zod validation
-- [ ] Implement update student controller (PUT /students/:id)
-- [ ] Implement update student unit tests
-- [ ] Implement UpdateStudentStatusUseCase (active, paused, archived)
-- [ ] Implement update student status controller (PATCH /students/:id/status)
-- [ ] Implement update student status unit tests
-- [ ] Implement InviteStudentUseCase (generate invite token, send email via Resend)
-- [ ] Implement invite student request DTO
-- [ ] Implement invite student controller (POST /students/invite)
-- [ ] Implement invite student unit tests
-- [ ] Implement GenerateInviteLinkUseCase (shareable link for WhatsApp)
-- [ ] Implement generate invite link controller (POST /students/invite-link)
-- [ ] Implement generate invite link unit tests
-- [ ] Implement AcceptInviteUseCase (student creates account from invite)
-- [ ] Implement accept invite controller (POST /students/accept-invite)
-- [ ] Implement accept invite unit tests
-- [ ] Implement student limit enforcement (check plan maxStudents)
+- [x] Implement StudentRepository (create, findAll, findById, update, countByTenantId, updateStatus)
+- [x] Implement CoachStudentRelationsRepository (create, findByTenantId, findById, findByStudentIdAndTenantId, updateStatus)
+- [x] Implement StudentInvitationTokensRepository (create, findByTokenHash, findActiveByEmailAndTenant, invalidateByEmailAndTenant, markAsUsed)
+- [x] Implement CreateStudentUseCase (9 tests — limit enforcement, email uniqueness, STUDENT role, relation creation)
+- [x] Implement ListStudentsUseCase (6 tests — pagination, search, status filter, totalPages)
+- [x] Implement GetStudentUseCase (4 tests — found, not found, tenant isolation)
+- [x] Implement UpdateStudentUseCase (5 tests — partial update, not found, wrong tenant)
+- [x] Implement UpdateStudentStatusUseCase (6 tests — all statuses, archive updates relation)
+- [x] Implement InviteStudentUseCase (7 tests — email, limit, duplicate, token expiry)
+- [x] Implement GenerateInviteLinkUseCase (6 tests — link format, token creation, limit)
+- [x] Implement AcceptInviteUseCase (12 tests — valid, expired, used, limit, password hashing)
+- [x] Implement student limit enforcement (check plan maxStudents)
 
-### Module: coaching/notes
+### Module: coaching/notes ✅ COMPLETE
 
-- [ ] Implement StudentNoteRepository (create, findByStudentId)
-- [ ] Implement CreateNoteUseCase
-- [ ] Implement create note request/response DTOs with Zod validation
-- [ ] Implement create note controller (POST /students/:studentId/notes)
-- [ ] Implement create note unit tests
-- [ ] Implement ListNotesUseCase (chronological, tenant-scoped)
-- [ ] Implement list notes controller (GET /students/:studentId/notes)
-- [ ] Implement list notes unit tests
-- [ ] Implement UpdateNoteUseCase
-- [ ] Implement update note controller (PUT /notes/:id)
-- [ ] Implement update note unit tests
-- [ ] Implement DeleteNoteUseCase
-- [ ] Implement delete note controller (DELETE /notes/:id)
-- [ ] Implement delete note unit tests
+- [x] Implement StudentNotesRepository (create, findByStudentId, findById, update, delete)
+- [x] Implement CreateNoteUseCase (4 tests)
+- [x] Implement ListNotesUseCase (3 tests — ordered, empty, student not found)
+- [x] Implement UpdateNoteUseCase (4 tests — happy path, not found, wrong tenant, validation)
+- [x] Implement DeleteNoteUseCase (3 tests — happy path, not found, wrong tenant)
 
-### Module: coaching/relations
+### Module: coaching/relations ✅ COMPLETE
 
-- [ ] Implement CoachStudentRelationRepository (create, findByTenantId, update)
-- [ ] Implement ListCoachStudentRelationsUseCase
-- [ ] Implement list relations controller (GET /coach-student-relations)
-- [ ] Implement list relations unit tests
-- [ ] Implement UpdateRelationStatusUseCase
-- [ ] Implement update relation status controller (PATCH /coach-student-relations/:id/status)
-- [ ] Implement update relation status unit tests
+- [x] Implement CoachStudentRelationRepository (create, findByTenantId, findById, findByStudentIdAndTenantId, updateStatus)
+- [x] Implement ListRelationsUseCase (3 tests — returns relations with student info)
+- [x] Implement UpdateRelationStatusUseCase (5 tests — status update, archive sets endDate, validation)
 
 ### Module: exercises
 
