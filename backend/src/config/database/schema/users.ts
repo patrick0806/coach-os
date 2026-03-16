@@ -27,6 +27,7 @@ export const users = pgTable(
     role: varchar("role", { length: 20 })
       .notNull()
       .$type<"ADMIN" | "PERSONAL" | "STUDENT">(),
+    refreshTokenHash: varchar("refresh_token_hash", { length: 255 }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()

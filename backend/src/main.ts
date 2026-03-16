@@ -1,4 +1,5 @@
 import helmet from "@fastify/helmet";
+import cookie from "@fastify/cookie";
 import { VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import {
@@ -91,6 +92,8 @@ async function bootstrap() {
   await app.register(helmet, {
     contentSecurityPolicy: isDev ? false : undefined,
   });
+
+  await app.register(cookie);
 
   const port = process.env.PORT || 3000;
   await app.listen(port, "0.0.0.0");

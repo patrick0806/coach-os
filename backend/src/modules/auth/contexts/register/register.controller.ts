@@ -1,0 +1,45 @@
+import { Body, Controller, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
+import { ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { FastifyReply } from "fastify";
+
+import { env } from "@config/env";
+import { API_TAGS } from "@shared/constants";
+import { Public } from "@shared/decorators";
+
+import { RegisterRequestDTO } from "./dtos/request.dto";
+import { RegisterResponseDTO } from "./dtos/response.dto";
+import { RegisterUseCase } from "./register.useCase";
+
+const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+
+@Public()
+@ApiTags(API_TAGS.AUTH)
+@Controller({ version: "1", path: "register" })
+export class RegisterController {
+  constructor(private readonly registerUseCase: RegisterUseCase) {}
+
+  @ApiOperation({ summary: "Register a new coach account" })
+  @ApiCreatedResponse({ type: RegisterResponseDTO })
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async handle(
+    @Body() body: RegisterRequestDTO,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const result = await this.registerUseCase.execute(body);
+
+    reply.setCookie("refreshToken", `${result.personal.id}.${result.refreshToken}`, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/api/v1/auth/refresh",
+      maxAge: REFRESH_TOKEN_TTL_SECONDS,
+    });
+
+    return {
+      accessToken: result.accessToken,
+      user: result.user,
+      personal: result.personal,
+    };
+  }
+}

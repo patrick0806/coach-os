@@ -18,6 +18,10 @@ import { DatabaseModule } from "@config/database/database.module";
         path: "health",
         module: HealthModule,
       },
+      {
+        path: "auth",
+        module: AuthModule,
+      },
     ]),
   ],
   controllers: [],

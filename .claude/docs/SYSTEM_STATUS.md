@@ -8,9 +8,9 @@ Last updated: 2026-03-15
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
-| **auth** | in progress | Prerequisites done (JWT Strategy, TenantAccessGuard, PersonalsRepository). Next: register, login, refresh token |
+| **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection |
 | **platform/plans** | not started | Next: list plans endpoint. Seed data already applied (3 plans) |
 | **platform/admins** | not started | Next: admin guard, admin repository |
 | **platform/subscriptions** | not started | Backlog: Stripe webhooks, plan changes |
@@ -108,35 +108,41 @@ All schemas are defined and migration is generated. Reference:
 
 ## Current Focus
 
-**Phase 1 — Foundation** (Roadmap)
+**Phase 1 — Foundation** (Roadmap) — COMPLETE
 
-The current sprint is focused on the **auth module**, which is the first backend module to implement. This unblocks all subsequent development since every route requires authentication.
+Phase 1 is done. All auth module endpoints are implemented with 85 tests passing.
 
-Completed prerequisites:
+Completed:
 - ~~Passport JWT Strategy~~ — done
 - ~~TenantAccessGuard~~ — done (17 tests passing)
-- ~~PersonalsRepository~~ — done (findById, updateSubscription)
+- ~~PersonalsRepository, UsersRepository, PlansRepository~~ — done
 - ~~Seed data~~ — done (3 plans + 26 global exercises)
-- ~~Database migrations~~ — done (0000 + 0001 applied)
+- ~~Database migrations~~ — done (0000, 0001, 0002 generated)
+- ~~POST /auth/register~~ — done (15 tests)
+- ~~POST /auth/login~~ — done (10 tests)
+- ~~POST /auth/refresh~~ — done (11 tests)
 
-Current sprint tasks:
-1. Coach registration (POST /auth/register) — creates user + personal + Stripe subscription
-2. Login (POST /auth/login) — JWT + refresh token in http-only cookie
-3. Token refresh (POST /auth/refresh) — rotate refresh token
-
-Immediately after:
-- Password recovery and reset flows
-- Plans listing endpoint
+Next sprint: **Phase 2 — Student Management**
+- Apply database migrations (`npm run db:migrate`)
+- Plans listing endpoint (GET /plans)
+- Student CRUD with plan limit enforcement
+- Student invitations (email + link)
+- Coach-student relationships
+- Student notes
 
 ---
 
 ## Next Milestones
 
-### Milestone 1 — Coach can register and log in
-- Auth module complete (register, login, refresh, password reset)
-- Migration applied to database
-- Plans seeded
+### Milestone 1 — Coach can register and log in ✅ COMPLETE
+- Auth module complete (register, login, refresh)
+- 85 tests passing, zero TypeScript errors
 - **Validates:** Phase 1 Foundation
+
+### Milestone 1b — Remaining auth flows
+- Password recovery and reset flows
+- Migration applied to database
+- Plans listing endpoint (GET /plans)
 
 ### Milestone 2 — Coach can manage students
 - Student CRUD with invitations

@@ -15,6 +15,13 @@
       "when": 1773611003731,
       "tag": "0001_loose_young_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773620692758,
+      "tag": "0002_thin_mathemanic",
+      "breakpoints": true
     }
   ]
 }
