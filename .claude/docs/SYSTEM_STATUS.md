@@ -11,7 +11,7 @@ Last updated: 2026-03-15 (updated)
 | **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
 | **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
-| **platform/plans** | not started | Next: list plans endpoint. Seed data already applied (3 plans) |
+| **platform/plans** | completed | GET /plans endpoint (public, 6 tests). Lists active plans with public fields only |
 | **platform/admins** | not started | Next: admin guard, admin repository |
 | **platform/subscriptions** | not started | Backlog: Stripe webhooks, plan changes |
 | **platform/tenants** | not started | Backlog: admin tenant management |
@@ -124,7 +124,7 @@ Completed:
 - ~~POST /auth/password-reset/request~~ — done (11 tests, anti-enumeration)
 - ~~POST /auth/password-reset/confirm~~ — done (12 tests)
 - ~~POST /auth/password-setup~~ — done (10 tests)
-- ~~Apply database migrations (`npm run db:migrate`)
+- ~~Apply database migrations (`npm run db:migrate`) ~~ -- done
 
 Next sprint: **Phase 2 — Student Management**
 - Plans listing endpoint (GET /plans)
