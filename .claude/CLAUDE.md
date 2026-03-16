@@ -159,3 +159,5 @@ Always update the @docs/TASK_BOARD.md when finish a task.
 ## For extensions
 If a tasks need a new entity or extends the domain, always update the @DOMAIN_MAP.md file.
 If need manipulate dates always use the date-fns library.
+
+When build interfaces always use the @interface-design skill.
