@@ -60,7 +60,7 @@ Last updated: 2026-03-18
 | **Dashboard** | in progress | layout (sidebar placeholder + guard) + placeholder page done; stats/nav backlog |
 | **Students** | completed | List, create, detail, edit, invite, status management, notes |
 | **Exercises** | completed | exercises/page.tsx (grid, filters, pagination), exerciseCard, exerciseGrid, exerciseFilters (debounce), exerciseFormDialog (create/edit + S3 upload), exerciseDetailDialog, deleteExerciseDialog. Service, 5 hooks (useExercises, useCreateExercise, useUpdateExercise, useDeleteExercise, useRequestUploadUrl). Sidebar activated. E2E: exercises.spec.ts |
-| **Training templates** | not started | Backlog: list, create, builder, duplicate |
+| **Training templates** | completed | /training-templates (list, filters, pagination, CRUD), /training-templates/[id] (builder com accordion, ▲▼ reorder). Service, 14 hooks (useProgramTemplates, useProgramTemplate, useCreateProgramTemplate, useUpdateProgramTemplate, useDeleteProgramTemplate, useDuplicateProgramTemplate, useAddWorkoutTemplate, useUpdateWorkoutTemplate, useDeleteWorkoutTemplate, useReorderWorkoutTemplates, useAddExerciseTemplate, useUpdateExerciseTemplate, useDeleteExerciseTemplate, useReorderExerciseTemplates). Sidebar ativado. E2E: trainingTemplates.spec.ts |
 | **Student programs** | not started | Backlog: assign, detail, customize |
 | **Workout execution** | not started | Backlog: session page, history |
 | **Progress** | not started | Backlog: records, photos, charts |

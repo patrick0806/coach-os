@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-17
+Last updated: 2026-03-18
 
 ---
 
@@ -440,13 +440,23 @@ Last updated: 2026-03-17
 - [x] Enable exercises sidebar link (removed disabled/opacity-40)
 - [x] E2E tests (exercises.spec.ts — list, filters, create, edit, delete, detail, mobile)
 
-### Frontend: training templates
+### Frontend: training templates ✅ COMPLETE
 
-- [ ] Implement training templates service
-- [ ] Implement program template list page
-- [ ] Implement create program template form
-- [ ] Implement program template builder (add/edit/reorder workouts and exercises)
-- [ ] Implement duplicate program template action
+- [x] Implement training templates service (trainingTemplates.service.ts — 14 API calls)
+- [x] Implement program template list page (/training-templates — filters, pagination, CRUD dialogs)
+- [x] Implement create/edit program template form (programTemplateFormDialog.tsx)
+- [x] Implement delete program template dialog (deleteProgramTemplateDialog.tsx)
+- [x] Implement duplicate program template action (useDuplicateProgramTemplate — inline, sem dialog)
+- [x] Implement program template builder (/training-templates/[id] — accordion workouts, ▲▼ reorder)
+- [x] Implement workout form dialog (workoutFormDialog.tsx — add/rename)
+- [x] Implement delete workout dialog (deleteWorkoutDialog.tsx)
+- [x] Implement exercise selector dialog 2-step (exerciseSelectorDialog.tsx — busca + configurar params)
+- [x] Implement exercise template form dialog (exerciseTemplateFormDialog.tsx — editar params)
+- [x] Implement delete exercise template dialog (deleteExerciseTemplateDialog.tsx)
+- [x] Implement exercise template item (exerciseTemplateItem.tsx — ▲▼, dropdown)
+- [x] Implement workout template card (workoutTemplateCard.tsx — accordion)
+- [x] Enable training templates sidebar link (/training-templates)
+- [x] E2E tests (trainingTemplates.spec.ts — list, filters, CRUD, builder, reorder, mobile)
 
 ### Frontend: student programs
 
