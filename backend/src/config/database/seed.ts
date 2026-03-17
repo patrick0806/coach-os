@@ -3,19 +3,26 @@ import { randomUUID } from "crypto";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as argon2 from "argon2";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 
 import { getDatabaseConfig } from "./database.config";
+import { env } from "../env";
 import {
   plans,
   exercises,
   users,
   personals,
+  students,
+  coachStudentRelations,
   servicePlans,
   programTemplates,
   workoutTemplates,
   exerciseTemplates,
   availabilityRules,
+  studentPrograms,
+  workoutDays,
+  studentExercises,
+  trainingSchedules,
 } from "./schema";
 
 // Drizzle ORM type inference excludes optional/defaulted columns from insert types.
@@ -25,11 +32,107 @@ function sv<T>(v: T): any {
   return v;
 }
 
-async function seed() {
-  console.log("Seeding database...");
+async function clean(db: ReturnType<typeof drizzle>) {
+  console.log("Cleaning seed data...");
 
-  const pool = new Pool(getDatabaseConfig());
-  const db = drizzle(pool);
+  // Delete in reverse dependency order to avoid FK violations
+
+  // Remove demo personal's data
+  const [demoUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, "coach@demo.com"))
+    .limit(1);
+
+  if (demoUser) {
+    const [demoPersonal] = await db
+      .select()
+      .from(personals)
+      .where(eq(personals.userId, demoUser.id))
+      .limit(1);
+
+    if (demoPersonal) {
+      // Templates cascade: workoutTemplates → exerciseTemplates
+      const templates = await db
+        .select({ id: programTemplates.id })
+        .from(programTemplates)
+        .where(eq(programTemplates.tenantId, demoPersonal.id));
+
+      for (const t of templates) {
+        const workouts = await db
+          .select({ id: workoutTemplates.id })
+          .from(workoutTemplates)
+          .where(eq(workoutTemplates.programTemplateId, t.id));
+
+        for (const w of workouts) {
+          await db
+            .delete(exerciseTemplates)
+            .where(eq(exerciseTemplates.workoutTemplateId, w.id));
+        }
+        await db
+          .delete(workoutTemplates)
+          .where(eq(workoutTemplates.programTemplateId, t.id));
+      }
+      await db
+        .delete(programTemplates)
+        .where(eq(programTemplates.tenantId, demoPersonal.id));
+
+      await db
+        .delete(availabilityRules)
+        .where(eq(availabilityRules.tenantId, demoPersonal.id));
+
+      await db
+        .delete(servicePlans)
+        .where(eq(servicePlans.tenantId, demoPersonal.id));
+
+      // Remove training schedules
+      await db
+        .delete(trainingSchedules)
+        .where(eq(trainingSchedules.tenantId, demoPersonal.id));
+
+      // Remove student programs (workoutDays + studentExercises cascade via FK)
+      await db
+        .delete(studentPrograms)
+        .where(eq(studentPrograms.tenantId, demoPersonal.id));
+
+      // Remove coach-student relations
+      await db
+        .delete(coachStudentRelations)
+        .where(eq(coachStudentRelations.tenantId, demoPersonal.id));
+
+      // Remove demo students and their users
+      const demoStudents = await db
+        .select({ id: students.id, userId: students.userId })
+        .from(students)
+        .where(eq(students.tenantId, demoPersonal.id));
+
+      for (const s of demoStudents) {
+        await db.delete(students).where(eq(students.id, s.id));
+        await db.delete(users).where(eq(users.id, s.userId));
+      }
+
+      await db.delete(personals).where(eq(personals.id, demoPersonal.id));
+    }
+
+    await db.delete(users).where(eq(users.id, demoUser.id));
+  }
+
+  // Remove global exercises (tenantId is null)
+  await db.delete(exercises).where(isNull(exercises.tenantId));
+  console.log("✓ Global exercises removed");
+
+  // Null out plan references on all personals before deleting plans (FK constraint)
+  await db.update(personals).set({ subscriptionPlanId: null } as any);
+
+  // Remove plans
+  await db.delete(plans);
+  console.log("✓ Plans removed");
+
+  console.log("Clean completed!");
+}
+
+async function seed(db: ReturnType<typeof drizzle>) {
+  console.log("Seeding database...");
 
   try {
     // ─── Plans ────────────────────────────────────────────────────────────────
@@ -151,7 +254,7 @@ async function seed() {
     console.log(`✓ ${exerciseValues.length} global exercises seeded`);
 
     // ─── Demo Personal (Coach Demo) ────────────────────────────────────────────
-    const demoPassword = await argon2.hash("Coach@123456", {
+    const demoPassword = await argon2.hash("Coach@123456" + env.HASH_PEPPER, {
       type: argon2.argon2id,
     });
 
@@ -422,33 +525,33 @@ async function seed() {
         {
           name: "Treino A — Segunda (Peito e Tríceps)",
           exercises: [
-            { exerciseId: ex["Supino Reto com Barra"],         sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Supino Reto com Barra"], sets: 4, repetitions: 10, restSeconds: 90 },
             { exerciseId: ex["Supino Inclinado com Halteres"], sets: 3, repetitions: 12, restSeconds: 90 },
-            { exerciseId: ex["Crucifixo com Halteres"],        sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Tríceps Pulley"],                sets: 4, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Tríceps Testa"],                 sets: 3, repetitions: 10, restSeconds: 60 },
+            { exerciseId: ex["Crucifixo com Halteres"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Tríceps Pulley"], sets: 4, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Tríceps Testa"], sets: 3, repetitions: 10, restSeconds: 60 },
           ],
         },
         {
           name: "Treino B — Quarta (Costas e Bíceps)",
           exercises: [
-            { exerciseId: ex["Puxada na Barra Fixa"],          sets: 4, repetitions: 8,  restSeconds: 90 },
-            { exerciseId: ex["Remada Curvada com Barra"],      sets: 4, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Puxada no Pulley"],              sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Remada Unilateral com Halter"],  sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Rosca Direta com Barra"],        sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Rosca Alternada com Halteres"],  sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Puxada na Barra Fixa"], sets: 4, repetitions: 8, restSeconds: 90 },
+            { exerciseId: ex["Remada Curvada com Barra"], sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Puxada no Pulley"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Remada Unilateral com Halter"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Rosca Direta com Barra"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Rosca Alternada com Halteres"], sets: 3, repetitions: 12, restSeconds: 60 },
           ],
         },
         {
           name: "Treino C — Sexta (Pernas)",
           exercises: [
-            { exerciseId: ex["Agachamento Livre"],             sets: 4, repetitions: 8,  restSeconds: 120 },
-            { exerciseId: ex["Leg Press 45°"],                 sets: 4, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Cadeira Extensora"],             sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Mesa Flexora"],                  sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Stiff"],                         sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Panturrilha em Pé"],             sets: 4, repetitions: 15, restSeconds: 60 },
+            { exerciseId: ex["Agachamento Livre"], sets: 4, repetitions: 8, restSeconds: 120 },
+            { exerciseId: ex["Leg Press 45°"], sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Cadeira Extensora"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Mesa Flexora"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Stiff"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Panturrilha em Pé"], sets: 4, repetitions: 15, restSeconds: 60 },
           ],
         },
       ],
@@ -463,54 +566,54 @@ async function seed() {
         {
           name: "Treino A — Segunda (Peito e Tríceps)",
           exercises: [
-            { exerciseId: ex["Supino Reto com Barra"],         sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Supino Reto com Barra"], sets: 4, repetitions: 10, restSeconds: 90 },
             { exerciseId: ex["Supino Inclinado com Halteres"], sets: 3, repetitions: 12, restSeconds: 90 },
-            { exerciseId: ex["Crucifixo com Halteres"],        sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Flexão de Braço"],               sets: 3, repetitions: 15, restSeconds: 60 },
-            { exerciseId: ex["Tríceps Pulley"],                sets: 4, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Tríceps Testa"],                 sets: 3, repetitions: 10, restSeconds: 60 },
+            { exerciseId: ex["Crucifixo com Halteres"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Flexão de Braço"], sets: 3, repetitions: 15, restSeconds: 60 },
+            { exerciseId: ex["Tríceps Pulley"], sets: 4, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Tríceps Testa"], sets: 3, repetitions: 10, restSeconds: 60 },
           ],
         },
         {
           name: "Treino B — Terça (Costas e Bíceps)",
           exercises: [
-            { exerciseId: ex["Puxada na Barra Fixa"],          sets: 4, repetitions: 8,  restSeconds: 90 },
-            { exerciseId: ex["Remada Curvada com Barra"],      sets: 4, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Puxada no Pulley"],              sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Remada Unilateral com Halter"],  sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Rosca Direta com Barra"],        sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Rosca Alternada com Halteres"],  sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Puxada na Barra Fixa"], sets: 4, repetitions: 8, restSeconds: 90 },
+            { exerciseId: ex["Remada Curvada com Barra"], sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Puxada no Pulley"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Remada Unilateral com Halter"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Rosca Direta com Barra"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Rosca Alternada com Halteres"], sets: 3, repetitions: 12, restSeconds: 60 },
           ],
         },
         {
           name: "Treino C — Quarta (Pernas)",
           exercises: [
-            { exerciseId: ex["Agachamento Livre"],             sets: 4, repetitions: 8,  restSeconds: 120 },
-            { exerciseId: ex["Leg Press 45°"],                 sets: 4, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Cadeira Extensora"],             sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Mesa Flexora"],                  sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Stiff"],                         sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Panturrilha em Pé"],             sets: 4, repetitions: 15, restSeconds: 60 },
+            { exerciseId: ex["Agachamento Livre"], sets: 4, repetitions: 8, restSeconds: 120 },
+            { exerciseId: ex["Leg Press 45°"], sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Cadeira Extensora"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Mesa Flexora"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Stiff"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Panturrilha em Pé"], sets: 4, repetitions: 15, restSeconds: 60 },
           ],
         },
         {
           name: "Treino D — Quinta (Ombros e Abdômen)",
           exercises: [
-            { exerciseId: ex["Desenvolvimento com Halteres"],  sets: 4, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Elevação Lateral"],              sets: 4, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Elevação Frontal"],              sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Prancha Abdominal"],             sets: 3, duration: "45s",  restSeconds: 60 },
-            { exerciseId: ex["Abdominal Crunch"],              sets: 3, repetitions: 20, restSeconds: 60 },
+            { exerciseId: ex["Desenvolvimento com Halteres"], sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Elevação Lateral"], sets: 4, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Elevação Frontal"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Prancha Abdominal"], sets: 3, duration: "45s", restSeconds: 60 },
+            { exerciseId: ex["Abdominal Crunch"], sets: 3, repetitions: 20, restSeconds: 60 },
           ],
         },
         {
           name: "Treino E — Sexta (Glúteos e Panturrilha)",
           exercises: [
-            { exerciseId: ex["Hip Thrust"],                          sets: 4, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Abdução de Quadril na Máquina"],       sets: 3, repetitions: 15, restSeconds: 60 },
-            { exerciseId: ex["Stiff"],                               sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Panturrilha em Pé"],                   sets: 4, repetitions: 15, restSeconds: 60 },
-            { exerciseId: ex["Panturrilha Sentado"],                 sets: 3, repetitions: 15, restSeconds: 60 },
+            { exerciseId: ex["Hip Thrust"], sets: 4, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Abdução de Quadril na Máquina"], sets: 3, repetitions: 15, restSeconds: 60 },
+            { exerciseId: ex["Stiff"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Panturrilha em Pé"], sets: 4, repetitions: 15, restSeconds: 60 },
+            { exerciseId: ex["Panturrilha Sentado"], sets: 3, repetitions: 15, restSeconds: 60 },
           ],
         },
       ],
@@ -525,33 +628,33 @@ async function seed() {
         {
           name: "Full Body A",
           exercises: [
-            { exerciseId: ex["Agachamento Livre"],             sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Supino Reto com Barra"],         sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Puxada na Barra Fixa"],          sets: 3, repetitions: 8,  restSeconds: 90 },
-            { exerciseId: ex["Desenvolvimento com Halteres"],  sets: 3, repetitions: 10, restSeconds: 60 },
-            { exerciseId: ex["Prancha Abdominal"],             sets: 3, duration: "30s",  restSeconds: 60 },
+            { exerciseId: ex["Agachamento Livre"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Supino Reto com Barra"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Puxada na Barra Fixa"], sets: 3, repetitions: 8, restSeconds: 90 },
+            { exerciseId: ex["Desenvolvimento com Halteres"], sets: 3, repetitions: 10, restSeconds: 60 },
+            { exerciseId: ex["Prancha Abdominal"], sets: 3, duration: "30s", restSeconds: 60 },
           ],
         },
         {
           name: "Full Body B",
           exercises: [
-            { exerciseId: ex["Leg Press 45°"],                 sets: 3, repetitions: 12, restSeconds: 90 },
+            { exerciseId: ex["Leg Press 45°"], sets: 3, repetitions: 12, restSeconds: 90 },
             { exerciseId: ex["Supino Inclinado com Halteres"], sets: 3, repetitions: 12, restSeconds: 90 },
-            { exerciseId: ex["Remada Curvada com Barra"],      sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Elevação Lateral"],              sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Hip Thrust"],                    sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Abdominal Crunch"],              sets: 3, repetitions: 20, restSeconds: 60 },
+            { exerciseId: ex["Remada Curvada com Barra"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Elevação Lateral"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Hip Thrust"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Abdominal Crunch"], sets: 3, repetitions: 20, restSeconds: 60 },
           ],
         },
         {
           name: "Full Body C",
           exercises: [
-            { exerciseId: ex["Stiff"],                         sets: 3, repetitions: 10, restSeconds: 90 },
-            { exerciseId: ex["Flexão de Braço"],               sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Remada Unilateral com Halter"],  sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Rosca Direta com Barra"],        sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Tríceps Pulley"],                sets: 3, repetitions: 12, restSeconds: 60 },
-            { exerciseId: ex["Panturrilha em Pé"],             sets: 3, repetitions: 15, restSeconds: 60 },
+            { exerciseId: ex["Stiff"], sets: 3, repetitions: 10, restSeconds: 90 },
+            { exerciseId: ex["Flexão de Braço"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Remada Unilateral com Halter"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Rosca Direta com Barra"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Tríceps Pulley"], sets: 3, repetitions: 12, restSeconds: 60 },
+            { exerciseId: ex["Panturrilha em Pé"], sets: 3, repetitions: 15, restSeconds: 60 },
           ],
         },
       ],
@@ -559,9 +662,281 @@ async function seed() {
 
     console.log(`✓ 3 program templates seeded with workouts and exercises`);
 
+    // ─── Demo Students ─────────────────────────────────────────────────────────
+    // Helper: create user → student → coach-student relation, return student record
+    async function seedStudent(data: {
+      name: string;
+      email: string;
+      phoneNumber: string;
+      goal: string;
+      observations: string;
+      physicalRestrictions: string | null;
+    }) {
+      const studentPassword = await argon2.hash("Student@123456" + env.HASH_PEPPER, {
+        type: argon2.argon2id,
+      });
+
+      let [studentUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, data.email))
+        .limit(1);
+
+      if (!studentUser) {
+        await db.insert(users).values(sv({
+          name: data.name,
+          email: data.email,
+          password: studentPassword,
+          role: "STUDENT",
+          isActive: true,
+        }));
+        [studentUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, data.email))
+          .limit(1);
+      }
+
+      if (!studentUser) throw new Error(`Failed to create student user: ${data.email}`);
+
+      let [studentRecord] = await db
+        .select()
+        .from(students)
+        .where(eq(students.userId, studentUser.id))
+        .limit(1);
+
+      if (!studentRecord) {
+        await db.insert(students).values(sv({
+          userId: studentUser.id,
+          tenantId: demoPersonal.id,
+          status: "active",
+          phoneNumber: data.phoneNumber,
+          goal: data.goal,
+          observations: data.observations,
+          physicalRestrictions: data.physicalRestrictions,
+        }));
+        [studentRecord] = await db
+          .select()
+          .from(students)
+          .where(eq(students.userId, studentUser.id))
+          .limit(1);
+      }
+
+      if (!studentRecord) throw new Error(`Failed to create student: ${data.email}`);
+
+      const existingRelation = await db
+        .select()
+        .from(coachStudentRelations)
+        .where(eq(coachStudentRelations.studentId, studentRecord.id))
+        .limit(1);
+
+      if (!existingRelation.length) {
+        await db.insert(coachStudentRelations).values(sv({
+          tenantId: demoPersonal.id,
+          studentId: studentRecord.id,
+          status: "active",
+          startDate: new Date(),
+        }));
+      }
+
+      return studentRecord;
+    }
+
+    // Helper: create a student program as a snapshot of a template
+    async function seedStudentProgram(studentId: string, templateName: string) {
+      // Fetch the template with its workouts and exercises
+      const [template] = await db
+        .select()
+        .from(programTemplates)
+        .where(
+          and(
+            eq(programTemplates.tenantId, demoPersonal.id),
+            eq(programTemplates.name, templateName),
+          ),
+        )
+        .limit(1);
+
+      if (!template) throw new Error(`Template not found: ${templateName}`);
+
+      // Check if student program already exists
+      const [existingProgram] = await db
+        .select()
+        .from(studentPrograms)
+        .where(
+          and(
+            eq(studentPrograms.studentId, studentId),
+            eq(studentPrograms.tenantId, demoPersonal.id),
+          ),
+        )
+        .limit(1);
+
+      if (existingProgram) return existingProgram;
+
+      // Create student program
+      await db.insert(studentPrograms).values(sv({
+        tenantId: demoPersonal.id,
+        studentId,
+        programTemplateId: template.id,
+        name: template.name,
+        status: "active",
+        startedAt: new Date(),
+      }));
+
+      const [program] = await db
+        .select()
+        .from(studentPrograms)
+        .where(
+          and(
+            eq(studentPrograms.studentId, studentId),
+            eq(studentPrograms.tenantId, demoPersonal.id),
+          ),
+        )
+        .limit(1);
+
+      if (!program) throw new Error(`Failed to create student program for student: ${studentId}`);
+
+      // Fetch workouts from the template
+      const wts = await db
+        .select()
+        .from(workoutTemplates)
+        .where(eq(workoutTemplates.programTemplateId, template.id));
+
+      for (const wt of wts) {
+        // Create workout day (snapshot)
+        await db.insert(workoutDays).values(sv({
+          studentProgramId: program.id,
+          name: wt.name,
+          order: wt.order,
+        }));
+
+        const [day] = await db
+          .select()
+          .from(workoutDays)
+          .where(
+            and(
+              eq(workoutDays.studentProgramId, program.id),
+              eq(workoutDays.name, wt.name),
+            ),
+          )
+          .limit(1);
+
+        if (!day) continue;
+
+        // Fetch exercise templates for this workout
+        const ets = await db
+          .select()
+          .from(exerciseTemplates)
+          .where(eq(exerciseTemplates.workoutTemplateId, wt.id));
+
+        if (ets.length > 0) {
+          await db.insert(studentExercises).values(
+            sv(
+              ets.map((et) => ({
+                workoutDayId: day.id,
+                exerciseId: et.exerciseId,
+                sets: et.sets,
+                repetitions: et.repetitions ?? null,
+                restSeconds: et.restSeconds ?? null,
+                duration: et.duration ?? null,
+                notes: et.notes ?? null,
+                order: et.order,
+              })),
+            ),
+          );
+        }
+      }
+
+      return program;
+    }
+
+    const existingStudents = await db
+      .select()
+      .from(students)
+      .where(eq(students.tenantId, demoPersonal.id));
+
+    if (existingStudents.length === 0) {
+      // ── Student 1: Fernanda Costa — Consultoria Online ──────────────────────
+      const fernanda = await seedStudent({
+        name: "Fernanda Costa",
+        email: "fernanda.costa@demo.com",
+        phoneNumber: "(21) 99876-5432",
+        goal: "Ganho de força e resistência",
+        observations: "Aluna online. Treina em casa com halteres e barra.",
+        physicalRestrictions: null,
+      });
+
+      await seedStudentProgram(fernanda.id, "Consultoria Online — Full Body 3x por Semana");
+      // Online students don't have physical training schedules
+
+      // ── Student 2: Carlos Mendonça — Presencial 3x por Semana ───────────────
+      const carlos = await seedStudent({
+        name: "Carlos Mendonça",
+        email: "carlos.mendonca@demo.com",
+        phoneNumber: "(11) 91234-5678",
+        goal: "Hipertrofia muscular",
+        observations: "Treina há 2 anos. Experiência intermediária.",
+        physicalRestrictions: "Leve dor no ombro direito — evitar carga alta no supino",
+      });
+
+      const carlosProgram = await seedStudentProgram(carlos.id, "Treino A/B/C — 3x por Semana");
+
+      // Training schedule: Mon/Wed/Fri 08:00–09:00 (matches coach availability)
+      await db.insert(trainingSchedules).values(sv([
+        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, dayOfWeek: 1, startTime: "08:00", endTime: "09:00", location: "Academia Central", isActive: true },
+        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, dayOfWeek: 3, startTime: "08:00", endTime: "09:00", location: "Academia Central", isActive: true },
+        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, dayOfWeek: 5, startTime: "08:00", endTime: "09:00", location: "Academia Central", isActive: true },
+      ]));
+
+      // ── Student 3: Ana Paula Silva — Presencial 5x por Semana ───────────────
+      const ana = await seedStudent({
+        name: "Ana Paula Silva",
+        email: "ana.silva@demo.com",
+        phoneNumber: "(11) 98765-4321",
+        goal: "Condicionamento físico e definição muscular",
+        observations: "Prefere treinos no período da tarde. Muito dedicada e assídua.",
+        physicalRestrictions: null,
+      });
+
+      const anaProgram = await seedStudentProgram(ana.id, "Treino 5 Dias — Segunda a Sexta");
+
+      // Training schedule: Mon–Fri 16:00–17:00 (matches coach availability)
+      await db.insert(trainingSchedules).values(sv([
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 1, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 2, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 3, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 4, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 5, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
+      ]));
+
+      console.log("✓ 3 demo students seeded with programs and training schedules");
+    } else {
+      console.log(`✓ Demo students already exist (${existingStudents.length}), skipping`);
+    }
+
     console.log("Seed completed successfully!");
   } catch (error) {
     console.error("Seed failed:", error);
+    process.exit(1);
+  }
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  const shouldClean = args.includes("--clean") || args.includes("--only-clean");
+  const onlyClean = args.includes("--only-clean");
+
+  const pool = new Pool(getDatabaseConfig());
+  const db = drizzle(pool);
+
+  try {
+    if (shouldClean) {
+      await clean(db);
+    }
+    if (!onlyClean) {
+      await seed(db);
+    }
+  } catch (error) {
+    console.error("Failed:", error);
     process.exit(1);
   } finally {
     await pool.end();
@@ -569,4 +944,4 @@ async function seed() {
   }
 }
 
-seed();
+main();

@@ -59,6 +59,12 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // Skip refresh for auth endpoints — 401 here means invalid credentials, not expired token
+    const authPaths = ["/auth/login", "/auth/register", "/auth/refresh"];
+    if (authPaths.some((path) => original?.url?.includes(path))) {
+      return Promise.reject(error);
+    }
+
     // If a refresh is already in flight, queue this request
     if (isRefreshing) {
       return new Promise<string>((resolve, reject) => {

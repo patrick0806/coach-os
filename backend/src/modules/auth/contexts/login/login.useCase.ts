@@ -23,7 +23,7 @@ export interface LoginResult {
   personal: { id: string; slug: string };
 }
 
-const INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
+const INVALID_CREDENTIALS_MESSAGE = "Email ou senha inválidos";
 
 @Injectable()
 export class LoginUseCase {
@@ -49,7 +49,7 @@ export class LoginUseCase {
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException("Account is disabled");
+      throw new UnauthorizedException("Conta desativada");
     }
 
     // Resolve profile based on role
