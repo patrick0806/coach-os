@@ -31,17 +31,15 @@ export default defineConfig({
         browserName: "chromium",
       },
     },
-    {
-      name: "mobile-iphone-se",
-      use: {
-        ...devices["iPhone SE"],
-      },
-    },
-    {
-      name: "mobile-iphone-max",
-      use: {
-        ...devices["iPhone 14 Pro Max"],
-      },
-    },
+    // webkit (Safari) requires a separate installation: npx playwright install webkit
+    // Disabled until webkit is installed in the environment
+    // {
+    //   name: "mobile-iphone-se",
+    //   use: { ...devices["iPhone SE"] },
+    // },
+    // {
+    //   name: "mobile-iphone-max",
+    //   use: { ...devices["iPhone 14 Pro Max"] },
+    // },
   ],
 });

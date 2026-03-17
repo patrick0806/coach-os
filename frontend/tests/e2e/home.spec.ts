@@ -36,7 +36,11 @@ test.describe("Home Page", () => {
   });
 
   test("shows 'Como funciona' section with 3 steps", async ({ page }) => {
-    await expect(page.getByText("Como funciona")).toBeVisible();
+    // The section has id="como-funciona" — its h2 is "Simples de começar"
+    const section = page.locator("#como-funciona");
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toBeVisible();
+    await expect(section.getByRole("heading", { name: "Simples de começar" })).toBeVisible();
 
     // Use exact match to avoid footer "© 2026" matching "02"
     await expect(page.getByText("01", { exact: true })).toBeVisible();
