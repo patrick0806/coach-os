@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const plans = await listPlans();
-  console.log("plans:", plans);
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
       <Navbar />
