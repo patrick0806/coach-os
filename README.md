@@ -157,6 +157,7 @@ O projeto segue TDD no backend e agora possui uma camada de validação local ma
 - o `core.hooksPath` do git é configurado para `backend/.husky`
 - os testes E2E do frontend usam porta dedicada no Playwright para evitar conflito com instâncias locais
 - o middleware do frontend possui bypass controlado por `E2E_BYPASS_AUTH=true` apenas para execução de testes E2E mockados
+- para rodar os testes do frontend localmente a api precisa estar rodando
 
 ## Licença
 

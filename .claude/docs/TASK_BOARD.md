@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-16
+Last updated: 2026-03-18
 
 ---
 
@@ -398,21 +398,25 @@ Last updated: 2026-03-16
 - [x] Update QueryClient retry to skip 401/403 (handled by axios interceptor)
 - [x] Update plans.service.ts to use publicServerFetch with tags
 
-### Frontend: auth
+### Frontend: auth ✅ COMPLETE
 
-- [ ] Implement auth service (register, login, refresh, password reset)
-- [ ] Implement registration page with plan selection
-- [ ] Implement login page
-- [ ] Implement password recovery page
-- [ ] Implement password reset page
-- [ ] Implement session management (store JWT, refresh token rotation)
-- [ ] Implement auth guard (redirect unauthenticated users)
-- [ ] Implement onboarding wizard flow
+- [x] Implement auth service (login, register, requestPasswordReset, resetPassword, logout)
+- [x] Implement auth types (LoginRequest, RegisterRequest, RequestPasswordResetRequest, ResetPasswordRequest)
+- [x] Implement useLogin and useRegister mutation hooks
+- [x] Implement authBrandingPanel (split-layout left panel)
+- [x] Implement auth layout (split responsive — branding left, form right)
+- [x] Implement loginForm + /login page
+- [x] Implement planSelector + registerForm + registerStepper (multi-step) + /cadastro page
+- [x] Implement forgotPasswordForm (idle/sent states, anti-enumeration) + /esqueci-senha page
+- [x] Implement resetPasswordForm (useSearchParams, token from URL) + /redefinir-senha page (Suspense)
+- [x] Implement src/proxy.ts (Next.js 16 edge guard: dashboard protection, auth page redirects, reset-password token check)
 
 ### Frontend: dashboard
 
-- [ ] Implement dashboard layout (sidebar, header, content area)
-- [ ] Implement dashboard home page (overview stats)
+- [x] Implement dashboard layout (sidebar placeholder + secondary auth guard via authStore.subscribe)
+- [x] Implement dashboard home placeholder page
+- [ ] Implement real sidebar navigation
+- [ ] Implement dashboard stats (real data from API)
 
 ### Frontend: students
 

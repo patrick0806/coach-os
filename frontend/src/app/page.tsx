@@ -2,10 +2,13 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   Calendar,
-  Check,
   Dumbbell,
   Users,
   ArrowRight,
+  UserPlus,
+  Settings2,
+  BarChart3,
+  Zap,
 } from "lucide-react";
 
 import { listPlans } from "@/features/marketing/services/plans.service";
@@ -33,21 +36,29 @@ export default async function HomePage() {
       <main>
         {/* Hero Section */}
         <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
-          {/* Background Blobs */}
-          <div className="absolute left-1/2 top-1/4 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]" />
-          <div className="absolute -left-20 top-1/2 -z-10 h-64 w-64 rounded-full bg-primary/10 blur-[100px]" />
+          {/* Background blobs */}
+          <div className="absolute left-1/2 top-1/4 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-[140px]" />
+          <div className="absolute -left-20 top-1/2 -z-10 h-72 w-72 rounded-full bg-primary/8 blur-[120px]" />
+          <div className="absolute -right-20 bottom-1/4 -z-10 h-64 w-64 rounded-full bg-primary/10 blur-[110px]" />
 
           <div className="mx-auto max-w-4xl">
+            {/* Badge */}
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+              <Zap className="h-3.5 w-3.5" />
+              Plataforma completa para Personal Trainers
+            </div>
+
             <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl">
               Domine sua agenda, <br />
-              <span className="bg-linear-to-r from-primary via-primary/80 to-primary/40 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/40 bg-clip-text text-transparent">
                 escale seus treinos
               </span>
             </h1>
 
             <p className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-              A plataforma completa para Personal Trainers que desejam profissionalismo,
-              agilidade na montagem de treinos e uma gestão financeira impecável.
+              A plataforma completa para Personal Trainers que desejam
+              profissionalismo, agilidade na montagem de treinos e uma gestão
+              impecável.
             </p>
 
             <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -66,19 +77,53 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <p className="mt-6 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-muted-foreground">
               Não precisa de cartão de crédito para começar.
             </p>
+
+            {/* Social proof stats */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              {[
+                { value: "500+", label: "coaches ativos" },
+                { value: "10k+", label: "alunos gerenciados" },
+                { value: "98%", label: "satisfação" },
+              ].map((stat, i) => (
+                <div key={stat.label} className="flex items-center gap-2">
+                  {i > 0 && (
+                    <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
+                  )}
+                  <span className="text-sm">
+                    <span className="font-bold text-foreground">{stat.value}</span>{" "}
+                    <span className="text-muted-foreground">{stat.label}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Feature Highlight Grid - Quick glance */}
+          {/* Quick glance grid */}
           <div className="mx-auto mt-20 grid max-w-5xl gap-6 px-6 sm:grid-cols-3">
             {[
-              { icon: Users, label: "Gestão de Alunos", desc: "Controle total de perfis e evolução" },
-              { icon: Dumbbell, label: "Prescrição Ágil", desc: "Crie treinos complexos em segundos" },
-              { icon: Calendar, label: "Agenda Online", desc: "Agendamentos e recorrência automática" },
-            ].map((f, i) => (
-              <div key={i} className="flex flex-col items-center rounded-2xl border border-border/60 bg-card/40 p-6 text-center backdrop-blur-sm">
+              {
+                icon: Users,
+                label: "Gestão de Alunos",
+                desc: "Controle total de perfis e evolução",
+              },
+              {
+                icon: Dumbbell,
+                label: "Prescrição Ágil",
+                desc: "Crie treinos complexos em segundos",
+              },
+              {
+                icon: Calendar,
+                label: "Agenda Online",
+                desc: "Agendamentos e recorrência automática",
+              },
+            ].map((f) => (
+              <div
+                key={f.label}
+                className="flex flex-col items-center rounded-2xl border border-border/60 bg-card/40 p-6 text-center backdrop-blur-sm"
+              >
                 <f.icon className="mb-3 size-6 text-primary" />
                 <h3 className="font-bold">{f.label}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">{f.desc}</p>
@@ -87,34 +132,95 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Feature Sections - The "Zebra" Layout */}
+        {/* Feature Sections */}
         <section id="funcionalidades" className="space-y-10">
           <FeatureBlock
             title="Sua ficha de treino no próximo nível"
             description="Chega de PDFs e planilhas. Ofereça uma experiência mobile premium para seus alunos com cronômetro, vídeos de execução e histórico de cargas."
             icon={Dumbbell}
             imageAlt="Interface de Treinos"
+            mockType="training"
             features={[
               "Biblioteca com +50 exercícios",
               "Suporte a vídeos do YouTube",
               "Histórico de evolução de carga",
-              "Cronômetro de descanso integrado"
+              "Cronômetro de descanso integrado",
             ]}
           />
 
           <FeatureBlock
             title="Agenda que trabalha por você"
-            description="Permita que seus alunos agendem sessões em seus horários disponíveis. Controle faltas, desmarcações e recorrências sem trocar uma única mensagem no WhatsApp."
+            description="Permita que seus alunos agendem sessões nos seus horários disponíveis. Controle faltas, desmarcações e recorrências sem trocar uma única mensagem no WhatsApp."
             icon={Calendar}
             imageAlt="Agenda Online"
+            mockType="schedule"
             reverse
             features={[
               "Sessões avulsas ou recorrentes",
               "Disponibilidade configurável por dia",
               "Status de presença e No-show",
-              "Check-in automático do aluno"
+              "Check-in automático do aluno",
             ]}
           />
+        </section>
+
+        {/* Como funciona */}
+        <section
+          id="como-funciona"
+          className="relative overflow-hidden px-6 py-24 sm:py-32"
+        >
+          <div className="absolute left-1/2 top-1/2 -z-10 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-[120px]" />
+
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-16 text-center">
+              <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+                Simples de começar
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Em 3 passos você está operando como um pro.
+              </p>
+            </div>
+
+            <div className="relative grid gap-8 sm:grid-cols-3">
+              {/* Connector line */}
+              <div className="absolute left-0 right-0 top-10 hidden h-px bg-gradient-to-r from-transparent via-border to-transparent sm:block" />
+
+              {[
+                {
+                  step: "01",
+                  icon: UserPlus,
+                  title: "Cadastre",
+                  desc: "Crie sua conta em minutos. Sem burocracia, sem cartão de crédito.",
+                },
+                {
+                  step: "02",
+                  icon: Settings2,
+                  title: "Configure",
+                  desc: "Adicione seus alunos, monte templates de treino e defina sua disponibilidade.",
+                },
+                {
+                  step: "03",
+                  icon: BarChart3,
+                  title: "Gerencie",
+                  desc: "Acompanhe a evolução de cada aluno com dados reais em tempo real.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="relative flex flex-col items-center text-center"
+                >
+                  <div className="relative z-10 mb-5 flex h-20 w-20 flex-col items-center justify-center rounded-2xl border border-border/60 bg-card shadow-sm">
+                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      {item.step}
+                    </span>
+                    <item.icon className="size-7 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold">{item.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Pricing Section */}
@@ -137,12 +243,13 @@ export default async function HomePage() {
               </p>
             ) : (
               <div
-                className={`grid gap-8 ${plans.length === 1
-                  ? "mx-auto max-w-sm"
-                  : plans.length === 2
-                    ? "mx-auto max-w-3xl sm:grid-cols-2"
-                    : "sm:grid-cols-2 lg:grid-cols-3"
-                  }`}
+                className={`grid gap-8 ${
+                  plans.length === 1
+                    ? "mx-auto max-w-sm"
+                    : plans.length === 2
+                      ? "mx-auto max-w-3xl sm:grid-cols-2"
+                      : "sm:grid-cols-2 lg:grid-cols-3"
+                }`}
               >
                 {plans
                   .sort((a, b) => a.order - b.order)
@@ -156,27 +263,54 @@ export default async function HomePage() {
 
         {/* CTA Section */}
         <section className="px-6 py-20 md:py-32">
-          <div className="mx-auto max-w-5xl rounded-3xl bg-primary px-8 py-16 text-center text-primary-foreground shadow-2xl shadow-primary/20">
+          <div className="mx-auto max-w-5xl overflow-hidden rounded-3xl bg-primary px-8 py-16 text-center text-primary-foreground shadow-2xl shadow-primary/20">
+            {/* Decorative blobs inside CTA */}
+            <div className="pointer-events-none absolute inset-0 -z-10" />
+
+            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-foreground/15">
+              <Zap className="h-7 w-7 text-primary-foreground" />
+            </div>
+
             <h2 className="text-3xl font-bold tracking-tight sm:text-5xl">
-              Pronto para profissionalizar sua consultoria?
+              Pronto para profissionalizar
+              <br className="hidden sm:block" /> sua consultoria?
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg opacity-90">
-              Junte-se a centenas de treinadores que já estão economizando horas de
-              trabalho manual todas as semanas.
+              Junte-se a centenas de treinadores que já economizam horas de
+              trabalho manual toda semana.
             </p>
+
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
                 href="/cadastro"
-                className="rounded-xl bg-background px-8 py-4 text-lg font-bold text-foreground shadow-lg transition-transform hover:-translate-y-1"
+                className="group flex items-center gap-2 rounded-xl bg-background px-8 py-4 text-lg font-bold text-foreground shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
               >
                 Criar minha conta agora
+                <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
-                href="/contato"
+                href="/login"
                 className="rounded-xl border border-primary-foreground/20 px-8 py-4 text-lg font-semibold transition-colors hover:bg-primary-foreground/10"
               >
-                Falar com consultor
+                Já tenho conta
               </Link>
+            </div>
+
+            {/* Mini stats */}
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 border-t border-primary-foreground/20 pt-8">
+              {[
+                "30 dias grátis sem cartão",
+                "Suporte incluso",
+                "Cancele quando quiser",
+              ].map((item) => (
+                <span
+                  key={item}
+                  className="flex items-center gap-2 text-sm opacity-80"
+                >
+                  <span className="h-1 w-1 rounded-full bg-primary-foreground/60" />
+                  {item}
+                </span>
+              ))}
             </div>
           </div>
         </section>

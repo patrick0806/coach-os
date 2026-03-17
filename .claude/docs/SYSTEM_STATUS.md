@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-17
+Last updated: 2026-03-18
 
 ---
 
@@ -53,11 +53,11 @@ Last updated: 2026-03-17
 | **Shared components** | completed | ThemeToggle, StatsCard, EmptyState, PageHeader, LoadingState (page/card/table/list variants) |
 | **Marketing components** | completed | Navbar, Footer, FeatureBlock |
 | **Home (Landing page)** | completed | Hero section, feature blocks, pricing section with API plans, CTA section |
-| **Services** | in progress | plans.service.ts (listPlans via publicServerFetch) — auth service pending |
+| **Services** | completed | plans.service.ts (listPlans), auth.service.ts (login, register, requestPasswordReset, resetPassword, logout) |
 | **API layer** | completed | axios.ts (instance + auth interceptors + refresh queue), serverFetch.ts (serverFetch + publicServerFetch), authStore.ts (in-memory + cookie sync), authCookies.ts (shared constants), SessionRestorer in AppProvider |
 | **Institutional Pages** | not started | Backlog: FAQ, Contact, Terms, Privacy, About |
-| **Authentication** | not started | Backlog: login, register, password reset, session management |
-| **Dashboard** | not started | Backlog: layout, home page |
+| **Authentication** | completed | src/proxy.ts (edge guard), features/auth/{types,services,hooks,components} — login, register (multi-step), forgot-password, reset-password pages; dashboard layout guard |
+| **Dashboard** | in progress | layout (sidebar placeholder + guard) + placeholder page done; stats/nav backlog |
 | **Students** | not started | Backlog: list, create, detail, edit, invite, notes |
 | **Exercises** | not started | Backlog: library, create, edit, media upload |
 | **Training templates** | not started | Backlog: list, create, builder, duplicate |
