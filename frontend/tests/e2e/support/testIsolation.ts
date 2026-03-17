@@ -71,8 +71,13 @@ export async function createIsolatedCoach(
 
   const body = await registerResponse.json()
   const accessToken: string = body.accessToken ?? body.data?.accessToken
+  // In Coach OS, each personal IS the tenant — personal.id === tenantId
   const tenantId: string =
-    body.user?.tenantId ?? body.data?.user?.tenantId ?? body.personal?.tenantId
+    body.user?.tenantId ??
+    body.data?.user?.tenantId ??
+    body.personal?.tenantId ??
+    body.personal?.id ??
+    body.data?.personal?.id
 
   if (!accessToken || !tenantId) {
     throw new Error(

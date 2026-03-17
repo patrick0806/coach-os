@@ -8,6 +8,7 @@
 import { test, expect } from "@playwright/test"
 import {
   injectMockAuth,
+  mockDashboardStats,
   mockProgramTemplatesList,
   mockProgramTemplatesListStateful,
   mockCreateProgramTemplate,
@@ -77,7 +78,12 @@ test.describe("Training Templates — List & Filters", () => {
   })
 
   test("sidebar link navigates to training templates", async ({ page }) => {
+    // Sidebar is only visible on desktop — skip on mobile viewports
+    const viewport = page.viewportSize()
+    test.skip(viewport !== null && viewport.width < 1024, "Sidebar is collapsed on mobile")
+
     await injectMockAuth(page)
+    await mockDashboardStats(page)
     await mockProgramTemplatesList(page, trainingTemplatesFixtures.withTemplates)
     await page.goto("/dashboard")
     await page.waitForSelector("[data-slot='page-header'], h1", { timeout: 10000 })

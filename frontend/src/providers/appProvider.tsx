@@ -3,7 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import axios from "axios";
 
 import { authStore } from "@/stores/authStore";
@@ -16,14 +16,23 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333";
  *
  * Strategy:
  * 1. Check if a valid access token cookie exists → restore from cookies (no network call).
+ *    This runs synchronously during render so DashboardLayout.useEffect sees the correct
+ *    auth state before checking authStore.isAuthenticated().
  * 2. If not, call /auth/refresh using the http-only refresh cookie set by the backend.
  * 3. If refresh also fails, the user is treated as unauthenticated (no redirect here).
  *    Redirects are handled by route guards per page.
  */
 function useSessionRestore() {
+  // Step 1: run synchronously during render (not in useEffect) so in-memory auth state
+  // is populated before any child component's useEffect checks authStore.isAuthenticated().
+  // getCookieValue() returns null on the server side (SSR), making this SSR-safe.
+  const initRef = useRef<{ restored: boolean; shouldRefresh: boolean } | null>(null);
+  if (initRef.current === null) {
+    initRef.current = authStore.init();
+  }
+
   useEffect(() => {
-    // Step 1: try to restore from cookies (no network call)
-    const { restored, shouldRefresh } = authStore.init();
+    const { restored, shouldRefresh } = initRef.current!;
     if (restored) return;
 
     // Step 2: only call refresh if the user cookie says they were previously logged in.

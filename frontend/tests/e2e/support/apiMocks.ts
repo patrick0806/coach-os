@@ -106,6 +106,23 @@ export async function mockGetStateful(
 }
 
 // =============================================================================
+// Dashboard
+// =============================================================================
+
+export async function mockDashboardStats(
+  page: Page,
+  stats: object = { activeStudents: 0, totalStudents: 0, programTemplates: 0, activeStudentPrograms: 0 }
+): Promise<void> {
+  await page.route("**/api/v1/dashboard/stats*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: stats })
+    } else {
+      route.continue()
+    }
+  })
+}
+
+// =============================================================================
 // Plans
 // =============================================================================
 
