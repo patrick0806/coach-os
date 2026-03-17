@@ -2,7 +2,7 @@
 import axios, { type InternalAxiosRequestConfig } from "axios";
 
 import { authStore } from "@/stores/authStore";
-import type { AuthTokensResponse } from "@/types/auth.types";
+import type { RefreshTokenResponse } from "@/types/auth.types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333";
 
@@ -79,15 +79,21 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // Use a plain axios call (not the api instance) to avoid interceptor loops
-      const { data } = await axios.post<{ data: AuthTokensResponse }>(
+      // Use a plain axios call (not the api instance) to avoid interceptor loops.
+      // The refresh endpoint returns { accessToken } directly — no { data: ... } wrapper
+      // because BuildResponseInterceptor only unwraps if the payload has a .data field.
+      const { data } = await axios.post<RefreshTokenResponse>(
         `${BASE_URL}/auth/refresh`,
         {},
         { withCredentials: true }
       );
 
-      const { accessToken, user } = data.data;
-      authStore.setAuth(accessToken, user);
+      const { accessToken } = data;
+      // Preserve the existing user — refresh only rotates the access token
+      const currentUser = authStore.getUser();
+      if (currentUser) {
+        authStore.setAuth(accessToken, currentUser);
+      }
       flushQueue(null, accessToken);
 
       original.headers.Authorization = `Bearer ${accessToken}`;
