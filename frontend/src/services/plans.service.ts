@@ -43,5 +43,6 @@ export async function listPlans(): Promise<Plan[]> {
     revalidate: 3600,
     tags: ["plans"],
   });
+
   return (raw ?? []).map(mapPlan);
 }

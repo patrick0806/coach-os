@@ -367,6 +367,37 @@ Last updated: 2026-03-16
 - [ ] Implement cancel contract controller (PATCH /coaching-contracts/:id/cancel)
 - [ ] Implement cancel contract unit tests
 
+### Frontend: design system ✅ COMPLETE
+
+- [x] Create lib/utils.ts (cn utility — clsx + tailwind-merge)
+- [x] Create AppProvider (ThemeProvider dark-first + QueryClientProvider + ReactQueryDevtools)
+- [x] Configure Inter font via next/font/google in layout.tsx
+- [x] Add semantic colors (success, warning, info) to globals.css — light and dark
+- [x] Update chart colors to multi-hue palette (amber, teal, blue, rose, warm brown)
+- [x] Install missing shadcn components (avatar, progress, tooltip, tabs, sheet)
+- [x] Restore premium button variants (premium, premium-ghost)
+- [x] Create ThemeToggle component (Sun/Moon with next-themes)
+- [x] Create StatsCard component (label, value, trend, icon)
+- [x] Create EmptyState component (icon, title, description, CTA)
+- [x] Create PageHeader component (title, description, actions)
+- [x] Create LoadingState component (page/card/table/list variants)
+- [x] Create framer-motion animation presets (fadeIn, scaleIn, staggerContainer)
+- [x] Create marketing components (Navbar, Footer, FeatureBlock)
+- [x] Create plans service and PlanCard component
+- [x] Remove hardcoded dark class from page.tsx
+- [x] Verify build passes (zero TS errors, zero build errors)
+
+### Frontend: API integration layer ✅ COMPLETE
+
+- [x] Create src/types/auth.types.ts (AuthUser, AuthTokensResponse)
+- [x] Create src/lib/authCookies.ts (shared cookie name constants)
+- [x] Create src/stores/authStore.ts (in-memory state + cookie sync + subscribers)
+- [x] Create src/lib/axios.ts (api instance, request interceptor for Bearer token, response interceptor with refresh queue for concurrent 401s)
+- [x] Create src/lib/serverFetch.ts (serverFetch for authenticated SSR, publicServerFetch for public data with revalidation)
+- [x] Update AppProvider with SessionRestorer (init from cookies → fallback to /auth/refresh → graceful failure)
+- [x] Update QueryClient retry to skip 401/403 (handled by axios interceptor)
+- [x] Update plans.service.ts to use publicServerFetch with tags
+
 ### Frontend: auth
 
 - [ ] Implement auth service (register, login, refresh, password reset)

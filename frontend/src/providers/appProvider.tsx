@@ -22,11 +22,16 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333";
  */
 function useSessionRestore() {
   useEffect(() => {
-    // Step 1: try to restore from cookies
-    const restored = authStore.init();
+    // Step 1: try to restore from cookies (no network call)
+    const { restored, shouldRefresh } = authStore.init();
     if (restored) return;
 
-    // Step 2: try to refresh using the http-only cookie
+    // Step 2: only call refresh if the user cookie says they were previously logged in.
+    // This avoids hitting /auth/refresh on every public page visit (landing page, etc.)
+    // for users who have never authenticated.
+    if (!shouldRefresh) return;
+
+    // Step 3: try to refresh using the http-only cookie set by the backend
     axios
       .post<{ data: AuthTokensResponse }>(
         `${BASE_URL}/auth/refresh`,
@@ -37,7 +42,8 @@ function useSessionRestore() {
         authStore.setAuth(data.data.accessToken, data.data.user);
       })
       .catch(() => {
-        // No valid session — user is unauthenticated. Route guards handle redirects.
+        // Refresh failed — clear stale user cookie and treat as unauthenticated.
+        authStore.clear();
       });
   }, []);
 }

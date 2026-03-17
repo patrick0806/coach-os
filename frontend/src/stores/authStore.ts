@@ -11,6 +11,11 @@ type AuthState = {
 
 type Subscriber = (state: AuthState) => void;
 
+// User cookie lives longer than the access token so we know to attempt refresh
+// even after the access token has expired. Without it, we'd call refresh on every
+// public page visit — including the landing page for unauthenticated users.
+const USER_TTL_MINUTES = 30 * 24 * 60; // 30 days
+
 // --- Cookie helpers (client-only) ---
 
 function setCookie(name: string, value: string, minutes: number): void {
@@ -42,9 +47,13 @@ function notify(): void {
 export const authStore = {
   /**
    * Attempt to restore session from cookies on page load.
-   * Returns true if a valid session was found.
+   *
+   * Returns:
+   * - `restored: true`  — full restore, no network needed
+   * - `shouldRefresh: true` — user cookie exists but access token expired → try /auth/refresh
+   * - both false — user is not logged in, skip refresh
    */
-  init(): boolean {
+  init(): { restored: boolean; shouldRefresh: boolean } {
     const token = getCookieValue(AUTH_TOKEN_COOKIE);
     const userRaw = getCookieValue(AUTH_USER_COOKIE);
 
@@ -52,13 +61,23 @@ export const authStore = {
       try {
         state.accessToken = token;
         state.user = JSON.parse(userRaw) as AuthUser;
-        return true;
+        return { restored: true, shouldRefresh: false };
       } catch {
         this.clear();
       }
     }
 
-    return false;
+    // Access token expired but user was previously logged in — attempt refresh
+    if (!token && userRaw) {
+      try {
+        state.user = JSON.parse(userRaw) as AuthUser;
+      } catch {
+        deleteCookie(AUTH_USER_COOKIE);
+      }
+      return { restored: false, shouldRefresh: true };
+    }
+
+    return { restored: false, shouldRefresh: false };
   },
 
   getToken(): string | null {
@@ -76,9 +95,10 @@ export const authStore = {
   setAuth(accessToken: string, user: AuthUser): void {
     state.accessToken = accessToken;
     state.user = user;
+    // Access token cookie: short-lived (matches JWT expiry)
     setCookie(AUTH_TOKEN_COOKIE, accessToken, TOKEN_TTL_MINUTES);
-    // Store non-sensitive user data so SSR and page refresh can restore state
-    setCookie(AUTH_USER_COOKIE, JSON.stringify(user), TOKEN_TTL_MINUTES);
+    // User cookie: long-lived (used as "was logged in" indicator for refresh decisions)
+    setCookie(AUTH_USER_COOKIE, JSON.stringify(user), USER_TTL_MINUTES);
     notify();
   },
 

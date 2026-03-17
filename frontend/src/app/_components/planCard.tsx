@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { formatMoney } from "@/lib/formatMoney";
 import type { Plan } from "@/services/plans.service";
 
 interface PlanCardProps {
@@ -9,10 +10,7 @@ interface PlanCardProps {
 }
 
 export function PlanCard({ plan }: PlanCardProps) {
-  const formattedPrice = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(plan.price / 100);
+  const formattedPrice = formatMoney(plan.price);
 
   return (
     <div

@@ -161,3 +161,6 @@ If a tasks need a new entity or extends the domain, always update the @DOMAIN_MA
 If need manipulate dates always use the date-fns library.
 
 When build interfaces always use the @interface-design skill.
+When build components always use the pattern of @create-react-component skill.
+Always follow the system design (UI/UX) rules, themes, colors and patterns, not use hardcoded values.
+In the frontend for server components for public routes use fetch() directly, for client components use react-query with axios.

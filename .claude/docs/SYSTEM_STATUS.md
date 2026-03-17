@@ -48,8 +48,13 @@ Last updated: 2026-03-17
 | Area | Status | Notes |
 |------|--------|-------|
 | **Project setup** | completed | Next.js initialized with Tailwind, shadcn/ui components, Playwright config |
-| **UI components** | completed | button, card, input, select, dialog, table, calendar, badge, checkbox, combobox, dropdown-menu, popover, separator, skeleton, sonner, textarea, time-select, label, field, input-group, alert-dialog, whatsapp-icon |
-| **Home** | not started | Backlog: home page, landing page for conversion with plan details and etc |
+| **Design system** | completed | lib/utils.ts (cn utility), AppProvider (ThemeProvider dark-first + QueryClient), Inter font, semantic colors (success/warning/info), multi-hue chart palette, framer-motion animation presets |
+| **UI components** | completed | button (premium variants), card (glass/premium variants), input, select, dialog, table, calendar, badge, checkbox, combobox, dropdown-menu, popover, separator, skeleton, sonner, textarea, time-select, label, field, input-group, alert-dialog, whatsapp-icon, avatar, progress, tooltip, tabs, sheet |
+| **Shared components** | completed | ThemeToggle, StatsCard, EmptyState, PageHeader, LoadingState (page/card/table/list variants) |
+| **Marketing components** | completed | Navbar, Footer, FeatureBlock |
+| **Home (Landing page)** | completed | Hero section, feature blocks, pricing section with API plans, CTA section |
+| **Services** | in progress | plans.service.ts (listPlans via publicServerFetch) — auth service pending |
+| **API layer** | completed | axios.ts (instance + auth interceptors + refresh queue), serverFetch.ts (serverFetch + publicServerFetch), authStore.ts (in-memory + cookie sync), authCookies.ts (shared constants), SessionRestorer in AppProvider |
 | **Institutional Pages** | not started | Backlog: FAQ, Contact, Terms, Privacy, About |
 | **Authentication** | not started | Backlog: login, register, password reset, session management |
 | **Dashboard** | not started | Backlog: layout, home page |
