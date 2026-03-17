@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-18
+Last updated: 2026-03-19
 
 ---
 
@@ -458,12 +458,31 @@ Last updated: 2026-03-18
 - [x] Enable training templates sidebar link (/training-templates)
 - [x] E2E tests (trainingTemplates.spec.ts — list, filters, CRUD, builder, reorder, mobile)
 
-### Frontend: student programs
+### Frontend: student programs ✅ COMPLETE
 
-- [ ] Implement student programs service
-- [ ] Implement assign program dialog (select template for student)
-- [ ] Implement student program detail page (workout days, exercises)
-- [ ] Implement customize student exercise form
+- [x] Implement student programs service (studentPrograms.service.ts — list, getById, assign, updateStatus, updateWorkoutDay, updateStudentExercise)
+- [x] Implement student programs types (studentPrograms.types.ts — all interfaces and request types)
+- [x] Implement useStudentPrograms hook (query with studentId + params filter)
+- [x] Implement useStudentProgram hook (single program query, enabled: !!id)
+- [x] Implement useAssignProgram mutation hook (invalidates student programs list)
+- [x] Implement useUpdateStudentProgramStatus mutation hook (invalidates student programs)
+- [x] Implement useUpdateWorkoutDay mutation hook (invalidates program detail)
+- [x] Implement useUpdateStudentExercise mutation hook (invalidates program detail)
+- [x] Implement studentProgramStatusBadge component (active/finished/cancelled)
+- [x] Implement assignProgramDialog (template selector + name field, enabled only when open)
+- [x] Implement studentProgramCard (clickable card with status badge and action menu)
+- [x] Implement updateProgramStatusDialog (with irreversibility warning)
+- [x] Implement studentExerciseItem (exercise row with edit button)
+- [x] Implement updateStudentExerciseDialog (pre-filled form with all exercise params)
+- [x] Implement workoutDayCard (accordion with exercise list)
+- [x] Implement studentProgramsSection (filter tabs + list + assign button)
+- [x] Enable "Programas" tab in student detail page (was disabled "Em breve")
+- [x] Implement assign program dialog (select template for student)
+- [x] Implement student program detail page (/students/[id]/programs/[programId])
+- [x] Implement customize student exercise form (updateStudentExerciseDialog)
+- [x] Add enabled param to useProgramTemplates hook (prevent premature API calls)
+- [x] E2E behavioral tests (studentPrograms.behavior.spec.ts — 21 tests: tab, list, assign, detail, exercise update, mobile)
+- [x] E2E smoke tests (studentPrograms.smoke.spec.ts — tab navigation + assign flow)
 
 ### Frontend: workout execution
 

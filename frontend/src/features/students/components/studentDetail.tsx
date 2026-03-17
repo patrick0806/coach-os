@@ -23,6 +23,7 @@ import { LoadingState } from "@/shared/components/loadingState"
 import { StudentStatusBadge } from "@/features/students/components/studentStatusBadge"
 import { StudentFormDialog } from "@/features/students/components/studentFormDialog"
 import { StudentNotes } from "@/features/students/components/studentNotes"
+import { StudentProgramsSection } from "@/features/studentPrograms/components/studentProgramsSection"
 import { useStudent } from "@/features/students/hooks/useStudent"
 import { useUpdateStudentStatus } from "@/features/students/hooks/useUpdateStudentStatus"
 import type { StudentStatus } from "@/features/students/types/students.types"
@@ -111,18 +112,7 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
         <TabsList variant="line">
           <TabsTrigger value="info">Informações</TabsTrigger>
           <TabsTrigger value="notes">Notas</TabsTrigger>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="pointer-events-none opacity-40">
-                  <TabsTrigger value="programs" disabled>
-                    Programas
-                  </TabsTrigger>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>Em breve</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <TabsTrigger value="programs">Programas</TabsTrigger>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -152,6 +142,10 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
 
         <TabsContent value="notes" className="mt-4">
           <StudentNotes studentId={studentId} />
+        </TabsContent>
+
+        <TabsContent value="programs" className="mt-4">
+          <StudentProgramsSection studentId={studentId} />
         </TabsContent>
       </Tabs>
 
