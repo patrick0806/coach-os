@@ -20,7 +20,8 @@ test.describe("Students — List & Filters", () => {
 
   test("search by name filters the list", async ({ page }) => {
     await page.getByPlaceholder("Buscar por nome ou email...").fill("Fernanda");
-    await page.waitForURL(/search=Fernanda/);
+    // waitForURL naturally absorbs the 400ms debounce before the URL is updated
+    await page.waitForURL(/search=Fernanda/, { timeout: 5000 });
 
     await expect(page.getByText("Fernanda Costa")).toBeVisible();
     await expect(page.getByText("Carlos Mendonça")).not.toBeVisible();
@@ -141,7 +142,7 @@ test.describe("Students — Mobile", () => {
 
   test("search works on mobile", async ({ page }) => {
     await page.getByPlaceholder("Buscar por nome ou email...").fill("Fernanda");
-    await page.waitForURL(/search=Fernanda/);
+    await page.waitForURL(/search=Fernanda/, { timeout: 5000 });
 
     await expect(page.getByText("Fernanda Costa")).toBeVisible();
     await expect(page.getByText("Carlos Mendonça")).not.toBeVisible();

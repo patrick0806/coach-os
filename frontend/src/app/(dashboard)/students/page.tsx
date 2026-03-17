@@ -38,7 +38,7 @@ function StudentsContent() {
   const status = (searchParams.get("status") as StudentStatus) || undefined
   const page = Number(searchParams.get("page") ?? "0")
 
-  const { data, isLoading } = useStudents({ search, status, page, size: 20 })
+  const { data, isLoading } = useStudents({ search, status, page, size: 10 })
 
   function updateParam(key: string, value: string | undefined) {
     const params = new URLSearchParams(searchParams.toString())
