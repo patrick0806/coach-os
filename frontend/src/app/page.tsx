@@ -11,7 +11,7 @@ import {
 import { listPlans } from "@/services/plans.service";
 import { Navbar } from "@/components/marketing/navbar";
 import { Footer } from "@/components/marketing/footer";
-import { FeatureBlock } from "@/components/marketing/feature-block";
+import { FeatureBlock } from "@/components/marketing/featureBlock";
 import { PlanCard } from "@/app/_components/planCard";
 
 export const metadata: Metadata = {
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const plans = await listPlans();
-
+  console.log("plans:", plans);
   return (
-    <div className="dark min-h-screen bg-background text-foreground selection:bg-primary/30">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
       <Navbar />
 
       <main>

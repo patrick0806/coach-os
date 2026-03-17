@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-import { AppProvider } from "@/providers/app.provider";
+import { AppProvider } from "@/providers/appProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -77,7 +84,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <body className="antialiased">
         <AppProvider>{children}</AppProvider>
         <Toaster position="top-right" richColors />
