@@ -31,7 +31,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Alunos", href: "/students", icon: Users },
-  { label: "Exercícios", href: "/exercises", icon: Dumbbell, disabled: true },
+  { label: "Exercícios", href: "/exercises", icon: Dumbbell },
   { label: "Treinos", href: "/training", icon: ClipboardList, disabled: true },
   { label: "Agenda", href: "/agenda", icon: Calendar, disabled: true },
   { label: "Serviços", href: "/services", icon: Package, disabled: true },

@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-18
+Last updated: 2026-03-17
 
 ---
 
@@ -429,13 +429,16 @@ Last updated: 2026-03-18
 - [ ] Implement student status management
 - [ ] Implement student notes section
 
-### Frontend: exercises
+### Frontend: exercises ✅ COMPLETE
 
-- [ ] Implement exercises service (CRUD, upload)
-- [ ] Implement exercise library page (with search, muscle group filter)
-- [ ] Implement create exercise form (with media upload)
-- [ ] Implement exercise detail dialog
-- [ ] Implement edit exercise form
+- [x] Implement exercises service (CRUD, upload)
+- [x] Implement exercise library page (with search, muscle group filter)
+- [x] Implement create exercise form (with media upload)
+- [x] Implement exercise detail dialog
+- [x] Implement edit exercise form
+- [x] Implement delete exercise dialog (confirmation)
+- [x] Enable exercises sidebar link (removed disabled/opacity-40)
+- [x] E2E tests (exercises.spec.ts — list, filters, create, edit, delete, detail, mobile)
 
 ### Frontend: training templates
 
