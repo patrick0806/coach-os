@@ -198,38 +198,32 @@ Last updated: 2026-03-18
 - [x] Implement DeleteExerciseTemplateUseCase (3 tests — happy path, not found, different tenant)
 - [x] Implement delete exercise template controller (DELETE /exercise-templates/:id)
 
-### Module: training/studentPrograms
+### Module: training/studentPrograms ✅ COMPLETE
 
-- [ ] Implement StudentProgramRepository (create, findAll, findById, update)
-- [ ] Implement AssignProgramUseCase (snapshot template into student program)
-- [ ] Implement assign program request/response DTOs with Zod validation
-- [ ] Implement assign program controller (POST /students/:studentId/programs)
-- [ ] Implement assign program unit tests
-- [ ] Implement ListStudentProgramsUseCase (tenant-scoped)
-- [ ] Implement list student programs controller (GET /students/:studentId/programs)
-- [ ] Implement list student programs unit tests
-- [ ] Implement GetStudentProgramUseCase (with workout days and exercises)
-- [ ] Implement get student program controller (GET /student-programs/:id)
-- [ ] Implement get student program unit tests
-- [ ] Implement UpdateStudentProgramStatusUseCase (active, finished, cancelled)
-- [ ] Implement update program status controller (PATCH /student-programs/:id/status)
-- [ ] Implement update program status unit tests
+- [x] Implement StudentProgramRepository (create, findAllByStudentAndTenant, findById, findByIdWithTree, updateStatus)
+- [x] Implement AssignProgramUseCase (snapshot template into student program — 6 tests)
+- [x] Implement assign program request/response DTOs with Zod validation
+- [x] Implement assign program controller (POST /students/:studentId/programs)
+- [x] Implement ListStudentProgramsUseCase (tenant-scoped, pagination, status filter — 5 tests)
+- [x] Implement list student programs controller (GET /students/:studentId/programs)
+- [x] Implement GetStudentProgramUseCase (with workout days and exercises — 5 tests)
+- [x] Implement get student program controller (GET /student-programs/:id)
+- [x] Implement UpdateStudentProgramStatusUseCase (active, finished, cancelled — 5 tests)
+- [x] Implement update program status controller (PATCH /student-programs/:id/status)
 
-### Module: training/workoutDays
+### Module: training/workoutDays ✅ COMPLETE
 
-- [ ] Implement WorkoutDayRepository (findById, update, reorder)
-- [ ] Implement UpdateWorkoutDayUseCase
-- [ ] Implement update workout day request DTO with Zod validation
-- [ ] Implement update workout day controller (PUT /workout-days/:id)
-- [ ] Implement update workout day unit tests
+- [x] Implement WorkoutDayRepository (create, findByIdWithTenant, update)
+- [x] Implement UpdateWorkoutDayUseCase (5 tests — happy path, not found, wrong tenant, partial, order)
+- [x] Implement update workout day request/response DTOs with Zod validation
+- [x] Implement update workout day controller (PUT /workout-days/:id)
 
-### Module: training/studentExercises
+### Module: training/studentExercises ✅ COMPLETE
 
-- [ ] Implement StudentExerciseRepository (findById, update)
-- [ ] Implement UpdateStudentExerciseUseCase (weight, reps, rest, duration)
-- [ ] Implement update student exercise request DTO with Zod validation
-- [ ] Implement update student exercise controller (PUT /student-exercises/:id)
-- [ ] Implement update student exercise unit tests
+- [x] Implement StudentExerciseRepository (create, findByIdWithTenant, update)
+- [x] Implement UpdateStudentExerciseUseCase (weight, reps, rest, duration, notes — 5 tests)
+- [x] Implement update student exercise request/response DTOs with Zod validation
+- [x] Implement update student exercise controller (PUT /student-exercises/:id)
 
 ### Module: workoutExecution/sessions
 

@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-18
+Last updated: 2026-03-20
 
 ---
 
@@ -28,9 +28,9 @@ Last updated: 2026-03-18
 | **training/programTemplates** | completed | POST /program-templates (5 tests), GET /program-templates (5 tests), GET /program-templates/:id (4 tests), PUT /program-templates/:id (5 tests), DELETE /program-templates/:id (3 tests), POST /program-templates/:id/duplicate (4 tests), POST /program-templates/:id/workouts (5 tests), PATCH /program-templates/:id/workouts/reorder (4 tests). Full tree fetch with workout+exercise data, deep copy on duplicate, auto-order |
 | **training/workoutTemplates** | completed | PUT /workout-templates/:id (5 tests), DELETE /workout-templates/:id (3 tests), POST /workout-templates/:id/exercises (6 tests), PATCH /workout-templates/:id/exercises/reorder (4 tests). Exercise visibility check (global or same tenant), auto-order |
 | **training/exerciseTemplates** | completed | PUT /exercise-templates/:id (5 tests), DELETE /exercise-templates/:id (3 tests). Tenant isolation via 3-table join chain |
-| **training/studentPrograms** | not started | Backlog: assign program, snapshot logic |
-| **training/workoutDays** | not started | Backlog: workout day customization |
-| **training/studentExercises** | not started | Backlog: student exercise customization |
+| **training/studentPrograms** | completed | POST /students/:studentId/programs (6 tests), GET /students/:studentId/programs (5 tests), GET /student-programs/:id (5 tests), PATCH /student-programs/:id/status (5 tests). Template snapshot on assign, tenant isolation, pagination |
+| **training/workoutDays** | completed | PUT /workout-days/:id (5 tests). Tenant isolation via join chain |
+| **training/studentExercises** | completed | PUT /student-exercises/:id (5 tests). Tenant isolation via double join chain |
 | **workoutExecution/sessions** | not started | Backlog: start, pause, finish sessions |
 | **workoutExecution/exerciseExecutions** | not started | Backlog: exercise execution tracking |
 | **workoutExecution/exerciseSets** | not started | Backlog: set recording |
@@ -111,28 +111,19 @@ All schemas are defined and migration is generated. Reference:
 
 ## Current Focus
 
-**Phase 3 — Exercise Library + Training Templates** (Roadmap) — COMPLETE
+**Phase 6 — Student Training Programs** — COMPLETE
 
-Training templates sprint complete. 297 tests passing (61 new tests added).
+Student programs sprint complete. 328 tests passing (31 new tests added).
 
 Completed:
-- ~~StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository~~ — done
-- ~~POST /students~~ — done (9 tests, limit enforcement)
-- ~~GET /students~~ — done (6 tests, pagination + search + status filter)
-- ~~GET /students/:id~~ — done (4 tests)
-- ~~PUT /students/:id~~ — done (5 tests)
-- ~~PATCH /students/:id/status~~ — done (6 tests, archives relation)
-- ~~POST /students/invite~~ — done (7 tests, Resend email)
-- ~~POST /students/invite-link~~ — done (6 tests, shareable link)
-- ~~POST /students/accept-invite~~ — done (12 tests, public endpoint)
-- ~~POST /students/:studentId/notes~~ — done (4 tests)
-- ~~GET /students/:studentId/notes~~ — done (3 tests)
-- ~~PUT /notes/:id~~ — done (4 tests)
-- ~~DELETE /notes/:id~~ — done (3 tests)
-- ~~GET /coach-student-relations~~ — done (3 tests)
-- ~~PATCH /coach-student-relations/:id/status~~ — done (5 tests)
+- ~~POST /students/:studentId/programs~~ — done (6 tests, template snapshot)
+- ~~GET /students/:studentId/programs~~ — done (5 tests, pagination + status filter)
+- ~~GET /student-programs/:id~~ — done (5 tests, full tree with exercises)
+- ~~PATCH /student-programs/:id/status~~ — done (5 tests, active/finished/cancelled)
+- ~~PUT /workout-days/:id~~ — done (5 tests, tenant isolation via join)
+- ~~PUT /student-exercises/:id~~ — done (5 tests, tenant isolation via double join)
 
-Next sprint: **Phase 3 — Exercise Library + Training Templates**
+Next sprint: **Phase 7 — Workout Execution** (sessions, exercise executions, sets)
 
 ---
 
