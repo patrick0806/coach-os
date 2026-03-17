@@ -28,14 +28,14 @@ export class PersonalsRepository {
     return result[0];
   }
 
-  async findBySlug(slug: string): Promise<{ slug: string } | null> {
+  async findBySlug(slug: string): Promise<Personal | undefined> {
     const result = await this.drizzle.db
-      .select({ slug: personals.slug })
+      .select()
       .from(personals)
       .where(eq(personals.slug, slug))
       .limit(1);
 
-    return result[0] ?? null;
+    return result[0];
   }
 
   async create(data: {
@@ -77,4 +77,34 @@ export class PersonalsRepository {
       .where(eq(personals.id, id));
   }
 
+  async updateProfile(
+    id: string,
+    data: Partial<
+      Pick<
+        Personal,
+        | "bio"
+        | "phoneNumber"
+        | "specialties"
+        | "themeColor"
+        | "profilePhoto"
+        | "logoUrl"
+        | "lpTitle"
+        | "lpSubtitle"
+        | "lpHeroImage"
+        | "lpAboutTitle"
+        | "lpAboutText"
+        | "lpImage1"
+        | "lpImage2"
+        | "lpImage3"
+      >
+    >,
+  ): Promise<Personal | undefined> {
+    const result = await this.drizzle.db
+      .update(personals)
+      .set(data as any)
+      .where(eq(personals.id, id))
+      .returning();
+
+    return result[0];
+  }
 }

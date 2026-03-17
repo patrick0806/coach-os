@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ---
 
@@ -8,7 +8,7 @@ Last updated: 2026-03-16
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository, ProgramTemplatesRepository, WorkoutTemplatesRepository, ExerciseTemplatesRepository, ProgressRecordsRepository, ProgressPhotosRepository, AvailabilityRulesRepository, AvailabilityExceptionsRepository, TrainingSchedulesRepository, AppointmentsRepository, AppointmentRequestsRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository, ProgramTemplatesRepository, WorkoutTemplatesRepository, ExerciseTemplatesRepository, ProgressRecordsRepository, ProgressPhotosRepository, AvailabilityRulesRepository, AvailabilityExceptionsRepository, TrainingSchedulesRepository, AppointmentsRepository, AppointmentRequestsRepository, **ServicePlansRepository**), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
 | **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
 | **platform/plans** | completed | GET /plans endpoint (public, 6 tests). Lists active plans with public fields only |
@@ -18,11 +18,9 @@ Last updated: 2026-03-16
 | **platform/admins** | not started | Next: admin guard, admin repository |
 | **platform/subscriptions** | not started | Backlog: Stripe webhooks, plan changes |
 | **platform/tenants** | not started | Backlog: admin tenant management |
-| **platform/profile** | not started | Backlog: coach profile CRUD |
-| **students** | not started | Backlog: CRUD, invitations, status, plan limits |
-| **coaching/relations** | not started | Backlog: coach-student relation management |
-| **coaching/notes** | not started | Backlog: student notes CRUD |
-| **coaching/servicePlans** | not started | Backlog: service plan CRUD |
+| **platform/profile** | completed | GET /profile (3 tests), PUT /profile (5 tests), POST /profile/photo/upload-url (4 tests). Full profile CRUD, S3 presigned URL upload, themeColor hex validation, LP fields |
+| **coaching/servicePlans** | completed | POST /service-plans (5 tests), GET /service-plans (3 tests), GET /service-plans/:id (4 tests), PUT /service-plans/:id (5 tests), DELETE /service-plans/:id (3 tests). Full CRUD, attendanceType enum, tenant isolation |
+| **public** | completed | GET /public/:slug (4 tests). Public coach profile by slug with active service plans, no auth required (@Public + @BypassTenantAccess) |
 | **coaching/contracts** | not started | Backlog: coaching contract management |
 | **exercises** | completed | POST /exercises (6 tests), GET /exercises (6 tests), GET /exercises/:id (4 tests), PUT /exercises/:id (6 tests), DELETE /exercises/:id (5 tests), POST /exercises/:id/upload-url (6 tests). Global + private visibility, tenant isolation, S3 presigned URL upload flow |
 | **training/programTemplates** | completed | POST /program-templates (5 tests), GET /program-templates (5 tests), GET /program-templates/:id (4 tests), PUT /program-templates/:id (5 tests), DELETE /program-templates/:id (3 tests), POST /program-templates/:id/duplicate (4 tests), POST /program-templates/:id/workouts (5 tests), PATCH /program-templates/:id/workouts/reorder (4 tests). Full tree fetch with workout+exercise data, deep copy on duplicate, auto-order |
@@ -159,22 +157,23 @@ Next sprint: **Phase 9 — Scheduling** (availability, appointments) or frontend
 
 Scheduling sprint complete. 506 tests passing (105 new tests added).
 
+---
+
+## Current Focus
+
+**Phase 10 — Profile, Service Plans & Public Page** — COMPLETE
+
+542 tests passing (36 new tests added).
+
 Completed:
-- ~~Sprint 9.1 — Availability CRUD~~ — done (26 tests, 2 repos)
-- ~~Sprint 9.2 — Training Schedules~~ — done (22 tests, 1 repo, training integration)
-- ~~Sprint 9.3 — Appointments + Conflict Detection~~ — done (50 tests, 2 repos, conflict util)
-- ~~Sprint 9.4 — Calendar + Documentation~~ — done (5 tests, unified view)
+- ~~platform/profile~~ — GET /profile, PUT /profile (LP fields + branding), POST /profile/photo/upload-url
+- ~~coaching/servicePlans~~ — full CRUD (POST, GET list, GET by id, PUT, DELETE)
+- ~~public~~ — GET /public/:slug (public coach page with active service plans)
 
-New repositories: AvailabilityRulesRepository, AvailabilityExceptionsRepository, TrainingSchedulesRepository, AppointmentsRepository, AppointmentRequestsRepository
+New repository: ServicePlansRepository
+PersonalsRepository extended: `updateProfile`, `findBySlug` now returns full `Personal` object
 
-Key features:
-- Soft conflict detection model (warns but allows forceCreate override)
-- TrainingSchedule entity bridges training and scheduling domains
-- Auto-deactivation of training schedules on program finish/cancel
-- Unified calendar view merging appointments, training schedules, and exceptions
-- UTC-based date/time handling throughout
-
-Next sprint: **Frontend implementation** or backlog modules (servicePlans, contracts)
+Next sprint: **Frontend implementation**
 
 ---
 

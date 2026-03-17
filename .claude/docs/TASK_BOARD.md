@@ -99,16 +99,15 @@ Last updated: 2026-03-16
 - [ ] Implement suspend tenant controller (PATCH /admin/tenants/:id/suspend)
 - [ ] Implement suspend tenant unit tests
 
-### Module: platform/profile
+### Module: platform/profile ✅ COMPLETE
 
-- [ ] Implement GetProfileUseCase
-- [ ] Implement profile response DTO
-- [ ] Implement get profile controller (GET /profile)
-- [ ] Implement get profile unit tests
-- [ ] Implement UpdateProfileUseCase
-- [ ] Implement update profile request DTO with Zod validation
-- [ ] Implement update profile controller (PUT /profile)
-- [ ] Implement update profile unit tests
+- [x] Implement GetProfileUseCase (3 tests — happy path, null fields, not found)
+- [x] Implement get profile controller (GET /profile)
+- [x] Implement UpdateProfileUseCase (5 tests — happy path, partial, invalid themeColor, invalid url, not found)
+- [x] Implement update profile request DTO with Zod validation
+- [x] Implement update profile controller (PUT /profile)
+- [x] Implement RequestPhotoUploadUseCase (4 tests — happy path, invalid mime, S3 key format, tenant isolation)
+- [x] Implement request photo upload controller (POST /profile/photo/upload-url)
 
 ### Module: students ✅ COMPLETE
 
@@ -339,19 +338,20 @@ Last updated: 2026-03-16
 - [x] Implement GetCalendarUseCase (5 tests — merged entries, training schedule expansion by dayOfWeek, includes exceptions, empty range, tenant isolation)
 - [x] Implement get calendar controller (GET /calendar)
 
-### Module: coaching/servicePlans
+### Module: coaching/servicePlans ✅ COMPLETE
 
-- [ ] Implement ServicePlanRepository (create, findByTenantId, findById, update)
-- [ ] Implement CreateServicePlanUseCase
-- [ ] Implement create service plan request/response DTOs with Zod validation
-- [ ] Implement create service plan controller (POST /service-plans)
-- [ ] Implement create service plan unit tests
-- [ ] Implement ListServicePlansUseCase
-- [ ] Implement list service plans controller (GET /service-plans)
-- [ ] Implement list service plans unit tests
-- [ ] Implement UpdateServicePlanUseCase
-- [ ] Implement update service plan controller (PUT /service-plans/:id)
-- [ ] Implement update service plan unit tests
+- [x] Implement ServicePlansRepository (create, findByTenantId, findActiveByTenantId, findById, update, delete)
+- [x] Implement CreateServicePlanUseCase (5 tests — happy path, all fields, validation, negative price, invalid attendanceType)
+- [x] Implement create service plan request/response DTOs
+- [x] Implement create service plan controller (POST /service-plans)
+- [x] Implement ListServicePlansUseCase (3 tests — returns plans, empty, tenant isolation)
+- [x] Implement list service plans controller (GET /service-plans)
+- [x] Implement GetServicePlanUseCase (4 tests — found, not found, wrong tenant, all fields)
+- [x] Implement get service plan controller (GET /service-plans/:id)
+- [x] Implement UpdateServicePlanUseCase (5 tests — happy path, not found, wrong tenant, partial, validation)
+- [x] Implement update service plan controller (PUT /service-plans/:id)
+- [x] Implement DeleteServicePlanUseCase (3 tests — happy path, not found, wrong tenant)
+- [x] Implement delete service plan controller (DELETE /service-plans/:id)
 
 ### Module: coaching/contracts
 

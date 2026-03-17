@@ -6,9 +6,11 @@ import { JWTAuthGuard, RolesGuard, TenantAccessGuard } from "@shared/guards";
 import { HealthModule } from "@modules/health/health.module";
 import { AuthModule } from "@modules/auth/auth.module";
 import { PlansModule } from "@modules/platform/plans/plans.module";
+import { ProfileModule } from "@modules/platform/profile/profile.module";
 import { StudentsModule } from "@modules/students/students.module";
 import { CoachingNotesModule } from "@modules/coaching/notes/notes.module";
 import { CoachingRelationsModule } from "@modules/coaching/relations/relations.module";
+import { ServicePlansModule } from "@modules/coaching/servicePlans/servicePlans.module";
 import { ExercisesModule } from "@modules/exercises/exercises.module";
 import { ProgramTemplatesModule } from "@modules/training/programTemplates/programTemplates.module";
 import { WorkoutTemplatesModule } from "@modules/training/workoutTemplates/workoutTemplates.module";
@@ -25,6 +27,7 @@ import { AvailabilityModule } from "@modules/scheduling/availability/availabilit
 import { TrainingSchedulesModule } from "@modules/scheduling/trainingSchedules/trainingSchedules.module";
 import { AppointmentsModule } from "@modules/scheduling/appointments/appointments.module";
 import { CalendarModule } from "@modules/scheduling/calendar/calendar.module";
+import { PublicModule } from "@modules/public/public.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -34,9 +37,11 @@ import { DatabaseModule } from "@config/database/database.module";
     AuthModule,
     HealthModule,
     PlansModule,
+    ProfileModule,
     StudentsModule,
     CoachingNotesModule,
     CoachingRelationsModule,
+    ServicePlansModule,
     ExercisesModule,
     ProgramTemplatesModule,
     WorkoutTemplatesModule,
@@ -53,6 +58,7 @@ import { DatabaseModule } from "@config/database/database.module";
     TrainingSchedulesModule,
     AppointmentsModule,
     CalendarModule,
+    PublicModule,
     RouterModule.register([
       {
         path: "health",
@@ -67,12 +73,20 @@ import { DatabaseModule } from "@config/database/database.module";
         module: PlansModule,
       },
       {
+        path: "profile",
+        module: ProfileModule,
+      },
+      {
         path: "students",
         module: StudentsModule,
       },
       {
         path: "coach-student-relations",
         module: CoachingRelationsModule,
+      },
+      {
+        path: "service-plans",
+        module: ServicePlansModule,
       },
       {
         path: "exercises",
@@ -137,6 +151,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "calendar",
         module: CalendarModule,
+      },
+      {
+        path: "public",
+        module: PublicModule,
       },
     ]),
   ],
