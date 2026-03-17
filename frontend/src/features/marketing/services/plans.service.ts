@@ -1,29 +1,7 @@
 import { publicServerFetch } from "@/lib/serverFetch";
+import type { Plan, PlanApiResponse } from "../types/plans.types";
 
-export interface Plan {
-  id: string;
-  name: string;
-  price: number;
-  order: number;
-  limitOfStudents: number;
-  features: string[];
-  highlighted: boolean;
-  hasTrial: boolean;
-}
-
-// Raw shape returned by the backend API
-interface PlanApiResponse {
-  id: string;
-  name: string;
-  price: string | number;
-  order: number;
-  maxStudents?: number;
-  limitOfStudents?: number;
-  benefits?: string[];
-  features?: string[];
-  highlighted: boolean;
-  hasTrial: boolean;
-}
+export type { Plan };
 
 function mapPlan(raw: PlanApiResponse): Plan {
   return {

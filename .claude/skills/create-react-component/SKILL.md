@@ -25,7 +25,7 @@ You are creating a new React component or frontend feature in Coach OS. Follow t
 ## Step 4 — Service Integration
 
 - API calls go in `src/features/{feature}/services/`
-- Wrap all API calls with **React Query**:
+- Wrap all client Side API calls with **React Query**:
   - Data fetching → `useQuery`
   - Mutations → `useMutation`
 

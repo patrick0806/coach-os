@@ -6,7 +6,7 @@ import { ptBR } from "date-fns/locale"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/shared/ui/button"
 
 function Calendar({
   className,

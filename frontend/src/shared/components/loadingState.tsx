@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 type LoadingVariant = "page" | "card" | "table" | "list";
 

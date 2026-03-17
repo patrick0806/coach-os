@@ -8,11 +8,11 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { listPlans } from "@/services/plans.service";
-import { Navbar } from "@/components/marketing/navbar";
-import { Footer } from "@/components/marketing/footer";
-import { FeatureBlock } from "@/components/marketing/featureBlock";
-import { PlanCard } from "@/app/_components/planCard";
+import { listPlans } from "@/features/marketing/services/plans.service";
+import { Navbar } from "@/features/marketing/components/navbar";
+import { Footer } from "@/features/marketing/components/footer";
+import { FeatureBlock } from "@/features/marketing/components/featureBlock";
+import { PlanCard } from "@/features/marketing/components/planCard";
 
 export const metadata: Metadata = {
   title: "Domine sua agenda, escale seus treinos",

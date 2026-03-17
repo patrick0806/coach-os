@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/formatMoney";
-import type { Plan } from "@/services/plans.service";
+import type { Plan } from "../types/plans.types";
 
 interface PlanCardProps {
   plan: Plan;
