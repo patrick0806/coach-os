@@ -19,6 +19,8 @@ import { StudentExercisesModule } from "@modules/training/studentExercises/stude
 import { SessionsModule } from "@modules/workoutExecution/sessions/sessions.module";
 import { ExerciseExecutionsModule } from "@modules/workoutExecution/exerciseExecutions/exerciseExecutions.module";
 import { ExerciseSetsModule } from "@modules/workoutExecution/exerciseSets/exerciseSets.module";
+import { ProgressRecordsModule } from "@modules/progress/records/records.module";
+import { ProgressPhotosModule } from "@modules/progress/photos/photos.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -41,6 +43,8 @@ import { DatabaseModule } from "@config/database/database.module";
     SessionsModule,
     ExerciseExecutionsModule,
     ExerciseSetsModule,
+    ProgressRecordsModule,
+    ProgressPhotosModule,
     RouterModule.register([
       {
         path: "health",

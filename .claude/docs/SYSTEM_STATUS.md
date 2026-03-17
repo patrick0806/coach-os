@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-20
+Last updated: 2026-03-21
 
 ---
 
@@ -8,7 +8,7 @@ Last updated: 2026-03-20
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository, ProgramTemplatesRepository, WorkoutTemplatesRepository, ExerciseTemplatesRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository, ProgramTemplatesRepository, WorkoutTemplatesRepository, ExerciseTemplatesRepository, ProgressRecordsRepository, ProgressPhotosRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
 | **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
 | **platform/plans** | completed | GET /plans endpoint (public, 6 tests). Lists active plans with public fields only |
@@ -34,8 +34,8 @@ Last updated: 2026-03-20
 | **workoutExecution/sessions** | completed | POST /workout-sessions (6 tests), PATCH /workout-sessions/:id/pause (4 tests), PATCH /workout-sessions/:id/finish (4 tests), GET /workout-sessions/students/:studentId/workout-sessions (5 tests), GET /workout-sessions/:id (4 tests). Full tree fetch with executions+sets, tenant isolation |
 | **workoutExecution/exerciseExecutions** | completed | POST /exercise-executions (6 tests). Auto-order, tenant isolation via session join |
 | **workoutExecution/exerciseSets** | completed | POST /exercise-sets (6 tests). Tenant isolation via double join chain, weight number→string conversion |
-| **progress/records** | not started | Backlog: body metrics CRUD |
-| **progress/photos** | not started | Backlog: presigned URL upload, metadata |
+| **progress/records** | completed | POST /students/:studentId/progress-records (6 tests), GET /students/:studentId/progress-records (6 tests), PUT /progress-records/:id (5 tests), DELETE /progress-records/:id (4 tests). Paginated with metricType filter, numeric value→string conversion, tenant isolation |
+| **progress/photos** | completed | POST /students/:studentId/progress-photos/upload-url (6 tests), POST /students/:studentId/progress-photos (5 tests), GET /students/:studentId/progress-photos (6 tests). S3 presigned URL upload flow, tenant isolation, JPEG/PNG/WebP support |
 | **scheduling/availability** | not started | Backlog: availability rules CRUD |
 | **scheduling/exceptions** | not started | Backlog: availability exceptions CRUD |
 | **scheduling/appointmentRequests** | not started | Backlog: request, approve, reject |
@@ -49,6 +49,8 @@ Last updated: 2026-03-20
 |------|--------|-------|
 | **Project setup** | completed | Next.js initialized with Tailwind, shadcn/ui components, Playwright config |
 | **UI components** | completed | button, card, input, select, dialog, table, calendar, badge, checkbox, combobox, dropdown-menu, popover, separator, skeleton, sonner, textarea, time-select, label, field, input-group, alert-dialog, whatsapp-icon |
+| **Home** | not started | Backlog: home page, landing page for conversion with plan details and etc |
+| **Institutional Pages** | not started | Backlog: FAQ, Contact, Terms, Privacy, About |
 | **Authentication** | not started | Backlog: login, register, password reset, session management |
 | **Dashboard** | not started | Backlog: layout, home page |
 | **Students** | not started | Backlog: list, create, detail, edit, invite, notes |
@@ -126,7 +128,26 @@ Completed:
 
 New repositories: WorkoutSessionsRepository, ExerciseExecutionsRepository, ExerciseSetsRepository
 
-Next sprint: **Phase 8 — Progress Tracking** (records, photos) or frontend implementation
+---
+
+## Current Focus
+
+**Phase 8 — Progress Tracking** — COMPLETE
+
+Progress tracking sprint complete. 401 tests passing (38 new tests added).
+
+Completed:
+- ~~POST /students/:studentId/progress-records~~ — done (6 tests, numeric value→string, tenant isolation)
+- ~~GET /students/:studentId/progress-records~~ — done (6 tests, paginated, metricType filter)
+- ~~PUT /progress-records/:id~~ — done (5 tests, partial update, not found, wrong tenant)
+- ~~DELETE /progress-records/:id~~ — done (4 tests, not found, wrong tenant)
+- ~~POST /students/:studentId/progress-photos/upload-url~~ — done (6 tests, S3 presigned URL, JPEG/PNG/WebP)
+- ~~POST /students/:studentId/progress-photos~~ — done (5 tests, mediaUrl validation, notes)
+- ~~GET /students/:studentId/progress-photos~~ — done (6 tests, paginated, ordered by createdAt DESC)
+
+New repositories: ProgressRecordsRepository, ProgressPhotosRepository
+
+Next sprint: **Phase 9 — Scheduling** (availability, appointments) or frontend implementation
 
 ---
 

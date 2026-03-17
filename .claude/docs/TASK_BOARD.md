@@ -254,29 +254,28 @@ Last updated: 2026-03-18
 - [x] Implement record set request/response DTOs with Zod validation
 - [x] Implement record set controller (POST /exercise-sets)
 
-### Module: progress/records
+### Module: progress/records ✅ COMPLETE
 
-- [ ] Implement ProgressRecordRepository (create, findByStudentId)
-- [ ] Implement CreateProgressRecordUseCase
-- [ ] Implement create progress record request/response DTOs with Zod validation
-- [ ] Implement create progress record controller (POST /students/:studentId/progress-records)
-- [ ] Implement create progress record unit tests
-- [ ] Implement ListProgressRecordsUseCase (chronological, by metric type)
-- [ ] Implement list progress records controller (GET /students/:studentId/progress-records)
-- [ ] Implement list progress records unit tests
+- [x] Implement ProgressRecordRepository (create, findAllByStudentId, findById, update, delete)
+- [x] Implement CreateProgressRecordUseCase (6 tests — happy path, student not found, wrong tenant, validation, notes)
+- [x] Implement create progress record request/response DTOs with Zod validation
+- [x] Implement create progress record controller (POST /students/:studentId/progress-records)
+- [x] Implement ListProgressRecordsUseCase (6 tests — pagination, metricType filter, empty, defaults, student not found)
+- [x] Implement list progress records controller (GET /students/:studentId/progress-records)
+- [x] Implement UpdateProgressRecordUseCase (5 tests — happy path, not found, wrong tenant, partial, value conversion)
+- [x] Implement update progress record controller (PUT /progress-records/:id)
+- [x] Implement DeleteProgressRecordUseCase (4 tests — happy path, not found, wrong tenant, no double delete)
+- [x] Implement delete progress record controller (DELETE /progress-records/:id)
 
-### Module: progress/photos
+### Module: progress/photos ✅ COMPLETE
 
-- [ ] Implement ProgressPhotoRepository (create, findByStudentId)
-- [ ] Implement RequestPhotoUploadUseCase (generate presigned URL)
-- [ ] Implement request photo upload controller (POST /students/:studentId/progress-photos/upload-url)
-- [ ] Implement request photo upload unit tests
-- [ ] Implement SaveProgressPhotoUseCase (store metadata after upload)
-- [ ] Implement save progress photo controller (POST /students/:studentId/progress-photos)
-- [ ] Implement save progress photo unit tests
-- [ ] Implement ListProgressPhotosUseCase (chronological)
-- [ ] Implement list progress photos controller (GET /students/:studentId/progress-photos)
-- [ ] Implement list progress photos unit tests
+- [x] Implement ProgressPhotoRepository (create, findAllByStudentId, findById, delete)
+- [x] Implement RequestPhotoUploadUseCase (6 tests — happy path, student not found, wrong tenant, invalid MIME, S3 key format, webp support)
+- [x] Implement request photo upload controller (POST /students/:studentId/progress-photos/upload-url)
+- [x] Implement SaveProgressPhotoUseCase (5 tests — happy path, student not found, wrong tenant, invalid URL, notes)
+- [x] Implement save progress photo controller (POST /students/:studentId/progress-photos)
+- [x] Implement ListProgressPhotosUseCase (6 tests — pagination, empty, student not found, defaults, custom pagination, tenant isolation)
+- [x] Implement list progress photos controller (GET /students/:studentId/progress-photos)
 
 ### Module: scheduling/availability
 
