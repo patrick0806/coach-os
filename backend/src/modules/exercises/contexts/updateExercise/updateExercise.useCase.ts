@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/commo
 import { z } from "zod";
 
 import { ExercisesRepository, Exercise } from "@shared/repositories/exercises.repository";
+import { S3Provider } from "@shared/providers/s3.provider";
 import { validate } from "@shared/utils/validation.util";
 
 const updateExerciseSchema = z.object({
@@ -15,7 +16,10 @@ const updateExerciseSchema = z.object({
 
 @Injectable()
 export class UpdateExerciseUseCase {
-  constructor(private readonly exercisesRepository: ExercisesRepository) {}
+  constructor(
+    private readonly exercisesRepository: ExercisesRepository,
+    private readonly s3Provider: S3Provider,
+  ) {}
 
   async execute(id: string, body: unknown, tenantId: string): Promise<Exercise> {
     const data = validate(updateExerciseSchema, body);
@@ -40,6 +44,19 @@ export class UpdateExerciseUseCase {
 
     if (!updated) {
       throw new NotFoundException("Exercise not found");
+    }
+
+    // Delete old S3 object when mediaUrl is explicitly removed or replaced
+    const oldMediaUrl = exercise.mediaUrl;
+    const newMediaUrl = data.mediaUrl;
+    const mediaUrlChanged =
+      "mediaUrl" in data &&
+      oldMediaUrl !== null &&
+      oldMediaUrl !== undefined &&
+      newMediaUrl !== oldMediaUrl;
+
+    if (mediaUrlChanged) {
+      await this.s3Provider.deleteObject(oldMediaUrl);
     }
 
     return updated;

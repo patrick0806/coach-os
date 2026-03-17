@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Upload, Loader2 } from "lucide-react"
+import { Upload, Loader2, Trash2, ImageIcon } from "lucide-react"
+import Image from "next/image"
 import axios from "axios"
 import { toast } from "sonner"
 
@@ -51,6 +52,9 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
   const isEdit = !!exercise
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [isDeletingMedia, setIsDeletingMedia] = useState(false)
+  // Local preview: tracks the current mediaUrl (existing or just uploaded)
+  const [mediaPreview, setMediaPreview] = useState<string | null>(exercise?.mediaUrl ?? null)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -72,6 +76,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
         instructions: exercise.instructions ?? "",
         youtubeUrl: exercise.youtubeUrl ?? "",
       })
+      setMediaPreview(exercise.mediaUrl ?? null)
     } else {
       form.reset({
         name: "",
@@ -80,6 +85,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
         instructions: "",
         youtubeUrl: "",
       })
+      setMediaPreview(null)
     }
   }, [exercise, form])
 
@@ -95,6 +101,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
       })
       await exercisesService.uploadToS3(uploadUrl, file)
       await exercisesService.update(exerciseId, { mediaUrl: fileUrl })
+      setMediaPreview(fileUrl)
       toast.success("Mídia enviada com sucesso!")
     } catch (err) {
       const message = axios.isAxiosError(err)
@@ -103,6 +110,24 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
       toast.error(message)
     } finally {
       setIsUploading(false)
+      // Reset file input so the same file can be re-selected after an error
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
+  async function handleDeleteMedia(exerciseId: string) {
+    setIsDeletingMedia(true)
+    try {
+      await exercisesService.update(exerciseId, { mediaUrl: null })
+      setMediaPreview(null)
+      toast.success("Mídia removida com sucesso!")
+    } catch (err) {
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? "Erro ao remover mídia")
+        : "Erro ao remover mídia"
+      toast.error(message)
+    } finally {
+      setIsDeletingMedia(false)
     }
   }
 
@@ -132,7 +157,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
     }
   }
 
-  const isPending = createExercise.isPending || updateExercise.isPending
+  const isPending = createExercise.isPending || updateExercise.isPending || isDeletingMedia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -212,25 +237,76 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
                   className="hidden"
                   onChange={onFileChange}
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  disabled={isUploading}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="mr-2 size-4" />
-                      {exercise?.mediaUrl ? "Alterar mídia" : "Enviar mídia"}
-                    </>
-                  )}
-                </Button>
+
+                {mediaPreview ? (
+                  <div className="relative overflow-hidden rounded-lg border bg-muted">
+                    <div className="relative h-40 w-full">
+                      <Image
+                        src={mediaPreview}
+                        alt="Preview da mídia"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <ImageIcon className="size-3.5" />
+                        Mídia atual
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isUploading || isDeletingMedia}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          {isUploading ? (
+                            <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                          ) : (
+                            <Upload className="mr-1.5 size-3.5" />
+                          )}
+                          Trocar
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isUploading || isDeletingMedia}
+                          onClick={() => handleDeleteMedia(exercise!.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          {isDeletingMedia ? (
+                            <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="mr-1.5 size-3.5" />
+                          )}
+                          Remover
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 size-4" />
+                        Enviar mídia
+                      </>
+                    )}
+                  </Button>
+                )}
               </Field>
             )}
           </FieldGroup>

@@ -31,7 +31,7 @@ export interface ProgramTemplateWithTree extends ProgramTemplate {
 
 @Injectable()
 export class ProgramTemplatesRepository {
-  constructor(private readonly drizzle: DrizzleProvider) {}
+  constructor(private readonly drizzle: DrizzleProvider) { }
 
   async create(data: {
     tenantId: string;
@@ -45,7 +45,7 @@ export class ProgramTemplatesRepository {
         name: data.name,
         description: data.description,
         status: "active",
-      })
+      } as any)
       .returning();
 
     return result[0];

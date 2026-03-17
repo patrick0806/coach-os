@@ -9,7 +9,7 @@ export type ProgressRecord = InferSelectModel<typeof progressRecords>;
 
 @Injectable()
 export class ProgressRecordsRepository {
-  constructor(private readonly drizzle: DrizzleProvider) {}
+  constructor(private readonly drizzle: DrizzleProvider) { }
 
   async create(data: {
     tenantId: string;
@@ -30,7 +30,7 @@ export class ProgressRecordsRepository {
         unit: data.unit,
         recordedAt: data.recordedAt,
         notes: data.notes,
-      })
+      } as any)
       .returning();
 
     return result[0];

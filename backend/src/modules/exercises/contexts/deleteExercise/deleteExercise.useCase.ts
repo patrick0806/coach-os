@@ -1,10 +1,14 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { ExercisesRepository } from "@shared/repositories/exercises.repository";
+import { S3Provider } from "@shared/providers/s3.provider";
 
 @Injectable()
 export class DeleteExerciseUseCase {
-  constructor(private readonly exercisesRepository: ExercisesRepository) {}
+  constructor(
+    private readonly exercisesRepository: ExercisesRepository,
+    private readonly s3Provider: S3Provider,
+  ) {}
 
   async execute(id: string, tenantId: string): Promise<void> {
     const exercise = await this.exercisesRepository.findById(id);
@@ -27,6 +31,11 @@ export class DeleteExerciseUseCase {
       await this.exercisesRepository.delete(id, tenantId);
     } catch {
       throw new ConflictException("Exercise is in use and cannot be deleted");
+    }
+
+    // Clean up S3 media after successful DB deletion
+    if (exercise.mediaUrl) {
+      await this.s3Provider.deleteObject(exercise.mediaUrl);
     }
   }
 }

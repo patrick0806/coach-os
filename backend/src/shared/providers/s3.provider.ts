@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { env } from "@config/env";
@@ -41,5 +41,26 @@ export class S3Provider {
     const publicUrl = `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
 
     return { uploadUrl, publicUrl };
+  }
+
+  // Extracts the S3 object key from a full public URL
+  extractKeyFromUrl(url: string): string | null {
+    const baseUrl = `https://${this.bucket}.s3.${this.region}.amazonaws.com/`;
+    if (url.startsWith(baseUrl)) {
+      return url.slice(baseUrl.length);
+    }
+    return null;
+  }
+
+  async deleteObject(url: string): Promise<void> {
+    const key = this.extractKeyFromUrl(url);
+    if (!key) return; // Not an S3 URL from this bucket — skip silently
+
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    });
+
+    await this.client.send(command);
   }
 }
