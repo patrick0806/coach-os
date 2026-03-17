@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-17
+Last updated: 2026-03-18
 
 ---
 
@@ -158,63 +158,45 @@ Last updated: 2026-03-17
 - [x] Implement RequestUploadUrlUseCase (S3 presigned URL, mime validation — 6 tests)
 - [x] Implement media upload controller (POST /exercises/:id/upload-url)
 
-### Module: training/programTemplates
+### Module: training/programTemplates ✅ COMPLETE
 
-- [ ] Implement ProgramTemplateRepository (create, findAll, findById, update, delete, duplicate)
-- [ ] Implement CreateProgramTemplateUseCase
-- [ ] Implement create program template request/response DTOs with Zod validation
-- [ ] Implement create program template controller (POST /program-templates)
-- [ ] Implement create program template unit tests
-- [ ] Implement ListProgramTemplatesUseCase (tenant-scoped, with pagination)
-- [ ] Implement list program templates controller (GET /program-templates)
-- [ ] Implement list program templates unit tests
-- [ ] Implement GetProgramTemplateUseCase (with workout templates and exercises)
-- [ ] Implement get program template controller (GET /program-templates/:id)
-- [ ] Implement get program template unit tests
-- [ ] Implement UpdateProgramTemplateUseCase
-- [ ] Implement update program template request DTO
-- [ ] Implement update program template controller (PUT /program-templates/:id)
-- [ ] Implement update program template unit tests
-- [ ] Implement DuplicateProgramTemplateUseCase (deep copy)
-- [ ] Implement duplicate program template controller (POST /program-templates/:id/duplicate)
-- [ ] Implement duplicate program template unit tests
-- [ ] Implement DeleteProgramTemplateUseCase
-- [ ] Implement delete program template controller (DELETE /program-templates/:id)
-- [ ] Implement delete program template unit tests
+- [x] Implement ProgramTemplateRepository (create, findAllByTenantId, findById, findByIdWithTree, update, delete)
+- [x] Implement CreateProgramTemplateUseCase (5 tests — happy path, tenantId, validation)
+- [x] Implement create program template controller (POST /program-templates)
+- [x] Implement ListProgramTemplatesUseCase (5 tests — pagination, search, status filter, totalPages)
+- [x] Implement list program templates controller (GET /program-templates)
+- [x] Implement GetProgramTemplateUseCase (4 tests — with full tree, not found, different tenant, empty tree)
+- [x] Implement get program template controller (GET /program-templates/:id)
+- [x] Implement UpdateProgramTemplateUseCase (5 tests — happy path, not found, different tenant, partial, validation)
+- [x] Implement update program template controller (PUT /program-templates/:id)
+- [x] Implement DuplicateProgramTemplateUseCase (4 tests — deep copy with "(cópia)" suffix)
+- [x] Implement duplicate program template controller (POST /program-templates/:id/duplicate)
+- [x] Implement DeleteProgramTemplateUseCase (3 tests — happy path, not found, different tenant)
+- [x] Implement delete program template controller (DELETE /program-templates/:id)
+- [x] Implement AddWorkoutTemplateUseCase (5 tests — auto-order, tenant check, validation)
+- [x] Implement add workout template controller (POST /program-templates/:id/workouts)
+- [x] Implement ReorderWorkoutTemplatesUseCase (4 tests — happy path, not found, different tenant, empty array)
+- [x] Implement reorder workout templates controller (PATCH /program-templates/:id/workouts/reorder)
 
-### Module: training/workoutTemplates
+### Module: training/workoutTemplates ✅ COMPLETE
 
-- [ ] Implement WorkoutTemplateRepository (create, findById, update, delete, reorder)
-- [ ] Implement AddWorkoutTemplateUseCase
-- [ ] Implement add workout template request/response DTOs with Zod validation
-- [ ] Implement add workout template controller (POST /program-templates/:id/workouts)
-- [ ] Implement add workout template unit tests
-- [ ] Implement UpdateWorkoutTemplateUseCase
-- [ ] Implement update workout template controller (PUT /workout-templates/:id)
-- [ ] Implement update workout template unit tests
-- [ ] Implement DeleteWorkoutTemplateUseCase
-- [ ] Implement delete workout template controller (DELETE /workout-templates/:id)
-- [ ] Implement delete workout template unit tests
-- [ ] Implement ReorderWorkoutTemplatesUseCase
-- [ ] Implement reorder workout templates controller (PATCH /program-templates/:id/workouts/reorder)
-- [ ] Implement reorder workout templates unit tests
+- [x] Implement WorkoutTemplatesRepository (create, findById, findByIdWithTenant, findMaxOrderByProgramTemplateId, update, delete, reorder)
+- [x] Implement UpdateWorkoutTemplateUseCase (5 tests — happy path, not found, different tenant, partial, validation)
+- [x] Implement update workout template controller (PUT /workout-templates/:id)
+- [x] Implement DeleteWorkoutTemplateUseCase (3 tests — happy path, not found, different tenant)
+- [x] Implement delete workout template controller (DELETE /workout-templates/:id)
+- [x] Implement AddExerciseTemplateUseCase (6 tests — auto-order, exercise visibility, tenant check, validation)
+- [x] Implement add exercise template controller (POST /workout-templates/:id/exercises)
+- [x] Implement ReorderExerciseTemplatesUseCase (4 tests — happy path, not found, different tenant, empty array)
+- [x] Implement reorder exercise templates controller (PATCH /workout-templates/:id/exercises/reorder)
 
-### Module: training/exerciseTemplates
+### Module: training/exerciseTemplates ✅ COMPLETE
 
-- [ ] Implement ExerciseTemplateRepository (create, findById, update, delete, reorder)
-- [ ] Implement AddExerciseTemplateUseCase
-- [ ] Implement add exercise template request/response DTOs with Zod validation
-- [ ] Implement add exercise template controller (POST /workout-templates/:id/exercises)
-- [ ] Implement add exercise template unit tests
-- [ ] Implement UpdateExerciseTemplateUseCase
-- [ ] Implement update exercise template controller (PUT /exercise-templates/:id)
-- [ ] Implement update exercise template unit tests
-- [ ] Implement DeleteExerciseTemplateUseCase
-- [ ] Implement delete exercise template controller (DELETE /exercise-templates/:id)
-- [ ] Implement delete exercise template unit tests
-- [ ] Implement ReorderExerciseTemplatesUseCase
-- [ ] Implement reorder exercise templates controller (PATCH /workout-templates/:id/exercises/reorder)
-- [ ] Implement reorder exercise templates unit tests
+- [x] Implement ExerciseTemplatesRepository (create, findById, findByIdWithTenant, findMaxOrderByWorkoutTemplateId, update, delete, reorder)
+- [x] Implement UpdateExerciseTemplateUseCase (5 tests — happy path, not found, different tenant, partial, validation)
+- [x] Implement update exercise template controller (PUT /exercise-templates/:id)
+- [x] Implement DeleteExerciseTemplateUseCase (3 tests — happy path, not found, different tenant)
+- [x] Implement delete exercise template controller (DELETE /exercise-templates/:id)
 
 ### Module: training/studentPrograms
 

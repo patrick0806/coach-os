@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-17
+Last updated: 2026-03-18
 
 ---
 
@@ -8,7 +8,7 @@ Last updated: 2026-03-17
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository, ProgramTemplatesRepository, WorkoutTemplatesRepository, ExerciseTemplatesRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
 | **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
 | **platform/plans** | completed | GET /plans endpoint (public, 6 tests). Lists active plans with public fields only |
@@ -25,9 +25,9 @@ Last updated: 2026-03-17
 | **coaching/servicePlans** | not started | Backlog: service plan CRUD |
 | **coaching/contracts** | not started | Backlog: coaching contract management |
 | **exercises** | completed | POST /exercises (6 tests), GET /exercises (6 tests), GET /exercises/:id (4 tests), PUT /exercises/:id (6 tests), DELETE /exercises/:id (5 tests), POST /exercises/:id/upload-url (6 tests). Global + private visibility, tenant isolation, S3 presigned URL upload flow |
-| **training/programTemplates** | not started | Backlog: template CRUD, duplicate |
-| **training/workoutTemplates** | not started | Backlog: workout template CRUD, reorder |
-| **training/exerciseTemplates** | not started | Backlog: exercise template CRUD, reorder |
+| **training/programTemplates** | completed | POST /program-templates (5 tests), GET /program-templates (5 tests), GET /program-templates/:id (4 tests), PUT /program-templates/:id (5 tests), DELETE /program-templates/:id (3 tests), POST /program-templates/:id/duplicate (4 tests), POST /program-templates/:id/workouts (5 tests), PATCH /program-templates/:id/workouts/reorder (4 tests). Full tree fetch with workout+exercise data, deep copy on duplicate, auto-order |
+| **training/workoutTemplates** | completed | PUT /workout-templates/:id (5 tests), DELETE /workout-templates/:id (3 tests), POST /workout-templates/:id/exercises (6 tests), PATCH /workout-templates/:id/exercises/reorder (4 tests). Exercise visibility check (global or same tenant), auto-order |
+| **training/exerciseTemplates** | completed | PUT /exercise-templates/:id (5 tests), DELETE /exercise-templates/:id (3 tests). Tenant isolation via 3-table join chain |
 | **training/studentPrograms** | not started | Backlog: assign program, snapshot logic |
 | **training/workoutDays** | not started | Backlog: workout day customization |
 | **training/studentExercises** | not started | Backlog: student exercise customization |
@@ -111,9 +111,9 @@ All schemas are defined and migration is generated. Reference:
 
 ## Current Focus
 
-**Phase 3 — Exercise Library** (Roadmap) — COMPLETE
+**Phase 3 — Exercise Library + Training Templates** (Roadmap) — COMPLETE
 
-Phase 3 (exercises) is done. Exercise library fully implemented with 236 tests passing.
+Training templates sprint complete. 297 tests passing (61 new tests added).
 
 Completed:
 - ~~StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository~~ — done

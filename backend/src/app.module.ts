@@ -10,6 +10,9 @@ import { StudentsModule } from "@modules/students/students.module";
 import { CoachingNotesModule } from "@modules/coaching/notes/notes.module";
 import { CoachingRelationsModule } from "@modules/coaching/relations/relations.module";
 import { ExercisesModule } from "@modules/exercises/exercises.module";
+import { ProgramTemplatesModule } from "@modules/training/programTemplates/programTemplates.module";
+import { WorkoutTemplatesModule } from "@modules/training/workoutTemplates/workoutTemplates.module";
+import { ExerciseTemplatesModule } from "@modules/training/exerciseTemplates/exerciseTemplates.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -23,6 +26,9 @@ import { DatabaseModule } from "@config/database/database.module";
     CoachingNotesModule,
     CoachingRelationsModule,
     ExercisesModule,
+    ProgramTemplatesModule,
+    WorkoutTemplatesModule,
+    ExerciseTemplatesModule,
     RouterModule.register([
       {
         path: "health",
@@ -47,6 +53,18 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "exercises",
         module: ExercisesModule,
+      },
+      {
+        path: "program-templates",
+        module: ProgramTemplatesModule,
+      },
+      {
+        path: "workout-templates",
+        module: WorkoutTemplatesModule,
+      },
+      {
+        path: "exercise-templates",
+        module: ExerciseTemplatesModule,
       },
     ]),
   ],
