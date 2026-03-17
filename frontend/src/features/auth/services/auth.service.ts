@@ -39,6 +39,10 @@ export const authService = {
     await api.post("/auth/password-reset/confirm", data);
   },
 
+  async setupPassword(data: { token: string; password: string }): Promise<void> {
+    await api.post("/auth/password-setup", data);
+  },
+
   logout(): void {
     authStore.clear();
   },

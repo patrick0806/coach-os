@@ -21,7 +21,18 @@ function StudentsContent() {
 
   const [createOpen, setCreateOpen] = useState(false)
   const [inviteOpen, setInviteOpen] = useState(false)
+  const [inviteStudent, setInviteStudent] = useState<StudentItem | null>(null)
   const [editStudent, setEditStudent] = useState<StudentItem | null>(null)
+
+  function openInviteForStudent(student: StudentItem) {
+    setInviteStudent(student)
+    setInviteOpen(true)
+  }
+
+  function handleInviteOpenChange(open: boolean) {
+    setInviteOpen(open)
+    if (!open) setInviteStudent(null)
+  }
 
   const search = searchParams.get("search") ?? ""
   const status = (searchParams.get("status") as StudentStatus) || undefined
@@ -47,8 +58,8 @@ function StudentsContent() {
         description="Gerencie seus alunos"
         actions={
           <>
-            <Button variant="outline" onClick={() => setInviteOpen(true)}>
-              Convidar
+            <Button variant="outline" onClick={() => { setInviteStudent(null); setInviteOpen(true) }}>
+              Convidar externo
             </Button>
             <Button onClick={() => setCreateOpen(true)}>
               <UserPlus className="mr-2 size-4" />
@@ -90,6 +101,7 @@ function StudentsContent() {
           <StudentTable
             students={data.content}
             onEdit={(s) => setEditStudent(s)}
+            onInvite={openInviteForStudent}
           />
           {data.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 py-2">
@@ -130,7 +142,11 @@ function StudentsContent() {
         />
       )}
 
-      <InviteStudentDialog open={inviteOpen} onOpenChange={setInviteOpen} />
+      <InviteStudentDialog
+        open={inviteOpen}
+        onOpenChange={handleInviteOpenChange}
+        student={inviteStudent ?? undefined}
+      />
     </div>
   )
 }

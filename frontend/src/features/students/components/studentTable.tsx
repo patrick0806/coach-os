@@ -31,6 +31,7 @@ import { fadeIn } from "@/lib/animations"
 interface StudentTableProps {
   students: StudentItem[]
   onEdit: (student: StudentItem) => void
+  onInvite: (student: StudentItem) => void
 }
 
 function getInitials(name: string): string {
@@ -57,9 +58,10 @@ const statusActions: Record<StudentStatus, { label: string; next: StudentStatus 
 interface RowActionsProps {
   student: StudentItem
   onEdit: (student: StudentItem) => void
+  onInvite: (student: StudentItem) => void
 }
 
-function RowActions({ student, onEdit }: RowActionsProps) {
+function RowActions({ student, onEdit, onInvite }: RowActionsProps) {
   const router = useRouter()
   const updateStatus = useUpdateStudentStatus(student.id)
   const actions = statusActions[student.status]
@@ -77,6 +79,7 @@ function RowActions({ student, onEdit }: RowActionsProps) {
           Ver detalhes
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onEdit(student)}>Editar</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onInvite(student)}>Enviar convite</DropdownMenuItem>
         <DropdownMenuSeparator />
         {actions.map((action) => (
           <DropdownMenuItem
@@ -91,7 +94,7 @@ function RowActions({ student, onEdit }: RowActionsProps) {
   )
 }
 
-export function StudentTable({ students, onEdit }: StudentTableProps) {
+export function StudentTable({ students, onEdit, onInvite }: StudentTableProps) {
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
       <Table>
@@ -128,7 +131,7 @@ export function StudentTable({ students, onEdit }: StudentTableProps) {
                   : "—"}
               </TableCell>
               <TableCell>
-                <RowActions student={student} onEdit={onEdit} />
+                <RowActions student={student} onEdit={onEdit} onInvite={onInvite} />
               </TableCell>
             </TableRow>
           ))}

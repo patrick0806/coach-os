@@ -9,7 +9,7 @@ export type TrainingSchedule = InferSelectModel<typeof trainingSchedules>;
 
 @Injectable()
 export class TrainingSchedulesRepository {
-  constructor(private readonly drizzle: DrizzleProvider) {}
+  constructor(private readonly drizzle: DrizzleProvider) { }
 
   async create(data: {
     tenantId: string;
@@ -145,7 +145,7 @@ export class TrainingSchedulesRepository {
   ): Promise<number> {
     const result = await this.drizzle.db
       .update(trainingSchedules)
-      .set({ isActive: false })
+      .set({ isActive: false } as any)
       .where(
         and(
           eq(trainingSchedules.studentProgramId, studentProgramId),

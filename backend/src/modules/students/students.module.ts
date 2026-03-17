@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { CoachStudentRelationsRepository } from "@shared/repositories/coachStudentRelations.repository";
+import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
 import { StudentInvitationTokensRepository } from "@shared/repositories/studentInvitationTokens.repository";
@@ -24,6 +25,8 @@ import { UpdateStudentController } from "./contexts/updateStudent/updateStudent.
 import { UpdateStudentUseCase } from "./contexts/updateStudent/updateStudent.useCase";
 import { UpdateStudentStatusController } from "./contexts/updateStudentStatus/updateStudentStatus.controller";
 import { UpdateStudentStatusUseCase } from "./contexts/updateStudentStatus/updateStudentStatus.useCase";
+import { SendStudentAccessController } from "./contexts/sendStudentAccess/sendStudentAccess.controller";
+import { SendStudentAccessUseCase } from "./contexts/sendStudentAccess/sendStudentAccess.useCase";
 
 @Module({
   controllers: [
@@ -35,6 +38,7 @@ import { UpdateStudentStatusUseCase } from "./contexts/updateStudentStatus/updat
     InviteStudentController,
     GenerateInviteLinkController,
     AcceptInviteController,
+    SendStudentAccessController,
   ],
   providers: [
     StudentsRepository,
@@ -43,6 +47,7 @@ import { UpdateStudentStatusUseCase } from "./contexts/updateStudentStatus/updat
     PlansRepository,
     CoachStudentRelationsRepository,
     StudentInvitationTokensRepository,
+    PasswordTokensRepository,
     ResendProvider,
     CreateStudentUseCase,
     ListStudentsUseCase,
@@ -52,6 +57,7 @@ import { UpdateStudentStatusUseCase } from "./contexts/updateStudentStatus/updat
     InviteStudentUseCase,
     GenerateInviteLinkUseCase,
     AcceptInviteUseCase,
+    SendStudentAccessUseCase,
   ],
   exports: [StudentsRepository, CoachStudentRelationsRepository],
 })

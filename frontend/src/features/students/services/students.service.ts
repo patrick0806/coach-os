@@ -40,6 +40,13 @@ export const studentsService = {
     data: GenerateInviteLinkRequest
   ): Promise<GenerateInviteLinkResponse> =>
     (await api.post<GenerateInviteLinkResponse>("/students/invite-link", data)).data,
+
+  sendAccessEmail: async (studentId: string): Promise<void> => {
+    await api.post(`/students/${studentId}/send-access`, { mode: "email" })
+  },
+
+  generateAccessLink: async (studentId: string): Promise<{ accessLink: string }> =>
+    (await api.post<{ accessLink: string }>(`/students/${studentId}/send-access`, { mode: "link" })).data,
 }
 
 export const notesService = {
