@@ -32,7 +32,7 @@ const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Alunos", href: "/students", icon: Users },
   { label: "Exercícios", href: "/exercises", icon: Dumbbell },
-  { label: "Treinos", href: "/training", icon: ClipboardList, disabled: true },
+  { label: "Treinos", href: "/training-templates", icon: ClipboardList },
   { label: "Agenda", href: "/agenda", icon: Calendar, disabled: true },
   { label: "Serviços", href: "/services", icon: Package, disabled: true },
   { label: "Página Pública", href: "/perfil", icon: Globe, disabled: true },
