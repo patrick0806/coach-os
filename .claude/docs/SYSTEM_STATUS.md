@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-21
+Last updated: 2026-03-16
 
 ---
 
@@ -8,7 +8,7 @@ Last updated: 2026-03-21
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository, ProgramTemplatesRepository, WorkoutTemplatesRepository, ExerciseTemplatesRepository, ProgressRecordsRepository, ProgressPhotosRepository), utils, enums, exceptions |
+| **shared** | completed | Guards (JWT, Roles, TenantAccess — 17 tests), filters, interceptors, decorators, providers (Drizzle, Stripe, S3, Resend), repositories (PersonalsRepository, UsersRepository, PlansRepository, PasswordTokensRepository, StudentsRepository, CoachStudentRelationsRepository, StudentInvitationTokensRepository, StudentNotesRepository, ExercisesRepository, ProgramTemplatesRepository, WorkoutTemplatesRepository, ExerciseTemplatesRepository, ProgressRecordsRepository, ProgressPhotosRepository, AvailabilityRulesRepository, AvailabilityExceptionsRepository, TrainingSchedulesRepository, AppointmentsRepository, AppointmentRequestsRepository), utils, enums, exceptions |
 | **health** | completed | GET /health endpoint |
 | **auth** | completed | Register (15 tests), Login (10 tests), RefreshToken (11 tests), RequestPasswordReset (11 tests), ResetPassword (12 tests), SetupPassword (10 tests). JWT Strategy, argon2id, http-only refresh token cookie, token reuse detection, anti-enumeration password reset, single-use tokens |
 | **platform/plans** | completed | GET /plans endpoint (public, 6 tests). Lists active plans with public fields only |
@@ -36,10 +36,12 @@ Last updated: 2026-03-21
 | **workoutExecution/exerciseSets** | completed | POST /exercise-sets (6 tests). Tenant isolation via double join chain, weight number→string conversion |
 | **progress/records** | completed | POST /students/:studentId/progress-records (6 tests), GET /students/:studentId/progress-records (6 tests), PUT /progress-records/:id (5 tests), DELETE /progress-records/:id (4 tests). Paginated with metricType filter, numeric value→string conversion, tenant isolation |
 | **progress/photos** | completed | POST /students/:studentId/progress-photos/upload-url (6 tests), POST /students/:studentId/progress-photos (5 tests), GET /students/:studentId/progress-photos (6 tests). S3 presigned URL upload flow, tenant isolation, JPEG/PNG/WebP support |
-| **scheduling/availability** | not started | Backlog: availability rules CRUD |
-| **scheduling/exceptions** | not started | Backlog: availability exceptions CRUD |
-| **scheduling/appointmentRequests** | not started | Backlog: request, approve, reject |
-| **scheduling/appointments** | not started | Backlog: appointment CRUD, overlap prevention |
+| **scheduling/availability** | completed | POST /availability-rules (5 tests), GET /availability-rules (3 tests), PUT /availability-rules/:id (5 tests), DELETE /availability-rules/:id (3 tests), POST /availability-exceptions (4 tests), GET /availability-exceptions (3 tests), DELETE /availability-exceptions/:id (3 tests). Overlap detection, time format validation, date range filtering, tenant isolation |
+| **scheduling/trainingSchedules** | completed | POST /students/:studentId/training-schedules (6 tests), GET /students/:studentId/training-schedules (4 tests), PUT /training-schedules/:id (5 tests), DELETE /training-schedules/:id (3 tests), DeactivateByProgram (4 tests). Auto-deactivation on program finish/cancel, tenant isolation |
+| **scheduling/appointments** | completed | POST /appointments (7 tests), GET /appointments (5 tests), GET /appointments/:id (4 tests), PATCH /appointments/:id/cancel (5 tests), PATCH /appointments/:id/complete (4 tests). Soft conflict detection (availability rules, exceptions, appointments, training schedules), forceCreate override, online/presential validation, tenant isolation |
+| **scheduling/appointmentRequests** | completed | POST /appointment-requests (5 tests), GET /appointment-requests (4 tests), PATCH /appointment-requests/:id/approve (6 tests), PATCH /appointment-requests/:id/reject (4 tests). Auto-creates appointment on approve, conflict detection, tenant isolation |
+| **scheduling/calendar** | completed | GET /calendar (5 tests). Unified view merging appointments + training schedules (expanded by dayOfWeek) + exceptions, sorted by date/time |
+| **scheduling/shared** | completed | conflictDetection.util.ts (8 tests). Pure function detecting 4 conflict types: exception, outside_availability, appointment, training_schedule |
 
 ---
 
@@ -71,8 +73,8 @@ Last updated: 2026-03-21
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Database schema** | completed | 28 tables across 13 schema files (Drizzle ORM) — updated students, personals, new studentInvitationTokens |
-| **Migration files** | completed | `0000_mushy_black_bolt.sql` (initial) + `0001_loose_young_avengers.sql` (schema updates) |
+| **Database schema** | completed | 29 tables across 13 schema files (Drizzle ORM) — updated students, personals, new studentInvitationTokens, trainingSchedules |
+| **Migration files** | completed | `0000_mushy_black_bolt.sql` (initial) + `0001_loose_young_avengers.sql` (schema updates) + `0003_lovely_princess_powerful.sql` (training_schedules) |
 | **Migration applied** | completed | Both migrations applied successfully |
 | **Seed data** | completed | 3 plans (Básico R$29.90/10, Pro R$49.90/30, Elite R$99.90/100) + 26 global exercises |
 | **PostgreSQL** | completed | Database configured |
@@ -107,7 +109,7 @@ All schemas are defined and migration is generated. Reference:
 | `training.ts` | program_templates, workout_templates, exercise_templates, student_programs, workout_days, student_exercises | tenant-scoped |
 | `workoutExecution.ts` | workout_sessions, exercise_executions, exercise_sets | tenant-scoped |
 | `progress.ts` | progress_records, progress_photos | tenant-scoped |
-| `scheduling.ts` | availability_rules, availability_exceptions, appointment_requests, appointments | tenant-scoped |
+| `scheduling.ts` | availability_rules, availability_exceptions, appointment_requests, appointments, training_schedules | tenant-scoped |
 
 ---
 
@@ -148,6 +150,31 @@ Completed:
 New repositories: ProgressRecordsRepository, ProgressPhotosRepository
 
 Next sprint: **Phase 9 — Scheduling** (availability, appointments) or frontend implementation
+
+---
+
+## Current Focus
+
+**Phase 9 — Scheduling** — COMPLETE
+
+Scheduling sprint complete. 506 tests passing (105 new tests added).
+
+Completed:
+- ~~Sprint 9.1 — Availability CRUD~~ — done (26 tests, 2 repos)
+- ~~Sprint 9.2 — Training Schedules~~ — done (22 tests, 1 repo, training integration)
+- ~~Sprint 9.3 — Appointments + Conflict Detection~~ — done (50 tests, 2 repos, conflict util)
+- ~~Sprint 9.4 — Calendar + Documentation~~ — done (5 tests, unified view)
+
+New repositories: AvailabilityRulesRepository, AvailabilityExceptionsRepository, TrainingSchedulesRepository, AppointmentsRepository, AppointmentRequestsRepository
+
+Key features:
+- Soft conflict detection model (warns but allows forceCreate override)
+- TrainingSchedule entity bridges training and scheduling domains
+- Auto-deactivation of training schedules on program finish/cancel
+- Unified calendar view merging appointments, training schedules, and exceptions
+- UTC-based date/time handling throughout
+
+Next sprint: **Frontend implementation** or backlog modules (servicePlans, contracts)
 
 ---
 

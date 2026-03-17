@@ -22,15 +22,24 @@ const makeStudentProgramsRepository = () => ({
   updateStatus: vi.fn().mockResolvedValue(makeProgram({ status: "finished" })),
 });
 
+const makeTrainingSchedulesRepository = () => ({
+  deactivateByProgramId: vi.fn().mockResolvedValue(0),
+});
+
 describe("UpdateStudentProgramStatusUseCase", () => {
   let useCase: UpdateStudentProgramStatusUseCase;
   let studentProgramsRepository: ReturnType<typeof makeStudentProgramsRepository>;
+  let trainingSchedulesRepository: ReturnType<typeof makeTrainingSchedulesRepository>;
 
   const tenantId = "tenant-id-1";
 
   beforeEach(() => {
     studentProgramsRepository = makeStudentProgramsRepository();
-    useCase = new UpdateStudentProgramStatusUseCase(studentProgramsRepository as any);
+    trainingSchedulesRepository = makeTrainingSchedulesRepository();
+    useCase = new UpdateStudentProgramStatusUseCase(
+      studentProgramsRepository as any,
+      trainingSchedulesRepository as any,
+    );
   });
 
   it("should update program status", async () => {

@@ -16,4 +16,7 @@ export const API_TAGS = {
   SUPPORT: 'Support',
   TRAINING_SCHEDULE: 'Training Schedule',
   WORKOUT_EXECUTION: 'Workout Execution',
+  APPOINTMENTS: 'Appointments',
+  APPOINTMENT_REQUESTS: 'Appointment Requests',
+  CALENDAR: 'Calendar',
 };

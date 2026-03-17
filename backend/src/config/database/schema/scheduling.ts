@@ -13,6 +13,7 @@ import {
 
 import { personals } from "./personals";
 import { students } from "./students";
+import { studentPrograms } from "./training";
 
 // Availability Rules
 export const availabilityRules = pgTable(
@@ -184,3 +185,53 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
     references: [appointmentRequests.id],
   }),
 }));
+
+// Training Schedules
+export const trainingSchedules = pgTable(
+  "training_schedules",
+  {
+    id: varchar("id", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    tenantId: varchar("tenant_id", { length: 36 })
+      .notNull()
+      .references(() => personals.id),
+    studentId: varchar("student_id", { length: 36 })
+      .notNull()
+      .references(() => students.id),
+    studentProgramId: varchar("student_program_id", { length: 36 }).references(
+      () => studentPrograms.id,
+    ),
+    dayOfWeek: integer("day_of_week").notNull(),
+    startTime: varchar("start_time", { length: 5 }).notNull(),
+    endTime: varchar("end_time", { length: 5 }).notNull(),
+    location: varchar("location", { length: 300 }),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("training_schedules_tenant_id_idx").on(table.tenantId),
+    index("training_schedules_student_id_idx").on(table.studentId),
+  ],
+);
+
+export const trainingSchedulesRelations = relations(
+  trainingSchedules,
+  ({ one }) => ({
+    tenant: one(personals, {
+      fields: [trainingSchedules.tenantId],
+      references: [personals.id],
+    }),
+    student: one(students, {
+      fields: [trainingSchedules.studentId],
+      references: [students.id],
+    }),
+    studentProgram: one(studentPrograms, {
+      fields: [trainingSchedules.studentProgramId],
+      references: [studentPrograms.id],
+    }),
+  }),
+);

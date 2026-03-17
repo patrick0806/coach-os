@@ -21,6 +21,10 @@ import { ExerciseExecutionsModule } from "@modules/workoutExecution/exerciseExec
 import { ExerciseSetsModule } from "@modules/workoutExecution/exerciseSets/exerciseSets.module";
 import { ProgressRecordsModule } from "@modules/progress/records/records.module";
 import { ProgressPhotosModule } from "@modules/progress/photos/photos.module";
+import { AvailabilityModule } from "@modules/scheduling/availability/availability.module";
+import { TrainingSchedulesModule } from "@modules/scheduling/trainingSchedules/trainingSchedules.module";
+import { AppointmentsModule } from "@modules/scheduling/appointments/appointments.module";
+import { CalendarModule } from "@modules/scheduling/calendar/calendar.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -45,6 +49,10 @@ import { DatabaseModule } from "@config/database/database.module";
     ExerciseSetsModule,
     ProgressRecordsModule,
     ProgressPhotosModule,
+    AvailabilityModule,
+    TrainingSchedulesModule,
+    AppointmentsModule,
+    CalendarModule,
     RouterModule.register([
       {
         path: "health",
@@ -105,6 +113,30 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "exercise-sets",
         module: ExerciseSetsModule,
+      },
+      {
+        path: "availability-rules",
+        module: AvailabilityModule,
+      },
+      {
+        path: "availability-exceptions",
+        module: AvailabilityModule,
+      },
+      {
+        path: "training-schedules",
+        module: TrainingSchedulesModule,
+      },
+      {
+        path: "appointments",
+        module: AppointmentsModule,
+      },
+      {
+        path: "appointment-requests",
+        module: AppointmentsModule,
+      },
+      {
+        path: "calendar",
+        module: CalendarModule,
       },
     ]),
   ],

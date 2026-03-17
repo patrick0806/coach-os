@@ -67,12 +67,17 @@ Entities:
 - WorkoutSession
 
 scheduling/
-Responsible for appointment scheduling.
+Responsible for appointment scheduling, availability management, and training schedule integration.
 
 Entities:
 - AvailabilityRule
+- AvailabilityException
+- TrainingSchedule
 - Appointment
 - AppointmentRequest
+
+Shared utilities:
+- conflictDetection.util.ts (pure function detecting 4 conflict types)
 
 coaching/
 Responsible for coach-student relationships.
@@ -145,18 +150,27 @@ AvailabilityRule
 ↓
 AvailabilityException
 ↓
+TrainingSchedule (recurring presential training blocks)
+↓
 AppointmentRequest
 ↓
 Appointment
 
-Business rule:
+Conflict detection model (SOFT):
 
-A coach cannot have overlapping appointments.
+When creating an appointment, the system checks for conflicts against:
+1. Availability exceptions (blocked dates)
+2. Availability rules (outside available hours)
+3. Existing appointments (time overlap)
+4. Training schedules (recurring training blocks)
 
-Appointments may be:
+Conflicts are warnings — coach can override with forceCreate: true.
 
-- online (meetingUrl required)
-- presential (location required)
+Business rules:
+
+- Appointments may be online (meetingUrl required) or presential (location required)
+- Training schedules are deactivated when linked program finishes or is cancelled
+- Calendar view merges appointments, training schedules, and exceptions into unified timeline
 
 ---
 
@@ -381,6 +395,26 @@ Session marked as finished
 Coach defines recurring schedule
 ↓
 POST /availability-rules
+↓
+AvailabilityRule created (dayOfWeek + startTime/endTime)
+
+---
+
+## Update Availability
+
+Coach updates availability rule
+↓
+PUT /availability-rules/{id}
+↓
+Rule updated (tenant isolation enforced)
+
+---
+
+## Delete Availability
+
+Coach removes availability rule
+↓
+DELETE /availability-rules/{id}
 
 ---
 
@@ -389,6 +423,130 @@ POST /availability-rules
 Coach blocks a specific date
 ↓
 POST /availability-exceptions
+↓
+AvailabilityException created (date + optional reason)
+
+Rule: cannot block past dates.
+
+---
+
+## List Availability Exceptions
+
+Coach views blocked dates
+↓
+GET /availability-exceptions?startDate&endDate
+↓
+Filtered by date range
+
+---
+
+## Delete Availability Exception
+
+Coach unblocks a date
+↓
+DELETE /availability-exceptions/{id}
+
+---
+
+# Training Schedule Flows
+
+## Create Training Schedule
+
+Coach sets recurring training time for student
+↓
+POST /students/{studentId}/training-schedules
+↓
+TrainingSchedule created (dayOfWeek + startTime/endTime + optional location)
+↓
+Blocks coach calendar on that day/time
+
+---
+
+## List Training Schedules
+
+Coach or student views training schedules
+↓
+GET /students/{studentId}/training-schedules
+↓
+Returns active schedules only
+
+---
+
+## Update Training Schedule
+
+Coach updates training time
+↓
+PUT /training-schedules/{id}
+
+---
+
+## Delete Training Schedule
+
+Coach removes training schedule
+↓
+DELETE /training-schedules/{id}
+
+---
+
+## Auto-Deactivate Training Schedules
+
+Student program status changes to finished or cancelled
+↓
+PATCH /student-programs/{id}/status
+↓
+All training schedules linked to that program are deactivated
+
+---
+
+# Appointment Flows
+
+## Coach Creates Appointment
+
+Coach manually schedules appointment
+↓
+POST /appointments
+↓
+Conflict detection runs (checks availability rules, exceptions, existing appointments, training schedules)
+↓
+If conflicts found → returns conflict list (unless forceCreate: true)
+↓
+Appointment created with status "scheduled"
+
+Rule: online type requires meetingUrl, presential requires location.
+
+---
+
+## List Appointments
+
+Coach views appointments
+↓
+GET /appointments?startDate&endDate&status&studentId
+↓
+Paginated with filters
+
+---
+
+## Get Appointment
+
+Coach or student views appointment details
+↓
+GET /appointments/{id}
+
+---
+
+## Cancel Appointment
+
+Coach or student cancels appointment
+↓
+PATCH /appointments/{id}/cancel
+
+---
+
+## Complete Appointment
+
+Coach marks appointment as completed
+↓
+PATCH /appointments/{id}/complete
 
 ---
 
@@ -397,30 +555,46 @@ POST /availability-exceptions
 Student requests appointment
 ↓
 POST /appointment-requests
+↓
+AppointmentRequest created with status "pending"
 
 ---
 
-## Approve Appointment
+## Approve Appointment Request
 
 Coach approves request
 ↓
-Appointment created
+PATCH /appointment-requests/{id}/approve
+↓
+Conflict detection runs
+↓
+Request status updated to "approved"
+↓
+Appointment created automatically
 
 ---
 
-## Coach Creates Appointment
+## Reject Appointment Request
 
-Coach manually schedules appointment
+Coach rejects request
 ↓
-POST /appointments
+PATCH /appointment-requests/{id}/reject
+↓
+Request status updated to "rejected"
 
 ---
 
-## Cancel Appointment
+# Calendar Flow
 
-Student or coach cancels appointment
+## Get Calendar
+
+Coach views unified calendar
 ↓
-PATCH /appointments/{id}
+GET /calendar?startDate&endDate
+↓
+Merges: appointments + training schedules (expanded by dayOfWeek) + availability exceptions
+↓
+Sorted by date and startTime
 
 ---
 

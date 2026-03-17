@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-18
+Last updated: 2026-03-16
 
 ---
 
@@ -277,73 +277,67 @@ Last updated: 2026-03-18
 - [x] Implement ListProgressPhotosUseCase (6 tests — pagination, empty, student not found, defaults, custom pagination, tenant isolation)
 - [x] Implement list progress photos controller (GET /students/:studentId/progress-photos)
 
-### Module: scheduling/availability
+### Module: scheduling/availability ✅ COMPLETE
 
-- [ ] Implement AvailabilityRuleRepository (create, findByTenantId, update, delete)
-- [ ] Implement CreateAvailabilityRuleUseCase
-- [ ] Implement create availability rule request/response DTOs with Zod validation
-- [ ] Implement create availability rule controller (POST /availability-rules)
-- [ ] Implement create availability rule unit tests
-- [ ] Implement ListAvailabilityRulesUseCase
-- [ ] Implement list availability rules controller (GET /availability-rules)
-- [ ] Implement list availability rules unit tests
-- [ ] Implement UpdateAvailabilityRuleUseCase
-- [ ] Implement update availability rule controller (PUT /availability-rules/:id)
-- [ ] Implement update availability rule unit tests
-- [ ] Implement DeleteAvailabilityRuleUseCase
-- [ ] Implement delete availability rule controller (DELETE /availability-rules/:id)
-- [ ] Implement delete availability rule unit tests
+- [x] Implement AvailabilityRulesRepository (create, findByTenantId, findById, findByDayOfWeek, update, delete)
+- [x] Implement AvailabilityExceptionsRepository (create, findByTenantId, findByDateRange, findById, delete)
+- [x] Implement CreateAvailabilityRuleUseCase (5 tests — happy path, validation, startTime < endTime, overlap, tenant isolation)
+- [x] Implement create availability rule controller (POST /availability-rules)
+- [x] Implement ListAvailabilityRulesUseCase (3 tests — returns rules, empty, tenant isolation)
+- [x] Implement list availability rules controller (GET /availability-rules)
+- [x] Implement UpdateAvailabilityRuleUseCase (5 tests — happy path, not found, wrong tenant, partial, validation)
+- [x] Implement update availability rule controller (PUT /availability-rules/:id)
+- [x] Implement DeleteAvailabilityRuleUseCase (3 tests — happy path, not found, wrong tenant)
+- [x] Implement delete availability rule controller (DELETE /availability-rules/:id)
+- [x] Implement CreateAvailabilityExceptionUseCase (4 tests — happy path, validation, past date, tenant isolation)
+- [x] Implement create exception controller (POST /availability-exceptions)
+- [x] Implement ListAvailabilityExceptionsUseCase (3 tests — returns exceptions, date range filter, tenant isolation)
+- [x] Implement list exceptions controller (GET /availability-exceptions)
+- [x] Implement DeleteAvailabilityExceptionUseCase (3 tests — happy path, not found, wrong tenant)
+- [x] Implement delete exception controller (DELETE /availability-exceptions/:id)
 
-### Module: scheduling/exceptions
+### Module: scheduling/trainingSchedules ✅ COMPLETE
 
-- [ ] Implement AvailabilityExceptionRepository (create, findByTenantId, delete)
-- [ ] Implement CreateAvailabilityExceptionUseCase
-- [ ] Implement create exception request/response DTOs with Zod validation
-- [ ] Implement create exception controller (POST /availability-exceptions)
-- [ ] Implement create exception unit tests
-- [ ] Implement ListAvailabilityExceptionsUseCase
-- [ ] Implement list exceptions controller (GET /availability-exceptions)
-- [ ] Implement list exceptions unit tests
-- [ ] Implement DeleteAvailabilityExceptionUseCase
-- [ ] Implement delete exception controller (DELETE /availability-exceptions/:id)
-- [ ] Implement delete exception unit tests
+- [x] Implement TrainingSchedulesRepository (create, findByStudentId, findByTenantId, findById, findByDayOfWeek, update, delete, deactivateByProgramId)
+- [x] Implement CreateTrainingScheduleUseCase (6 tests — happy path, student not found, wrong tenant, validation, overlap warning, programId validation)
+- [x] Implement create training schedule controller (POST /students/:studentId/training-schedules)
+- [x] Implement ListTrainingSchedulesUseCase (4 tests — returns schedules, empty, active only, tenant isolation)
+- [x] Implement list training schedules controller (GET /students/:studentId/training-schedules)
+- [x] Implement UpdateTrainingScheduleUseCase (5 tests — happy path, not found, wrong tenant, partial, validation)
+- [x] Implement update training schedule controller (PUT /training-schedules/:id)
+- [x] Implement DeleteTrainingScheduleUseCase (3 tests — happy path, not found, wrong tenant)
+- [x] Implement delete training schedule controller (DELETE /training-schedules/:id)
+- [x] Implement DeactivateByProgramUseCase (4 tests — deactivates linked, no schedules, wrong tenant, already inactive)
+- [x] Integrate with UpdateStudentProgramStatusUseCase (deactivate on finish/cancel)
 
-### Module: scheduling/appointmentRequests
+### Module: scheduling/appointments ✅ COMPLETE
 
-- [ ] Implement AppointmentRequestRepository (create, findByTenantId, findById, update)
-- [ ] Implement CreateAppointmentRequestUseCase (student requests appointment)
-- [ ] Implement create request DTOs with Zod validation
-- [ ] Implement create request controller (POST /appointment-requests)
-- [ ] Implement create request unit tests
-- [ ] Implement ListAppointmentRequestsUseCase
-- [ ] Implement list requests controller (GET /appointment-requests)
-- [ ] Implement list requests unit tests
-- [ ] Implement ApproveAppointmentRequestUseCase (creates appointment)
-- [ ] Implement approve request controller (PATCH /appointment-requests/:id/approve)
-- [ ] Implement approve request unit tests
-- [ ] Implement RejectAppointmentRequestUseCase
-- [ ] Implement reject request controller (PATCH /appointment-requests/:id/reject)
-- [ ] Implement reject request unit tests
+- [x] Implement AppointmentsRepository (create, findById, findAllByTenantId with pagination/filters, findOverlapping, update)
+- [x] Implement AppointmentRequestsRepository (create, findById, findAllByTenantId with pagination/filters, update)
+- [x] Implement conflictDetection.util.ts (8 tests — no conflict, appointment conflict, training schedule conflict, outside availability, exception, multiple conflicts, adjacent no conflict, partial overlap)
+- [x] Implement CreateAppointmentUseCase (7 tests — happy path, conflicts, forceCreate, online/presential validation, tenant isolation)
+- [x] Implement create appointment controller (POST /appointments)
+- [x] Implement ListAppointmentsUseCase (5 tests — pagination, date range, status filter, student filter, tenant isolation)
+- [x] Implement list appointments controller (GET /appointments)
+- [x] Implement GetAppointmentUseCase (4 tests — happy path, not found, wrong tenant, student access)
+- [x] Implement get appointment controller (GET /appointments/:id)
+- [x] Implement CancelAppointmentUseCase (5 tests — coach cancel, student cancel, not found, wrong tenant, already cancelled)
+- [x] Implement cancel appointment controller (PATCH /appointments/:id/cancel)
+- [x] Implement CompleteAppointmentUseCase (4 tests — happy path, not found, wrong tenant, already completed)
+- [x] Implement complete appointment controller (PATCH /appointments/:id/complete)
+- [x] Implement CreateAppointmentRequestUseCase (5 tests — happy path, validation, outside availability, tenant isolation, past date)
+- [x] Implement create request controller (POST /appointment-requests)
+- [x] Implement ListAppointmentRequestsUseCase (4 tests — pagination, status filter, empty, tenant isolation)
+- [x] Implement list requests controller (GET /appointment-requests)
+- [x] Implement ApproveAppointmentRequestUseCase (6 tests — happy path creates appointment, not found, wrong tenant, already approved, conflict with forceCreate, already rejected)
+- [x] Implement approve request controller (PATCH /appointment-requests/:id/approve)
+- [x] Implement RejectAppointmentRequestUseCase (4 tests — happy path, not found, wrong tenant, already rejected)
+- [x] Implement reject request controller (PATCH /appointment-requests/:id/reject)
 
-### Module: scheduling/appointments
+### Module: scheduling/calendar ✅ COMPLETE
 
-- [ ] Implement AppointmentRepository (create, findByTenantId, findById, update)
-- [ ] Implement CreateAppointmentUseCase (coach manual creation, with overlap check)
-- [ ] Implement create appointment request/response DTOs with Zod validation
-- [ ] Implement create appointment controller (POST /appointments)
-- [ ] Implement create appointment unit tests
-- [ ] Implement ListAppointmentsUseCase (with date filters, pagination)
-- [ ] Implement list appointments controller (GET /appointments)
-- [ ] Implement list appointments unit tests
-- [ ] Implement GetAppointmentUseCase
-- [ ] Implement get appointment controller (GET /appointments/:id)
-- [ ] Implement get appointment unit tests
-- [ ] Implement CancelAppointmentUseCase (with cancellation reason)
-- [ ] Implement cancel appointment controller (PATCH /appointments/:id/cancel)
-- [ ] Implement cancel appointment unit tests
-- [ ] Implement overlap prevention logic (shared validation)
-- [ ] Implement available slots query (GET /appointments/available-slots)
-- [ ] Implement available slots unit tests
+- [x] Implement GetCalendarUseCase (5 tests — merged entries, training schedule expansion by dayOfWeek, includes exceptions, empty range, tenant isolation)
+- [x] Implement get calendar controller (GET /calendar)
 
 ### Module: coaching/servicePlans
 

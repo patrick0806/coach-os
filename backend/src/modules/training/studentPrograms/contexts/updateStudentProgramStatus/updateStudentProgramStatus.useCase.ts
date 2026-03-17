@@ -5,6 +5,7 @@ import {
   StudentProgramsRepository,
   StudentProgram,
 } from "@shared/repositories/studentPrograms.repository";
+import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
 import { validate } from "@shared/utils/validation.util";
 
 const updateStudentProgramStatusSchema = z.object({
@@ -15,6 +16,7 @@ const updateStudentProgramStatusSchema = z.object({
 export class UpdateStudentProgramStatusUseCase {
   constructor(
     private readonly studentProgramsRepository: StudentProgramsRepository,
+    private readonly trainingSchedulesRepository: TrainingSchedulesRepository,
   ) {}
 
   async execute(id: string, body: unknown, tenantId: string): Promise<StudentProgram> {
@@ -34,6 +36,10 @@ export class UpdateStudentProgramStatusUseCase {
 
     if (!updated) {
       throw new NotFoundException("Student program not found");
+    }
+
+    if (data.status === "finished" || data.status === "cancelled") {
+      await this.trainingSchedulesRepository.deactivateByProgramId(id, tenantId);
     }
 
     return updated;

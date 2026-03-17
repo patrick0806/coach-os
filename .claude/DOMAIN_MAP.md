@@ -399,10 +399,23 @@ Photos are ordered chronologically.
 
 Represents recurring availability for a coach.
 
+**Attributes:**
+
+-   tenantId
+-   dayOfWeek (0=Sunday...6=Saturday)
+-   startTime (HH:MM format)
+-   endTime (HH:MM format)
+-   isActive
+
 Examples:
 
 -   Monday 08:00--12:00
 -   Wednesday 14:00--18:00
+
+**Business rules:**
+
+-   startTime must be before endTime
+-   no overlapping rules on the same day
 
 ------------------------------------------------------------------------
 
@@ -410,11 +423,47 @@ Examples:
 
 Represents a date when the coach is not available.
 
+**Attributes:**
+
+-   tenantId
+-   date (YYYY-MM-DD)
+-   reason (optional)
+
 Examples:
 
 -   vacation
 -   holidays
 -   blocked schedule
+
+**Business rules:**
+
+-   cannot create exceptions for past dates
+
+------------------------------------------------------------------------
+
+## TrainingSchedule
+
+Represents a recurring presential training schedule for a student.
+
+Bridges the training and scheduling domains — allows training schedules
+to block coach availability without manual appointment creation.
+
+**Attributes:**
+
+-   tenantId
+-   studentId
+-   studentProgramId (optional, links to active program)
+-   dayOfWeek (0=Sunday...6=Saturday)
+-   startTime (HH:MM format)
+-   endTime (HH:MM format)
+-   location (optional)
+-   isActive
+
+**Business rules:**
+
+-   deactivated automatically when linked student program is finished or cancelled
+-   appears as blocking entries in conflict detection
+-   expanded into calendar entries by dayOfWeek within date ranges
 
 ------------------------------------------------------------------------
 
@@ -424,12 +473,20 @@ Represents a request created by a student for an appointment.
 
 **Attributes:**
 
+-   tenantId
 -   studentId
--   coachId
--   requestedTime
--   status
+-   requestedStartAt (UTC timestamp)
+-   requestedEndAt (UTC timestamp)
+-   type (online or presential)
+-   status (pending, approved, rejected)
+-   notes (optional)
 
 Used when students request sessions with the coach.
+
+**Business rules:**
+
+-   only pending requests can be approved or rejected
+-   approving a request creates an appointment automatically
 
 ------------------------------------------------------------------------
 
@@ -439,10 +496,12 @@ Represents a confirmed meeting between coach and student.
 
 **Attributes:**
 
--   startAt
--   endAt
+-   tenantId
+-   studentId
+-   startAt (UTC timestamp)
+-   endAt (UTC timestamp)
 -   type (online or presential)
--   status
+-   status (scheduled, completed, cancelled)
 
 Online appointments include:
 
@@ -452,9 +511,11 @@ Presential appointments include:
 
 -   location
 
-**Business rule:**
+**Business rules:**
 
-Coaches cannot have overlapping appointments.
+-   Conflict detection checks: existing appointments, training schedules, availability rules, and exceptions
+-   Conflicts are SOFT — coach is warned but can override with forceCreate
+-   Coaches cannot have overlapping appointments (unless forced)
 
 ------------------------------------------------------------------------
 
@@ -526,7 +587,9 @@ Notes are ordered chronologically.
      ├ ProgramTemplates
      ├ Exercises (private)
      ├ AvailabilityRules
+     ├ AvailabilityExceptions
      ├ Appointments
+     ├ TrainingSchedules
      ├ ServicePlans
      └ StudentInvitationTokens
 
@@ -535,6 +598,7 @@ Notes are ordered chronologically.
      ├ WorkoutSessions
      ├ ProgressRecords
      ├ ProgressPhotos
+     ├ TrainingSchedules
      ├ AppointmentRequests
      └ Notes
 
@@ -556,6 +620,8 @@ Notes are ordered chronologically.
 
 -   A student program is independent from the template used to create
     it.
--   A coach cannot have overlapping appointments.
+-   A coach cannot have overlapping appointments (soft conflict model — override with forceCreate).
 -   Private exercises are visible only to their creator.
 -   Students may have historical relationships with multiple coaches.
+-   Training schedules are deactivated when their linked program is finished or cancelled.
+-   Conflict detection checks availability rules, exceptions, appointments, and training schedules.
