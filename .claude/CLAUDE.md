@@ -166,3 +166,53 @@ Always follow the system design (UI/UX) rules, themes, colors and patterns, not 
 In the frontend for server components for public routes use fetch() directly, for client components use react-query with axios.
 If a new implementation break a test, always update the test if its a side effect fix the bug.
 Sempre temos um filtro no frontend que depende do que o usuário digitar use debounce. To avoid unnecessary requests.
+
+------------------------------------------------------------------------
+
+## Frontend Testing Convention
+
+All frontend tests use **Playwright**. There are no unit tests for services — services are validated indirectly via smoke tests against the real backend.
+
+### Two test types per feature
+
+**Behavioral tests** (`*.behavior.spec.ts`)
+- Mock all API calls via `page.route()` using static fixtures
+- Do NOT require a running backend
+- Run on every PR and local development: `npm run test:e2e`
+- Cover: list/display, filters, pagination, CRUD flows (dialogs open/close/feedback), empty states, mobile
+- Use `injectMockAuth(page)` to inject fake auth cookies — bypasses `/auth/refresh`
+- Use stateful mocks (`mockGetStateful`) for mutations that trigger React Query refetch
+
+**Smoke tests** (`*.smoke.spec.ts`)
+- Run against the real backend with an isolated coach account per run
+- Create a fresh coach via `createIsolatedCoach(request)` — unique UUID email, no data collision between runs
+- Run separately (before deploy or on demand): `npm run test:e2e:smoke`
+- Cover: critical happy paths only (e.g., register → login, create resource end-to-end)
+
+### Directory structure
+
+```
+tests/e2e/
+  <feature>/
+    <feature>.behavior.spec.ts   ← mocked API, no backend
+    <feature>.smoke.spec.ts      ← real backend, isolated coach
+  support/
+    apiMocks.ts                  ← page.route() helpers + injectMockAuth
+    testIsolation.ts             ← createIsolatedCoach + injectCoachSession
+  fixtures/
+    <feature>.fixtures.ts        ← static JSON fixtures per feature
+```
+
+### Key patterns
+
+- `injectMockAuth(page)` — injects `coach_os_at` + `coach_os_user` cookies (fake, no network call)
+- `createIsolatedCoach(request)` — registers real coach with `smoke-{uuid}@e2e.test`, returns `{ accessToken, tenantId, ... }`
+- `injectCoachSession(page, coach)` — injects real auth cookies for smoke tests
+- `mockGet(page, pattern, fixture)` — intercepts GET with static response
+- `mockGetStateful(page, pattern, initial, afterMutation)` — first call returns `initial`, subsequent calls return `afterMutation`
+- Server-side fetches (Next.js `fetch()` in Server Components) **cannot** be intercepted by `page.route()` — those flows must be covered in smoke tests only
+
+### Run commands
+
+```bash
+npm run test:e2e          # behavioral tests only (no backend required)
