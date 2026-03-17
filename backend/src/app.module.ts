@@ -7,6 +7,7 @@ import { HealthModule } from "@modules/health/health.module";
 import { AuthModule } from "@modules/auth/auth.module";
 import { PlansModule } from "@modules/platform/plans/plans.module";
 import { ProfileModule } from "@modules/platform/profile/profile.module";
+import { DashboardModule } from "@modules/platform/dashboard/dashboard.module";
 import { StudentsModule } from "@modules/students/students.module";
 import { CoachingNotesModule } from "@modules/coaching/notes/notes.module";
 import { CoachingRelationsModule } from "@modules/coaching/relations/relations.module";
@@ -38,6 +39,7 @@ import { DatabaseModule } from "@config/database/database.module";
     HealthModule,
     PlansModule,
     ProfileModule,
+    DashboardModule,
     StudentsModule,
     CoachingNotesModule,
     CoachingRelationsModule,
@@ -75,6 +77,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "profile",
         module: ProfileModule,
+      },
+      {
+        path: "dashboard",
+        module: DashboardModule,
       },
       {
         path: "students",

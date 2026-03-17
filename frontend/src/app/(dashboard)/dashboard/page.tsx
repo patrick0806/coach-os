@@ -1,33 +1,45 @@
-import { Metadata } from "next";
+"use client"
 
-export const metadata: Metadata = {
-  title: "Dashboard | Coach OS",
-  description: "Painel de controle do Coach OS",
-};
+import { Users, ClipboardList, BookOpen } from "lucide-react"
+
+import { StatsCard } from "@/shared/components/statsCard"
+import { PageHeader } from "@/shared/components/pageHeader"
+import { useDashboardStats } from "@/features/dashboard/hooks/useDashboardStats"
+import { authStore } from "@/stores/authStore"
 
 export default function DashboardPage() {
+  const { data: stats, isLoading } = useDashboardStats()
+  const user = authStore.getUser()
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Bem-vindo ao Coach OS. Seu painel está sendo desenvolvido.
-        </p>
-      </div>
+      <PageHeader
+        title={`Olá, ${user?.name?.split(" ")[0] ?? "Coach"} 👋`}
+        description="Aqui está um resumo do seu trabalho."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {["Alunos ativos", "Treinos criados", "Sessões este mês", "Taxa de conclusão"].map(
-          (label) => (
-            <div
-              key={label}
-              className="rounded-xl border border-border bg-card p-5"
-            >
-              <p className="text-sm font-medium text-muted-foreground">{label}</p>
-              <p className="mt-2 text-3xl font-bold">—</p>
-            </div>
-          )
-        )}
+        <StatsCard
+          label="Alunos ativos"
+          value={isLoading ? "—" : String(stats?.activeStudents ?? 0)}
+          icon={Users}
+        />
+        <StatsCard
+          label="Total de alunos"
+          value={isLoading ? "—" : String(stats?.totalStudents ?? 0)}
+          icon={Users}
+        />
+        <StatsCard
+          label="Templates de treino"
+          value={isLoading ? "—" : String(stats?.programTemplates ?? 0)}
+          icon={BookOpen}
+        />
+        <StatsCard
+          label="Programas ativos"
+          value={isLoading ? "—" : String(stats?.activeStudentPrograms ?? 0)}
+          icon={ClipboardList}
+        />
       </div>
     </div>
-  );
+  )
 }
