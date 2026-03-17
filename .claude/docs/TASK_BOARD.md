@@ -225,41 +225,34 @@ Last updated: 2026-03-18
 - [x] Implement update student exercise request/response DTOs with Zod validation
 - [x] Implement update student exercise controller (PUT /student-exercises/:id)
 
-### Module: workoutExecution/sessions
+### Module: workoutExecution/sessions ✅ COMPLETE
 
-- [ ] Implement WorkoutSessionRepository (create, findById, findByStudentId, update)
-- [ ] Implement StartWorkoutSessionUseCase
-- [ ] Implement start session request/response DTOs with Zod validation
-- [ ] Implement start session controller (POST /workout-sessions)
-- [ ] Implement start session unit tests
-- [ ] Implement PauseWorkoutSessionUseCase
-- [ ] Implement pause session controller (PATCH /workout-sessions/:id/pause)
-- [ ] Implement pause session unit tests
-- [ ] Implement FinishWorkoutSessionUseCase
-- [ ] Implement finish session controller (PATCH /workout-sessions/:id/finish)
-- [ ] Implement finish session unit tests
-- [ ] Implement ListWorkoutSessionsUseCase (by student, with pagination)
-- [ ] Implement list sessions controller (GET /students/:studentId/workout-sessions)
-- [ ] Implement list sessions unit tests
-- [ ] Implement GetWorkoutSessionUseCase (with executions and sets)
-- [ ] Implement get session controller (GET /workout-sessions/:id)
-- [ ] Implement get session unit tests
+- [x] Implement WorkoutSessionRepository (create, findById, findByIdWithExecutions, findAllByStudentId, update)
+- [x] Implement StartWorkoutSessionUseCase (6 tests — validates student + workout day tenant, defaults startedAt)
+- [x] Implement start session request/response DTOs with Zod validation
+- [x] Implement start session controller (POST /workout-sessions)
+- [x] Implement PauseWorkoutSessionUseCase (4 tests)
+- [x] Implement pause session controller (PATCH /workout-sessions/:id/pause)
+- [x] Implement FinishWorkoutSessionUseCase (4 tests — sets finishedAt)
+- [x] Implement finish session controller (PATCH /workout-sessions/:id/finish)
+- [x] Implement ListWorkoutSessionsUseCase (5 tests — pagination, status filter)
+- [x] Implement list sessions controller (GET /workout-sessions/students/:studentId/workout-sessions)
+- [x] Implement GetWorkoutSessionUseCase (4 tests — full tree with executions + sets)
+- [x] Implement get session controller (GET /workout-sessions/:id)
 
-### Module: workoutExecution/exerciseExecutions
+### Module: workoutExecution/exerciseExecutions ✅ COMPLETE
 
-- [ ] Implement ExerciseExecutionRepository (create, findById, update)
-- [ ] Implement CreateExerciseExecutionUseCase
-- [ ] Implement create execution request/response DTOs with Zod validation
-- [ ] Implement create execution controller (POST /exercise-executions)
-- [ ] Implement create execution unit tests
+- [x] Implement ExerciseExecutionRepository (create, findByIdWithTenant, findMaxOrderBySessionId)
+- [x] Implement CreateExerciseExecutionUseCase (6 tests — auto-order, tenant isolation)
+- [x] Implement create execution request/response DTOs with Zod validation
+- [x] Implement create execution controller (POST /exercise-executions)
 
-### Module: workoutExecution/exerciseSets
+### Module: workoutExecution/exerciseSets ✅ COMPLETE
 
-- [ ] Implement ExerciseSetRepository (create, findByExecutionId)
-- [ ] Implement RecordExerciseSetUseCase
-- [ ] Implement record set request/response DTOs with Zod validation
-- [ ] Implement record set controller (POST /exercise-sets)
-- [ ] Implement record set unit tests
+- [x] Implement ExerciseSetRepository (create, findByExecutionId)
+- [x] Implement RecordExerciseSetUseCase (6 tests — tenant isolation via join chain, weight conversion)
+- [x] Implement record set request/response DTOs with Zod validation
+- [x] Implement record set controller (POST /exercise-sets)
 
 ### Module: progress/records
 

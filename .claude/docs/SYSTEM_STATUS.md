@@ -31,9 +31,9 @@ Last updated: 2026-03-20
 | **training/studentPrograms** | completed | POST /students/:studentId/programs (6 tests), GET /students/:studentId/programs (5 tests), GET /student-programs/:id (5 tests), PATCH /student-programs/:id/status (5 tests). Template snapshot on assign, tenant isolation, pagination |
 | **training/workoutDays** | completed | PUT /workout-days/:id (5 tests). Tenant isolation via join chain |
 | **training/studentExercises** | completed | PUT /student-exercises/:id (5 tests). Tenant isolation via double join chain |
-| **workoutExecution/sessions** | not started | Backlog: start, pause, finish sessions |
-| **workoutExecution/exerciseExecutions** | not started | Backlog: exercise execution tracking |
-| **workoutExecution/exerciseSets** | not started | Backlog: set recording |
+| **workoutExecution/sessions** | completed | POST /workout-sessions (6 tests), PATCH /workout-sessions/:id/pause (4 tests), PATCH /workout-sessions/:id/finish (4 tests), GET /workout-sessions/students/:studentId/workout-sessions (5 tests), GET /workout-sessions/:id (4 tests). Full tree fetch with executions+sets, tenant isolation |
+| **workoutExecution/exerciseExecutions** | completed | POST /exercise-executions (6 tests). Auto-order, tenant isolation via session join |
+| **workoutExecution/exerciseSets** | completed | POST /exercise-sets (6 tests). Tenant isolation via double join chain, weight number→string conversion |
 | **progress/records** | not started | Backlog: body metrics CRUD |
 | **progress/photos** | not started | Backlog: presigned URL upload, metadata |
 | **scheduling/availability** | not started | Backlog: availability rules CRUD |
@@ -111,19 +111,22 @@ All schemas are defined and migration is generated. Reference:
 
 ## Current Focus
 
-**Phase 6 — Student Training Programs** — COMPLETE
+**Phase 7 — Workout Execution** — COMPLETE
 
-Student programs sprint complete. 328 tests passing (31 new tests added).
+Workout execution sprint complete. 363 tests passing (35 new tests added).
 
 Completed:
-- ~~POST /students/:studentId/programs~~ — done (6 tests, template snapshot)
-- ~~GET /students/:studentId/programs~~ — done (5 tests, pagination + status filter)
-- ~~GET /student-programs/:id~~ — done (5 tests, full tree with exercises)
-- ~~PATCH /student-programs/:id/status~~ — done (5 tests, active/finished/cancelled)
-- ~~PUT /workout-days/:id~~ — done (5 tests, tenant isolation via join)
-- ~~PUT /student-exercises/:id~~ — done (5 tests, tenant isolation via double join)
+- ~~POST /workout-sessions~~ — done (6 tests, validates student + workout day tenant)
+- ~~PATCH /workout-sessions/:id/pause~~ — done (4 tests)
+- ~~PATCH /workout-sessions/:id/finish~~ — done (4 tests, sets finishedAt)
+- ~~GET /workout-sessions/students/:studentId/workout-sessions~~ — done (5 tests, paginated + status filter)
+- ~~GET /workout-sessions/:id~~ — done (4 tests, full tree with executions + sets)
+- ~~POST /exercise-executions~~ — done (6 tests, auto-order, tenant isolation)
+- ~~POST /exercise-sets~~ — done (6 tests, tenant isolation via join chain)
 
-Next sprint: **Phase 7 — Workout Execution** (sessions, exercise executions, sets)
+New repositories: WorkoutSessionsRepository, ExerciseExecutionsRepository, ExerciseSetsRepository
+
+Next sprint: **Phase 8 — Progress Tracking** (records, photos) or frontend implementation
 
 ---
 

@@ -15,4 +15,5 @@ export const API_TAGS = {
   ADMIN: 'Admin',
   SUPPORT: 'Support',
   TRAINING_SCHEDULE: 'Training Schedule',
+  WORKOUT_EXECUTION: 'Workout Execution',
 };
