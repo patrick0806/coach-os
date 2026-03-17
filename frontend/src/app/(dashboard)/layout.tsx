@@ -6,6 +6,7 @@ import { Dumbbell } from "lucide-react";
 
 import { authStore } from "@/stores/authStore";
 import { LoadingState } from "@/shared/components/loadingState";
+import { Sidebar, MobileSidebarTrigger } from "@/features/dashboard/components/sidebar";
 
 export default function DashboardLayout({
   children,
@@ -43,22 +44,12 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar placeholder */}
-      <aside className="hidden w-64 shrink-0 border-r border-border bg-card lg:flex lg:flex-col">
-        <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Dumbbell className="h-4 w-4" />
-          </div>
-          <span className="font-bold tracking-tight">Coach OS</span>
-        </div>
-        <nav className="flex-1 p-4">
-          <p className="text-xs text-muted-foreground">Navegação em breve</p>
-        </nav>
-      </aside>
+      <Sidebar />
 
       {/* Main content */}
       <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center border-b border-border bg-background px-6 lg:px-8">
+        <header className="flex h-16 items-center gap-3 border-b border-border bg-background px-4 lg:px-8">
+          <MobileSidebarTrigger />
           <div className="flex items-center gap-3 lg:hidden">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Dumbbell className="h-4 w-4" />

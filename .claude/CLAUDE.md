@@ -164,3 +164,4 @@ When build interfaces always use the @interface-design skill.
 When build components always use the pattern of @create-react-component skill.
 Always follow the system design (UI/UX) rules, themes, colors and patterns, not use hardcoded values.
 In the frontend for server components for public routes use fetch() directly, for client components use react-query with axios.
+If a new implementation break a test, always update the test if its a side effect fix the bug.

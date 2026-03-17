@@ -11,28 +11,26 @@ test.describe("Auth UX", () => {
   });
 
   test("preselected plan shows badge on step 2", async ({ page }) => {
-    // First, get a plan ID from the cadastro page
     await page.goto("/cadastro");
-    await page.waitForSelector('[data-slot="plan-card"]');
 
-    // Click first plan to proceed
-    const firstPlan = page.locator('[data-slot="plan-card"]').first();
-    const planName = await firstPlan.locator("h3, [class*='font-bold'], [class*='font-semibold']").first().textContent();
-    await firstPlan.click();
+    // Plan buttons in planSelector use plain <button> with "alunos" text
+    const planButton = page.locator("button").filter({ hasText: /alunos/ });
+    await planButton.first().waitFor({ timeout: 15000 });
+    await planButton.first().click();
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // Verify selected plan info is shown on step 2
-    if (planName) {
-      await expect(page.getByText(planName)).toBeVisible();
-    }
-    // Price should be visible (R$ format)
-    await expect(page.getByText(/R\$/)).toBeVisible();
+    // Step 2 should show plan info banner with price
+    const planBanner = page.locator(".border-primary\\/30");
+    await expect(planBanner).toBeVisible();
+    await expect(planBanner.getByText(/R\$/)).toBeVisible();
   });
 
   test("password strength indicator changes with input", async ({ page }) => {
     await page.goto("/cadastro");
-    await page.waitForSelector('[data-slot="plan-card"]');
-    await page.locator('[data-slot="plan-card"]').first().click();
+
+    const planButton = page.locator("button").filter({ hasText: /alunos/ });
+    await planButton.first().waitFor({ timeout: 15000 });
+    await planButton.first().click();
     await page.getByRole("button", { name: "Continuar" }).click();
 
     const passwordInput = page.locator("#password");
@@ -52,8 +50,10 @@ test.describe("Auth UX", () => {
 
   test("back to plan selection button works", async ({ page }) => {
     await page.goto("/cadastro");
-    await page.waitForSelector('[data-slot="plan-card"]');
-    await page.locator('[data-slot="plan-card"]').first().click();
+
+    const planButton = page.locator("button").filter({ hasText: /alunos/ });
+    await planButton.first().waitFor({ timeout: 15000 });
+    await planButton.first().click();
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Should be on step 2
@@ -62,7 +62,7 @@ test.describe("Auth UX", () => {
     // Click back button
     await page.getByRole("button", { name: /Escolher outro plano/i }).click();
 
-    // Should be back on step 1 (plan selection)
-    await expect(page.locator('[data-slot="plan-card"]').first()).toBeVisible();
+    // Should be back on step 1 (plan selection visible)
+    await expect(page.getByText("Escolha seu plano")).toBeVisible();
   });
 });

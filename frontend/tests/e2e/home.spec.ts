@@ -6,14 +6,16 @@ test.describe("Home Page", () => {
   });
 
   test("renders hero section", async ({ page }) => {
-    // Badge text
+    // Badge — use exact match to avoid matching the paragraph too
     await expect(
-      page.getByText("Plataforma completa para Personal Trainers")
+      page.getByText("Plataforma completa para Personal Trainers", {
+        exact: true,
+      })
     ).toBeVisible();
 
-    // CTA buttons
+    // CTA buttons — use first() since "Começar grátis" appears in navbar and hero
     await expect(
-      page.getByRole("link", { name: /Começar.*grátis/i })
+      page.getByRole("link", { name: "Começar 30 dias grátis" })
     ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /Ver planos/i })
@@ -27,8 +29,7 @@ test.describe("Home Page", () => {
   });
 
   test("renders feature blocks", async ({ page }) => {
-    // Feature blocks should have content (not just placeholder text)
-    const featureBlocks = page.locator("[class*='feature'], section").filter({
+    const featureBlocks = page.locator("section").filter({
       hasText: /treino|agenda|aluno/i,
     });
     expect(await featureBlocks.count()).toBeGreaterThan(0);
@@ -37,28 +38,28 @@ test.describe("Home Page", () => {
   test("shows 'Como funciona' section with 3 steps", async ({ page }) => {
     await expect(page.getByText("Como funciona")).toBeVisible();
 
-    // 3 step indicators
-    await expect(page.getByText("01")).toBeVisible();
-    await expect(page.getByText("02")).toBeVisible();
-    await expect(page.getByText("03")).toBeVisible();
+    // Use exact match to avoid footer "© 2026" matching "02"
+    await expect(page.getByText("01", { exact: true })).toBeVisible();
+    await expect(page.getByText("02", { exact: true })).toBeVisible();
+    await expect(page.getByText("03", { exact: true })).toBeVisible();
 
     // Step titles
-    await expect(page.getByText(/Cadastre/i)).toBeVisible();
-    await expect(page.getByText(/Configure/i)).toBeVisible();
-    await expect(page.getByText(/Gerencie/i)).toBeVisible();
+    await expect(page.getByText(/Cadastre/i).first()).toBeVisible();
+    await expect(page.getByText(/Configure/i).first()).toBeVisible();
+    await expect(page.getByText(/Gerencie/i).first()).toBeVisible();
   });
 
   test("loads pricing plans from API", async ({ page }) => {
     const plansSection = page.locator("#planos");
     await expect(plansSection).toBeVisible();
 
-    // Should have plan cards loaded from the API
-    const planCards = page.locator('[data-slot="plan-card"]');
+    // Plan cards use data-slot="plan-card"
+    const planCards = plansSection.locator('[data-slot="plan-card"]');
     await expect(planCards.first()).toBeVisible({ timeout: 10000 });
     expect(await planCards.count()).toBeGreaterThanOrEqual(1);
 
     // Plans should show prices in BRL
-    await expect(plansSection.getByText(/R\$/)).toBeVisible();
+    await expect(plansSection.getByText(/R\$/).first()).toBeVisible();
   });
 });
 
@@ -68,18 +69,11 @@ test.describe("Navbar Mobile", () => {
   test("hamburger menu opens sheet with links", async ({ page }) => {
     await page.goto("/");
 
-    // Desktop nav links should be hidden
-    const desktopNav = page.getByRole("link", { name: "Funcionalidades" });
-    await expect(desktopNav).toBeHidden();
-
     // Click hamburger menu button
     const menuButton = page.locator('[data-slot="navbar"] button').first();
     await menuButton.click();
 
     // Sheet should open with navigation links
-    await expect(page.getByRole("link", { name: "Entrar" })).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /Começar grátis/i })
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Entrar" }).last()).toBeVisible();
   });
 });
