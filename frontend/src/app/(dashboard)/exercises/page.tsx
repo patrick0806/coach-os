@@ -28,7 +28,7 @@ function ExercisesContent() {
   const muscleGroup = searchParams.get("muscleGroup") ?? undefined
   const page = Number(searchParams.get("page") ?? "0")
 
-  const { data, isLoading } = useExercises({ search, muscleGroup, page, size: 10 })
+  const { data, isLoading } = useExercises({ search, muscleGroup, page, size: 9 })
 
   function updateParam(key: string, value: string | undefined) {
     const params = new URLSearchParams(searchParams.toString())

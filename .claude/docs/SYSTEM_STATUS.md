@@ -58,7 +58,7 @@ Last updated: 2026-03-18
 | **Institutional Pages** | not started | Backlog: FAQ, Contact, Terms, Privacy, About |
 | **Authentication** | completed | src/proxy.ts (edge guard), features/auth/{types,services,hooks,components} — login, register (multi-step), forgot-password, reset-password pages; dashboard layout guard |
 | **Dashboard** | in progress | layout (sidebar placeholder + guard) + placeholder page done; stats/nav backlog |
-| **Students** | not started | Backlog: list, create, detail, edit, invite, notes |
+| **Students** | completed | List, create, detail, edit, invite, status management, notes |
 | **Exercises** | completed | exercises/page.tsx (grid, filters, pagination), exerciseCard, exerciseGrid, exerciseFilters (debounce), exerciseFormDialog (create/edit + S3 upload), exerciseDetailDialog, deleteExerciseDialog. Service, 5 hooks (useExercises, useCreateExercise, useUpdateExercise, useDeleteExercise, useRequestUploadUrl). Sidebar activated. E2E: exercises.spec.ts |
 | **Training templates** | not started | Backlog: list, create, builder, duplicate |
 | **Student programs** | not started | Backlog: assign, detail, customize |

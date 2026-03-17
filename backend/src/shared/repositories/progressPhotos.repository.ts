@@ -9,7 +9,7 @@ export type ProgressPhoto = InferSelectModel<typeof progressPhotos>;
 
 @Injectable()
 export class ProgressPhotosRepository {
-  constructor(private readonly drizzle: DrizzleProvider) {}
+  constructor(private readonly drizzle: DrizzleProvider) { }
 
   async create(data: {
     tenantId: string;
@@ -24,7 +24,7 @@ export class ProgressPhotosRepository {
         studentId: data.studentId,
         mediaUrl: data.mediaUrl,
         notes: data.notes,
-      })
+      } as any)
       .returning();
 
     return result[0];

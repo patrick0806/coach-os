@@ -49,7 +49,7 @@ describe("ListExercisesUseCase", () => {
 
     expect(exercisesRepository.findAllVisible).toHaveBeenCalledWith(
       tenantId,
-      expect.objectContaining({ page: 0, size: 10 }),
+      expect.objectContaining({ page: 0, size: 9 }),
     );
   });
 

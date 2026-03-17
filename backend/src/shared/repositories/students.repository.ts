@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { students } from "@config/database/schema/students";
@@ -15,7 +15,7 @@ export type StudentWithUser = Student & {
 
 @Injectable()
 export class StudentsRepository {
-  constructor(private readonly drizzle: DrizzleProvider) {}
+  constructor(private readonly drizzle: DrizzleProvider) { }
 
   async create(data: {
     userId: string;
@@ -112,6 +112,7 @@ export class StudentsRepository {
         .from(students)
         .leftJoin(users, eq(students.userId, users.id))
         .where(conditions)
+        .orderBy(desc(users.name))
         .limit(size)
         .offset(page * size),
       this.drizzle.db

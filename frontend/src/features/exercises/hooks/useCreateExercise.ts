@@ -16,8 +16,8 @@ export function useCreateExercise({ onOpenChange }: UseCreateExerciseOptions = {
 
   return useMutation({
     mutationFn: (data: CreateExerciseRequest) => exercisesService.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["exercises"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["exercises"] })
       toast.success("Exercício criado com sucesso!")
       onOpenChange?.(false)
     },

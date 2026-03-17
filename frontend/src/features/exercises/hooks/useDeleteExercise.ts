@@ -11,8 +11,8 @@ export function useDeleteExercise() {
 
   return useMutation({
     mutationFn: (id: string) => exercisesService.remove(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["exercises"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["exercises"] })
       toast.success("Exercício removido com sucesso!")
     },
     onError: (error: unknown) => {

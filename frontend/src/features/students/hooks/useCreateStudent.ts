@@ -16,8 +16,8 @@ export function useCreateStudent({ onOpenChange }: UseCreateStudentOptions = {})
 
   return useMutation({
     mutationFn: (data: CreateStudentRequest) => studentsService.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["students"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["students"] })
       toast.success("Aluno criado com sucesso!")
       onOpenChange?.(false)
     },

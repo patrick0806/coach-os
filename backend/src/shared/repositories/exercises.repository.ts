@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, eq, ilike, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, isNull, or, sql } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -50,6 +50,7 @@ export class ExercisesRepository {
         .select()
         .from(exercises)
         .where(conditions)
+        .orderBy(desc(exercises.createdAt))
         .limit(size)
         .offset(page * size),
       this.drizzle.db
