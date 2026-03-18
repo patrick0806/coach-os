@@ -24,6 +24,7 @@ import {
   workoutDays,
   studentExercises,
   trainingSchedules,
+  progressCheckins,
   progressRecords,
   progressPhotos,
   workoutSessions,
@@ -141,13 +142,17 @@ async function clean(db: ReturnType<typeof drizzle>) {
         .delete(studentPrograms)
         .where(eq(studentPrograms.tenantId, demoPersonal.id));
 
-      // Progress records and photos
+      // Progress records, photos and checkins
+      // Delete records and photos first (they reference checkins via FK)
       await db
         .delete(progressRecords)
         .where(eq(progressRecords.tenantId, demoPersonal.id));
       await db
         .delete(progressPhotos)
         .where(eq(progressPhotos.tenantId, demoPersonal.id));
+      await db
+        .delete(progressCheckins)
+        .where(eq(progressCheckins.tenantId, demoPersonal.id));
 
       // Student notes
       const demoStudentIds = await db
@@ -968,35 +973,92 @@ async function seed(db: ReturnType<typeof drizzle>) {
         }));
       }
 
-      // Progress records for Fernanda — 3 months of weight, waist, hip and body_fat tracking
-      await db.insert(progressRecords).values(sv([
-        // Month 1 — Week 1
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "weight", value: "72.30", unit: "kg", recordedAt: new Date("2026-01-06T12:00:00Z"), notes: "Início do programa" },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "waist", value: "80.00", unit: "cm", recordedAt: new Date("2026-01-06T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "hip", value: "100.00", unit: "cm", recordedAt: new Date("2026-01-06T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "body_fat", value: "28.50", unit: "%", recordedAt: new Date("2026-01-06T12:00:00Z"), notes: "Dobras cutâneas" },
-        // Month 1 — Week 3
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "weight", value: "71.80", unit: "kg", recordedAt: new Date("2026-01-20T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "waist", value: "79.50", unit: "cm", recordedAt: new Date("2026-01-20T12:00:00Z") },
-        // Month 2 — Week 1
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "weight", value: "71.10", unit: "kg", recordedAt: new Date("2026-02-03T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "waist", value: "78.80", unit: "cm", recordedAt: new Date("2026-02-03T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "hip", value: "99.00", unit: "cm", recordedAt: new Date("2026-02-03T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "body_fat", value: "27.20", unit: "%", recordedAt: new Date("2026-02-03T12:00:00Z"), notes: "Boa evolução no mês 2" },
-        // Month 2 — Week 3
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "weight", value: "70.50", unit: "kg", recordedAt: new Date("2026-02-17T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "waist", value: "78.20", unit: "cm", recordedAt: new Date("2026-02-17T12:00:00Z") },
-        // Month 3 — Week 1
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "weight", value: "69.90", unit: "kg", recordedAt: new Date("2026-03-03T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "waist", value: "77.50", unit: "cm", recordedAt: new Date("2026-03-03T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "hip", value: "97.50", unit: "cm", recordedAt: new Date("2026-03-03T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "body_fat", value: "25.80", unit: "%", recordedAt: new Date("2026-03-03T12:00:00Z"), notes: "3 meses de evolução consistente" },
-        // Month 3 — Week 3 (latest)
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "weight", value: "69.40", unit: "kg", recordedAt: new Date("2026-03-17T12:00:00Z"), notes: "Mês 3, semana 3" },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "waist", value: "77.00", unit: "cm", recordedAt: new Date("2026-03-17T12:00:00Z") },
-        { tenantId: demoPersonal.id, studentId: fernanda.id, metricType: "bicep", value: "29.50", unit: "cm", recordedAt: new Date("2026-03-17T12:00:00Z"), notes: "Primeira medição de bíceps" },
-      ]));
-      console.log("✓ 19 progress records seeded for Fernanda");
+      // Progress checkins for Fernanda — 3 months grouped by date
+      const fernandaCheckinData = [
+        {
+          checkinDate: "2026-01-06",
+          notes: "Início do programa",
+          records: [
+            { metricType: "weight", value: "72.30", unit: "kg", recordedAt: new Date("2026-01-06T12:00:00Z") },
+            { metricType: "waist", value: "80.00", unit: "cm", recordedAt: new Date("2026-01-06T12:00:00Z") },
+            { metricType: "hip", value: "100.00", unit: "cm", recordedAt: new Date("2026-01-06T12:00:00Z") },
+            { metricType: "body_fat", value: "28.50", unit: "%", recordedAt: new Date("2026-01-06T12:00:00Z"), notes: "Dobras cutâneas" },
+          ],
+        },
+        {
+          checkinDate: "2026-01-20",
+          notes: null,
+          records: [
+            { metricType: "weight", value: "71.80", unit: "kg", recordedAt: new Date("2026-01-20T12:00:00Z") },
+            { metricType: "waist", value: "79.50", unit: "cm", recordedAt: new Date("2026-01-20T12:00:00Z") },
+          ],
+        },
+        {
+          checkinDate: "2026-02-03",
+          notes: "Boa evolução no mês 2",
+          records: [
+            { metricType: "weight", value: "71.10", unit: "kg", recordedAt: new Date("2026-02-03T12:00:00Z") },
+            { metricType: "waist", value: "78.80", unit: "cm", recordedAt: new Date("2026-02-03T12:00:00Z") },
+            { metricType: "hip", value: "99.00", unit: "cm", recordedAt: new Date("2026-02-03T12:00:00Z") },
+            { metricType: "body_fat", value: "27.20", unit: "%", recordedAt: new Date("2026-02-03T12:00:00Z") },
+          ],
+        },
+        {
+          checkinDate: "2026-02-17",
+          notes: null,
+          records: [
+            { metricType: "weight", value: "70.50", unit: "kg", recordedAt: new Date("2026-02-17T12:00:00Z") },
+            { metricType: "waist", value: "78.20", unit: "cm", recordedAt: new Date("2026-02-17T12:00:00Z") },
+          ],
+        },
+        {
+          checkinDate: "2026-03-03",
+          notes: "3 meses de evolução consistente",
+          records: [
+            { metricType: "weight", value: "69.90", unit: "kg", recordedAt: new Date("2026-03-03T12:00:00Z") },
+            { metricType: "waist", value: "77.50", unit: "cm", recordedAt: new Date("2026-03-03T12:00:00Z") },
+            { metricType: "hip", value: "97.50", unit: "cm", recordedAt: new Date("2026-03-03T12:00:00Z") },
+            { metricType: "body_fat", value: "25.80", unit: "%", recordedAt: new Date("2026-03-03T12:00:00Z") },
+          ],
+        },
+        {
+          checkinDate: "2026-03-17",
+          notes: "Mês 3, semana 3",
+          records: [
+            { metricType: "weight", value: "69.40", unit: "kg", recordedAt: new Date("2026-03-17T12:00:00Z") },
+            { metricType: "waist", value: "77.00", unit: "cm", recordedAt: new Date("2026-03-17T12:00:00Z") },
+            { metricType: "bicep", value: "29.50", unit: "cm", recordedAt: new Date("2026-03-17T12:00:00Z"), notes: "Primeira medição de bíceps" },
+          ],
+        },
+      ];
+
+      for (const entry of fernandaCheckinData) {
+        const [checkin] = await db
+          .insert(progressCheckins)
+          .values(sv({
+            tenantId: demoPersonal.id,
+            studentId: fernanda.id,
+            checkinDate: entry.checkinDate,
+            notes: entry.notes,
+          }))
+          .returning();
+
+        if (checkin && entry.records.length > 0) {
+          await db.insert(progressRecords).values(
+            sv(entry.records.map((r) => ({
+              tenantId: demoPersonal.id,
+              studentId: fernanda.id,
+              checkinId: checkin.id,
+              metricType: r.metricType,
+              value: r.value,
+              unit: r.unit,
+              recordedAt: r.recordedAt,
+              notes: (r as any).notes ?? null,
+            }))),
+          );
+        }
+      }
+      console.log(`✓ ${fernandaCheckinData.length} progress checkins seeded for Fernanda (with records)`);
 
       // ── Student 2: Carlos Mendonça — Presencial 3x por Semana ───────────────
       const carlos = await seedStudent({

@@ -29,6 +29,13 @@
       "when": 1773711664897,
       "tag": "0003_lovely_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774000000000,
+      "tag": "0004_progress_checkins",
+      "breakpoints": true
     }
   ]
 }

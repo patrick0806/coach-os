@@ -24,6 +24,7 @@ import { ExerciseExecutionsModule } from "@modules/workoutExecution/exerciseExec
 import { ExerciseSetsModule } from "@modules/workoutExecution/exerciseSets/exerciseSets.module";
 import { ProgressRecordsModule } from "@modules/progress/records/records.module";
 import { ProgressPhotosModule } from "@modules/progress/photos/photos.module";
+import { ProgressCheckinsModule } from "@modules/progress/checkins/checkins.module";
 import { AvailabilityModule } from "@modules/scheduling/availability/availability.module";
 import { TrainingSchedulesModule } from "@modules/scheduling/trainingSchedules/trainingSchedules.module";
 import { AppointmentsModule } from "@modules/scheduling/appointments/appointments.module";
@@ -57,6 +58,7 @@ import { DatabaseModule } from "@config/database/database.module";
     ExerciseSetsModule,
     ProgressRecordsModule,
     ProgressPhotosModule,
+    ProgressCheckinsModule,
     AvailabilityModule,
     TrainingSchedulesModule,
     AppointmentsModule,
