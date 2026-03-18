@@ -28,6 +28,7 @@ export class ListTrainingSchedulesController {
     return this.listTrainingSchedulesUseCase.execute(
       studentId,
       user.personalId!,
+      { role: user.role, profileId: user.profileId },
     );
   }
 }

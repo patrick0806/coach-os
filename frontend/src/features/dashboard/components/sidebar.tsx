@@ -1,5 +1,6 @@
 "use client"
 
+import type React from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import {
@@ -29,7 +30,14 @@ import {
 import { authStore } from "@/stores/authStore"
 import { cn } from "@/lib/utils"
 
-const navItems = [
+interface NavItem {
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  disabled?: boolean
+}
+
+const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Alunos", href: "/students", icon: Users },
   { label: "Exercícios", href: "/exercises", icon: Dumbbell },
@@ -37,7 +45,7 @@ const navItems = [
   { label: "Agenda", href: "/agenda", icon: Calendar },
   { label: "Disponibilidade", href: "/disponibilidade", icon: Clock },
   { label: "Serviços", href: "/services", icon: Package },
-  { label: "Página Pública", href: "/perfil", icon: Globe, disabled: true },
+  { label: "Página Pública", href: "/pagina-publica", icon: Globe },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

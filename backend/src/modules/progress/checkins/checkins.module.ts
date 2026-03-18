@@ -11,6 +11,9 @@ import { GetCheckinController } from "./contexts/getCheckin/getCheckin.controlle
 import { GetCheckinUseCase } from "./contexts/getCheckin/getCheckin.useCase";
 import { DeleteCheckinController } from "./contexts/deleteCheckin/deleteCheckin.controller";
 import { DeleteCheckinUseCase } from "./contexts/deleteCheckin/deleteCheckin.useCase";
+import { ListMyCheckinsController } from "./contexts/listMyCheckins/listMyCheckinsController";
+import { ListMyCheckinsUseCase } from "./contexts/listMyCheckins/listMyCheckinsUseCase";
+import { CreateMyCheckinController } from "./contexts/createMyCheckin/createMyCheckinController";
 
 @Module({
   controllers: [
@@ -18,6 +21,8 @@ import { DeleteCheckinUseCase } from "./contexts/deleteCheckin/deleteCheckin.use
     ListCheckinsController,
     GetCheckinController,
     DeleteCheckinController,
+    ListMyCheckinsController,
+    CreateMyCheckinController,
   ],
   providers: [
     ProgressCheckinsRepository,
@@ -26,6 +31,7 @@ import { DeleteCheckinUseCase } from "./contexts/deleteCheckin/deleteCheckin.use
     ListCheckinsUseCase,
     GetCheckinUseCase,
     DeleteCheckinUseCase,
+    ListMyCheckinsUseCase,
   ],
 })
 export class ProgressCheckinsModule {}

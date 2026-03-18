@@ -11,7 +11,7 @@ import { UpdateProfileUseCase } from "./updateProfile.useCase";
 
 @ApiTags(API_TAGS.PERSONALS)
 @Roles(ApplicationRoles.PERSONAL)
-@Controller({ version: "1", path: "profile" })
+@Controller({ version: "1" })
 export class UpdateProfileController {
   constructor(private readonly updateProfileUseCase: UpdateProfileUseCase) {}
 

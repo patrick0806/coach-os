@@ -10,7 +10,7 @@ import { RequestPhotoUploadUseCase } from "./requestPhotoUpload.useCase";
 
 @ApiTags(API_TAGS.PERSONALS)
 @Roles(ApplicationRoles.PERSONAL)
-@Controller({ version: "1", path: "profile" })
+@Controller({ version: "1" })
 export class RequestPhotoUploadController {
   constructor(private readonly requestPhotoUploadUseCase: RequestPhotoUploadUseCase) {}
 

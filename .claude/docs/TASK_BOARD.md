@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-18
+Last updated: 2026-03-18 (public page complete)
 
 ---
 
@@ -48,17 +48,23 @@ Last updated: 2026-03-18
 
 - [ ] Implement progress charts (line graphs, comparisons)
 
-### Frontend: public page
+### Frontend: public page ✅ DONE
 
-- [ ] Implement public page service
-- [ ] Implement public page editor (bio, photo, specialties, colors)
-- [ ] Implement public page preview
-- [ ] Implement public page rendering (app.com/personal/:slug)
+- [x] Implement public page service (profileEditor/services/profile.service.ts)
+- [x] Implement public page editor (bio, photo, specialties, colors) — /pagina-publica
+- [x] Implement public page preview (link "Visualizar página" in editor)
+- [x] Implement public page rendering (/personais/[slug])
+- [x] Add availabilityRules to GET /public/:slug backend
+- [x] Auth branded sub-routes: /personais/[slug]/configurar-senha, esqueci-senha, redefinir-senha
+- [x] Sidebar link enabled for /pagina-publica
 
-### Frontend: student portal
+### Frontend: student portal ✅ DONE
 
-- [ ] Implement student progress page
-- [ ] Implement student appointments page
+- [x] Implement student progress page (`/aluno/progresso`)
+- [x] Implement student appointments page (`/aluno/agenda`)
+- [x] Implement bottom navigation (Treinos / Progresso / Agenda)
+- [x] Fix metric labels (PT-BR)
+- [x] Allow student to create own progress checkin (metrics + photos)
 
 ### Frontend: notifications
 

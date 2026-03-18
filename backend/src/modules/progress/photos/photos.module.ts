@@ -12,6 +12,7 @@ import { ListProgressPhotosController } from "./contexts/listPhotos/listPhotos.c
 import { ListProgressPhotosUseCase } from "./contexts/listPhotos/listPhotos.useCase";
 import { DeleteProgressPhotoController } from "./contexts/deletePhoto/deleteProgressPhoto.controller";
 import { DeleteProgressPhotoUseCase } from "./contexts/deletePhoto/deleteProgressPhoto.useCase";
+import { RequestMyPhotoUploadController } from "./contexts/requestMyPhotoUpload/requestMyPhotoUploadController";
 
 @Module({
   controllers: [
@@ -19,6 +20,7 @@ import { DeleteProgressPhotoUseCase } from "./contexts/deletePhoto/deleteProgres
     SaveProgressPhotoController,
     ListProgressPhotosController,
     DeleteProgressPhotoController,
+    RequestMyPhotoUploadController,
   ],
   providers: [
     S3Provider,

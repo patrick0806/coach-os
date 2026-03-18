@@ -13,6 +13,8 @@ import { UpdateTrainingScheduleUseCase } from "./contexts/updateSchedule/updateS
 import { DeleteTrainingScheduleController } from "./contexts/deleteSchedule/deleteSchedule.controller";
 import { DeleteTrainingScheduleUseCase } from "./contexts/deleteSchedule/deleteSchedule.useCase";
 import { DeactivateByProgramUseCase } from "./contexts/deactivateByProgram/deactivateByProgram.useCase";
+import { ListMySchedulesController } from "./contexts/listMySchedules/listMySchedulesController";
+import { ListMySchedulesUseCase } from "./contexts/listMySchedules/listMySchedulesUseCase";
 
 @Module({
   controllers: [
@@ -20,6 +22,7 @@ import { DeactivateByProgramUseCase } from "./contexts/deactivateByProgram/deact
     ListTrainingSchedulesController,
     UpdateTrainingScheduleController,
     DeleteTrainingScheduleController,
+    ListMySchedulesController,
   ],
   providers: [
     TrainingSchedulesRepository,
@@ -30,6 +33,7 @@ import { DeactivateByProgramUseCase } from "./contexts/deactivateByProgram/deact
     UpdateTrainingScheduleUseCase,
     DeleteTrainingScheduleUseCase,
     DeactivateByProgramUseCase,
+    ListMySchedulesUseCase,
   ],
   exports: [TrainingSchedulesRepository, DeactivateByProgramUseCase],
 })
