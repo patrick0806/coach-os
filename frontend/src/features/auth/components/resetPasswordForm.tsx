@@ -52,10 +52,16 @@ const strengthConfig = {
   3: { label: "Forte", color: "bg-success" },
 } as const;
 
-export function ResetPasswordForm() {
+interface ResetPasswordFormProps {
+  slug?: string;
+}
+
+export function ResetPasswordForm({ slug }: ResetPasswordFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
+
+  const loginHref = slug ? `/personais/${slug}/login` : "/login";
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -65,7 +71,7 @@ export function ResetPasswordForm() {
       authService.resetPassword({ token, password: values.password }),
     onSuccess: () => {
       toast.success("Senha redefinida com sucesso!");
-      router.push("/login");
+      router.push(loginHref);
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)

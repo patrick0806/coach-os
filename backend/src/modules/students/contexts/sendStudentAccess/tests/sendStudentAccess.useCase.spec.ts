@@ -26,6 +26,7 @@ const makePersonalsRepository = () => ({
     id: "tenant-id-1",
     userId: "coach-user-id",
     subscriptionPlanId: "plan-id-1",
+    slug: "joao-coach",
   }),
 });
 
@@ -87,7 +88,7 @@ describe("SendStudentAccessUseCase", () => {
     const result = await useCase.execute("student-id-1", tenantId, "link");
 
     expect(result).toHaveProperty("accessLink");
-    expect((result as { accessLink: string }).accessLink).toContain("/configurar-senha?token=");
+    expect((result as { accessLink: string }).accessLink).toContain("/personais/joao-coach/configurar-senha?token=");
     expect(resendProvider.sendStudentInvite).not.toHaveBeenCalled();
   });
 

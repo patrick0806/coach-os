@@ -14,6 +14,7 @@ export interface RegisterRequest {
 
 export interface RequestPasswordResetRequest {
   email: string;
+  slug?: string;
 }
 
 export interface ResetPasswordRequest {

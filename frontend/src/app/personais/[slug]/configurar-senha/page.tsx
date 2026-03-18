@@ -24,7 +24,7 @@ export default async function ConfigurarSenhaPage({ params }: PageProps) {
   return (
     <PublicPageBranded coachName={coachName} coachLogoUrl={coachLogoUrl}>
       <Suspense fallback={<LoadingState variant="card" />}>
-        <SetupPasswordForm />
+        <SetupPasswordForm slug={slug} />
       </Suspense>
     </PublicPageBranded>
   )

@@ -28,12 +28,18 @@ const forgotSchema = z.object({
 
 type ForgotFormValues = z.infer<typeof forgotSchema>;
 
-export function ForgotPasswordForm() {
+interface ForgotPasswordFormProps {
+  slug?: string;
+}
+
+export function ForgotPasswordForm({ slug }: ForgotPasswordFormProps) {
   const [status, setStatus] = useState<"idle" | "sent">("idle");
+
+  const loginHref = slug ? `/personais/${slug}/login` : "/login";
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: ForgotFormValues) =>
-      authService.requestPasswordReset(data),
+      authService.requestPasswordReset({ ...data, slug }),
     onSuccess: () => {
       setStatus("sent");
     },
@@ -75,7 +81,7 @@ export function ForgotPasswordForm() {
           </p>
         </div>
         <Link
-          href="/login"
+          href={loginHref}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -122,7 +128,7 @@ export function ForgotPasswordForm() {
 
       <p className="text-center">
         <Link
-          href="/login"
+          href={loginHref}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           <ArrowLeft className="h-4 w-4" />

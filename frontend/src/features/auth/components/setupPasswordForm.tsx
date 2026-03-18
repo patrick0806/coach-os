@@ -47,10 +47,16 @@ const strengthConfig = {
   3: { label: "Forte", color: "bg-success" },
 } as const;
 
-export function SetupPasswordForm() {
+interface SetupPasswordFormProps {
+  slug?: string;
+}
+
+export function SetupPasswordForm({ slug }: SetupPasswordFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
+
+  const loginHref = slug ? `/personais/${slug}/login` : "/login";
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -60,7 +66,7 @@ export function SetupPasswordForm() {
       authService.setupPassword({ token, password: values.password }),
     onSuccess: () => {
       toast.success("Senha criada com sucesso! Faça login para continuar.");
-      router.push("/login");
+      router.push(loginHref);
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)

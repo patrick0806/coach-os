@@ -20,7 +20,7 @@ export default async function EsqueciSenhaPage({ params }: PageProps) {
 
   return (
     <PublicPageBranded coachName={coachName} coachLogoUrl={coachLogoUrl}>
-      <ForgotPasswordForm />
+      <ForgotPasswordForm slug={slug} />
     </PublicPageBranded>
   )
 }

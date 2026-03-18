@@ -24,7 +24,7 @@ export default async function RedefinirSenhaPage({ params }: PageProps) {
   return (
     <PublicPageBranded coachName={coachName} coachLogoUrl={coachLogoUrl}>
       <Suspense fallback={<LoadingState variant="card" />}>
-        <ResetPasswordForm />
+        <ResetPasswordForm slug={slug} />
       </Suspense>
     </PublicPageBranded>
   )

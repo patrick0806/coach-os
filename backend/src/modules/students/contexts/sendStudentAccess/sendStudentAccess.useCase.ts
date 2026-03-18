@@ -40,7 +40,8 @@ export class SendStudentAccessUseCase {
       expiresAt: expiresInHours(SETUP_TOKEN_EXPIRY_HOURS),
     });
 
-    const accessLink = `${env.APP_URL}/configurar-senha?token=${raw}`;
+    // Branded student URL using the coach's slug
+    const accessLink = `${env.APP_URL}/personais/${personal.slug}/configurar-senha?token=${raw}`;
 
     if (mode === "link") {
       return { accessLink };

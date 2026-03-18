@@ -12,6 +12,7 @@ const RESET_TOKEN_EXPIRY_HOURS = 2;
 
 const requestPasswordResetSchema = z.object({
   email: z.email().max(255),
+  slug: z.string().max(100).optional(),
 });
 
 @Injectable()
@@ -42,7 +43,10 @@ export class RequestPasswordResetUseCase {
       expiresAt: expiresInHours(RESET_TOKEN_EXPIRY_HOURS),
     });
 
-    const resetPasswordUrl = `${env.APP_URL}/reset-password?token=${raw}`;
+    // Branded student URL when slug is provided; global URL for coach/admin
+    const resetPasswordUrl = data.slug
+      ? `${env.APP_URL}/personais/${data.slug}/redefinir-senha?token=${raw}`
+      : `${env.APP_URL}/reset-password?token=${raw}`;
 
     await this.resendProvider.sendPasswordReset({
       to: user.email,
