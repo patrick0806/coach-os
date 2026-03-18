@@ -14,6 +14,7 @@ export interface StartSessionResponse {
 
 export interface CreateExecutionRequest {
   workoutSessionId: string
+  studentExerciseId: string
   exerciseId: string
 }
 
@@ -27,11 +28,11 @@ export interface CreateExecutionResponse {
 export interface RecordSetRequest {
   exerciseExecutionId: string
   setNumber: number
-  plannedReps: number | null
+  plannedReps?: number
   performedReps: number
-  plannedWeight: string | null
-  usedWeight: string | null
-  restSeconds: number | null
+  plannedWeight?: number
+  usedWeight?: number | null
+  restSeconds?: number
   completionStatus: "completed" | "skipped" | "partial"
 }
 

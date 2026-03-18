@@ -14,12 +14,12 @@ import type { CreateExecutionResponse, RecordSetResponse } from "@/features/work
 interface ExerciseExecutionCardProps {
   exercise: StudentExerciseItem
   sessionId: string
-  onCreateExecution: (exerciseId: string) => Promise<CreateExecutionResponse>
+  onCreateExecution: (studentExerciseId: string, exerciseId: string) => Promise<CreateExecutionResponse>
   onRecordSet: (data: {
     executionId: string
     setNumber: number
     performedReps: number
-    usedWeight: string
+    usedWeight: string | null
     plannedReps: number | null
     plannedWeight: string | null
     restSeconds: number | null
@@ -44,7 +44,7 @@ export function ExerciseExecutionCard({
     if (!isExpanded && !executionId) {
       setIsLoading(true)
       try {
-        const execution = await onCreateExecution(exercise.exerciseId)
+        const execution = await onCreateExecution(exercise.id, exercise.exerciseId)
         setExecutionId(execution.id)
       } catch {
         // Ignore error — set will not be recorded

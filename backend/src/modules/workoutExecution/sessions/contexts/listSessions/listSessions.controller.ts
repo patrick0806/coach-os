@@ -23,11 +23,9 @@ export class ListWorkoutSessionsController {
     @Query() query: Record<string, string>,
     @CurrentUser() user: IAccessToken,
   ) {
-    // Students can only list their own sessions
-    if (user.role === ApplicationRoles.STUDENT && studentId !== user.profileId) {
-      throw new ForbiddenException("Students can only list their own sessions");
-    }
+    // For students, always use their own profileId — ignore the URL param
+    const resolvedStudentId = user.role === ApplicationRoles.STUDENT ? user.profileId : studentId;
 
-    return this.listWorkoutSessionsUseCase.execute(studentId, query, user.personalId!);
+    return this.listWorkoutSessionsUseCase.execute(resolvedStudentId, query, user.personalId!);
   }
 }

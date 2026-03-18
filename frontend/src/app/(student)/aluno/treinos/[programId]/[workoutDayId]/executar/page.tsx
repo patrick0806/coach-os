@@ -153,18 +153,18 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
                 key={exercise.id}
                 exercise={exercise}
                 sessionId={sessionId}
-                onCreateExecution={async (exerciseId) =>
-                  createExecution({ workoutSessionId: sessionId, exerciseId })
+                onCreateExecution={async (studentExerciseId, exerciseId) =>
+                  createExecution({ workoutSessionId: sessionId, studentExerciseId, exerciseId })
                 }
                 onRecordSet={async (data) =>
                   recordSet({
                     exerciseExecutionId: data.executionId,
                     setNumber: data.setNumber,
                     performedReps: data.performedReps,
-                    usedWeight: data.usedWeight || null,
-                    plannedReps: data.plannedReps,
-                    plannedWeight: data.plannedWeight,
-                    restSeconds: data.restSeconds,
+                    usedWeight: data.usedWeight ? parseFloat(data.usedWeight) : null,
+                    plannedReps: data.plannedReps ?? undefined,
+                    plannedWeight: data.plannedWeight ? parseFloat(data.plannedWeight) : undefined,
+                    restSeconds: data.restSeconds ?? undefined,
                     completionStatus: data.status,
                   })
                 }

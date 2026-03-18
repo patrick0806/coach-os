@@ -24,11 +24,9 @@ export class StartWorkoutSessionController {
     @Body() body: StartWorkoutSessionRequestDTO,
     @CurrentUser() user: IAccessToken,
   ) {
-    // Students can only start sessions for themselves
-    if (user.role === ApplicationRoles.STUDENT && body.studentId !== user.profileId) {
-      throw new ForbiddenException("Students can only start sessions for themselves");
-    }
+    // For students, always use their own profileId — ignore any studentId sent in the body
+    const studentId = user.role === ApplicationRoles.STUDENT ? user.profileId : body.studentId;
 
-    return this.startWorkoutSessionUseCase.execute(body, user.personalId!);
+    return this.startWorkoutSessionUseCase.execute({ ...body, studentId }, user.personalId!);
   }
 }
