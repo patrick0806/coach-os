@@ -25,6 +25,7 @@ import { StudentFormDialog } from "@/features/students/components/studentFormDia
 import { StudentNotes } from "@/features/students/components/studentNotes"
 import { StudentProgramsSection } from "@/features/studentPrograms/components/studentProgramsSection"
 import { StudentContractSection } from "@/features/coachingContracts/components/studentContractSection"
+import { StudentProgressSection } from "@/features/progress/components/studentProgressSection"
 import { useStudent } from "@/features/students/hooks/useStudent"
 import { useUpdateStudentStatus } from "@/features/students/hooks/useUpdateStudentStatus"
 import type { StudentStatus } from "@/features/students/types/students.types"
@@ -115,6 +116,7 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
           <TabsTrigger value="notes">Notas</TabsTrigger>
           <TabsTrigger value="programs">Programas</TabsTrigger>
           <TabsTrigger value="service">Serviço</TabsTrigger>
+          <TabsTrigger value="progress">Evolução</TabsTrigger>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -152,6 +154,10 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
 
         <TabsContent value="service" className="mt-4">
           <StudentContractSection studentId={studentId} />
+        </TabsContent>
+
+        <TabsContent value="progress" className="mt-4">
+          <StudentProgressSection studentId={studentId} />
         </TabsContent>
       </Tabs>
 

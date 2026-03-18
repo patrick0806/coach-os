@@ -10,12 +10,15 @@ import { SaveProgressPhotoController } from "./contexts/savePhoto/savePhoto.cont
 import { SaveProgressPhotoUseCase } from "./contexts/savePhoto/savePhoto.useCase";
 import { ListProgressPhotosController } from "./contexts/listPhotos/listPhotos.controller";
 import { ListProgressPhotosUseCase } from "./contexts/listPhotos/listPhotos.useCase";
+import { DeleteProgressPhotoController } from "./contexts/deletePhoto/deleteProgressPhoto.controller";
+import { DeleteProgressPhotoUseCase } from "./contexts/deletePhoto/deleteProgressPhoto.useCase";
 
 @Module({
   controllers: [
     RequestPhotoUploadController,
     SaveProgressPhotoController,
     ListProgressPhotosController,
+    DeleteProgressPhotoController,
   ],
   providers: [
     S3Provider,
@@ -24,6 +27,7 @@ import { ListProgressPhotosUseCase } from "./contexts/listPhotos/listPhotos.useC
     RequestPhotoUploadUseCase,
     SaveProgressPhotoUseCase,
     ListProgressPhotosUseCase,
+    DeleteProgressPhotoUseCase,
   ],
   exports: [ProgressPhotosRepository],
 })

@@ -497,12 +497,26 @@ Last updated: 2026-03-19 (coaching/contracts complete)
 - [x] Implement workoutCompletionScreen component
 - [x] Implement workout execution page (/aluno/treinos/[programId]/[workoutDayId]/executar)
 
-### Frontend: progress
+### Frontend: progress ✅ COMPLETE
 
-- [ ] Implement progress service
-- [ ] Implement progress records page (record metrics, view history)
-- [ ] Implement progress photos page (upload, gallery)
-- [ ] Implement progress charts (line graphs, comparisons)
+- [x] Implement progress types (progress.types.ts — MetricType, METRIC_TYPE_LABELS, METRIC_TYPE_UNITS, ProgressRecord, ProgressPhoto, request/response interfaces)
+- [x] Implement progress service (progress.service.ts — listRecords, createRecord, updateRecord, deleteRecord, listPhotos, requestPhotoUploadUrl, uploadToS3, savePhoto, deletePhoto)
+- [x] Implement useProgressRecords hook
+- [x] Implement useCreateProgressRecord mutation hook
+- [x] Implement useUpdateProgressRecord mutation hook
+- [x] Implement useDeleteProgressRecord mutation hook
+- [x] Implement useProgressPhotos hook
+- [x] Implement useRequestPhotoUploadUrl mutation hook
+- [x] Implement useSaveProgressPhoto mutation hook
+- [x] Implement useDeleteProgressPhoto mutation hook
+- [x] Implement progressRecordFormDialog (create + edit, Zod validation, metricType select, date input)
+- [x] Implement uploadProgressPhotoDialog (file input, S3 upload flow, notes, preview)
+- [x] Implement progressRecordsTab (filter tabs by metricType, card list, CRUD, alert-dialog delete confirm)
+- [x] Implement progressPhotosTab (grid gallery, hover delete overlay, alert-dialog confirm)
+- [x] Implement studentProgressSection (tabs: Métricas / Fotos)
+- [x] Add "Evolução" tab to studentDetail.tsx (renders StudentProgressSection)
+- [x] Backend: DeleteProgressPhotoUseCase + DELETE /progress-photos/:id + 4 tests
+- [ ] Implement progress charts (line graphs, comparisons) — backlog
 
 ### Frontend: scheduling ✅ COMPLETE
 
