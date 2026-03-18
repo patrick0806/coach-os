@@ -32,6 +32,7 @@ export default async function StudentLoginPage({ params }: PageProps) {
     <StudentLoginForm
       coachName={coach.coachName}
       coachLogoUrl={coach.profilePhoto}
+      slug={slug}
     />
   )
 }

@@ -5,6 +5,8 @@ import { Dumbbell, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import Link from "next/link"
+
 import { Button } from "@/shared/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card"
 import { Input } from "@/shared/ui/input"
@@ -21,9 +23,10 @@ type LoginFormValues = z.infer<typeof loginSchema>
 interface StudentLoginFormProps {
   coachName?: string
   coachLogoUrl?: string | null
+  slug?: string
 }
 
-export function StudentLoginForm({ coachName, coachLogoUrl }: StudentLoginFormProps) {
+export function StudentLoginForm({ coachName, coachLogoUrl, slug }: StudentLoginFormProps) {
   const { mutate: login, isPending } = useStudentLogin()
 
   const {
@@ -87,7 +90,17 @@ export function StudentLoginForm({ coachName, coachLogoUrl }: StudentLoginFormPr
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="password">Senha</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Senha</Label>
+                  {slug && (
+                    <Link
+                      href={`/personais/${slug}/esqueci-senha`}
+                      className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                    >
+                      Esqueceu sua senha?
+                    </Link>
+                  )}
+                </div>
                 <Input
                   id="password"
                   type="password"
