@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-19
+Last updated: 2026-03-18
 
 ---
 
@@ -62,12 +62,12 @@ Last updated: 2026-03-19
 | **Exercises** | completed | exercises/page.tsx (grid, filters, pagination), exerciseCard, exerciseGrid, exerciseFilters (debounce), exerciseFormDialog (create/edit + S3 upload), exerciseDetailDialog, deleteExerciseDialog. Service, 5 hooks (useExercises, useCreateExercise, useUpdateExercise, useDeleteExercise, useRequestUploadUrl). Sidebar activated. E2E: exercises.spec.ts |
 | **Training templates** | completed | /training-templates (list, filters, pagination, CRUD), /training-templates/[id] (builder com accordion, ▲▼ reorder). Service, 14 hooks (useProgramTemplates, useProgramTemplate, useCreateProgramTemplate, useUpdateProgramTemplate, useDeleteProgramTemplate, useDuplicateProgramTemplate, useAddWorkoutTemplate, useUpdateWorkoutTemplate, useDeleteWorkoutTemplate, useReorderWorkoutTemplates, useAddExerciseTemplate, useUpdateExerciseTemplate, useDeleteExerciseTemplate, useReorderExerciseTemplates). Sidebar ativado. E2E: trainingTemplates.spec.ts |
 | **Student programs** | completed | features/studentPrograms/{types,services,hooks,components} — studentProgramsService (6 methods), 6 hooks (useStudentPrograms, useStudentProgram, useAssignProgram, useUpdateStudentProgramStatus, useUpdateWorkoutDay, useUpdateStudentExercise), 8 components (studentProgramStatusBadge, assignProgramDialog, studentProgramCard, updateProgramStatusDialog, studentExerciseItem, updateStudentExerciseDialog, workoutDayCard, studentProgramsSection). Programs tab enabled in studentDetail. New page: /students/[id]/programs/[programId]. E2E: 21 behavioral tests pass |
-| **Workout execution** | not started | Backlog: session page, history |
+| **Workout execution** | completed | features/workoutExecution/{types,services,hooks,components} — workoutExecution.service.ts, 5 hooks (useStartSession, useFinishSession, useCreateExecution, useRecordSet, useWorkoutSession), 4 components (setRow, restTimer, exerciseExecutionCard, workoutCompletionScreen). Page: /aluno/treinos/[programId]/[workoutDayId]/executar |
 | **Progress** | not started | Backlog: records, photos, charts |
 | **Scheduling** | completed | /agenda (weekly calendar grid, create appointment + conflict warning, pending requests sheet, event detail with cancel/complete, availability zones + exception day overlay). /disponibilidade (availability rules + blocked dates CRUD, date range blocking, bulk wizard). Service, 15 hooks, 11 components (+ availabilityWizard, updated availabilityExceptionFormDialog). E2E: 78 behavioral tests pass (39 chromium + 39 mobile-android) |
-| **Coaching services** | not started | Backlog: service plans, contracts |
+| **Coaching services** | in progress | Service plans CRUD complete (list, create, edit, delete). Page /services, 4 hooks, 3 components, sidebar enabled. E2E: 34 behavioral tests pass. Contracts: backlog |
 | **Public page** | not started | Backlog: editor, preview, rendering |
-| **Student portal** | not started | Backlog: training, execution, progress, appointments |
+| **Student portal** | in progress | Layout, student login (/personais/[slug]/login), student auth (studentAuthStore, studentAuth.service, useStudentLogin), training list (/aluno/treinos), workout execution (/aluno/treinos/[programId]/[workoutDayId]/executar). Pending: progress, appointments |
 | **Notifications** | not started | Backlog: preferences |
 
 ---

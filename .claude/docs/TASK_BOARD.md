@@ -484,11 +484,20 @@ Last updated: 2026-03-19
 - [x] E2E behavioral tests (studentPrograms.behavior.spec.ts — 21 tests: tab, list, assign, detail, exercise update, mobile)
 - [x] E2E smoke tests (studentPrograms.smoke.spec.ts — tab navigation + assign flow)
 
-### Frontend: workout execution
+### Frontend: workout execution ✅ COMPLETE
 
-- [ ] Implement workout execution service
-- [ ] Implement workout session page (start, record sets, finish)
-- [ ] Implement workout history page
+- [x] Implement workout execution service (workoutExecution.service.ts)
+- [x] Implement workout execution types (workoutExecution.types.ts)
+- [x] Implement useStartSession hook
+- [x] Implement useFinishSession hook
+- [x] Implement useCreateExecution hook
+- [x] Implement useRecordSet hook
+- [x] Implement useWorkoutSession hook
+- [x] Implement setRow component
+- [x] Implement restTimer component
+- [x] Implement exerciseExecutionCard component
+- [x] Implement workoutCompletionScreen component
+- [x] Implement workout execution page (/aluno/treinos/[programId]/[workoutDayId]/executar)
 
 ### Frontend: progress
 
@@ -521,10 +530,21 @@ Last updated: 2026-03-19
 - [x] Feature: availability wizard — bulk multi-day configuration with breaks (availabilityWizard.tsx)
 - [x] Fix: apiMocks.ts — replaced all route.continue() with route.fallback() to prevent real network calls on non-matching routes
 
-### Frontend: coaching services
+### Frontend: coaching services ✅ (service plans complete)
 
-- [ ] Implement coaching service
-- [ ] Implement service plans page (create, edit, list)
+- [x] Implement service plans types (servicePlans.types.ts — ServicePlanItem, CreateServicePlanRequest, UpdateServicePlanRequest, AttendanceType)
+- [x] Implement service plans service (servicePlans.service.ts — list, getById, create, update, remove)
+- [x] Implement useServicePlans hook
+- [x] Implement useCreateServicePlan mutation hook
+- [x] Implement useUpdateServicePlan mutation hook
+- [x] Implement useDeleteServicePlan mutation hook
+- [x] Implement servicePlanCard component (attendanceType badge, price, sessions/week, duration)
+- [x] Implement servicePlanFormDialog component (create + edit, Zod validation)
+- [x] Implement deleteServicePlanDialog component (confirmation)
+- [x] Implement /services page (list grid, empty state, CRUD dialogs)
+- [x] Enable "Serviços" sidebar link (removed disabled: true)
+- [x] E2E behavioral tests (services.behavior.spec.ts — 34 tests: list, create, edit, delete, mobile)
+- [x] E2E smoke tests (services.smoke.spec.ts — access + create flow)
 - [ ] Implement coaching contracts page (create, list, manage)
 
 ### Frontend: public page
@@ -536,10 +556,17 @@ Last updated: 2026-03-19
 
 ### Frontend: student portal
 
-- [ ] Implement student portal layout
-- [ ] Implement student login page
-- [ ] Implement student training page (view program, exercises)
-- [ ] Implement student workout execution page
+- [x] Implement student portal layout (app/(student)/layout.tsx — header + logout)
+- [x] Implement student auth store (studentAuthStore)
+- [x] Implement student auth service (studentAuth.service.ts — login, logout)
+- [x] Implement useStudentLogin hook
+- [x] Implement studentLoginForm component
+- [x] Implement student login page (/personais/[slug]/login)
+- [x] Implement student training page (/aluno/treinos — list programs + workout days)
+- [x] Implement student workout execution page (/aluno/treinos/[programId]/[workoutDayId]/executar)
+- [x] Implement studentPortalPrograms.service.ts (active programs + program detail)
+- [x] Implement useStudentActivePrograms hook
+- [x] Implement useStudentProgramDetail hook
 - [ ] Implement student progress page
 - [ ] Implement student appointments page
 

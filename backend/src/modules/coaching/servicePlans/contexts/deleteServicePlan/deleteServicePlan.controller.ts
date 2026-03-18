@@ -10,9 +10,9 @@ import { DeleteServicePlanUseCase } from "./deleteServicePlan.useCase";
 
 @ApiTags(API_TAGS.SERVICE_PLANS)
 @Roles(ApplicationRoles.PERSONAL)
-@Controller({ version: "1", path: "service-plans" })
+@Controller({ version: "1", path: "" })
 export class DeleteServicePlanController {
-  constructor(private readonly deleteServicePlanUseCase: DeleteServicePlanUseCase) {}
+  constructor(private readonly deleteServicePlanUseCase: DeleteServicePlanUseCase) { }
 
   @ApiOperation({ summary: "Delete a service plan" })
   @ApiNoContentResponse()

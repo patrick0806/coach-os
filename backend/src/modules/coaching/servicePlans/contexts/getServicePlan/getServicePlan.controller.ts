@@ -11,9 +11,9 @@ import { GetServicePlanUseCase } from "./getServicePlan.useCase";
 
 @ApiTags(API_TAGS.SERVICE_PLANS)
 @Roles(ApplicationRoles.PERSONAL)
-@Controller({ version: "1", path: "service-plans" })
+@Controller({ version: "1", path: "" })
 export class GetServicePlanController {
-  constructor(private readonly getServicePlanUseCase: GetServicePlanUseCase) {}
+  constructor(private readonly getServicePlanUseCase: GetServicePlanUseCase) { }
 
   @ApiOperation({ summary: "Get a service plan by ID" })
   @ApiOkResponse({ type: CreateServicePlanResponseDTO })

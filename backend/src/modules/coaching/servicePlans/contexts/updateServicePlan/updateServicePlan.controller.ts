@@ -12,9 +12,9 @@ import { UpdateServicePlanUseCase } from "./updateServicePlan.useCase";
 
 @ApiTags(API_TAGS.SERVICE_PLANS)
 @Roles(ApplicationRoles.PERSONAL)
-@Controller({ version: "1", path: "service-plans" })
+@Controller({ version: "1", path: "" })
 export class UpdateServicePlanController {
-  constructor(private readonly updateServicePlanUseCase: UpdateServicePlanUseCase) {}
+  constructor(private readonly updateServicePlanUseCase: UpdateServicePlanUseCase) { }
 
   @ApiOperation({ summary: "Update a service plan" })
   @ApiOkResponse({ type: CreateServicePlanResponseDTO })

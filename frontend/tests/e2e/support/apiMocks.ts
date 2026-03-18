@@ -662,3 +662,81 @@ export async function mockAvailabilityRulesStateful(
     }
   })
 }
+
+// =============================================================================
+// Service Plans
+// =============================================================================
+
+export async function mockServicePlansList(
+  page: Page,
+  response: object[]
+): Promise<void> {
+  await page.route("**/api/v1/service-plans*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet =
+      method === "GET" && !url.match(/\/service-plans\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockServicePlansListStateful(
+  page: Page,
+  initialResponse: object[],
+  afterMutationResponse: object[]
+): Promise<void> {
+  let callCount = 0
+  await page.route("**/api/v1/service-plans*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet =
+      method === "GET" && !url.match(/\/service-plans\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      const response = callCount === 0 ? initialResponse : afterMutationResponse
+      callCount++
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCreateServicePlan(
+  page: Page,
+  createdPlan: object
+): Promise<void> {
+  await page.route("**/api/v1/service-plans", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: createdPlan })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockUpdateServicePlan(
+  page: Page,
+  updatedPlan: object
+): Promise<void> {
+  await page.route("**/api/v1/service-plans/**", (route: Route) => {
+    if (route.request().method() === "PUT") {
+      route.fulfill({ status: 200, contentType: "application/json", json: updatedPlan })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockDeleteServicePlan(page: Page): Promise<void> {
+  await page.route("**/api/v1/service-plans/**", (route: Route) => {
+    if (route.request().method() === "DELETE") {
+      route.fulfill({ status: 204 })
+    } else {
+      route.fallback()
+    }
+  })
+}
