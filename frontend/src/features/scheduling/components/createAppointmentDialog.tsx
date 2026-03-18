@@ -4,7 +4,9 @@ import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { format } from "date-fns"
+import { format, parseISO } from "date-fns"
+import { ptBR } from "date-fns/locale"
+import { CalendarIcon } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
 import {
@@ -24,7 +26,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover"
+import { Calendar } from "@/shared/ui/calendar"
 import { TimeSelect } from "@/shared/ui/time-select"
+import { cn } from "@/lib/utils"
 import { ConflictWarningDialog } from "./conflictWarningDialog"
 import { useCreateAppointment } from "@/features/scheduling/hooks/useCreateAppointment"
 import { useStudents } from "@/features/students/hooks/useStudents"
@@ -35,21 +40,21 @@ const schema = z
     date: z.string().min(1, "Data obrigatória"),
     startTime: z.string().min(1, "Horário de início obrigatório"),
     endTime: z.string().min(1, "Horário de término obrigatório"),
-    type: z.enum(["online", "presential"]),
+    appointmentType: z.enum(["online", "presential"]),
     meetingUrl: z.string().optional(),
     location: z.string().optional(),
     notes: z.string().optional(),
   })
   .refine(
     (data) => {
-      if (data.type === "online") return !!data.meetingUrl
+      if (data.appointmentType === "online") return !!data.meetingUrl
       return true
     },
     { message: "Link da reunião é obrigatório para consultas online", path: ["meetingUrl"] }
   )
   .refine(
     (data) => {
-      if (data.type === "presential") return !!data.location
+      if (data.appointmentType === "presential") return !!data.location
       return true
     },
     { message: "Local é obrigatório para consultas presenciais", path: ["location"] }
@@ -94,14 +99,14 @@ export function CreateAppointmentDialog({
       date: defaultDate ?? format(new Date(), "yyyy-MM-dd"),
       startTime: defaultStartTime ?? "08:00",
       endTime: "09:00",
-      type: "presential",
+      appointmentType: "presential",
       meetingUrl: "",
       location: "",
       notes: "",
     },
   })
 
-  const appointmentType = watch("type")
+  const appointmentType = watch("appointmentType")
 
   useEffect(() => {
     if (!open) {
@@ -124,9 +129,9 @@ export function CreateAppointmentDialog({
       studentId: data.studentId,
       startAt,
       endAt,
-      type: data.type,
-      meetingUrl: data.type === "online" ? data.meetingUrl : undefined,
-      location: data.type === "presential" ? data.location : undefined,
+      appointmentType: data.appointmentType,
+      meetingUrl: data.appointmentType === "online" ? data.meetingUrl : undefined,
+      location: data.appointmentType === "presential" ? data.location : undefined,
       notes: data.notes || undefined,
     })
   }
@@ -173,8 +178,44 @@ export function CreateAppointmentDialog({
 
             {/* Date */}
             <div className="space-y-1.5">
-              <Label htmlFor="date">Data</Label>
-              <Input id="date" type="date" {...register("date")} />
+              <Label>Data</Label>
+              <Controller
+                name="date"
+                control={control}
+                render={({ field }) => {
+                  const selectedDate = field.value ? parseISO(field.value) : undefined
+                  return (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                          data-testid="date-picker-trigger"
+                        >
+                          <CalendarIcon className="mr-2 size-4" />
+                          {selectedDate
+                            ? format(selectedDate, "PPP", { locale: ptBR })
+                            : "Selecionar data"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(d) => {
+                            if (d) field.onChange(format(d, "yyyy-MM-dd"))
+                          }}
+                          locale={ptBR}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  )
+                }}
+              />
               {errors.date && (
                 <p className="text-xs text-destructive">{errors.date.message}</p>
               )}
@@ -214,7 +255,7 @@ export function CreateAppointmentDialog({
             <div className="space-y-1.5">
               <Label>Tipo</Label>
               <Controller
-                name="type"
+                name="appointmentType"
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>

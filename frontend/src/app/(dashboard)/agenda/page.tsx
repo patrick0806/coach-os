@@ -38,7 +38,7 @@ export default function AgendaPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4 sm:gap-6 sm:p-6">
       <PageHeader
         title="Agenda"
         description="Visualize e gerencie seus agendamentos da semana."

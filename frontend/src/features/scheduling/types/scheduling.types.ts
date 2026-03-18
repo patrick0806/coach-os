@@ -49,7 +49,7 @@ export interface CreateAppointmentRequest {
   studentId: string
   startAt: string
   endAt: string
-  type: "online" | "presential"
+  appointmentType: "online" | "presential"
   meetingUrl?: string
   location?: string
   notes?: string
