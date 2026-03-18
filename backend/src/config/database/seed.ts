@@ -40,7 +40,7 @@ import {
 
 // Drizzle ORM type inference excludes optional/defaulted columns from insert types.
 // This helper bypasses the limitation for seed data only.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 function sv<T>(v: T): any {
   return v;
 }

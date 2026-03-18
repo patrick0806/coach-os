@@ -184,7 +184,7 @@ export class WorkoutSessionsRepository {
     tenantId: string,
     data: Partial<{ status: "started" | "paused" | "finished" | "skipped"; finishedAt: Date }>,
   ): Promise<WorkoutSession | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(workoutSessions)
       .set(data as any)

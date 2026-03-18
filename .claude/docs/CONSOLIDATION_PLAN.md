@@ -241,9 +241,9 @@ Encontrados labels hardcoded que deveriam ser centralizados:
 | 7 | Testes behavior: profileEditor | - | Nenhuma | ✅ DONE (2026-03-18) |
 | 8 | Testes behavior: publicPage | - | Nenhuma | ✅ DONE (2026-03-18) |
 | 9 | Testes behavior: studentPortal | - | Nenhuma | ✅ DONE (2026-03-18) |
-| 10 | Dead code cleanup | - | Nenhuma | - |
+| 10 | Dead code cleanup | - | Nenhuma | ✅ DONE (2026-03-18) |
 | 11 | Security review | - | Nenhuma | - |
-| 12 | Testes smoke: scheduling, progressCheckins, studentPortal | - | Backend rodando | - |
+| 12 | Testes smoke: scheduling, progressCheckins, studentPortal | - | Backend rodando | ✅ DONE (2026-03-18) |
 
 **Nota:** Tarefas 1-5 sao sequenciais. Tarefas 6-10 podem ser feitas em paralelo.
 

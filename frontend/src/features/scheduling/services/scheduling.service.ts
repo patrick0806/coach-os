@@ -1,7 +1,6 @@
 import { api } from "@/lib/axios"
 import type {
   AppointmentItem,
-  AppointmentRequestItem,
   ApproveAppointmentRequestRequest,
   AvailabilityExceptionItem,
   AvailabilityRuleItem,

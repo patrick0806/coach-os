@@ -27,7 +27,6 @@ import {
 import {
   coachingContractsFixtures,
   activeContract,
-  cancelledContract,
   newActiveContract,
   MOCK_STUDENT_ID,
 } from "../fixtures/coachingContracts.fixtures"

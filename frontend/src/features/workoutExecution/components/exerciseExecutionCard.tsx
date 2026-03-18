@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { ChevronDown, ChevronUp, Dumbbell } from "lucide-react"
 
-import { Button } from "@/shared/ui/button"
 import { Card, CardContent, CardHeader } from "@/shared/ui/card"
 import { Badge } from "@/shared/ui/badge"
 import { SetRow } from "@/features/workoutExecution/components/setRow"

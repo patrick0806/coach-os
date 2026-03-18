@@ -193,7 +193,7 @@ export class ProgramTemplatesRepository {
       status: string;
     }>,
   ): Promise<ProgramTemplate | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(programTemplates)
       .set(data as any)

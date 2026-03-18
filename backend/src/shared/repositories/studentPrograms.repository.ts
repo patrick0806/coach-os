@@ -42,7 +42,7 @@ export class StudentProgramsRepository {
     name: string;
   }): Promise<StudentProgram> {
     // Drizzle ORM type inference limitation: optional/nullable columns not fully inferred in insert type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .insert(studentPrograms)
       .values({
@@ -199,7 +199,7 @@ export class StudentProgramsRepository {
     tenantId: string,
     status: "active" | "finished" | "cancelled",
   ): Promise<StudentProgram | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(studentPrograms)
       .set({ status } as any)

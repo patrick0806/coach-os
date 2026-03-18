@@ -90,7 +90,7 @@ export class ProgressRecordsRepository {
       notes: string | null;
     }>,
   ): Promise<ProgressRecord | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(progressRecords)
       .set(data as any)

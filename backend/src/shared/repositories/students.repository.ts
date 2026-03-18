@@ -176,7 +176,7 @@ export class StudentsRepository {
     }
 
     // Drizzle ORM type inference limitation: nullable columns not inferred in SET type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(students)
       .set(studentData as any)
@@ -192,7 +192,7 @@ export class StudentsRepository {
     status: "active" | "paused" | "archived",
   ): Promise<Student | undefined> {
     // Drizzle ORM type inference limitation: status is not inferred in the SET type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(students)
       .set({ status } as any)

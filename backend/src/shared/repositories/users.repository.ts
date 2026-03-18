@@ -51,7 +51,7 @@ export class UsersRepository {
     tx?: DbTransaction,
   ): Promise<void> {
     // Drizzle ORM type inference limitation: refreshTokenHash is not inferred in the SET type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (tx ?? this.drizzle.db)
       .update(users)
       .set({ refreshTokenHash } as any)

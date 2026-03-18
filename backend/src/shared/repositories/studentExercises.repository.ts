@@ -72,7 +72,7 @@ export class StudentExercisesRepository {
       order: number;
     }>,
   ): Promise<StudentExercise | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(studentExercises)
       .set(data as any)

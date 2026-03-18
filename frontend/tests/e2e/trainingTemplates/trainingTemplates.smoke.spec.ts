@@ -12,7 +12,6 @@ import { generateUniqueName } from "../helpers"
 test.describe("Training Templates — Smoke @smoke", () => {
   test.describe.configure({ mode: "serial" })
 
-  let templateId: string
   let templateName: string
 
   test("coach can create a program template", async ({ page, request }) => {
@@ -60,7 +59,6 @@ test.describe("Training Templates — Smoke @smoke", () => {
     await card.getByTestId("template-name-link").click()
 
     await expect(page).toHaveURL(/training-templates\//)
-    templateId = page.url().split("/training-templates/")[1]
 
     await page.waitForSelector("[data-slot='empty-state'], [data-testid='workout-template-card']", {
       timeout: 8000,

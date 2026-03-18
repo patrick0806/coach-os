@@ -6,7 +6,7 @@
  * (actual data correctness belongs in smoke tests once feature is implemented).
  */
 import { test, expect } from "@playwright/test"
-import { injectMockAuth, mockDashboardStats, MOCK_USER } from "../support/apiMocks"
+import { injectMockAuth, mockDashboardStats } from "../support/apiMocks"
 
 async function goToDashboard(page: import("@playwright/test").Page) {
   await injectMockAuth(page)

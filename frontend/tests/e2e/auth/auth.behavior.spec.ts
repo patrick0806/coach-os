@@ -8,11 +8,9 @@
 import { test, expect } from "@playwright/test"
 import {
   mockPlansList,
-  mockAuthLogin,
   mockAuthLoginFail,
   mockPasswordResetRequest,
   injectMockAuth,
-  MOCK_USER,
 } from "../support/apiMocks"
 import { plansFixtures } from "../fixtures/plans.fixtures"
 

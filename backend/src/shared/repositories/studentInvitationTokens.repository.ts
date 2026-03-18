@@ -58,7 +58,7 @@ export class StudentInvitationTokensRepository {
 
   async invalidateByEmailAndTenant(email: string, tenantId: string): Promise<void> {
     // Drizzle ORM type inference limitation: usedAt is not inferred in the SET type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await this.drizzle.db
       .update(studentInvitationTokens)
       .set({ usedAt: new Date() } as any)
@@ -73,7 +73,7 @@ export class StudentInvitationTokensRepository {
 
   async markAsUsed(id: string): Promise<void> {
     // Drizzle ORM type inference limitation: usedAt is not inferred in the SET type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await this.drizzle.db
       .update(studentInvitationTokens)
       .set({ usedAt: new Date() } as any)

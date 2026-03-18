@@ -25,7 +25,7 @@ export class ExerciseSetsRepository {
     restSeconds?: number;
     completionStatus: "completed" | "partial" | "skipped";
   }): Promise<ExerciseSet> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .insert(exerciseSets)
       .values(data as any)

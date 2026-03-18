@@ -56,7 +56,7 @@ export class WorkoutDaysRepository {
     id: string,
     data: Partial<{ name: string; description: string | null; order: number }>,
   ): Promise<WorkoutDay | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(workoutDays)
       .set(data as any)

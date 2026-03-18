@@ -62,10 +62,6 @@ export default function ProgramTemplateBuilderPage() {
     reorderWorkouts.mutate({ ids: newOrder.map((w) => w.id) })
   }
 
-  function handleAddWorkoutSuccess(workoutId: string) {
-    setExpandedWorkoutId(workoutId)
-  }
-
   if (isLoading) {
     return <LoadingState variant="page" />
   }

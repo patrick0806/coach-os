@@ -63,7 +63,7 @@ export class PasswordTokensRepository {
 
   async markResetTokenAsUsed(id: string, tx?: DbTransaction): Promise<void> {
     // Drizzle ORM type inference limitation: usedAt is not inferred in the SET type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (tx ?? this.drizzle.db)
       .update(passwordResetTokens)
       .set({ usedAt: new Date() } as any)
@@ -72,7 +72,7 @@ export class PasswordTokensRepository {
 
   async markSetupTokenAsUsed(id: string, tx?: DbTransaction): Promise<void> {
     // Drizzle ORM type inference limitation: usedAt is not inferred in the SET type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await (tx ?? this.drizzle.db)
       .update(passwordSetupTokens)
       .set({ usedAt: new Date() } as any)
@@ -81,7 +81,7 @@ export class PasswordTokensRepository {
 
   async invalidateResetTokensByUserId(userId: string): Promise<void> {
     // Mark all unused reset tokens for this user as used to prevent token accumulation
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await this.drizzle.db
       .update(passwordResetTokens)
       .set({ usedAt: new Date() } as any)
@@ -95,7 +95,7 @@ export class PasswordTokensRepository {
 
   async invalidateSetupTokensByUserId(userId: string): Promise<void> {
     // Mark all unused setup tokens for this user as used to prevent token accumulation
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     await this.drizzle.db
       .update(passwordSetupTokens)
       .set({ usedAt: new Date() } as any)

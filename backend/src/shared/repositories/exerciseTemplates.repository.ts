@@ -98,7 +98,7 @@ export class ExerciseTemplatesRepository {
       order: number;
     }>,
   ): Promise<ExerciseTemplate | undefined> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const result = await this.drizzle.db
       .update(exerciseTemplates)
       .set(data as any)

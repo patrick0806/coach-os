@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { ClipboardList, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
 import { LoadingState } from "@/shared/components/loadingState"
