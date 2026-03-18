@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-18
+Last updated: 2026-03-19
 
 ---
 
@@ -21,7 +21,7 @@ Last updated: 2026-03-18
 | **platform/profile** | completed | GET /profile (3 tests), PUT /profile (5 tests), POST /profile/photo/upload-url (4 tests). Full profile CRUD, S3 presigned URL upload, themeColor hex validation, LP fields |
 | **coaching/servicePlans** | completed | POST /service-plans (5 tests), GET /service-plans (3 tests), GET /service-plans/:id (4 tests), PUT /service-plans/:id (5 tests), DELETE /service-plans/:id (3 tests). Full CRUD, attendanceType enum, tenant isolation |
 | **public** | completed | GET /public/:slug (4 tests). Public coach profile by slug with active service plans, no auth required (@Public + @BypassTenantAccess) |
-| **coaching/contracts** | not started | Backlog: coaching contract management |
+| **coaching/contracts** | completed | POST /students/:studentId/contracts (5 tests), GET /students/:studentId/contracts (3 tests), PATCH /coaching-contracts/:id/cancel (4 tests). Auto-cancels active contract on new creation, ContractWithPlan join, tenant isolation. New repository: CoachingContractsRepository |
 | **exercises** | completed | POST /exercises (6 tests), GET /exercises (6 tests), GET /exercises/:id (4 tests), PUT /exercises/:id (6 tests), DELETE /exercises/:id (5 tests), POST /exercises/:id/upload-url (6 tests). Global + private visibility, tenant isolation, S3 presigned URL upload flow |
 | **training/programTemplates** | completed | POST /program-templates (5 tests), GET /program-templates (5 tests), GET /program-templates/:id (4 tests), PUT /program-templates/:id (5 tests), DELETE /program-templates/:id (3 tests), POST /program-templates/:id/duplicate (4 tests), POST /program-templates/:id/workouts (5 tests), PATCH /program-templates/:id/workouts/reorder (4 tests). Full tree fetch with workout+exercise data, deep copy on duplicate, auto-order |
 | **training/workoutTemplates** | completed | PUT /workout-templates/:id (5 tests), DELETE /workout-templates/:id (3 tests), POST /workout-templates/:id/exercises (6 tests), PATCH /workout-templates/:id/exercises/reorder (4 tests). Exercise visibility check (global or same tenant), auto-order |
@@ -65,7 +65,7 @@ Last updated: 2026-03-18
 | **Workout execution** | completed | features/workoutExecution/{types,services,hooks,components} — workoutExecution.service.ts, 5 hooks (useStartSession, useFinishSession, useCreateExecution, useRecordSet, useWorkoutSession), 4 components (setRow, restTimer, exerciseExecutionCard, workoutCompletionScreen). Page: /aluno/treinos/[programId]/[workoutDayId]/executar |
 | **Progress** | not started | Backlog: records, photos, charts |
 | **Scheduling** | completed | /agenda (weekly calendar grid, create appointment + conflict warning, pending requests sheet, event detail with cancel/complete, availability zones + exception day overlay). /disponibilidade (availability rules + blocked dates CRUD, date range blocking, bulk wizard). Service, 15 hooks, 11 components (+ availabilityWizard, updated availabilityExceptionFormDialog). E2E: 78 behavioral tests pass (39 chromium + 39 mobile-android) |
-| **Coaching services** | in progress | Service plans CRUD complete (list, create, edit, delete). Page /services, 4 hooks, 3 components, sidebar enabled. E2E: 34 behavioral tests pass. Contracts: backlog |
+| **Coaching services** | completed | Service plans CRUD complete (list, create, edit, delete). Page /services, 4 hooks, 3 components, sidebar enabled. E2E: 34 behavioral tests pass. Contracts: "Serviço" tab in studentDetail, assignPlanDialog, studentContractSection, 3 hooks (useStudentContracts, useCreateContract, useCancelContract), service + types. E2E: 32 behavioral tests pass (coachingContracts.behavior.spec.ts) |
 | **Public page** | not started | Backlog: editor, preview, rendering |
 | **Student portal** | in progress | Layout, student login (/personais/[slug]/login), student auth (studentAuthStore, studentAuth.service, useStudentLogin), training list (/aluno/treinos), workout execution (/aluno/treinos/[programId]/[workoutDayId]/executar). Pending: progress, appointments |
 | **Notifications** | not started | Backlog: preferences |

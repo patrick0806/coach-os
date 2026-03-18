@@ -2,9 +2,11 @@ import { Module } from "@nestjs/common";
 
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { CoachStudentRelationsRepository } from "@shared/repositories/coachStudentRelations.repository";
+import { CoachingContractsRepository } from "@shared/repositories/coachingContracts.repository";
 import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
+import { ServicePlansRepository } from "@shared/repositories/servicePlans.repository";
 import { StudentInvitationTokensRepository } from "@shared/repositories/studentInvitationTokens.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
@@ -46,6 +48,8 @@ import { SendStudentAccessUseCase } from "./contexts/sendStudentAccess/sendStude
     PersonalsRepository,
     PlansRepository,
     CoachStudentRelationsRepository,
+    CoachingContractsRepository,
+    ServicePlansRepository,
     StudentInvitationTokensRepository,
     PasswordTokensRepository,
     ResendProvider,

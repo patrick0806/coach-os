@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { z } from "zod"
 
 import { Button } from "@/shared/ui/button"
@@ -16,9 +17,26 @@ import {
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/shared/ui/field"
 import { Input } from "@/shared/ui/input"
 import { Textarea } from "@/shared/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select"
 import { useCreateStudent } from "@/features/students/hooks/useCreateStudent"
 import { useUpdateStudent } from "@/features/students/hooks/useUpdateStudent"
 import type { StudentDetail } from "@/features/students/types/students.types"
+import { servicePlansService } from "@/features/servicePlans/services/servicePlans.service"
+
+// Brazilian phone mask: (XX) XXXXX-XXXX (mobile) or (XX) XXXX-XXXX (landline)
+function formatPhone(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
 
 const schema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres").optional(),
@@ -27,6 +45,7 @@ const schema = z.object({
   goal: z.string().optional(),
   observations: z.string().optional(),
   physicalRestrictions: z.string().optional(),
+  servicePlanId: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -49,18 +68,28 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
       goal: "",
       observations: "",
       physicalRestrictions: "",
+      servicePlanId: "",
     },
   })
+
+  // Fetch service plans only when creating a new student and dialog is open
+  const { data: servicePlansResponse } = useQuery({
+    queryKey: ["service-plans"],
+    queryFn: () => servicePlansService.list(),
+    enabled: open && !isEdit,
+  })
+  const activePlans = (servicePlansResponse ?? []).filter((p) => p.isActive)
 
   useEffect(() => {
     if (student) {
       form.reset({
         name: student.name,
         email: student.email,
-        phoneNumber: student.phoneNumber ?? "",
+        phoneNumber: student.phoneNumber ? formatPhone(student.phoneNumber) : "",
         goal: student.goal ?? "",
         observations: student.observations ?? "",
         physicalRestrictions: student.physicalRestrictions ?? "",
+        servicePlanId: "",
       })
     } else {
       form.reset({
@@ -70,6 +99,7 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
         goal: "",
         observations: "",
         physicalRestrictions: "",
+        servicePlanId: "",
       })
     }
   }, [student, form])
@@ -94,6 +124,7 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
         goal: values.goal || undefined,
         observations: values.observations || undefined,
         physicalRestrictions: values.physicalRestrictions || undefined,
+        servicePlanId: values.servicePlanId || undefined,
       })
     }
   }
@@ -129,6 +160,27 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
                   />
                   <FieldError errors={[form.formState.errors.email]} />
                 </Field>
+                {activePlans.length > 0 && (
+                  <Field>
+                    <FieldLabel htmlFor="servicePlanId">Plano de serviço</FieldLabel>
+                    <Select
+                      value={form.watch("servicePlanId") ?? ""}
+                      onValueChange={(val) => form.setValue("servicePlanId", val === "none" ? "" : val)}
+                    >
+                      <SelectTrigger id="servicePlanId">
+                        <SelectValue placeholder="Selecionar plano (opcional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Nenhum</SelectItem>
+                        {activePlans.map((plan) => (
+                          <SelectItem key={plan.id} value={plan.id}>
+                            {plan.name} — R$ {Number(plan.price).toFixed(2).replace(".", ",")}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                )}
               </>
             )}
             <Field>
@@ -136,7 +188,8 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
               <Input
                 id="phoneNumber"
                 placeholder="(11) 99999-9999"
-                {...form.register("phoneNumber")}
+                value={form.watch("phoneNumber") ?? ""}
+                onChange={(e) => form.setValue("phoneNumber", formatPhone(e.target.value))}
               />
             </Field>
             <Field>

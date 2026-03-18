@@ -41,7 +41,7 @@ describe("UpdateStudentUseCase", () => {
   it("should update student successfully", async () => {
     studentsRepository.findById
       .mockResolvedValueOnce(makeStudent())
-      .mockResolvedValueOnce(makeStudent({ goal: "Perder peso", phoneNumber: "+55 11 99999-9999" }));
+      .mockResolvedValueOnce(makeStudent({ goal: "Perder peso", phoneNumber: "5511999999999" }));
 
     const result = await useCase.execute(
       "student-id-1",
@@ -74,12 +74,22 @@ describe("UpdateStudentUseCase", () => {
   });
 
   it("should allow partial updates", async () => {
-    await useCase.execute("student-id-1", { phoneNumber: "+55 11 00000-0000" }, tenantId);
+    await useCase.execute("student-id-1", { phoneNumber: "11900000000" }, tenantId);
 
     expect(studentsRepository.update).toHaveBeenCalledWith(
       "student-id-1",
       tenantId,
-      expect.objectContaining({ phoneNumber: "+55 11 00000-0000" }),
+      expect.objectContaining({ phoneNumber: "11900000000" }),
+    );
+  });
+
+  it("should normalize phone number by stripping non-digit characters", async () => {
+    await useCase.execute("student-id-1", { phoneNumber: "(11) 99999-9999" }, tenantId);
+
+    expect(studentsRepository.update).toHaveBeenCalledWith(
+      "student-id-1",
+      tenantId,
+      expect.objectContaining({ phoneNumber: "11999999999" }),
     );
   });
 

@@ -29,6 +29,7 @@ import { TrainingSchedulesModule } from "@modules/scheduling/trainingSchedules/t
 import { AppointmentsModule } from "@modules/scheduling/appointments/appointments.module";
 import { CalendarModule } from "@modules/scheduling/calendar/calendar.module";
 import { PublicModule } from "@modules/public/public.module";
+import { CoachingContractsModule } from "@modules/coaching/contracts/contracts.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -61,6 +62,7 @@ import { DatabaseModule } from "@config/database/database.module";
     AppointmentsModule,
     CalendarModule,
     PublicModule,
+    CoachingContractsModule,
     RouterModule.register([
       {
         path: "health",

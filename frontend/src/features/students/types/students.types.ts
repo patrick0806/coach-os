@@ -31,6 +31,7 @@ export interface CreateStudentRequest {
   goal?: string
   observations?: string
   physicalRestrictions?: string
+  servicePlanId?: string
 }
 
 export interface UpdateStudentRequest {

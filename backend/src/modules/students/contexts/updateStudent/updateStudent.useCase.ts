@@ -23,7 +23,18 @@ export class UpdateStudentUseCase {
       throw new NotFoundException("Student not found");
     }
 
-    await this.studentsRepository.update(id, tenantId, data);
+    // Normalize phone: strip all non-digit characters
+    const normalizedPhone =
+      data.phoneNumber === undefined
+        ? undefined
+        : data.phoneNumber === null
+          ? null
+          : data.phoneNumber.replace(/\D/g, "") || null;
+
+    await this.studentsRepository.update(id, tenantId, {
+      ...data,
+      phoneNumber: normalizedPhone,
+    });
 
     const updated = await this.studentsRepository.findById(id, tenantId);
     return updated!;

@@ -7,7 +7,7 @@ export class CreateStudentRequestDTO {
   @ApiProperty({ example: "maria@email.com", format: "email" })
   email: string;
 
-  @ApiProperty({ example: "+55 11 99999-9999", required: false })
+  @ApiProperty({ example: "11999999999", required: false, description: "Phone digits only — non-digit characters are stripped automatically" })
   phoneNumber?: string;
 
   @ApiProperty({ example: "Perder peso e ganhar músculo", required: false, maxLength: 300 })
@@ -18,4 +18,7 @@ export class CreateStudentRequestDTO {
 
   @ApiProperty({ example: "Dor lombar crônica", required: false })
   physicalRestrictions?: string;
+
+  @ApiProperty({ example: "uuid-service-plan-id", required: false, description: "If provided, a coaching contract is created automatically" })
+  servicePlanId?: string;
 }

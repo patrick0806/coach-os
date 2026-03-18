@@ -740,3 +740,63 @@ export async function mockDeleteServicePlan(page: Page): Promise<void> {
     }
   })
 }
+
+// =============================================================================
+// Coaching Contracts
+// =============================================================================
+
+export async function mockStudentContracts(
+  page: Page,
+  studentId: string,
+  response: object[]
+): Promise<void> {
+  await page.route(`**/api/v1/students/${studentId}/contracts*`, (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockStudentContractsStateful(
+  page: Page,
+  studentId: string,
+  initialResponse: object[],
+  afterMutationResponse: object[]
+): Promise<void> {
+  let callCount = 0
+  await page.route(`**/api/v1/students/${studentId}/contracts*`, (route: Route) => {
+    if (route.request().method() === "GET") {
+      const response = callCount === 0 ? initialResponse : afterMutationResponse
+      callCount++
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCreateContract(
+  page: Page,
+  studentId: string,
+  response: object
+): Promise<void> {
+  await page.route(`**/api/v1/students/${studentId}/contracts`, (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCancelContract(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/coaching-contracts/**/cancel", (route: Route) => {
+    if (route.request().method() === "PATCH") {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}

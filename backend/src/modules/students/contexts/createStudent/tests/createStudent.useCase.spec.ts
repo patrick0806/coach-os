@@ -65,6 +65,21 @@ const makeCoachStudentRelationsRepository = () => ({
   }),
 });
 
+const makeCoachingContractsRepository = () => ({
+  create: vi.fn().mockResolvedValue({ id: "contract-id-1" }),
+});
+
+const makeServicePlansRepository = () => ({
+  findById: vi.fn().mockResolvedValue({
+    id: "service-plan-id-1",
+    tenantId: "tenant-id-1",
+    name: "Plano Online",
+    price: "49.90",
+    attendanceType: "online",
+    isActive: true,
+  }),
+});
+
 describe("CreateStudentUseCase", () => {
   let useCase: CreateStudentUseCase;
   let studentsRepository: ReturnType<typeof makeStudentsRepository>;
@@ -72,6 +87,8 @@ describe("CreateStudentUseCase", () => {
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let plansRepository: ReturnType<typeof makePlansRepository>;
   let coachStudentRelationsRepository: ReturnType<typeof makeCoachStudentRelationsRepository>;
+  let coachingContractsRepository: ReturnType<typeof makeCoachingContractsRepository>;
+  let servicePlansRepository: ReturnType<typeof makeServicePlansRepository>;
 
   const validBody = {
     name: "Maria Silva",
@@ -88,6 +105,8 @@ describe("CreateStudentUseCase", () => {
     personalsRepository = makePersonalsRepository();
     plansRepository = makePlansRepository();
     coachStudentRelationsRepository = makeCoachStudentRelationsRepository();
+    coachingContractsRepository = makeCoachingContractsRepository();
+    servicePlansRepository = makeServicePlansRepository();
 
     useCase = new CreateStudentUseCase(
       studentsRepository as any,
@@ -95,6 +114,8 @@ describe("CreateStudentUseCase", () => {
       personalsRepository as any,
       plansRepository as any,
       coachStudentRelationsRepository as any,
+      coachingContractsRepository as any,
+      servicePlansRepository as any,
     );
   });
 
@@ -165,5 +186,40 @@ describe("CreateStudentUseCase", () => {
     expect(studentsRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({ tenantId }),
     );
+  });
+
+  it("should normalize phone number by stripping non-digit characters", async () => {
+    await useCase.execute({ ...validBody, phoneNumber: "(11) 99999-9999" }, tenantId);
+
+    expect(studentsRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({ phoneNumber: "11999999999" }),
+    );
+  });
+
+  it("should create coaching contract when servicePlanId is provided", async () => {
+    await useCase.execute({ ...validBody, servicePlanId: "service-plan-id-1" }, tenantId);
+
+    expect(coachingContractsRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tenantId,
+        studentId: "student-id-1",
+        servicePlanId: "service-plan-id-1",
+        status: "active",
+      }),
+    );
+  });
+
+  it("should not create coaching contract when servicePlanId is not provided", async () => {
+    await useCase.execute(validBody, tenantId);
+
+    expect(coachingContractsRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should throw NotFoundException when servicePlanId references unknown plan", async () => {
+    servicePlansRepository.findById.mockResolvedValue(undefined);
+
+    await expect(
+      useCase.execute({ ...validBody, servicePlanId: "nonexistent-plan" }, tenantId),
+    ).rejects.toThrow(NotFoundException);
   });
 });

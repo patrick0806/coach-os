@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-19
+Last updated: 2026-03-19 (coaching/contracts complete)
 
 ---
 
@@ -353,19 +353,17 @@ Last updated: 2026-03-19
 - [x] Implement DeleteServicePlanUseCase (3 tests — happy path, not found, wrong tenant)
 - [x] Implement delete service plan controller (DELETE /service-plans/:id)
 
-### Module: coaching/contracts
+### Module: coaching/contracts ✅ COMPLETE
 
-- [ ] Implement CoachingContractRepository (create, findByTenantId, findById, update)
-- [ ] Implement CreateCoachingContractUseCase
-- [ ] Implement create contract request/response DTOs with Zod validation
-- [ ] Implement create contract controller (POST /coaching-contracts)
-- [ ] Implement create contract unit tests
-- [ ] Implement ListCoachingContractsUseCase
-- [ ] Implement list contracts controller (GET /coaching-contracts)
-- [ ] Implement list contracts unit tests
-- [ ] Implement CancelCoachingContractUseCase
-- [ ] Implement cancel contract controller (PATCH /coaching-contracts/:id/cancel)
-- [ ] Implement cancel contract unit tests
+- [x] Implement CoachingContractsRepository (create, findByStudentId, findActiveByStudentId, findById, update — ContractWithPlan join)
+- [x] Implement CreateCoachingContractUseCase (5 tests — happy path, auto-cancel active, student not found, plan not found, plan inactive)
+- [x] Implement create contract request/response DTOs with Zod validation
+- [x] Implement create contract controller (POST /students/:studentId/contracts)
+- [x] Implement ListContractsUseCase (3 tests — returns with servicePlan, empty list, tenant isolation)
+- [x] Implement list contracts controller (GET /students/:studentId/contracts)
+- [x] Implement CancelContractUseCase (4 tests — happy path, not found/wrong tenant, already cancelled, returns updated)
+- [x] Implement cancel contract controller (PATCH /coaching-contracts/:id/cancel)
+- [x] Register CoachingContractsModule in app.module.ts
 
 ### Frontend: design system ✅ COMPLETE
 
@@ -545,7 +543,17 @@ Last updated: 2026-03-19
 - [x] Enable "Serviços" sidebar link (removed disabled: true)
 - [x] E2E behavioral tests (services.behavior.spec.ts — 34 tests: list, create, edit, delete, mobile)
 - [x] E2E smoke tests (services.smoke.spec.ts — access + create flow)
-- [ ] Implement coaching contracts page (create, list, manage)
+- [x] Implement coaching contracts types (coachingContracts.types.ts — CoachingContractItem, ContractServicePlan, ContractStatus)
+- [x] Implement coaching contracts service (coachingContracts.service.ts — list, create, cancel)
+- [x] Implement useStudentContracts hook (query with studentId)
+- [x] Implement useCreateContract mutation hook (invalidates student-contracts, toast, closes dialog)
+- [x] Implement useCancelContract mutation hook (invalidates student-contracts, toast)
+- [x] Implement assignPlanDialog component (plan selector, replacement warning, enabled: open guard)
+- [x] Implement studentContractSection component (active plan card, empty state, history list)
+- [x] Add "Serviço" tab to studentDetail.tsx (renders StudentContractSection)
+- [x] E2E fixtures (coachingContracts.fixtures.ts — activeContract, cancelledContract, newActiveContract)
+- [x] E2E mocks in apiMocks.ts (mockStudentContracts, mockStudentContractsStateful, mockCreateContract, mockCancelContract)
+- [x] E2E behavioral tests (coachingContracts.behavior.spec.ts — 32 tests: tab, active plan, empty state, assign dialog, replace warning, history, cancel, mobile)
 
 ### Frontend: public page
 

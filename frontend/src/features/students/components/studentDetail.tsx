@@ -24,6 +24,7 @@ import { StudentStatusBadge } from "@/features/students/components/studentStatus
 import { StudentFormDialog } from "@/features/students/components/studentFormDialog"
 import { StudentNotes } from "@/features/students/components/studentNotes"
 import { StudentProgramsSection } from "@/features/studentPrograms/components/studentProgramsSection"
+import { StudentContractSection } from "@/features/coachingContracts/components/studentContractSection"
 import { useStudent } from "@/features/students/hooks/useStudent"
 import { useUpdateStudentStatus } from "@/features/students/hooks/useUpdateStudentStatus"
 import type { StudentStatus } from "@/features/students/types/students.types"
@@ -113,6 +114,7 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
           <TabsTrigger value="info">Informações</TabsTrigger>
           <TabsTrigger value="notes">Notas</TabsTrigger>
           <TabsTrigger value="programs">Programas</TabsTrigger>
+          <TabsTrigger value="service">Serviço</TabsTrigger>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -146,6 +148,10 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
 
         <TabsContent value="programs" className="mt-4">
           <StudentProgramsSection studentId={studentId} />
+        </TabsContent>
+
+        <TabsContent value="service" className="mt-4">
+          <StudentContractSection studentId={studentId} />
         </TabsContent>
       </Tabs>
 
