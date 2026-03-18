@@ -77,7 +77,7 @@ export function ServicePlanCard({ plan, onEdit, onDelete }: ServicePlanCardProps
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="size-8 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
                 data-testid="service-plan-actions"
               >
                 <MoreHorizontal className="size-4" />
