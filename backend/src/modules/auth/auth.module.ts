@@ -9,6 +9,7 @@ import { StripeProvider } from "@shared/providers/stripe.provider";
 import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
+import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 
 import { RegisterController } from "./contexts/register/register.controller";
@@ -49,6 +50,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     UsersRepository,
     PlansRepository,
     PasswordTokensRepository,
+    StudentsRepository,
     RegisterUseCase,
     LoginUseCase,
     RefreshTokenUseCase,

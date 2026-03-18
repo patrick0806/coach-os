@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import axios from "axios";
 
 import { authStore } from "@/stores/authStore";
+import { studentAuthStore } from "@/stores/studentAuthStore";
 import type { AuthTokensResponse } from "@/types/auth.types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333";
@@ -62,6 +63,45 @@ function SessionRestorer() {
   return null;
 }
 
+/**
+ * Silently restores the student auth session on page load.
+ * Mirrors SessionRestorer but uses studentAuthStore and student cookies.
+ */
+function useStudentSessionRestore() {
+  const initRef = useRef<{ restored: boolean; shouldRefresh: boolean } | null>(null);
+  if (initRef.current === null) {
+    initRef.current = studentAuthStore.init();
+  }
+
+  useEffect(() => {
+    const { restored, shouldRefresh } = initRef.current!;
+    if (restored) return;
+    if (!shouldRefresh) return;
+
+    // Try to refresh student session using the http-only cookie
+    axios
+      .post<{ data: { accessToken: string } }>(
+        `${BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true }
+      )
+      .then(({ data }) => {
+        const currentUser = studentAuthStore.getUser();
+        if (currentUser) {
+          studentAuthStore.setAuth(data.data.accessToken, currentUser);
+        }
+      })
+      .catch(() => {
+        studentAuthStore.clear();
+      });
+  }, []);
+}
+
+function StudentSessionRestorer() {
+  useStudentSessionRestore();
+  return null;
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -92,6 +132,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     >
       <QueryClientProvider client={queryClient}>
         <SessionRestorer />
+        <StudentSessionRestorer />
         {children}
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

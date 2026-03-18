@@ -18,7 +18,7 @@ export class ListStudentsUseCase {
 
   async execute(query: unknown, tenantId: string): Promise<Page<StudentWithUser>> {
     const params = validate(listStudentsSchema, query);
-    console.log(tenantId);
+
     const { rows, total } = await this.studentsRepository.findAllByTenantId(tenantId, {
       page: params.page,
       size: params.size,

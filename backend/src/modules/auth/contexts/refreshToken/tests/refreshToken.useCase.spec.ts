@@ -40,22 +40,30 @@ const makeUsersRepository = () => ({
 
 const makePersonalsRepository = () => ({
   findByUserId: vi.fn().mockResolvedValue(makePersonal()),
+  findById: vi.fn().mockResolvedValue(makePersonal()),
+});
+
+const makeStudentsRepository = () => ({
+  findByUserId: vi.fn().mockResolvedValue(undefined),
 });
 
 describe("RefreshTokenUseCase", () => {
   let useCase: RefreshTokenUseCase;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
+  let studentsRepository: ReturnType<typeof makeStudentsRepository>;
   let jwtService: ReturnType<typeof makeJwtService>;
 
   beforeEach(() => {
     usersRepository = makeUsersRepository();
     personalsRepository = makePersonalsRepository();
+    studentsRepository = makeStudentsRepository();
     jwtService = makeJwtService();
 
     useCase = new RefreshTokenUseCase(
       usersRepository as any,
       personalsRepository as any,
+      studentsRepository as any,
       jwtService as any,
     );
   });

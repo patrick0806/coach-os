@@ -1,5 +1,9 @@
 import type { Page, Route } from "@playwright/test"
 import { MOCK_TENANT_ID } from "../fixtures/exercises.fixtures"
+import { MOCK_STUDENT_USER } from "../fixtures/studentWorkout.fixtures"
+
+const STUDENT_TOKEN_COOKIE = "student_at"
+const STUDENT_USER_COOKIE = "student_user"
 
 // Fake credentials — safe, non-real values used only in behavioral tests
 const FAKE_ACCESS_TOKEN =
@@ -33,6 +37,33 @@ export async function injectMockAuth(page: Page): Promise<void> {
     {
       name: "coach_os_user",
       value: JSON.stringify(MOCK_USER),
+      domain: "localhost",
+      path: "/",
+      expires: now + 30 * 24 * 3600, // 30 days
+    },
+  ])
+}
+
+/**
+ * Injects fake student auth cookies so studentAuthStore.init() restores session
+ * without making any network call to /auth/refresh.
+ *
+ * Requires both cookies (student_at + student_user) — when both are present,
+ * studentAuthStore.init() returns restored=true and skips the refresh call.
+ */
+export async function injectStudentMockAuth(page: Page): Promise<void> {
+  const now = Math.floor(Date.now() / 1000)
+  await page.context().addCookies([
+    {
+      name: STUDENT_TOKEN_COOKIE,
+      value: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50LXVzZXIifQ.mock-student-sig",
+      domain: "localhost",
+      path: "/",
+      expires: now + 900, // 15 min
+    },
+    {
+      name: STUDENT_USER_COOKIE,
+      value: JSON.stringify(MOCK_STUDENT_USER),
       domain: "localhost",
       path: "/",
       expires: now + 30 * 24 * 3600, // 30 days

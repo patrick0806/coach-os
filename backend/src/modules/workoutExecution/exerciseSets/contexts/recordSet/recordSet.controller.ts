@@ -11,7 +11,7 @@ import { RecordExerciseSetResponseDTO } from "./dtos/response.dto";
 import { RecordExerciseSetUseCase } from "./recordSet.useCase";
 
 @ApiTags(API_TAGS.WORKOUT_EXECUTION)
-@Roles(ApplicationRoles.PERSONAL)
+@Roles(ApplicationRoles.PERSONAL, ApplicationRoles.STUDENT)
 @Controller({ version: "1" })
 export class RecordExerciseSetController {
   constructor(private readonly recordExerciseSetUseCase: RecordExerciseSetUseCase) {}

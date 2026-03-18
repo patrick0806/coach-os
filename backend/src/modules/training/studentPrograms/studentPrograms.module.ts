@@ -12,6 +12,8 @@ import { AssignProgramController } from "./contexts/assignProgram/assignProgram.
 import { AssignProgramUseCase } from "./contexts/assignProgram/assignProgram.useCase";
 import { ListStudentProgramsController } from "./contexts/listStudentPrograms/listStudentPrograms.controller";
 import { ListStudentProgramsUseCase } from "./contexts/listStudentPrograms/listStudentPrograms.useCase";
+import { GetMyProgramsController } from "./contexts/getMyPrograms/getMyPrograms.controller";
+import { GetMyProgramsUseCase } from "./contexts/getMyPrograms/getMyPrograms.useCase";
 import { GetStudentProgramController } from "./contexts/getStudentProgram/getStudentProgram.controller";
 import { GetStudentProgramUseCase } from "./contexts/getStudentProgram/getStudentProgram.useCase";
 import { UpdateStudentProgramStatusController } from "./contexts/updateStudentProgramStatus/updateStudentProgramStatus.controller";
@@ -21,6 +23,7 @@ import { UpdateStudentProgramStatusUseCase } from "./contexts/updateStudentProgr
   controllers: [
     AssignProgramController,
     ListStudentProgramsController,
+    GetMyProgramsController,
     GetStudentProgramController,
     UpdateStudentProgramStatusController,
   ],
@@ -34,6 +37,7 @@ import { UpdateStudentProgramStatusUseCase } from "./contexts/updateStudentProgr
     TrainingSchedulesRepository,
     AssignProgramUseCase,
     ListStudentProgramsUseCase,
+    GetMyProgramsUseCase,
     GetStudentProgramUseCase,
     UpdateStudentProgramStatusUseCase,
   ],

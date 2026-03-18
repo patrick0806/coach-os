@@ -7,6 +7,7 @@ const makePersonal = (overrides = {}) => ({
   id: "tenant-id-1",
   userId: "user-id-1",
   slug: "coach-joao",
+  coachName: "João Silva",
   bio: "Treinador especialista",
   profilePhoto: "https://example.com/photo.jpg",
   logoUrl: null,
@@ -73,6 +74,7 @@ describe("GetPublicProfileUseCase", () => {
     const result = await useCase.execute("coach-joao");
 
     expect(result.slug).toBe("coach-joao");
+    expect(result.coachName).toBe("João Silva");
     expect(result.bio).toBe("Treinador especialista");
     expect(result.themeColor).toBe("#FF5733");
     expect(personalsRepository.findBySlug).toHaveBeenCalledWith("coach-joao");

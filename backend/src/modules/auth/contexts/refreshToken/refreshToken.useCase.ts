@@ -5,6 +5,7 @@ import { timingSafeEqual } from "crypto";
 import { ApplicationRoles } from "@shared/enums";
 import { IAccessToken } from "@shared/interfaces/accessToken.interface";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
+import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { generateSetupToken, hashToken } from "@shared/utils/token.util";
 
@@ -20,6 +21,7 @@ export class RefreshTokenUseCase {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly personalsRepository: PersonalsRepository,
+    private readonly studentsRepository: StudentsRepository,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -74,6 +76,38 @@ export class RefreshTokenUseCase {
         role: ApplicationRoles.PERSONAL,
         profileId: personal.id,
         personalId: personal.id,
+        personalSlug: personal.slug,
+      };
+
+      const accessToken = this.jwtService.sign(tokenPayload);
+
+      // Rotate refresh token
+      const { raw: refreshToken, hash: refreshTokenHash } = generateSetupToken();
+      await this.usersRepository.updateRefreshTokenHash(user.id, refreshTokenHash);
+
+      return { accessToken, refreshToken };
+    }
+
+    // Student refresh token flow
+    if (user.role === ApplicationRoles.STUDENT) {
+      const student = await this.studentsRepository.findByUserId(user.id);
+
+      if (!student) {
+        throw new UnauthorizedException("Profile not found");
+      }
+
+      // Get the coach's personal record to retrieve the slug
+      const personal = await this.personalsRepository.findById(student.tenantId);
+
+      if (!personal) {
+        throw new UnauthorizedException("Profile not found");
+      }
+
+      const tokenPayload: IAccessToken = {
+        sub: user.id,
+        role: ApplicationRoles.STUDENT,
+        profileId: student.id,
+        personalId: student.tenantId,
         personalSlug: personal.slug,
       };
 

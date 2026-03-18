@@ -9,7 +9,7 @@ import { IAccessToken } from "@shared/interfaces/accessToken.interface";
 import { ListStudentProgramsUseCase } from "./listStudentPrograms.useCase";
 
 @ApiTags(API_TAGS.WORKOUT_PLANS)
-@Roles(ApplicationRoles.PERSONAL)
+@Roles(ApplicationRoles.PERSONAL, ApplicationRoles.STUDENT)
 @Controller({ version: "1", path: "students/:studentId/programs" })
 export class ListStudentProgramsController {
   constructor(

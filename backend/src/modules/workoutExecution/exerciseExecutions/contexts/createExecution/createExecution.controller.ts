@@ -11,7 +11,7 @@ import { CreateExerciseExecutionResponseDTO } from "./dtos/response.dto";
 import { CreateExerciseExecutionUseCase } from "./createExecution.useCase";
 
 @ApiTags(API_TAGS.WORKOUT_EXECUTION)
-@Roles(ApplicationRoles.PERSONAL)
+@Roles(ApplicationRoles.PERSONAL, ApplicationRoles.STUDENT)
 @Controller({ version: "1" })
 export class CreateExerciseExecutionController {
   constructor(private readonly createExerciseExecutionUseCase: CreateExerciseExecutionUseCase) {}

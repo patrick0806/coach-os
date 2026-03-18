@@ -10,7 +10,7 @@ import { GetWorkoutSessionResponseDTO } from "./dtos/response.dto";
 import { GetWorkoutSessionUseCase } from "./getSession.useCase";
 
 @ApiTags(API_TAGS.WORKOUT_EXECUTION)
-@Roles(ApplicationRoles.PERSONAL)
+@Roles(ApplicationRoles.PERSONAL, ApplicationRoles.STUDENT)
 @Controller({ version: "1" })
 export class GetWorkoutSessionController {
   constructor(private readonly getWorkoutSessionUseCase: GetWorkoutSessionUseCase) {}

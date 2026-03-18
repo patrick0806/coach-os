@@ -8,9 +8,9 @@ import { GetPublicProfileUseCase } from "./getPublicProfile.useCase";
 @ApiTags("Public")
 @Public()
 @BypassTenantAccess()
-@Controller({ version: "1", path: "public" })
+@Controller({ version: "1", path: "" })
 export class GetPublicProfileController {
-  constructor(private readonly getPublicProfileUseCase: GetPublicProfileUseCase) {}
+  constructor(private readonly getPublicProfileUseCase: GetPublicProfileUseCase) { }
 
   @ApiOperation({ summary: "Get public coach profile by slug" })
   @ApiOkResponse()

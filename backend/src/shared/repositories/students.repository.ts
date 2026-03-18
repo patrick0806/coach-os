@@ -61,6 +61,16 @@ export class StudentsRepository {
     return result[0] as StudentWithUser | undefined;
   }
 
+  async findByUserId(userId: string): Promise<Student | undefined> {
+    const result = await this.drizzle.db
+      .select()
+      .from(students)
+      .where(eq(students.userId, userId))
+      .limit(1);
+
+    return result[0];
+  }
+
   async findByUserIdAndTenantId(userId: string, tenantId: string): Promise<Student | undefined> {
     const result = await this.drizzle.db
       .select()

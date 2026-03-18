@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { personals, Personal } from "@config/database/schema/personals";
+import { users } from "@config/database/schema/users";
 
 @Injectable()
 export class PersonalsRepository {
@@ -28,14 +29,16 @@ export class PersonalsRepository {
     return result[0];
   }
 
-  async findBySlug(slug: string): Promise<Personal | undefined> {
+  async findBySlug(slug: string): Promise<(Personal & { coachName: string }) | undefined> {
     const result = await this.drizzle.db
-      .select()
+      .select({ personal: personals, coachName: users.name })
       .from(personals)
+      .innerJoin(users, eq(personals.userId, users.id))
       .where(eq(personals.slug, slug))
       .limit(1);
 
-    return result[0];
+    if (!result[0]) return undefined;
+    return { ...result[0].personal, coachName: result[0].coachName };
   }
 
   async create(data: {

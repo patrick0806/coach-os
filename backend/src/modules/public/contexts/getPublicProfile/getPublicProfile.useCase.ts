@@ -5,6 +5,7 @@ import { ServicePlansRepository, ServicePlan } from "@shared/repositories/servic
 
 export interface PublicProfileResult {
   slug: string;
+  coachName: string;
   bio: string | null;
   profilePhoto: string | null;
   specialties: string[] | null;
@@ -26,7 +27,7 @@ export class GetPublicProfileUseCase {
   constructor(
     private readonly personalsRepository: PersonalsRepository,
     private readonly servicePlansRepository: ServicePlansRepository,
-  ) {}
+  ) { }
 
   async execute(slug: string): Promise<PublicProfileResult> {
     const personal = await this.personalsRepository.findBySlug(slug);
@@ -39,6 +40,7 @@ export class GetPublicProfileUseCase {
 
     return {
       slug: personal.slug,
+      coachName: personal.coachName,
       bio: personal.bio,
       profilePhoto: personal.profilePhoto,
       specialties: personal.specialties,

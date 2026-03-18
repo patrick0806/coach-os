@@ -33,6 +33,14 @@ const makePersonal = (overrides = {}) => ({
   ...overrides,
 });
 
+const makeStudent = (overrides = {}) => ({
+  id: "student-id",
+  userId: "student-user-id",
+  tenantId: "personal-id",
+  status: "active",
+  ...overrides,
+});
+
 const makeJwtService = () => ({
   sign: vi.fn().mockReturnValue("access.token.here"),
 });
@@ -44,22 +52,30 @@ const makeUsersRepository = () => ({
 
 const makePersonalsRepository = () => ({
   findByUserId: vi.fn().mockResolvedValue(makePersonal()),
+  findById: vi.fn().mockResolvedValue(makePersonal()),
+});
+
+const makeStudentsRepository = () => ({
+  findByUserId: vi.fn().mockResolvedValue(makeStudent()),
 });
 
 describe("LoginUseCase", () => {
   let useCase: LoginUseCase;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
+  let studentsRepository: ReturnType<typeof makeStudentsRepository>;
   let jwtService: ReturnType<typeof makeJwtService>;
 
   beforeEach(() => {
     usersRepository = makeUsersRepository();
     personalsRepository = makePersonalsRepository();
+    studentsRepository = makeStudentsRepository();
     jwtService = makeJwtService();
 
     useCase = new LoginUseCase(
       usersRepository as any,
       personalsRepository as any,
+      studentsRepository as any,
       jwtService as any,
     );
   });
@@ -73,7 +89,7 @@ describe("LoginUseCase", () => {
     expect(result.accessToken).toBe("access.token.here");
     expect(result.refreshToken).toBeDefined();
     expect(result.user.email).toBe("joao@email.com");
-    expect(result.personal.id).toBe("personal-id");
+    expect(result.personal!.id).toBe("personal-id");
   });
 
   it("should throw UnauthorizedException when email is not found", async () => {
@@ -160,5 +176,56 @@ describe("LoginUseCase", () => {
     const [userId, hash] = usersRepository.updateRefreshTokenHash.mock.calls[0];
     expect(userId).toBe("user-id");
     expect(hash).toHaveLength(64); // SHA-256 hex
+  });
+
+  it("should include tenantId in PERSONAL login result", async () => {
+    const result = await useCase.execute({
+      email: "joao@email.com",
+      password: "Str0ngPass!",
+    });
+
+    expect(result.user.tenantId).toBe("personal-id");
+  });
+
+  // --- STUDENT branch ---
+
+  it("should login a STUDENT successfully", async () => {
+    usersRepository.findByEmail.mockResolvedValue(makeUser({ role: "STUDENT", id: "student-user-id" }));
+
+    const result = await useCase.execute({
+      email: "joao@email.com",
+      password: "Str0ngPass!",
+    });
+
+    expect(result.accessToken).toBe("access.token.here");
+    expect(result.refreshToken).toBeDefined();
+    expect(result.user.role).toBe("STUDENT");
+    expect(result.user.tenantId).toBe("personal-id");
+    expect(result.user.personalSlug).toBe("joao-silva");
+  });
+
+  it("should throw ForbiddenException when STUDENT record not found", async () => {
+    usersRepository.findByEmail.mockResolvedValue(makeUser({ role: "STUDENT", id: "student-user-id" }));
+    studentsRepository.findByUserId.mockResolvedValue(undefined);
+
+    await expect(
+      useCase.execute({ email: "joao@email.com", password: "Str0ngPass!" }),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it("should include personalSlug in JWT payload for STUDENT", async () => {
+    usersRepository.findByEmail.mockResolvedValue(makeUser({ role: "STUDENT", id: "student-user-id" }));
+
+    await useCase.execute({ email: "joao@email.com", password: "Str0ngPass!" });
+
+    expect(jwtService.sign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sub: "student-user-id",
+        role: ApplicationRoles.STUDENT,
+        profileId: "student-id",
+        personalId: "personal-id",
+        personalSlug: "joao-silva",
+      }),
+    );
   });
 });
