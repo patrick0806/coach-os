@@ -135,26 +135,6 @@ import { DatabaseModule } from "@config/database/database.module";
         module: ExerciseSetsModule,
       },
       {
-        path: "availability-rules",
-        module: AvailabilityModule,
-      },
-      {
-        path: "availability-exceptions",
-        module: AvailabilityModule,
-      },
-      {
-        path: "training-schedules",
-        module: TrainingSchedulesModule,
-      },
-      {
-        path: "appointments",
-        module: AppointmentsModule,
-      },
-      {
-        path: "appointment-requests",
-        module: AppointmentsModule,
-      },
-      {
         path: "calendar",
         module: CalendarModule,
       },

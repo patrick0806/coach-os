@@ -5,6 +5,7 @@ import Link from "next/link"
 import {
   Calendar,
   ClipboardList,
+  Clock,
   Dumbbell,
   Globe,
   LayoutDashboard,
@@ -33,7 +34,8 @@ const navItems = [
   { label: "Alunos", href: "/students", icon: Users },
   { label: "Exercícios", href: "/exercises", icon: Dumbbell },
   { label: "Treinos", href: "/training-templates", icon: ClipboardList },
-  { label: "Agenda", href: "/agenda", icon: Calendar, disabled: true },
+  { label: "Agenda", href: "/agenda", icon: Calendar },
+  { label: "Disponibilidade", href: "/disponibilidade", icon: Clock },
   { label: "Serviços", href: "/services", icon: Package, disabled: true },
   { label: "Página Pública", href: "/perfil", icon: Globe, disabled: true },
 ]

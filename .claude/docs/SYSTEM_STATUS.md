@@ -64,7 +64,7 @@ Last updated: 2026-03-19
 | **Student programs** | completed | features/studentPrograms/{types,services,hooks,components} — studentProgramsService (6 methods), 6 hooks (useStudentPrograms, useStudentProgram, useAssignProgram, useUpdateStudentProgramStatus, useUpdateWorkoutDay, useUpdateStudentExercise), 8 components (studentProgramStatusBadge, assignProgramDialog, studentProgramCard, updateProgramStatusDialog, studentExerciseItem, updateStudentExerciseDialog, workoutDayCard, studentProgramsSection). Programs tab enabled in studentDetail. New page: /students/[id]/programs/[programId]. E2E: 21 behavioral tests pass |
 | **Workout execution** | not started | Backlog: session page, history |
 | **Progress** | not started | Backlog: records, photos, charts |
-| **Scheduling** | not started | Backlog: availability, appointments, requests |
+| **Scheduling** | completed | /agenda (weekly calendar grid, create appointment + conflict warning, pending requests sheet, event detail with cancel/complete, availability zones + exception day overlay). /disponibilidade (availability rules + blocked dates CRUD, date range blocking, bulk wizard). Service, 15 hooks, 11 components (+ availabilityWizard, updated availabilityExceptionFormDialog). E2E: 78 behavioral tests pass (39 chromium + 39 mobile-android) |
 | **Coaching services** | not started | Backlog: service plans, contracts |
 | **Public page** | not started | Backlog: editor, preview, rendering |
 | **Student portal** | not started | Backlog: training, execution, progress, appointments |

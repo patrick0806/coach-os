@@ -88,7 +88,7 @@ export async function mockGet(
     if (route.request().method() === "GET") {
       route.fulfill({ status, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -106,7 +106,7 @@ export async function mockPost(
     if (route.request().method() === "POST") {
       route.fulfill({ status, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -131,7 +131,7 @@ export async function mockGetStateful(
       callCount++
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -148,7 +148,7 @@ export async function mockDashboardStats(
     if (route.request().method() === "GET") {
       route.fulfill({ status: 200, contentType: "application/json", json: stats })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -162,7 +162,7 @@ export async function mockPlansList(page: Page, plans: object[]): Promise<void> 
     if (route.request().method() === "GET") {
       route.fulfill({ status: 200, contentType: "application/json", json: plans })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -179,7 +179,7 @@ export async function mockAuthLogin(
     if (route.request().method() === "POST") {
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -193,7 +193,7 @@ export async function mockAuthLoginFail(page: Page): Promise<void> {
         json: { message: "Credenciais inválidas", statusCode: 401 },
       })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -203,7 +203,7 @@ export async function mockPasswordResetRequest(page: Page): Promise<void> {
     if (route.request().method() === "POST") {
       route.fulfill({ status: 200, contentType: "application/json", json: {} })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -223,7 +223,7 @@ export async function mockExercisesList(
     ) {
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -245,7 +245,7 @@ export async function mockExercisesListStateful(
       callCount++
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -258,7 +258,7 @@ export async function mockCreateExercise(
     if (route.request().method() === "POST") {
       route.fulfill({ status: 201, contentType: "application/json", json: createdExercise })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -271,7 +271,7 @@ export async function mockUpdateExercise(
     if (route.request().method() === "PUT") {
       route.fulfill({ status: 200, contentType: "application/json", json: updatedExercise })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -281,7 +281,7 @@ export async function mockDeleteExercise(page: Page): Promise<void> {
     if (route.request().method() === "DELETE") {
       route.fulfill({ status: 204 })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -306,7 +306,7 @@ export async function mockStudentsList(
     if (isListGet) {
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -331,7 +331,7 @@ export async function mockStudentsListStateful(
       callCount++
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -344,7 +344,7 @@ export async function mockCreateStudent(
     if (route.request().method() === "POST") {
       route.fulfill({ status: 201, contentType: "application/json", json: createdStudent })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -361,7 +361,7 @@ export async function mockGenerateInviteLink(
         json: { inviteLink: link },
       })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -383,7 +383,7 @@ export async function mockProgramTemplatesList(
     if (isListGet) {
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -405,7 +405,7 @@ export async function mockProgramTemplatesListStateful(
       callCount++
       route.fulfill({ status: 200, contentType: "application/json", json: response })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -418,7 +418,7 @@ export async function mockCreateProgramTemplate(
     if (route.request().method() === "POST") {
       route.fulfill({ status: 201, contentType: "application/json", json: created })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -431,7 +431,7 @@ export async function mockUpdateProgramTemplate(
     if (route.request().method() === "PUT") {
       route.fulfill({ status: 200, contentType: "application/json", json: updated })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -441,7 +441,7 @@ export async function mockDeleteProgramTemplate(page: Page): Promise<void> {
     if (route.request().method() === "DELETE") {
       route.fulfill({ status: 204 })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -454,7 +454,7 @@ export async function mockDuplicateProgramTemplate(
     if (route.request().method() === "POST") {
       route.fulfill({ status: 201, contentType: "application/json", json: duplicated })
     } else {
-      route.continue()
+      route.fallback()
     }
   })
 }
@@ -468,7 +468,197 @@ export async function mockProgramTemplateDetail(
     if (route.request().method() === "GET") {
       route.fulfill({ status: 200, contentType: "application/json", json: detail })
     } else {
-      route.continue()
+      route.fallback()
+    }
+  })
+}
+
+// =============================================================================
+// Scheduling
+// =============================================================================
+
+export async function mockCalendar(page: Page, entries: object[]): Promise<void> {
+  await page.route("**/api/v1/calendar*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: entries })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAppointmentsList(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/appointments*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet =
+      method === "GET" && !url.match(/\/appointments\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCreateAppointment(page: Page, created: object): Promise<void> {
+  await page.route("**/api/v1/appointments", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: created })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCreateAppointmentConflict(
+  page: Page,
+  conflicts: object[]
+): Promise<void> {
+  await page.route("**/api/v1/appointments", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        json: {
+          message: "Appointment has conflicts",
+          conflicts,
+        },
+      })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAppointmentRequests(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/appointment-requests*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet =
+      method === "GET" && !url.match(/\/appointment-requests\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockApproveAppointmentRequest(
+  page: Page,
+  created: object
+): Promise<void> {
+  await page.route("**/api/v1/appointment-requests/**/approve*", (route: Route) => {
+    if (route.request().method() === "PATCH") {
+      route.fulfill({ status: 200, contentType: "application/json", json: created })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockRejectAppointmentRequest(page: Page): Promise<void> {
+  await page.route("**/api/v1/appointment-requests/**/reject*", (route: Route) => {
+    if (route.request().method() === "PATCH") {
+      route.fulfill({ status: 200, contentType: "application/json", json: {} })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAvailabilityRules(page: Page, rules: object[]): Promise<void> {
+  await page.route("**/api/v1/availability-rules*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet =
+      method === "GET" && !url.match(/\/availability-rules\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      route.fulfill({ status: 200, contentType: "application/json", json: rules })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCreateAvailabilityRule(page: Page, created: object): Promise<void> {
+  await page.route("**/api/v1/availability-rules", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: created })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockDeleteAvailabilityRule(page: Page): Promise<void> {
+  await page.route("**/api/v1/availability-rules/**", (route: Route) => {
+    if (route.request().method() === "DELETE") {
+      route.fulfill({ status: 204 })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAvailabilityExceptions(
+  page: Page,
+  exceptions: object[]
+): Promise<void> {
+  await page.route("**/api/v1/availability-exceptions*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet =
+      method === "GET" && !url.match(/\/availability-exceptions\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      route.fulfill({ status: 200, contentType: "application/json", json: exceptions })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCreateAvailabilityException(
+  page: Page,
+  created: object
+): Promise<void> {
+  await page.route("**/api/v1/availability-exceptions", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: created })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockDeleteAvailabilityException(page: Page): Promise<void> {
+  await page.route("**/api/v1/availability-exceptions/**", (route: Route) => {
+    if (route.request().method() === "DELETE") {
+      route.fulfill({ status: 204 })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAvailabilityRulesStateful(
+  page: Page,
+  initialResponse: object[],
+  afterMutationResponse: object[]
+): Promise<void> {
+  let callCount = 0
+  await page.route("**/api/v1/availability-rules*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet =
+      method === "GET" && !url.match(/\/availability-rules\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      const response = callCount === 0 ? initialResponse : afterMutationResponse
+      callCount++
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
     }
   })
 }

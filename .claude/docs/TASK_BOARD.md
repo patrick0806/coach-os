@@ -497,13 +497,29 @@ Last updated: 2026-03-19
 - [ ] Implement progress photos page (upload, gallery)
 - [ ] Implement progress charts (line graphs, comparisons)
 
-### Frontend: scheduling
+### Frontend: scheduling ✅ COMPLETE
 
-- [ ] Implement scheduling service
-- [ ] Implement availability settings page (manage rules and exceptions)
-- [ ] Implement appointments page (calendar view, list view)
-- [ ] Implement create appointment dialog
-- [ ] Implement appointment request management
+- [x] Implement scheduling service (scheduling.service.ts — 16 API calls: calendar, appointments, requests, availability rules, exceptions)
+- [x] Implement scheduling types (scheduling.types.ts — all interfaces, ConflictDetail, CalendarEntry, DAY_OF_WEEK_LABELS)
+- [x] Implement 15 hooks (useCalendar, useAppointments, useCreateAppointment, useCancelAppointment, useCompleteAppointment, useAvailabilityRules, useCreateAvailabilityRule, useUpdateAvailabilityRule, useDeleteAvailabilityRule, useAvailabilityExceptions, useCreateAvailabilityException, useDeleteAvailabilityException, useAppointmentRequests, useApproveAppointmentRequest, useRejectAppointmentRequest)
+- [x] Implement weeklyCalendar.tsx (Mon-Sun grid, week navigation, time slots 06-22h, overlay events, click-to-create)
+- [x] Implement calendarDayColumn.tsx (timed event positioning, overlap detection)
+- [x] Implement calendarEvent.tsx (color-coded by type/status, overlap warning badge)
+- [x] Implement createAppointmentDialog.tsx (student select, date/time, type toggle, conflict detection flow)
+- [x] Implement conflictWarningDialog.tsx (lists conflict types, forceCreate button)
+- [x] Implement appointmentDetailDialog.tsx (cancel/complete actions)
+- [x] Implement availabilityRuleFormDialog.tsx (create/edit rule)
+- [x] Implement availabilityExceptionFormDialog.tsx (block date)
+- [x] Implement availabilitySection.tsx (tabs: rules + exceptions, CRUD)
+- [x] Implement pendingRequestsSheet.tsx (approve/reject requests)
+- [x] Implement /agenda/page.tsx (calendar page with pending badge)
+- [x] Implement /disponibilidade/page.tsx (availability settings page)
+- [x] Enable "Agenda" and "Disponibilidade" sidebar links
+- [x] E2E behavioral tests (scheduling.behavior.spec.ts — 78 tests pass: 39 chromium + 39 mobile-android)
+- [x] Bug fix: availability rules now rendered as teal zones in calendar grid; exception days highlighted red
+- [x] Feature: availability exception form supports date range blocking (eachDayOfInterval + Promise.allSettled)
+- [x] Feature: availability wizard — bulk multi-day configuration with breaks (availabilityWizard.tsx)
+- [x] Fix: apiMocks.ts — replaced all route.continue() with route.fallback() to prevent real network calls on non-matching routes
 
 ### Frontend: coaching services
 
