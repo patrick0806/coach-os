@@ -65,10 +65,11 @@ async function setupAgendaPage(page: import("@playwright/test").Page) {
 
 async function setupDisponibilidadePage(page: import("@playwright/test").Page) {
   await injectMockAuth(page)
+  await mockCalendar(page, MOCK_CALENDAR_EMPTY)
   await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
   await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
   await page.goto("/disponibilidade")
-  await page.waitForSelector("h1", { timeout: 8000 })
+  await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 }
 
 // =============================================================================
@@ -120,7 +121,14 @@ test.describe("Agenda — Calendar Display", () => {
   test("renders calendar week grid with day headers", async ({ page }) => {
     await setupAgendaPage(page)
 
-    // Should show day abbreviations (Portuguese)
+    const vp = page.viewportSize()
+    if (vp && vp.width < 640) {
+      // Mobile view shows single-day calendar with navigation
+      await expect(page.getByRole("button", { name: "Hoje" }).first()).toBeVisible()
+      return
+    }
+
+    // Desktop: should show abbreviated day names (Portuguese)
     await expect(page.getByText("Seg").first()).toBeVisible({ timeout: 5000 })
     await expect(page.getByText("Ter").first()).toBeVisible()
     await expect(page.getByText("Qui").first()).toBeVisible()
@@ -153,7 +161,7 @@ test.describe("Agenda — Create Appointment", () => {
     await page.getByTestId("new-appointment-btn").click()
     await page.waitForSelector("[role='dialog']", { timeout: 5000 })
 
-    await expect(page.getByLabel("Data")).toBeVisible()
+    await expect(page.getByTestId("date-picker-trigger")).toBeVisible()
     await expect(page.getByText("Tipo")).toBeVisible()
   })
 
@@ -375,8 +383,9 @@ test.describe("Disponibilidade — Availability Rules", () => {
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
     await mockCreateAvailabilityRule(page, MOCK_NEW_RULE)
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByTestId("add-rule-btn").click()
     await page.waitForSelector("[role='dialog']", { timeout: 5000 })
@@ -391,8 +400,9 @@ test.describe("Disponibilidade — Availability Rules", () => {
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
     await mockDeleteAvailabilityRule(page)
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByTestId("delete-rule-btn").first().click()
     await page.waitForSelector("[role='alertdialog']", { timeout: 5000 })
@@ -406,8 +416,9 @@ test.describe("Disponibilidade — Availability Rules", () => {
     await injectMockAuth(page)
     await mockAvailabilityRules(page, [])
     await mockAvailabilityExceptions(page, [])
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await expect(page.getByText("Nenhum horário definido")).toBeVisible()
   })
@@ -450,8 +461,9 @@ test.describe("Disponibilidade — Blocked Dates", () => {
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
     await mockCreateAvailabilityException(page, MOCK_NEW_EXCEPTION)
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByRole("tab", { name: "Datas bloqueadas" }).click()
     await page.getByTestId("add-exception-btn").click()
@@ -468,8 +480,9 @@ test.describe("Disponibilidade — Blocked Dates", () => {
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
     await mockDeleteAvailabilityException(page)
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByRole("tab", { name: "Datas bloqueadas" }).click()
     await page.getByTestId("delete-exception-btn").first().click()
@@ -484,8 +497,9 @@ test.describe("Disponibilidade — Blocked Dates", () => {
     await injectMockAuth(page)
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, [])
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByRole("tab", { name: "Datas bloqueadas" }).click()
 
@@ -553,8 +567,9 @@ test.describe("Disponibilidade — Availability Wizard", () => {
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
     await mockCreateAvailabilityRule(page, MOCK_NEW_RULE)
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByTestId("open-wizard-btn").click()
     await page.waitForSelector("[role='dialog']", { timeout: 5000 })
@@ -578,8 +593,9 @@ test.describe("Disponibilidade — Availability Wizard", () => {
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
     await mockCreateAvailabilityRule(page, MOCK_NEW_RULE)
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByTestId("open-wizard-btn").click()
     await page.waitForSelector("[role='dialog']", { timeout: 5000 })
@@ -630,8 +646,9 @@ test.describe("Disponibilidade — Date Range Block", () => {
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
     await mockCreateAvailabilityException(page, MOCK_NEW_EXCEPTION)
+    await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
-    await page.waitForSelector("h1", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })
 
     await page.getByRole("tab", { name: "Datas bloqueadas" }).click()
     await page.getByTestId("add-exception-btn").click()

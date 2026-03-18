@@ -156,7 +156,7 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
           <StudentContractSection studentId={studentId} />
         </TabsContent>
 
-        <TabsContent value="progress" className="mt-4">
+        <TabsContent value="progress" className="mt-4" data-testid="student-progress-section">
           <StudentProgressSection studentId={studentId} />
         </TabsContent>
       </Tabs>

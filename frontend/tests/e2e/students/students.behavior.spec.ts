@@ -11,6 +11,7 @@ import {
   mockStudentsListStateful,
   mockCreateStudent,
   mockGenerateInviteLink,
+  mockServicePlansList,
 } from "../support/apiMocks"
 import {
   studentsFixtures,
@@ -103,6 +104,7 @@ test.describe("Students — Create", () => {
       studentsFixtures.afterCreate(newStudentFixture)
     )
     await mockCreateStudent(page, newStudentFixture)
+    await mockServicePlansList(page, [])
     await page.goto("/students")
     await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
 

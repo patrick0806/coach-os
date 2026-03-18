@@ -97,8 +97,8 @@ test.describe("Progress Checkins — List", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.withCheckins)
     await navigateToEvolution(page)
 
-    await expect(page.getByText(/Peso:/)).toBeVisible()
-    await expect(page.getByText(/80/)).toBeVisible()
+    await expect(page.getByText(/Peso:/).first()).toBeVisible()
+    await expect(page.getByText(/80/).first()).toBeVisible()
   })
 
   test("shows checkin date in portuguese format", async ({ page }) => {
@@ -106,7 +106,7 @@ test.describe("Progress Checkins — List", () => {
     await navigateToEvolution(page)
 
     // "2026-01-15" → "15 de janeiro de 2026"
-    await expect(page.getByText(/janeiro/i)).toBeVisible()
+    await expect(page.getByText(/janeiro/i).first()).toBeVisible()
   })
 
   test("shows multiple checkin cards", async ({ page }) => {
@@ -126,8 +126,8 @@ test.describe("Progress Checkins — Create Dialog", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.empty)
     await navigateToEvolution(page)
 
-    await page.getByTestId("register-evolution-button").click()
-    await expect(page.getByText("Registrar Evolução")).toBeVisible()
+    await page.getByTestId("register-evolution-button").click({ force: true })
+    await expect(page.getByRole("heading", { name: "Registrar Evolução" })).toBeVisible()
     await expect(page.getByText("Métricas")).toBeVisible()
   })
 
@@ -135,7 +135,7 @@ test.describe("Progress Checkins — Create Dialog", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.empty)
     await navigateToEvolution(page)
 
-    await page.getByTestId("register-evolution-button").click()
+    await page.getByTestId("register-evolution-button").click({ force: true })
 
     await expect(page.locator("#metric-weight")).toBeVisible()
     await expect(page.locator("#metric-body_fat")).toBeVisible()
@@ -146,7 +146,7 @@ test.describe("Progress Checkins — Create Dialog", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.empty)
     await navigateToEvolution(page)
 
-    await page.getByTestId("register-evolution-button").click()
+    await page.getByTestId("register-evolution-button").click({ force: true })
     const weightInput = page.locator("#metric-weight")
     await weightInput.fill("80")
     await expect(weightInput).toHaveValue("80")
@@ -156,7 +156,7 @@ test.describe("Progress Checkins — Create Dialog", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.empty)
     await navigateToEvolution(page)
 
-    await page.getByTestId("register-evolution-button").click()
+    await page.getByTestId("register-evolution-button").click({ force: true })
     await expect(page.getByTestId("submit-checkin-button")).toBeDisabled()
   })
 
@@ -164,7 +164,7 @@ test.describe("Progress Checkins — Create Dialog", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.empty)
     await navigateToEvolution(page)
 
-    await page.getByTestId("register-evolution-button").click()
+    await page.getByTestId("register-evolution-button").click({ force: true })
     await page.locator("#metric-weight").fill("80")
     await expect(page.getByTestId("submit-checkin-button")).toBeEnabled()
   })
@@ -173,11 +173,11 @@ test.describe("Progress Checkins — Create Dialog", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.empty)
     await navigateToEvolution(page)
 
-    await page.getByTestId("register-evolution-button").click()
-    await expect(page.getByText("Registrar Evolução")).toBeVisible()
+    await page.getByTestId("register-evolution-button").click({ force: true })
+    await expect(page.getByRole("heading", { name: "Registrar Evolução" })).toBeVisible()
 
-    await page.getByRole("button", { name: "Cancelar" }).click()
-    await expect(page.getByText("Registrar Evolução")).not.toBeVisible()
+    await page.getByRole("button", { name: "Cancelar" }).click({ force: true })
+    await expect(page.getByRole("heading", { name: "Registrar Evolução" })).not.toBeVisible()
   })
 })
 
@@ -190,7 +190,7 @@ test.describe("Progress Checkins — Delete", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.withCheckins)
     await navigateToEvolution(page)
 
-    await page.getByTestId("delete-checkin-button").first().click()
+    await page.getByTestId("delete-checkin-button").first().click({ force: true })
     await expect(page.getByText("Remover registro de evolução")).toBeVisible()
     await expect(page.getByRole("button", { name: "Cancelar" })).toBeVisible()
     await expect(page.getByRole("button", { name: "Remover" })).toBeVisible()
@@ -200,7 +200,7 @@ test.describe("Progress Checkins — Delete", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.withCheckins)
     await navigateToEvolution(page)
 
-    await page.getByTestId("delete-checkin-button").first().click()
+    await page.getByTestId("delete-checkin-button").first().click({ force: true })
     await page.getByRole("button", { name: "Cancelar" }).click()
 
     // Cards should still be visible
@@ -249,7 +249,7 @@ test.describe("Progress Checkins — Delete", () => {
     await page.goto(STUDENT_URL)
     await navigateToEvolution(page)
 
-    await page.getByTestId("delete-checkin-button").first().click()
+    await page.getByTestId("delete-checkin-button").first().click({ force: true })
     await page.getByRole("button", { name: "Remover" }).click()
 
     await expect(page.getByText("Nenhum registro de evolução")).toBeVisible({

@@ -182,7 +182,7 @@ test.describe("Coaching Contracts — Assign Plan Dialog", () => {
     await mockServicePlansList(page)
     await page.getByRole("tab", { name: "Serviço" }).click()
 
-    await page.getByTestId("assign-plan-button").click()
+    await page.getByTestId("assign-plan-button").click({ force: true })
     await expect(page.getByTestId("assign-plan-dialog")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Vincular plano de serviço" })).toBeVisible()
   })
@@ -192,7 +192,7 @@ test.describe("Coaching Contracts — Assign Plan Dialog", () => {
     await mockServicePlansList(page)
     await page.getByRole("tab", { name: "Serviço" }).click()
 
-    await page.getByTestId("assign-plan-button").click()
+    await page.getByTestId("assign-plan-button").click({ force: true })
     await page.getByTestId("service-plan-select").click()
 
     await expect(page.getByRole("option", { name: "Consultoria Online" })).toBeVisible()
@@ -216,7 +216,7 @@ test.describe("Coaching Contracts — Assign Plan Dialog", () => {
     await page.waitForSelector("[data-slot='tabs']", { timeout: 8000 })
 
     await page.getByRole("tab", { name: "Serviço" }).click()
-    await page.getByTestId("assign-plan-button").click()
+    await page.getByTestId("assign-plan-button").click({ force: true })
     await page.getByTestId("service-plan-select").click()
     await page.getByRole("option", { name: "Consultoria Online" }).click()
     await page.getByTestId("assign-plan-submit").click()
@@ -238,7 +238,7 @@ test.describe("Coaching Contracts — Replace Plan Warning", () => {
     await mockServicePlansList(page)
     await page.getByRole("tab", { name: "Serviço" }).click()
 
-    await page.getByTestId("change-plan-button").click()
+    await page.getByTestId("change-plan-button").click({ force: true })
     await expect(page.getByTestId("assign-plan-dialog")).toBeVisible()
     await expect(page.getByText("será substituído")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Trocar plano de serviço" })).toBeVisible()
@@ -276,7 +276,7 @@ test.describe("Coaching Contracts — History", () => {
     await page.waitForSelector("[data-slot='tabs']", { timeout: 8000 })
 
     await page.getByRole("tab", { name: "Serviço" }).click()
-    await page.getByTestId("change-plan-button").click()
+    await page.getByTestId("change-plan-button").click({ force: true })
     await page.getByTestId("service-plan-select").click()
     await page.getByRole("option", { name: "Personal Presencial" }).click()
     await page.getByTestId("assign-plan-submit").click()

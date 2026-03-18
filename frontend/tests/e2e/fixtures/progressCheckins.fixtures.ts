@@ -46,7 +46,7 @@ export const progressCheckinsFixtures = {
           { id: "r3", metricType: "weight", value: "81.50", unit: "kg", notes: null },
         ],
         photos: [
-          { id: "p1", mediaUrl: "https://example.com/photo.jpg", notes: null },
+          { id: "p1", mediaUrl: "https://mock-bucket.s3.amazonaws.com/photos/p1.jpg", notes: null },
         ],
       }),
     ],
