@@ -5,7 +5,7 @@ import { Search } from "lucide-react"
 
 import { Input } from "@/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select"
-import { MUSCLE_GROUPS } from "@/features/exercises/types/exercises.types"
+import { useEnumMuscleGroups } from "@/features/shared/hooks/useEnumMuscleGroups"
 
 const DEBOUNCE_MS = 400
 
@@ -22,6 +22,7 @@ export function ExerciseFilters({
   muscleGroup,
   onMuscleGroupChange,
 }: ExerciseFiltersProps) {
+  const { data: muscleGroups } = useEnumMuscleGroups()
   const [inputValue, setInputValue] = useState(search)
 
   const onSearchChangeRef = useRef(onSearchChange)
@@ -55,7 +56,7 @@ export function ExerciseFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os grupos</SelectItem>
-          {MUSCLE_GROUPS.map((g) => (
+          {muscleGroups?.map((g) => (
             <SelectItem key={g.value} value={g.value}>
               {g.label}
             </SelectItem>

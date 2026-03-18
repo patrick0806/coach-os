@@ -31,6 +31,7 @@ import { AppointmentsModule } from "@modules/scheduling/appointments/appointment
 import { CalendarModule } from "@modules/scheduling/calendar/calendar.module";
 import { PublicModule } from "@modules/public/public.module";
 import { CoachingContractsModule } from "@modules/coaching/contracts/contracts.module";
+import { EnumsModule } from "@modules/enums/enums.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -65,6 +66,7 @@ import { DatabaseModule } from "@config/database/database.module";
     CalendarModule,
     PublicModule,
     CoachingContractsModule,
+    EnumsModule,
     RouterModule.register([
       {
         path: "health",
@@ -145,6 +147,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "public",
         module: PublicModule,
+      },
+      {
+        path: "enums",
+        module: EnumsModule,
       },
     ]),
   ],

@@ -16,13 +16,14 @@
  *   - Mobile viewport
  */
 import { test, expect } from "@playwright/test"
-import { injectMockAuth, mockExercisesList, mockCreateExercise, mockExercisesListStateful, mockDeleteExercise, mockUpdateExercise } from "../support/apiMocks"
+import { injectMockAuth, mockExercisesList, mockCreateExercise, mockExercisesListStateful, mockDeleteExercise, mockUpdateExercise, mockEnumMuscleGroups } from "../support/apiMocks"
 import { exercisesFixtures, privateExercise, MOCK_TENANT_ID } from "../fixtures/exercises.fixtures"
 
 // --- Setup helpers ---
 
 async function setupPage(page: import("@playwright/test").Page, listFixture: object) {
   await injectMockAuth(page)
+  await mockEnumMuscleGroups(page)
   await mockExercisesList(page, listFixture)
   await page.goto("/exercises")
   await page.waitForSelector("[data-slot='empty-state'], .grid", { timeout: 8000 })
@@ -68,6 +69,7 @@ test.describe("Exercise Library — List & Display", () => {
 
   test("shows empty state with filter hint when filters are active", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumMuscleGroups(page)
     await mockExercisesList(page, exercisesFixtures.noResults)
     await page.goto("/exercises?search=xyznotfound")
     await page.waitForSelector("[data-slot='empty-state']", { timeout: 8000 })
@@ -170,6 +172,7 @@ test.describe("Exercise Library — Create", () => {
     }
 
     await injectMockAuth(page)
+    await mockEnumMuscleGroups(page)
     await mockExercisesListStateful(
       page,
       exercisesFixtures.globalsOnly,
@@ -244,6 +247,7 @@ test.describe("Exercise Library — Edit", () => {
     const updatedExercise = { ...privateExercise, name: "Rosca Direta Updated" }
 
     await injectMockAuth(page)
+    await mockEnumMuscleGroups(page)
     await mockExercisesListStateful(
       page,
       exercisesFixtures.withPrivate,
@@ -311,6 +315,7 @@ test.describe("Exercise Library — Delete", () => {
 
   test("removes exercise from list after confirming delete", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumMuscleGroups(page)
     await mockExercisesListStateful(
       page,
       exercisesFixtures.withPrivate,

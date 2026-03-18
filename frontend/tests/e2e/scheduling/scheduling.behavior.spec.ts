@@ -19,6 +19,7 @@ import {
   mockAvailabilityExceptions,
   mockCreateAvailabilityException,
   mockDeleteAvailabilityException,
+  mockEnumAttendanceTypes,
 } from "../support/apiMocks"
 import {
   MOCK_CALENDAR_ENTRIES,
@@ -53,6 +54,7 @@ async function mockAvailabilityEndpoints(page: import("@playwright/test").Page) 
 
 async function setupAgendaPage(page: import("@playwright/test").Page) {
   await injectMockAuth(page)
+  await mockEnumAttendanceTypes(page)
   await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
   await mockAppointmentsList(page, MOCK_APPOINTMENTS)
   await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_EMPTY)
@@ -150,6 +152,7 @@ test.describe("Agenda — Create Appointment", () => {
 
   test("create appointment dialog has required fields", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_EMPTY)
@@ -167,6 +170,7 @@ test.describe("Agenda — Create Appointment", () => {
 
   test("create appointment form shows location field for presencial type", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_EMPTY)
@@ -183,6 +187,7 @@ test.describe("Agenda — Create Appointment", () => {
 
   test("creates appointment successfully and closes dialog", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
     await mockAppointmentsList(page, MOCK_APPOINTMENTS)
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_EMPTY)
@@ -210,6 +215,7 @@ test.describe("Agenda — Create Appointment", () => {
 
   test("shows conflict warning dialog when API returns 409", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
     await mockAppointmentsList(page, MOCK_APPOINTMENTS)
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_EMPTY)

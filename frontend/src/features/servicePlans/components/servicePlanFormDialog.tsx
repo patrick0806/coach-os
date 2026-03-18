@@ -25,7 +25,8 @@ import {
 } from "@/shared/ui/select"
 import { useCreateServicePlan } from "@/features/servicePlans/hooks/useCreateServicePlan"
 import { useUpdateServicePlan } from "@/features/servicePlans/hooks/useUpdateServicePlan"
-import { ATTENDANCE_TYPES, type ServicePlanItem } from "@/features/servicePlans/types/servicePlans.types"
+import { type ServicePlanItem } from "@/features/servicePlans/types/servicePlans.types"
+import { useEnumAttendanceTypes } from "@/features/shared/hooks/useEnumAttendanceTypes"
 
 // Formats an integer (cents) as BRL currency string
 function formatCents(cents: number): string {
@@ -132,6 +133,7 @@ export function ServicePlanFormDialog({ open, onOpenChange, plan }: ServicePlanF
     setPriceError(null)
   }, [plan, form])
 
+  const { data: attendanceTypes } = useEnumAttendanceTypes()
   const createPlan = useCreateServicePlan({ onOpenChange })
   const updatePlan = useUpdateServicePlan(plan?.id ?? "", { onOpenChange })
 
@@ -218,7 +220,7 @@ export function ServicePlanFormDialog({ open, onOpenChange, plan }: ServicePlanF
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {ATTENDANCE_TYPES.map((t) => (
+                  {attendanceTypes?.map((t) => (
                     <SelectItem key={t.value} value={t.value}>
                       {t.label}
                     </SelectItem>

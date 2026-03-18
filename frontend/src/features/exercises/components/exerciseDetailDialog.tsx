@@ -11,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog"
-import { MUSCLE_GROUPS, type ExerciseItem } from "@/features/exercises/types/exercises.types"
+import { type ExerciseItem } from "@/features/exercises/types/exercises.types"
+import { useEnumMuscleGroups } from "@/features/shared/hooks/useEnumMuscleGroups"
 
 interface ExerciseDetailDialogProps {
   exercise: ExerciseItem | null
@@ -20,19 +21,18 @@ interface ExerciseDetailDialogProps {
   onEdit: (exercise: ExerciseItem) => void
 }
 
-function getMuscleGroupLabel(value: string): string {
-  return MUSCLE_GROUPS.find((g) => g.value === value)?.label ?? value
-}
-
 export function ExerciseDetailDialog({
   exercise,
   open,
   onOpenChange,
   onEdit,
 }: ExerciseDetailDialogProps) {
+  const { data: muscleGroups } = useEnumMuscleGroups()
+
   if (!exercise) return null
 
   const isGlobal = exercise.tenantId === null
+  const muscleGroupLabel = muscleGroups?.find((g) => g.value === exercise.muscleGroup)?.label ?? exercise.muscleGroup
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -42,7 +42,7 @@ export function ExerciseDetailDialog({
             <div className="min-w-0 flex-1">
               <DialogTitle className="truncate">{exercise.name}</DialogTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {getMuscleGroupLabel(exercise.muscleGroup)}
+                {muscleGroupLabel}
               </p>
             </div>
             <Badge

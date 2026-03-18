@@ -21,6 +21,7 @@ import {
   mockCreateServicePlan,
   mockUpdateServicePlan,
   mockDeleteServicePlan,
+  mockEnumAttendanceTypes,
 } from "../support/apiMocks"
 import { servicePlansFixtures, onlinePlan, presentialPlan } from "../fixtures/services.fixtures"
 
@@ -28,6 +29,7 @@ import { servicePlansFixtures, onlinePlan, presentialPlan } from "../fixtures/se
 
 async function setupPage(page: import("@playwright/test").Page, listFixture: object[]) {
   await injectMockAuth(page)
+  await mockEnumAttendanceTypes(page)
   await mockServicePlansList(page, listFixture)
   await page.goto("/services")
   await page.waitForSelector("[data-slot='empty-state'], [data-testid='service-plans-list']", {
@@ -108,6 +110,7 @@ test.describe("Service Plans — Create", () => {
     }
 
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockServicePlansListStateful(
       page,
       servicePlansFixtures.withPlans,
@@ -164,6 +167,7 @@ test.describe("Service Plans — Edit", () => {
     const updatedPlan = { ...onlinePlan, name: "Consultoria Online Premium", price: "399.90" }
 
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockServicePlansListStateful(
       page,
       servicePlansFixtures.withPlans,
@@ -206,6 +210,7 @@ test.describe("Service Plans — Delete", () => {
 
   test("deletes a plan and removes it from the list", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockServicePlansListStateful(
       page,
       servicePlansFixtures.withPlans,

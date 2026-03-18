@@ -137,6 +137,50 @@ export async function mockGetStateful(
 }
 
 // =============================================================================
+// Enums
+// =============================================================================
+
+const MOCK_MUSCLE_GROUPS = [
+  { value: "peitoral", label: "Peitoral" },
+  { value: "costas", label: "Costas" },
+  { value: "ombros", label: "Ombros" },
+  { value: "bíceps", label: "Bíceps" },
+  { value: "tríceps", label: "Tríceps" },
+  { value: "pernas", label: "Pernas" },
+  { value: "glúteos", label: "Glúteos" },
+  { value: "abdômen", label: "Abdômen" },
+  { value: "panturrilha", label: "Panturrilha" },
+  { value: "antebraço", label: "Antebraço" },
+  { value: "trapézio", label: "Trapézio" },
+  { value: "funcional", label: "Funcional" },
+]
+
+const MOCK_ATTENDANCE_TYPES = [
+  { value: "online", label: "Online" },
+  { value: "presential", label: "Presencial" },
+]
+
+export async function mockEnumMuscleGroups(page: Page): Promise<void> {
+  await page.route("**/api/v1/enums/muscle-groups*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: MOCK_MUSCLE_GROUPS })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockEnumAttendanceTypes(page: Page): Promise<void> {
+  await page.route("**/api/v1/enums/attendance-types*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: MOCK_ATTENDANCE_TYPES })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+// =============================================================================
 // Dashboard
 // =============================================================================
 

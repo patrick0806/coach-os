@@ -19,4 +19,5 @@ export const API_TAGS = {
   APPOINTMENTS: 'Appointments',
   APPOINTMENT_REQUESTS: 'Appointment Requests',
   CALENDAR: 'Calendar',
+  ENUMS: 'Enums',
 };

@@ -30,7 +30,8 @@ import {
 import { useCreateExercise } from "@/features/exercises/hooks/useCreateExercise"
 import { useUpdateExercise } from "@/features/exercises/hooks/useUpdateExercise"
 import { exercisesService } from "@/features/exercises/services/exercises.service"
-import { MUSCLE_GROUPS, type ExerciseItem } from "@/features/exercises/types/exercises.types"
+import { type ExerciseItem } from "@/features/exercises/types/exercises.types"
+import { useEnumMuscleGroups } from "@/features/shared/hooks/useEnumMuscleGroups"
 
 const schema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres"),
@@ -89,6 +90,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
     }
   }, [exercise, form])
 
+  const { data: muscleGroups } = useEnumMuscleGroups()
   const createExercise = useCreateExercise({ onOpenChange })
   const updateExercise = useUpdateExercise(exercise?.id ?? "", { onOpenChange })
 
@@ -187,7 +189,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
                   <SelectValue placeholder="Selecione o grupo muscular" />
                 </SelectTrigger>
                 <SelectContent>
-                  {MUSCLE_GROUPS.map((g) => (
+                  {muscleGroups?.map((g) => (
                     <SelectItem key={g.value} value={g.value}>
                       {g.label}
                     </SelectItem>

@@ -13,7 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu"
-import { MUSCLE_GROUPS, type ExerciseItem } from "@/features/exercises/types/exercises.types"
+import { type ExerciseItem } from "@/features/exercises/types/exercises.types"
+import { useEnumMuscleGroups } from "@/features/shared/hooks/useEnumMuscleGroups"
 
 interface ExerciseCardProps {
   exercise: ExerciseItem
@@ -22,11 +23,9 @@ interface ExerciseCardProps {
   onDelete: (exercise: ExerciseItem) => void
 }
 
-function getMuscleGroupLabel(value: string): string {
-  return MUSCLE_GROUPS.find((g) => g.value === value)?.label ?? value
-}
-
 export function ExerciseCard({ exercise, onView, onEdit, onDelete }: ExerciseCardProps) {
+  const { data: muscleGroups } = useEnumMuscleGroups()
+  const muscleGroupLabel = muscleGroups?.find((g) => g.value === exercise.muscleGroup)?.label ?? exercise.muscleGroup
   const isGlobal = exercise.tenantId === null
 
   return (
@@ -56,7 +55,7 @@ export function ExerciseCard({ exercise, onView, onEdit, onDelete }: ExerciseCar
           <div className="min-w-0 flex-1">
             <p className="font-medium truncate text-sm">{exercise.name}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {getMuscleGroupLabel(exercise.muscleGroup)}
+              {muscleGroupLabel}
             </p>
           </div>
           <DropdownMenu>

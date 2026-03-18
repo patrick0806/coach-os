@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils"
 import { ConflictWarningDialog } from "./conflictWarningDialog"
 import { useCreateAppointment } from "@/features/scheduling/hooks/useCreateAppointment"
 import { useStudents } from "@/features/students/hooks/useStudents"
+import { useEnumAttendanceTypes } from "@/features/shared/hooks/useEnumAttendanceTypes"
 
 const schema = z
   .object({
@@ -77,6 +78,7 @@ export function CreateAppointmentDialog({
 }: CreateAppointmentDialogProps) {
   const [conflictOpen, setConflictOpen] = useState(false)
   const { data: studentsData } = useStudents({ size: 100, status: "active" })
+  const { data: attendanceTypes } = useEnumAttendanceTypes()
 
   const createAppointment = useCreateAppointment({
     onOpenChange: (val) => {
@@ -263,8 +265,11 @@ export function CreateAppointmentDialog({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="presential">Presencial</SelectItem>
-                      <SelectItem value="online">Online</SelectItem>
+                      {attendanceTypes?.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>
+                          {t.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
