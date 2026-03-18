@@ -10,7 +10,7 @@ interface ListMyCheckinsParams {
   size: number;
 }
 
-interface ListMyCheckinsResult {
+export interface ListMyCheckinsResult {
   content: ProgressCheckinWithData[];
   page: number;
   size: number;

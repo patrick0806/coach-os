@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-18 (public page complete)
+Last updated: 2026-03-18 (enums module + consolidation tasks #2-4)
 
 ---
 
@@ -16,8 +16,9 @@ Last updated: 2026-03-18 (public page complete)
 | **scheduling/appointments** | completed | GET /me/appointments (student), 626 tests passing |
 | **scheduling/trainingSchedules** | completed | GET /me/training-schedules (student) + ownership validation |
 | **public** | completed | GET /public/:slug now includes availabilityRules, 626 tests passing |
+| **enums** | completed | GET /enums/muscle-groups + /enums/attendance-types (protected, 24h cache), 638 tests passing |
 
-All other backend modules are **completed** (626 tests passing).
+All other backend modules are **completed** (638 tests passing).
 
 ---
 

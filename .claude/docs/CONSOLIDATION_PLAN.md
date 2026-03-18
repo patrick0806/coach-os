@@ -234,7 +234,7 @@ Encontrados labels hardcoded que deveriam ser centralizados:
 |---|--------|-----------|-------------|--------|
 | 1 | Rodar testes (back + front) e corrigir falhas | - | Nenhuma | ✅ DONE (2026-03-18) |
 | 2 | Criar modulo de enums no backend | - | Nenhuma | ✅ DONE (2026-03-18) |
-| 3 | MuscleGroup → Enum (back + front + migration) | - | #2 | ✅ DONE (2026-03-18) |
+| 3 | MuscleGroup → Enum (back + front + seed) | - | #2 | ✅ DONE (2026-03-18) |
 | 4 | AttendanceType → Enum (back + front) | - | #2 | ✅ DONE (2026-03-18) |
 | 5 | Ajustar tela de definição de senha e recuperação de senha(aluno) para o dominio do personal /personals/{slug}/definir-senha e /personals/{slug}/esqueci-senha, para que o aluno tenha uma experiencia unica com o sistema, a recuperação de senha atual serve para o admin e o personal, o redirect para o login deve ser para o dominio do personal(tudo isso é apenas para o aluno para o personal e admin continua igual) | - | Nenhuma | - |
 | 6 | Bulk save de disponibilidade (back + front) | - | Nenhuma | - |
