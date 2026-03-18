@@ -194,17 +194,13 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
     if (availableSlots.length === 0) return
     setIsSubmitting(true)
 
-    const calls = availableSlots.map((slot) =>
-      schedulingService.createAvailabilityRule({
+    const { created, conflicts } = await schedulingService.bulkCreateAvailabilityRules({
+      rules: availableSlots.map((slot) => ({
         dayOfWeek: slot.dayOfWeek,
         startTime: slot.start,
         endTime: slot.end,
-      })
-    )
-
-    const results = await Promise.allSettled(calls)
-    const succeeded = results.filter((r) => r.status === "fulfilled").length
-    const failed = results.filter((r) => r.status === "rejected").length
+      })),
+    })
 
     await queryClient.invalidateQueries({ queryKey: ["availability-rules"] })
     await queryClient.invalidateQueries({ queryKey: ["calendar"] })
@@ -212,10 +208,11 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
     setIsSubmitting(false)
     handleClose(false)
 
-    if (failed === 0) {
+    const succeeded = created.length
+    if (conflicts === 0) {
       toast.success(`${succeeded} ${succeeded === 1 ? "regra criada" : "regras criadas"} com sucesso!`)
     } else {
-      toast.warning(`${succeeded} criadas, ${failed} conflitos ignorados.`)
+      toast.warning(`${succeeded} criadas, ${conflicts} conflitos ignorados.`)
     }
   }
 

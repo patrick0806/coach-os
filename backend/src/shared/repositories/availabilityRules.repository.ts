@@ -97,6 +97,17 @@ export class AvailabilityRulesRepository {
     return result[0];
   }
 
+  async createMany(
+    rules: { tenantId: string; dayOfWeek: number; startTime: string; endTime: string }[],
+  ): Promise<AvailabilityRule[]> {
+    if (rules.length === 0) return [];
+
+    return this.drizzle.db
+      .insert(availabilityRules)
+      .values(rules)
+      .returning();
+  }
+
   async delete(id: string, tenantId: string): Promise<boolean> {
     const result = await this.drizzle.db
       .delete(availabilityRules)

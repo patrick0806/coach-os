@@ -5,6 +5,8 @@ import type {
   ApproveAppointmentRequestRequest,
   AvailabilityExceptionItem,
   AvailabilityRuleItem,
+  BulkCreateAvailabilityRulesRequest,
+  BulkCreateAvailabilityRulesResponse,
   CalendarEntry,
   CreateAppointmentRequest,
   CreateAvailabilityExceptionRequest,
@@ -64,6 +66,11 @@ export const schedulingService = {
     data: CreateAvailabilityRuleRequest
   ): Promise<AvailabilityRuleItem> =>
     (await api.post<AvailabilityRuleItem>("/availability-rules", data)).data,
+
+  bulkCreateAvailabilityRules: async (
+    data: BulkCreateAvailabilityRulesRequest
+  ): Promise<BulkCreateAvailabilityRulesResponse> =>
+    (await api.post<BulkCreateAvailabilityRulesResponse>("/availability-rules/bulk", data)).data,
 
   updateAvailabilityRule: async (
     id: string,

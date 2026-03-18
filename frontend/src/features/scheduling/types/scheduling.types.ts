@@ -114,6 +114,15 @@ export interface CreateAvailabilityRuleRequest {
   endTime: string
 }
 
+export interface BulkCreateAvailabilityRulesRequest {
+  rules: CreateAvailabilityRuleRequest[]
+}
+
+export interface BulkCreateAvailabilityRulesResponse {
+  created: AvailabilityRuleItem[]
+  conflicts: number
+}
+
 export interface UpdateAvailabilityRuleRequest {
   dayOfWeek?: number
   startTime?: string

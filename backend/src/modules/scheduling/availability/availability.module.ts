@@ -17,9 +17,12 @@ import { ListAvailabilityExceptionsController } from "./contexts/listExceptions/
 import { ListAvailabilityExceptionsUseCase } from "./contexts/listExceptions/listExceptions.useCase";
 import { DeleteAvailabilityExceptionController } from "./contexts/deleteException/deleteException.controller";
 import { DeleteAvailabilityExceptionUseCase } from "./contexts/deleteException/deleteException.useCase";
+import { BulkCreateAvailabilityRulesController } from "./contexts/bulkCreateRules/bulkCreateRules.controller";
+import { BulkCreateAvailabilityRulesUseCase } from "./contexts/bulkCreateRules/bulkCreateRules.useCase";
 
 @Module({
   controllers: [
+    BulkCreateAvailabilityRulesController,
     CreateAvailabilityRuleController,
     ListAvailabilityRulesController,
     UpdateAvailabilityRuleController,
@@ -29,6 +32,7 @@ import { DeleteAvailabilityExceptionUseCase } from "./contexts/deleteException/d
     DeleteAvailabilityExceptionController,
   ],
   providers: [
+    BulkCreateAvailabilityRulesUseCase,
     AvailabilityRulesRepository,
     AvailabilityExceptionsRepository,
     CreateAvailabilityRuleUseCase,
