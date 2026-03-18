@@ -844,3 +844,126 @@ export async function mockCancelContract(page: Page, response: object): Promise<
     }
   })
 }
+
+// =============================================================================
+// Profile Editor
+// =============================================================================
+
+export async function mockGetMyProfile(page: Page, profile: object): Promise<void> {
+  await page.route("**/api/v1/profile*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    if (method === "GET" && !url.includes("/photo/")) {
+      route.fulfill({ status: 200, contentType: "application/json", json: profile })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockGetMyProfileStateful(
+  page: Page,
+  initialResponse: object,
+  afterMutationResponse: object
+): Promise<void> {
+  let callCount = 0
+  await page.route("**/api/v1/profile*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    if (method === "GET" && !url.includes("/photo/")) {
+      const response = callCount === 0 ? initialResponse : afterMutationResponse
+      callCount++
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockUpdateProfile(page: Page, updated: object): Promise<void> {
+  await page.route("**/api/v1/profile", (route: Route) => {
+    if (route.request().method() === "PUT") {
+      route.fulfill({ status: 200, contentType: "application/json", json: updated })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockRequestProfilePhotoUpload(
+  page: Page,
+  response: object = { uploadUrl: "https://s3.example.com/upload?signed=abc", fileUrl: "https://s3.example.com/profile.jpg" }
+): Promise<void> {
+  await page.route("**/api/v1/profile/photo/upload-url*", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+// =============================================================================
+// Student Portal — Checkins
+// =============================================================================
+
+export async function mockStudentMyCheckins(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/me/progress-checkins*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockStudentMyCheckinsStateful(
+  page: Page,
+  initialResponse: object,
+  afterMutationResponse: object
+): Promise<void> {
+  let callCount = 0
+  await page.route("**/api/v1/me/progress-checkins*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      const response = callCount === 0 ? initialResponse : afterMutationResponse
+      callCount++
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockCreateStudentCheckin(page: Page, created: object): Promise<void> {
+  await page.route("**/api/v1/me/progress-checkins", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: created })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+// =============================================================================
+// Student Portal — Appointments & Training Schedules
+// =============================================================================
+
+export async function mockStudentMyAppointments(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/me/appointments*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockStudentTrainingSchedules(page: Page, schedules: object[]): Promise<void> {
+  await page.route("**/api/v1/me/training-schedules*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: schedules })
+    } else {
+      route.fallback()
+    }
+  })
+}

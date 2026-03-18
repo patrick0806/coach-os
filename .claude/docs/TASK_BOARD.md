@@ -70,6 +70,14 @@ Last updated: 2026-03-18 (public page complete)
 
 - [ ] Implement notification preferences page
 
+### Frontend: E2E Behavior Tests ✅ DONE
+
+- [x] profileEditor behavior tests (load, tabs, save, error, mobile)
+- [x] publicPage behavior tests (not-found fallback, auth sub-pages fallback)
+- [x] studentPortal/progresso behavior tests (list, empty, create dialog, expand)
+- [x] studentPortal/agenda behavior tests (schedules, appointments, empty states, mobile)
+- [x] Added mock helpers to apiMocks.ts (profile, student checkins, appointments, schedules)
+
 ### Infrastructure
 
 - [ ] CI/CD pipeline
