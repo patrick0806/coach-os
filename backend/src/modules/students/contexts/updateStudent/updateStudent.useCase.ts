@@ -5,6 +5,7 @@ import { StudentsRepository, StudentWithUser } from "@shared/repositories/studen
 import { validate } from "@shared/utils/validation.util";
 
 const updateStudentSchema = z.object({
+  name: z.string().min(3).max(150).optional(),
   phoneNumber: z.string().max(20).nullable().optional(),
   goal: z.string().max(300).nullable().optional(),
   observations: z.string().nullable().optional(),

@@ -110,6 +110,7 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
   function onSubmit(values: FormValues) {
     if (isEdit) {
       updateStudent.mutate({
+        name: values.name || undefined,
         phoneNumber: values.phoneNumber || null,
         goal: values.goal || null,
         observations: values.observations || null,
@@ -139,17 +140,17 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="name">Nome</FieldLabel>
+              <Input
+                id="name"
+                placeholder="Nome completo"
+                {...form.register("name")}
+              />
+              <FieldError errors={[form.formState.errors.name]} />
+            </Field>
             {!isEdit && (
               <>
-                <Field>
-                  <FieldLabel htmlFor="name">Nome</FieldLabel>
-                  <Input
-                    id="name"
-                    placeholder="Nome completo"
-                    {...form.register("name")}
-                  />
-                  <FieldError errors={[form.formState.errors.name]} />
-                </Field>
                 <Field>
                   <FieldLabel htmlFor="email">Email</FieldLabel>
                   <Input

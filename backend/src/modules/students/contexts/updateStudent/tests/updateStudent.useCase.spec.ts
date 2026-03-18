@@ -98,4 +98,23 @@ describe("UpdateStudentUseCase", () => {
       useCase.execute("student-id-1", { goal: "A".repeat(301) }, tenantId),
     ).rejects.toThrow();
   });
+
+  it("should update student name", async () => {
+    studentsRepository.findById
+      .mockResolvedValueOnce(makeStudent())
+      .mockResolvedValueOnce(makeStudent({ name: "Maria Souza" }));
+
+    const result = await useCase.execute(
+      "student-id-1",
+      { name: "Maria Souza" },
+      tenantId,
+    );
+
+    expect(studentsRepository.update).toHaveBeenCalledWith(
+      "student-id-1",
+      tenantId,
+      expect.objectContaining({ name: "Maria Souza" }),
+    );
+    expect(result).toBeDefined();
+  });
 });

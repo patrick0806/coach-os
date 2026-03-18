@@ -15,6 +15,7 @@ import {
   students,
   coachStudentRelations,
   servicePlans,
+  coachingContracts,
   programTemplates,
   workoutTemplates,
   exerciseTemplates,
@@ -94,6 +95,11 @@ async function clean(db: ReturnType<typeof drizzle>) {
       await db
         .delete(studentPrograms)
         .where(eq(studentPrograms.tenantId, demoPersonal.id));
+
+      // Remove coaching contracts
+      await db
+        .delete(coachingContracts)
+        .where(eq(coachingContracts.tenantId, demoPersonal.id));
 
       // Remove coach-student relations
       await db
@@ -854,6 +860,14 @@ async function seed(db: ReturnType<typeof drizzle>) {
       .from(students)
       .where(eq(students.tenantId, demoPersonal.id));
 
+    // Fetch service plan IDs for contracts
+    const allServicePlans = await db
+      .select()
+      .from(servicePlans)
+      .where(eq(servicePlans.tenantId, demoPersonal.id));
+
+    const servicePlanByName = Object.fromEntries(allServicePlans.map((p) => [p.name, p.id]));
+
     if (existingStudents.length === 0) {
       // ── Student 1: Fernanda Costa — Consultoria Online ──────────────────────
       const fernanda = await seedStudent({
@@ -866,7 +880,17 @@ async function seed(db: ReturnType<typeof drizzle>) {
       });
 
       await seedStudentProgram(fernanda.id, "Consultoria Online — Full Body 3x por Semana");
-      // Online students don't have physical training schedules
+
+      // Contract: Consultoria Online
+      if (servicePlanByName["Consultoria Online"]) {
+        await db.insert(coachingContracts).values(sv({
+          tenantId: demoPersonal.id,
+          studentId: fernanda.id,
+          servicePlanId: servicePlanByName["Consultoria Online"],
+          status: "active",
+          startDate: new Date(),
+        }));
+      }
 
       // ── Student 2: Carlos Mendonça — Presencial 3x por Semana ───────────────
       const carlos = await seedStudent({
@@ -879,6 +903,17 @@ async function seed(db: ReturnType<typeof drizzle>) {
       });
 
       const carlosProgram = await seedStudentProgram(carlos.id, "Treino A/B/C — 3x por Semana");
+
+      // Contract: Presencial 3x por Semana
+      if (servicePlanByName["Presencial 3x por Semana"]) {
+        await db.insert(coachingContracts).values(sv({
+          tenantId: demoPersonal.id,
+          studentId: carlos.id,
+          servicePlanId: servicePlanByName["Presencial 3x por Semana"],
+          status: "active",
+          startDate: new Date(),
+        }));
+      }
 
       // Training schedule: Mon/Wed/Fri 08:00–09:00 (matches coach availability)
       await db.insert(trainingSchedules).values(sv([
@@ -899,6 +934,17 @@ async function seed(db: ReturnType<typeof drizzle>) {
 
       const anaProgram = await seedStudentProgram(ana.id, "Treino 5 Dias — Segunda a Sexta");
 
+      // Contract: Presencial 5x por Semana
+      if (servicePlanByName["Presencial 5x por Semana"]) {
+        await db.insert(coachingContracts).values(sv({
+          tenantId: demoPersonal.id,
+          studentId: ana.id,
+          servicePlanId: servicePlanByName["Presencial 5x por Semana"],
+          status: "active",
+          startDate: new Date(),
+        }));
+      }
+
       // Training schedule: Mon–Fri 16:00–17:00 (matches coach availability)
       await db.insert(trainingSchedules).values(sv([
         { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 1, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
@@ -908,7 +954,7 @@ async function seed(db: ReturnType<typeof drizzle>) {
         { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 5, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
       ]));
 
-      console.log("✓ 3 demo students seeded with programs and training schedules");
+      console.log("✓ 3 demo students seeded with programs, training schedules and coaching contracts");
     } else {
       console.log(`✓ Demo students already exist (${existingStudents.length}), skipping`);
     }

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { students } from "@config/database/schema/students";
@@ -122,7 +122,7 @@ export class StudentsRepository {
         .from(students)
         .leftJoin(users, eq(students.userId, users.id))
         .where(conditions)
-        .orderBy(desc(users.name))
+        .orderBy(asc(users.name))
         .limit(size)
         .offset(page * size),
       this.drizzle.db
@@ -151,17 +151,35 @@ export class StudentsRepository {
     id: string,
     tenantId: string,
     data: Partial<{
+      name: string;
       phoneNumber: string | null;
       goal: string | null;
       observations: string | null;
       physicalRestrictions: string | null;
     }>,
   ): Promise<Student | undefined> {
+    const { name, ...studentData } = data;
+
+    // Update users table if name is provided
+    if (name !== undefined) {
+      const [student] = await this.drizzle.db
+        .select({ userId: students.userId })
+        .from(students)
+        .where(and(eq(students.id, id), eq(students.tenantId, tenantId)));
+
+      if (student) {
+        await this.drizzle.db
+          .update(users)
+          .set({ name })
+          .where(eq(users.id, student.userId));
+      }
+    }
+
     // Drizzle ORM type inference limitation: nullable columns not inferred in SET type
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await this.drizzle.db
       .update(students)
-      .set(data as any)
+      .set(studentData as any)
       .where(and(eq(students.id, id), eq(students.tenantId, tenantId)))
       .returning();
 

@@ -1,6 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 export class UpdateStudentRequestDTO {
+  @ApiProperty({ example: "Maria Silva", required: false })
+  name?: string;
+
   @ApiProperty({ example: "+55 11 99999-9999", required: false, nullable: true })
   phoneNumber?: string | null;
 

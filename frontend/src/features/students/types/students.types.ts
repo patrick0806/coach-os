@@ -35,6 +35,7 @@ export interface CreateStudentRequest {
 }
 
 export interface UpdateStudentRequest {
+  name?: string
   phoneNumber?: string | null
   goal?: string | null
   observations?: string | null
