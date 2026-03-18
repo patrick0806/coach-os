@@ -25,6 +25,15 @@ import {
   studentExercises,
   trainingSchedules,
   progressRecords,
+  progressPhotos,
+  workoutSessions,
+  exerciseExecutions,
+  exerciseSets,
+  studentNotes,
+  appointments,
+  appointmentRequests,
+  availabilityExceptions,
+  studentInvitationTokens,
 } from "./schema";
 
 // Drizzle ORM type inference excludes optional/defaulted columns from insert types.
@@ -79,40 +88,96 @@ async function clean(db: ReturnType<typeof drizzle>) {
         .delete(programTemplates)
         .where(eq(programTemplates.tenantId, demoPersonal.id));
 
+      // Availability rules and exceptions
       await db
         .delete(availabilityRules)
         .where(eq(availabilityRules.tenantId, demoPersonal.id));
-
       await db
-        .delete(servicePlans)
-        .where(eq(servicePlans.tenantId, demoPersonal.id));
+        .delete(availabilityExceptions)
+        .where(eq(availabilityExceptions.tenantId, demoPersonal.id));
 
-      // Remove training schedules
+      // Training schedules
       await db
         .delete(trainingSchedules)
         .where(eq(trainingSchedules.tenantId, demoPersonal.id));
 
-      // Remove student programs (workoutDays + studentExercises cascade via FK)
+      // Appointments and requests
+      await db
+        .delete(appointments)
+        .where(eq(appointments.tenantId, demoPersonal.id));
+      await db
+        .delete(appointmentRequests)
+        .where(eq(appointmentRequests.tenantId, demoPersonal.id));
+
+      // Workout execution data (exercise_sets → exercise_executions → workout_sessions)
+      const demoSessionIds = await db
+        .select({ id: workoutSessions.id })
+        .from(workoutSessions)
+        .where(eq(workoutSessions.tenantId, demoPersonal.id));
+
+      if (demoSessionIds.length > 0) {
+        const sessionIds = demoSessionIds.map((s) => s.id);
+        const execIds = await db
+          .select({ id: exerciseExecutions.id })
+          .from(exerciseExecutions)
+          .where(inArray(exerciseExecutions.workoutSessionId, sessionIds));
+
+        if (execIds.length > 0) {
+          await db
+            .delete(exerciseSets)
+            .where(inArray(exerciseSets.exerciseExecutionId, execIds.map((e) => e.id)));
+          await db
+            .delete(exerciseExecutions)
+            .where(inArray(exerciseExecutions.workoutSessionId, sessionIds));
+        }
+
+        await db
+          .delete(workoutSessions)
+          .where(eq(workoutSessions.tenantId, demoPersonal.id));
+      }
+
+      // Student programs (workoutDays + studentExercises cascade via FK)
       await db
         .delete(studentPrograms)
         .where(eq(studentPrograms.tenantId, demoPersonal.id));
 
-      // Remove progress records and photos
+      // Progress records and photos
       await db
         .delete(progressRecords)
         .where(eq(progressRecords.tenantId, demoPersonal.id));
+      await db
+        .delete(progressPhotos)
+        .where(eq(progressPhotos.tenantId, demoPersonal.id));
 
-      // Remove coaching contracts
+      // Student notes
+      const demoStudentIds = await db
+        .select({ id: students.id })
+        .from(students)
+        .where(eq(students.tenantId, demoPersonal.id));
+
+      if (demoStudentIds.length > 0) {
+        await db
+          .delete(studentNotes)
+          .where(inArray(studentNotes.studentId, demoStudentIds.map((s) => s.id)));
+        await db
+          .delete(studentInvitationTokens)
+          .where(eq(studentInvitationTokens.tenantId, demoPersonal.id));
+      }
+
+      // Coaching contracts before service plans (FK: contracts → service_plans)
       await db
         .delete(coachingContracts)
         .where(eq(coachingContracts.tenantId, demoPersonal.id));
+      await db
+        .delete(servicePlans)
+        .where(eq(servicePlans.tenantId, demoPersonal.id));
 
-      // Remove coach-student relations
+      // Coach-student relations
       await db
         .delete(coachStudentRelations)
         .where(eq(coachStudentRelations.tenantId, demoPersonal.id));
 
-      // Remove demo students and their users
+      // Demo students and their users
       const demoStudents = await db
         .select({ id: students.id, userId: students.userId })
         .from(students)
@@ -122,6 +187,11 @@ async function clean(db: ReturnType<typeof drizzle>) {
         await db.delete(students).where(eq(students.id, s.id));
         await db.delete(users).where(eq(users.id, s.userId));
       }
+
+      // Private exercises of this tenant
+      await db
+        .delete(exercises)
+        .where(eq(exercises.tenantId, demoPersonal.id));
 
       await db.delete(personals).where(eq(personals.id, demoPersonal.id));
     }
