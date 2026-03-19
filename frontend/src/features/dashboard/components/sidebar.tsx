@@ -7,6 +7,7 @@ import {
   Calendar,
   ClipboardList,
   Clock,
+  CreditCard,
   Dumbbell,
   Globe,
   LayoutDashboard,
@@ -118,6 +119,19 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="shrink-0 border-t border-sidebar-border p-4 space-y-1">
+        <Link
+          href="/assinatura"
+          onClick={onNavigate}
+          className={cn(
+            "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+            isActive("/assinatura")
+              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+              : "hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+          )}
+        >
+          <CreditCard className="size-4 shrink-0" />
+          Assinatura
+        </Link>
         <Link
           href="/settings"
           className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors opacity-40 pointer-events-none"

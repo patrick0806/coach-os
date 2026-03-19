@@ -7,6 +7,7 @@ import { env } from "@config/env";
 import { ApplicationRoles } from "@shared/enums";
 import { IAccessToken } from "@shared/interfaces/accessToken.interface";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
+import { PlansRepository } from "@shared/repositories/plans.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { generateSetupToken } from "@shared/utils/token.util";
@@ -17,11 +18,21 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+export interface LoginSubscriptionInfo {
+  accessStatus: string;
+  subscriptionStatus: string | null;
+  planId: string | null;
+  planName: string | null;
+  trialEndsAt: string | null;
+  subscriptionExpiresAt: string | null;
+}
+
 export interface LoginResult {
   accessToken: string;
   refreshToken: string;
   user: { id: string; name: string; email: string; role: string; tenantId: string; personalSlug?: string };
   personal?: { id: string; slug: string };
+  subscription?: LoginSubscriptionInfo;
 }
 
 const INVALID_CREDENTIALS_MESSAGE = "Email ou senha inválidos";
@@ -32,6 +43,7 @@ export class LoginUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly personalsRepository: PersonalsRepository,
     private readonly studentsRepository: StudentsRepository,
+    private readonly plansRepository: PlansRepository,
     private readonly jwtService: JwtService,
   ) { }
 
@@ -74,11 +86,24 @@ export class LoginUseCase {
       const { raw: refreshToken, hash: refreshTokenHash } = generateSetupToken();
       await this.usersRepository.updateRefreshTokenHash(user.id, refreshTokenHash);
 
+      // Resolve plan name for subscription info
+      const plan = personal.subscriptionPlanId
+        ? await this.plansRepository.findById(personal.subscriptionPlanId)
+        : undefined;
+
       return {
         accessToken,
         refreshToken,
         user: { id: user.id, name: user.name, email: user.email, role: user.role, tenantId: personal.id },
         personal: { id: personal.id, slug: personal.slug },
+        subscription: {
+          accessStatus: personal.accessStatus,
+          subscriptionStatus: personal.subscriptionStatus ?? null,
+          planId: personal.subscriptionPlanId ?? null,
+          planName: plan?.name ?? null,
+          trialEndsAt: personal.trialEndsAt?.toISOString() ?? null,
+          subscriptionExpiresAt: personal.subscriptionExpiresAt?.toISOString() ?? null,
+        },
       };
     }
 

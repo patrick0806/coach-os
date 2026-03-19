@@ -15,7 +15,9 @@ export const authService = {
       data
     );
     const payload = response.data;
-    authStore.setAuth(payload.accessToken, payload.user);
+    // Merge subscription into user so it persists in the auth cookie
+    const userWithSubscription = { ...payload.user, subscription: payload.subscription ?? null };
+    authStore.setAuth(payload.accessToken, userWithSubscription);
     return payload;
   },
 
@@ -25,7 +27,9 @@ export const authService = {
       data
     );
     const payload = response.data;
-    authStore.setAuth(payload.accessToken, payload.user);
+    // Merge subscription into user so it persists in the auth cookie
+    const userWithSubscription = { ...payload.user, subscription: payload.subscription ?? null };
+    authStore.setAuth(payload.accessToken, userWithSubscription);
     return payload;
   },
 

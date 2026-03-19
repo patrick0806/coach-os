@@ -24,11 +24,21 @@ const registerSchema = z.object({
   planId: z.uuid().optional(),
 });
 
+export interface RegisterSubscriptionInfo {
+  accessStatus: string;
+  subscriptionStatus: string | null;
+  planId: string | null;
+  planName: string | null;
+  trialEndsAt: string | null;
+  subscriptionExpiresAt: string | null;
+}
+
 export interface RegisterResult {
   accessToken: string;
   refreshToken: string;
   user: { id: string; name: string; email: string; role: string };
   personal: { id: string; slug: string };
+  subscription: RegisterSubscriptionInfo;
 }
 
 @Injectable()
@@ -137,6 +147,14 @@ export class RegisterUseCase {
       personal: {
         id: personal.id,
         slug: personal.slug,
+      },
+      subscription: {
+        accessStatus: personal.accessStatus,
+        subscriptionStatus: personal.subscriptionStatus ?? null,
+        planId: personal.subscriptionPlanId ?? null,
+        planName: plan.name,
+        trialEndsAt: personal.trialEndsAt?.toISOString() ?? null,
+        subscriptionExpiresAt: personal.subscriptionExpiresAt?.toISOString() ?? null,
       },
     };
   }

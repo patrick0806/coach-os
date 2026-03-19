@@ -54,6 +54,23 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
+    // Handle 403 from blocked tenant (subscription issues)
+    if (error.response?.status === 403) {
+      const code = error.response?.data?.code as string | undefined;
+      if (typeof window !== "undefined") {
+        const reasonMap: Record<string, string> = {
+          payment_required: "payment",
+          trial_expired: "trial",
+          subscription_inactive: "inactive",
+        };
+        const reason = code ? reasonMap[code] : undefined;
+        if (reason) {
+          window.location.href = `/assinatura/bloqueado?reason=${reason}`;
+          return Promise.reject(error);
+        }
+      }
+    }
+
     // Only handle 401 and only retry once per request
     if (error.response?.status !== 401 || original?._retry) {
       return Promise.reject(error);

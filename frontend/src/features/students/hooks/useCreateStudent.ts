@@ -22,10 +22,19 @@ export function useCreateStudent({ onOpenChange }: UseCreateStudentOptions = {})
       onOpenChange?.(false)
     },
     onError: (error: unknown) => {
-      const message = axios.isAxiosError(error)
-        ? (error.response?.data?.message ?? "Erro inesperado")
-        : "Erro inesperado"
-      toast.error(message)
+      if (axios.isAxiosError(error)) {
+        const data = error.response?.data
+        // Student limit reached — suggest upgrade
+        if (data?.code === "student_limit_reached" || error.response?.status === 403) {
+          toast.error("Limite de alunos atingido. Faça upgrade do seu plano para adicionar mais alunos.", {
+            action: { label: "Ver planos", onClick: () => { window.location.href = "/assinatura" } },
+          })
+          return
+        }
+        toast.error(data?.message ?? "Erro inesperado")
+      } else {
+        toast.error("Erro inesperado")
+      }
     },
   })
 }

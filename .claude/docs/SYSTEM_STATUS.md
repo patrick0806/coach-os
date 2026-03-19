@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-18 (enums module + consolidation tasks #2-4)
+Last updated: 2026-03-18 (subscription system complete)
 
 ---
 
@@ -9,7 +9,8 @@ Last updated: 2026-03-18 (enums module + consolidation tasks #2-4)
 | Module | Status | Notes |
 |--------|--------|-------|
 | **platform/admins** | not started | Next: admin guard, admin repository |
-| **platform/subscriptions** | not started | Backlog: Stripe webhooks, plan changes |
+| **platform/subscriptions** | completed | GET /subscriptions/current, PATCH /subscriptions/plan, POST /subscriptions/cancel, POST /subscriptions/portal — 686 tests passing |
+| **platform/webhooks** | completed | POST /webhooks/stripe — handles subscription.updated, subscription.deleted, invoice.paid, invoice.payment_failed — 686 tests passing |
 | **platform/tenants** | not started | Backlog: admin tenant management |
 | **progress/checkins** | completed | POST+GET /me/progress-checkins (student self-service), 626 tests passing |
 | **progress/photos** | completed | POST /me/progress-photos/upload-url (student), 626 tests passing |
@@ -18,7 +19,7 @@ Last updated: 2026-03-18 (enums module + consolidation tasks #2-4)
 | **public** | completed | GET /public/:slug now includes availabilityRules, 626 tests passing |
 | **enums** | completed | GET /enums/muscle-groups + /enums/attendance-types (protected, 24h cache), 638 tests passing |
 
-All other backend modules are **completed** (638 tests passing).
+All other backend modules are **completed** (686 tests passing).
 
 ---
 
@@ -27,6 +28,7 @@ All other backend modules are **completed** (638 tests passing).
 | Area | Status | Notes |
 |------|--------|-------|
 | **Dashboard** | in progress | layout + placeholder done; real sidebar nav + stats pending |
+| **Billing / Subscription** | completed | /assinatura (plan cards, status, change/cancel dialogs), /assinatura/bloqueado (paywall), trial banner, sidebar link |
 | **Public page** | completed | LP renderizada em /personais/[slug]; editor em /pagina-publica; sub-rotas auth branded |
 | **Student portal** | completed | Layout + bottom nav, login, treinos, execução, progresso (/aluno/progresso) com criação própria, agenda (/aluno/agenda) |
 | **Notifications** | not started | Backlog: preferences page |
@@ -57,7 +59,14 @@ All other infrastructure components are **completed**.
 - Notifications — backlog
 - **Validates:** Phases 11, 12, 13
 
-### Milestone 7 — Polish & Infrastructure
+### Milestone 7 — Billing & Subscription ✅
+- ~~Stripe webhooks (subscription.updated, deleted, invoice.paid, payment_failed)~~ — concluído
+- ~~Subscription endpoints (GET current, PATCH plan, POST cancel, POST portal)~~ — concluído
+- ~~Frontend billing page (/assinatura)~~ — concluído
+- ~~Paywall page + 403 interceptor~~ — concluído
+- ~~Trial banner in dashboard layout~~ — concluído
+
+### Milestone 8 — Polish & Infrastructure
 - Progress charts (line graphs, metric comparisons)
 - Dashboard real stats
 - Notification preferences

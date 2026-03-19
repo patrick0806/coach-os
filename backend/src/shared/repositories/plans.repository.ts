@@ -31,6 +31,16 @@ export class PlansRepository {
     return result[0];
   }
 
+  async findByStripePriceId(stripePriceId: string): Promise<Plan | undefined> {
+    const result = await this.drizzle.db
+      .select()
+      .from(plans)
+      .where(and(eq(plans.stripePriceId, stripePriceId), eq(plans.isActive, true)))
+      .limit(1);
+
+    return result[0];
+  }
+
   async findAll(): Promise<Plan[]> {
     return this.drizzle.db
       .select()

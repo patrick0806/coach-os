@@ -59,23 +59,30 @@ const makeStudentsRepository = () => ({
   findByUserId: vi.fn().mockResolvedValue(makeStudent()),
 });
 
+const makePlansRepository = () => ({
+  findById: vi.fn().mockResolvedValue(undefined),
+});
+
 describe("LoginUseCase", () => {
   let useCase: LoginUseCase;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let studentsRepository: ReturnType<typeof makeStudentsRepository>;
+  let plansRepository: ReturnType<typeof makePlansRepository>;
   let jwtService: ReturnType<typeof makeJwtService>;
 
   beforeEach(() => {
     usersRepository = makeUsersRepository();
     personalsRepository = makePersonalsRepository();
     studentsRepository = makeStudentsRepository();
+    plansRepository = makePlansRepository();
     jwtService = makeJwtService();
 
     useCase = new LoginUseCase(
       usersRepository as any,
       personalsRepository as any,
       studentsRepository as any,
+      plansRepository as any,
       jwtService as any,
     );
   });

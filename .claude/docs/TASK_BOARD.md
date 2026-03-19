@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-18 (public page complete)
+Last updated: 2026-03-18 (subscription system complete)
 
 ---
 
@@ -12,20 +12,21 @@ Last updated: 2026-03-18 (public page complete)
 - [ ] Implement admin guard (restrict routes to ADMIN role)
 - [ ] Implement admin module registration
 
-### Module: platform/subscriptions
+### Module: platform/subscriptions ✅ DONE
 
-- [ ] Implement GetSubscriptionUseCase
-- [ ] Implement subscription response DTO
-- [ ] Implement get subscription controller (GET /subscriptions/current)
-- [ ] Implement get subscription unit tests
-- [ ] Implement ChangeSubscriptionPlanUseCase (upgrade/downgrade via Stripe)
-- [ ] Implement change plan controller (PATCH /subscriptions/plan)
-- [ ] Implement change plan unit tests
-- [ ] Implement CancelSubscriptionUseCase
-- [ ] Implement cancel subscription controller (POST /subscriptions/cancel)
-- [ ] Implement cancel subscription unit tests
-- [ ] Implement Stripe webhook handler (subscription.updated, subscription.deleted, invoice.paid)
-- [ ] Implement webhook unit tests
+- [x] Implement GetSubscriptionUseCase
+- [x] Implement subscription response DTO
+- [x] Implement get subscription controller (GET /subscriptions/current)
+- [x] Implement get subscription unit tests
+- [x] Implement ChangeSubscriptionPlanUseCase (upgrade/downgrade via Stripe)
+- [x] Implement change plan controller (PATCH /subscriptions/plan)
+- [x] Implement change plan unit tests
+- [x] Implement CancelSubscriptionUseCase
+- [x] Implement cancel subscription controller (POST /subscriptions/cancel)
+- [x] Implement cancel subscription unit tests
+- [x] Implement CreatePortalSessionUseCase (POST /subscriptions/portal)
+- [x] Implement Stripe webhook handler (subscription.updated, subscription.deleted, invoice.paid, invoice.payment_failed)
+- [x] Implement webhook unit tests
 
 ### Module: platform/tenants
 
@@ -38,6 +39,17 @@ Last updated: 2026-03-18 (public page complete)
 - [ ] Implement SuspendTenantUseCase (admin only)
 - [ ] Implement suspend tenant controller (PATCH /admin/tenants/:id/suspend)
 - [ ] Implement suspend tenant unit tests
+
+### Frontend: billing ✅ DONE
+
+- [x] Implement subscription service (getCurrentSubscription, changePlan, cancelSubscription, getPortalUrl)
+- [x] Implement useSubscription hook (React Query)
+- [x] Implement billing page (/assinatura) with plan cards, status card, change/cancel dialogs
+- [x] Implement paywall page (/assinatura/bloqueado) with trial/payment/inactive variants
+- [x] Implement trial banner in dashboard layout (differenceInDays, urgent style ≤2 days)
+- [x] Add "Assinatura" link in sidebar footer
+- [x] Add 403 interceptor in axios for paywall redirect
+- [x] Student limit UI: toast with upgrade CTA on student_limit_reached
 
 ### Frontend: dashboard
 

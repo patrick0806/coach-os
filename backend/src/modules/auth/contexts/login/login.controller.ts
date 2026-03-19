@@ -40,6 +40,7 @@ export class LoginController {
       accessToken: result.accessToken,
       user: result.user,
       personal: result.personal,
+      subscription: result.subscription,
     };
   }
 }

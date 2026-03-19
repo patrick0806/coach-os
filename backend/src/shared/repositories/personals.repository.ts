@@ -80,6 +80,16 @@ export class PersonalsRepository {
       .where(eq(personals.id, id));
   }
 
+  async findByStripeCustomerId(customerId: string): Promise<Personal | undefined> {
+    const result = await this.drizzle.db
+      .select()
+      .from(personals)
+      .where(eq(personals.stripeCustomerId, customerId))
+      .limit(1);
+
+    return result[0];
+  }
+
   async updateProfile(
     id: string,
     data: Partial<
