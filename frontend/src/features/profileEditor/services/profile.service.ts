@@ -20,6 +20,7 @@ export interface ProfileData {
   lpImage1: string | null
   lpImage2: string | null
   lpImage3: string | null
+  lpDraftData: LpDraftData | null
 }
 
 export interface UpdateProfileData {
@@ -27,8 +28,13 @@ export interface UpdateProfileData {
   phoneNumber?: string
   specialties?: string[]
   themeColor?: string
+  themeColorSecondary?: string
   profilePhoto?: string
   logoUrl?: string
+}
+
+export interface LpDraftData {
+  lpLayout?: string
   lpTitle?: string
   lpSubtitle?: string
   lpHeroImage?: string
@@ -37,8 +43,6 @@ export interface UpdateProfileData {
   lpImage1?: string
   lpImage2?: string
   lpImage3?: string
-  lpLayout?: string
-  themeColorSecondary?: string
 }
 
 export interface PhotoUploadResponse {
@@ -52,6 +56,14 @@ export const profileService = {
 
   update: async (data: UpdateProfileData): Promise<ProfileData> =>
     (await api.put<ProfileData>("/profile", data)).data,
+
+  saveLpDraft: async (data: LpDraftData): Promise<void> => {
+    await api.put("/profile/lp-draft", data)
+  },
+
+  publishLpDraft: async (): Promise<void> => {
+    await api.post("/profile/lp/publish")
+  },
 
   requestPhotoUpload: async (mimeType: string): Promise<PhotoUploadResponse> =>
     (await api.post<PhotoUploadResponse>("/profile/photo/upload-url", { mimeType })).data,

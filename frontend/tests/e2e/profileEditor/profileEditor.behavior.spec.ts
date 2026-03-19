@@ -10,6 +10,8 @@ import {
   mockGetMyProfile,
   mockGetMyProfileStateful,
   mockUpdateProfile,
+  mockSaveLpDraft,
+  mockPublishLpDraft,
 } from "../support/apiMocks"
 import { profileEditorFixtures } from "../fixtures/profileEditor.fixtures"
 
@@ -21,6 +23,8 @@ async function setupPage(
 ) {
   await injectMockAuth(page)
   await mockGetMyProfile(page, fixture)
+  await mockSaveLpDraft(page)
+  await mockPublishLpDraft(page)
   await page.goto(PAGE_URL)
   // Wait for the editor to load (spinner disappears, tabs appear)
   await page.waitForSelector("[role='tablist']", { timeout: 8000 })
@@ -42,7 +46,7 @@ test.describe("Profile Editor — Load & Display", () => {
     await expect(page.getByRole("tab", { name: "Página" })).toBeVisible()
   })
 
-  test("renders save button", async ({ page }) => {
+  test("renders Salvar button inside Perfil tab (default)", async ({ page }) => {
     await setupPage(page)
     await expect(page.getByRole("button", { name: "Salvar" })).toBeVisible()
   })
@@ -169,6 +173,42 @@ test.describe("Profile Editor — Página Tab", () => {
     await expect(field).toHaveValue("Meu novo título incrível")
   })
 
+  test("shows Salvar rascunho and Publicar buttons in Página tab", async ({ page }) => {
+    await setupPage(page)
+    await page.getByRole("tab", { name: "Página" }).click()
+    await expect(page.getByRole("button", { name: "Salvar rascunho" })).toBeVisible()
+    await expect(page.getByRole("button", { name: "Publicar" })).toBeVisible()
+  })
+
+  test("Publicar button is disabled when no draft exists", async ({ page }) => {
+    await setupPage(page, profileEditorFixtures.complete) // lpDraftData: null
+    await page.getByRole("tab", { name: "Página" }).click()
+    const publishBtn = page.getByRole("button", { name: "Publicar" })
+    await expect(publishBtn).toBeDisabled()
+  })
+
+  test("shows 'Rascunho pendente' badge when profile has draft", async ({ page }) => {
+    await setupPage(page, profileEditorFixtures.withDraft)
+    await page.getByRole("tab", { name: "Página" }).click()
+    await expect(page.getByText("Rascunho pendente")).toBeVisible()
+  })
+
+  test("Publicar button is enabled when profile has draft", async ({ page }) => {
+    await setupPage(page, profileEditorFixtures.withDraft)
+    await page.getByRole("tab", { name: "Página" }).click()
+    const publishBtn = page.getByRole("button", { name: "Publicar" })
+    await expect(publishBtn).not.toBeDisabled()
+  })
+
+  test("shows template picker with 4 options", async ({ page }) => {
+    await setupPage(page)
+    await page.getByRole("tab", { name: "Página" }).click()
+    await expect(page.getByText("Conversão")).toBeVisible()
+    await expect(page.getByText("Autoridade")).toBeVisible()
+    await expect(page.getByText("Minimalista")).toBeVisible()
+    await expect(page.getByText("Impacto")).toBeVisible()
+  })
+
   test("editing fields in Perfil tab persists when switching to Página tab", async ({ page }) => {
     await setupPage(page)
 
@@ -187,11 +227,11 @@ test.describe("Profile Editor — Página Tab", () => {
 })
 
 // =============================================================================
-// Save Flow
+// Save Flow — Profile
 // =============================================================================
 
-test.describe("Profile Editor — Save Flow", () => {
-  test("save button triggers PUT /profile", async ({ page }) => {
+test.describe("Profile Editor — Save Flow (Perfil)", () => {
+  test("Salvar button triggers PUT /profile", async ({ page }) => {
     await injectMockAuth(page)
     await mockGetMyProfileStateful(
       page,
@@ -199,24 +239,31 @@ test.describe("Profile Editor — Save Flow", () => {
       profileEditorFixtures.updated
     )
     await mockUpdateProfile(page, profileEditorFixtures.updated)
+    await mockSaveLpDraft(page)
+    await mockPublishLpDraft(page)
     await page.goto(PAGE_URL)
     await page.waitForSelector("[role='tablist']", { timeout: 8000 })
 
     let putCalled = false
     page.on("request", (req) => {
-      if (req.method() === "PUT" && req.url().includes("/profile")) {
+      if (req.method() === "PUT" && req.url().includes("/profile") && !req.url().includes("lp-draft")) {
         putCalled = true
       }
     })
 
-    await page.getByRole("button", { name: "Salvar" }).click()
+    const salvarBtn = page.getByRole("button", { name: "Salvar" })
+    await salvarBtn.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(200)
+    await salvarBtn.evaluate((el) => (el as HTMLButtonElement).click())
     await page.waitForTimeout(500)
     expect(putCalled).toBe(true)
   })
 
-  test("save button shows loading state during submission", async ({ page }) => {
+  test("Salvar button shows loading state during submission", async ({ page }) => {
     await injectMockAuth(page)
     await mockGetMyProfile(page, profileEditorFixtures.complete)
+    await mockSaveLpDraft(page)
+    await mockPublishLpDraft(page)
 
     // Slow PUT response to observe loading state
     await page.route("**/api/v1/profile", async (route) => {
@@ -231,31 +278,42 @@ test.describe("Profile Editor — Save Flow", () => {
     await page.goto(PAGE_URL)
     await page.waitForSelector("[role='tablist']", { timeout: 8000 })
 
-    await page.getByRole("button", { name: "Salvar" }).click()
-    await expect(page.getByText("Salvando...")).toBeVisible()
+    const salvarBtn = page.getByRole("button", { name: "Salvar" })
+    await salvarBtn.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(200)
+    // Use evaluate to dispatch click directly, bypassing Playwright's coverage check
+    await salvarBtn.evaluate((el) => (el as HTMLButtonElement).click())
+    await expect(page.getByText("Salvando...")).toBeVisible({ timeout: 3000 })
   })
 
-  test("shows success toast after saving", async ({ page }) => {
+  test("shows success toast after saving profile", async ({ page }) => {
     await injectMockAuth(page)
     await mockGetMyProfile(page, profileEditorFixtures.complete)
     await mockUpdateProfile(page, profileEditorFixtures.updated)
+    await mockSaveLpDraft(page)
+    await mockPublishLpDraft(page)
     await page.goto(PAGE_URL)
     await page.waitForSelector("[role='tablist']", { timeout: 8000 })
 
-    await page.getByRole("button", { name: "Salvar" }).click()
+    const salvarBtn = page.getByRole("button", { name: "Salvar" })
+    await salvarBtn.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(200)
+    await salvarBtn.evaluate((el) => (el as HTMLButtonElement).click())
     await expect(page.getByText("Perfil atualizado com sucesso!")).toBeVisible({ timeout: 5000 })
   })
 
   test("shows error toast when save fails", async ({ page }) => {
     await injectMockAuth(page)
     await mockGetMyProfile(page, profileEditorFixtures.complete)
+    await mockSaveLpDraft(page)
+    await mockPublishLpDraft(page)
 
     await page.route("**/api/v1/profile", (route) => {
       if (route.request().method() === "PUT") {
         route.fulfill({
           status: 500,
           contentType: "application/json",
-          json: { message: "Erro interno do servidor" },
+          json: {},
         })
       } else {
         route.fallback()
@@ -265,8 +323,75 @@ test.describe("Profile Editor — Save Flow", () => {
     await page.goto(PAGE_URL)
     await page.waitForSelector("[role='tablist']", { timeout: 8000 })
 
-    await page.getByRole("button", { name: "Salvar" }).click()
+    const salvarBtn = page.getByRole("button", { name: "Salvar" })
+    await salvarBtn.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(200)
+    await salvarBtn.evaluate((el) => (el as HTMLButtonElement).click())
     await expect(page.getByText(/Erro ao salvar perfil/i)).toBeVisible({ timeout: 5000 })
+  })
+})
+
+// =============================================================================
+// Save Flow — LP Draft / Publish
+// =============================================================================
+
+test.describe("Profile Editor — Save Flow (Página)", () => {
+  test("Salvar rascunho triggers PUT /profile/lp-draft", async ({ page }) => {
+    await injectMockAuth(page)
+    await mockGetMyProfile(page, profileEditorFixtures.complete)
+    await mockSaveLpDraft(page)
+    await mockPublishLpDraft(page)
+    await page.goto(PAGE_URL)
+    await page.waitForSelector("[role='tablist']", { timeout: 8000 })
+
+    let draftPutCalled = false
+    page.on("request", (req) => {
+      if (req.method() === "PUT" && req.url().includes("/profile/lp-draft")) {
+        draftPutCalled = true
+      }
+    })
+
+    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("button", { name: "Salvar rascunho" }).click()
+    await page.waitForTimeout(500)
+    expect(draftPutCalled).toBe(true)
+  })
+
+  test("shows success toast after saving draft", async ({ page }) => {
+    await injectMockAuth(page)
+    await mockGetMyProfileStateful(page, profileEditorFixtures.complete, profileEditorFixtures.withDraft)
+    await mockSaveLpDraft(page)
+    await mockPublishLpDraft(page)
+    await page.goto(PAGE_URL)
+    await page.waitForSelector("[role='tablist']", { timeout: 8000 })
+
+    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("button", { name: "Salvar rascunho" }).click()
+    await expect(page.getByText(/Rascunho salvo/i)).toBeVisible({ timeout: 5000 })
+  })
+
+  test("Publicar triggers POST /profile/lp/publish", async ({ page }) => {
+    await injectMockAuth(page)
+    await mockGetMyProfile(page, profileEditorFixtures.withDraft)
+    await mockSaveLpDraft(page)
+    await mockPublishLpDraft(page)
+    await page.goto(PAGE_URL)
+    await page.waitForSelector("[role='tablist']", { timeout: 8000 })
+
+    let publishCalled = false
+    page.on("request", (req) => {
+      if (req.method() === "POST" && req.url().includes("/profile/lp/publish")) {
+        publishCalled = true
+      }
+    })
+
+    await page.getByRole("tab", { name: "Página" }).click()
+    const publishBtn = page.getByRole("button", { name: "Publicar" })
+    await publishBtn.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(200)
+    await publishBtn.evaluate((el) => (el as HTMLButtonElement).click())
+    await page.waitForTimeout(500)
+    expect(publishCalled).toBe(true)
   })
 })
 

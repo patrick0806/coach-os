@@ -709,6 +709,28 @@ Events handled:
 
 ---
 
+## Save LP Draft
+
+Coach saves LP content as draft (page not affected)
+↓
+PUT /profile/lp-draft
+↓
+Data stored in lpDraftData column only
+
+---
+
+## Publish LP Draft
+
+Coach publishes draft to live page
+↓
+POST /profile/lp/publish
+↓
+lpDraftData copied to lp* columns
+↓
+lpDraftData set to null
+
+---
+
 ## Change Subscription Plan
 
 Coach requests plan change

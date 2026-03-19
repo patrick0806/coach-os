@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { asc, eq, gte, ilike, or, sql } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
-import { personals, Personal } from "@config/database/schema/personals";
+import { personals, Personal, LpFields } from "@config/database/schema/personals";
 import { users } from "@config/database/schema/users";
 
 @Injectable()
@@ -204,16 +204,9 @@ export class PersonalsRepository {
         | "phoneNumber"
         | "specialties"
         | "themeColor"
+        | "themeColorSecondary"
         | "profilePhoto"
         | "logoUrl"
-        | "lpTitle"
-        | "lpSubtitle"
-        | "lpHeroImage"
-        | "lpAboutTitle"
-        | "lpAboutText"
-        | "lpImage1"
-        | "lpImage2"
-        | "lpImage3"
       >
     >,
   ): Promise<Personal | undefined> {
@@ -224,5 +217,35 @@ export class PersonalsRepository {
       .returning();
 
     return result[0];
+  }
+
+  async saveLpDraft(id: string, data: LpFields): Promise<void> {
+    await this.drizzle.db
+      .update(personals)
+      .set({ lpDraftData: data } as any)
+      .where(eq(personals.id, id));
+  }
+
+  async publishLpDraft(id: string): Promise<void> {
+    const profile = await this.findById(id);
+    if (!profile?.lpDraftData) return;
+
+    const draft = profile.lpDraftData as LpFields;
+
+    await this.drizzle.db
+      .update(personals)
+      .set({
+        ...(draft.lpLayout !== undefined && { lpLayout: draft.lpLayout }),
+        ...(draft.lpTitle !== undefined && { lpTitle: draft.lpTitle }),
+        ...(draft.lpSubtitle !== undefined && { lpSubtitle: draft.lpSubtitle }),
+        ...(draft.lpHeroImage !== undefined && { lpHeroImage: draft.lpHeroImage }),
+        ...(draft.lpAboutTitle !== undefined && { lpAboutTitle: draft.lpAboutTitle }),
+        ...(draft.lpAboutText !== undefined && { lpAboutText: draft.lpAboutText }),
+        ...(draft.lpImage1 !== undefined && { lpImage1: draft.lpImage1 }),
+        ...(draft.lpImage2 !== undefined && { lpImage2: draft.lpImage2 }),
+        ...(draft.lpImage3 !== undefined && { lpImage3: draft.lpImage3 }),
+        lpDraftData: null,
+      } as any)
+      .where(eq(personals.id, id));
   }
 }

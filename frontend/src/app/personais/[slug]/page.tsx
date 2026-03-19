@@ -19,11 +19,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!profile) return { title: "Personal não encontrado" }
 
+  const pageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/personais/${slug}`
+  const title = profile.lpTitle
+    ? `${profile.lpTitle} | ${profile.coachName}`
+    : profile.coachName
+  const description = profile.bio ?? `Conheça o trabalho de ${profile.coachName}`
+  const image = profile.lpHeroImage ?? profile.profilePhoto
+
   return {
-    title: profile.lpTitle ?? profile.coachName,
-    description: profile.bio ?? `Conheça o trabalho de ${profile.coachName}`,
+    title,
+    description,
+    alternates: { canonical: pageUrl },
     openGraph: {
-      images: profile.lpHeroImage ? [{ url: profile.lpHeroImage }] : [],
+      title,
+      description,
+      url: pageUrl,
+      type: "profile",
+      images: image ? [{ url: image }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : [],
     },
   }
 }
@@ -41,6 +59,18 @@ export default async function PublicPage({ params }: PageProps) {
       : {}),
   } as CSSProperties
 
+  const pageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/personais/${slug}`
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: profile.coachName,
+    description: profile.bio ?? undefined,
+    url: pageUrl,
+    image: profile.profilePhoto ?? undefined,
+    telephone: profile.phoneNumber ?? undefined,
+  }
+
   function renderLayout() {
     switch (profile!.lpLayout) {
       case "2":
@@ -56,6 +86,10 @@ export default async function PublicPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background" style={cssVars}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {renderLayout()}
     </div>
   )

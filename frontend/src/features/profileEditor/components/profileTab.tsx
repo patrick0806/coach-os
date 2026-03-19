@@ -2,7 +2,9 @@
 
 import { Input } from "@/shared/ui/input"
 import { Textarea } from "@/shared/ui/textarea"
-import { Field, FieldGroup, FieldLabel } from "@/shared/ui/field"
+import { Field, FieldLabel } from "@/shared/ui/field"
+import { Button } from "@/shared/ui/button"
+import { Loader2 } from "lucide-react"
 import { ImageUploadField } from "@/features/profileEditor/components/imageUploadField"
 import type { ProfileData, UpdateProfileData } from "@/features/profileEditor/services/profile.service"
 
@@ -19,105 +21,122 @@ interface ProfileTabProps {
   data: ProfileData
   onChange: (patch: Partial<UpdateProfileData>) => void
   disabled?: boolean
+  onSave: () => void
+  isSaving: boolean
 }
 
-export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
+export function ProfileTab({ data, onChange, disabled, onSave, isSaving }: ProfileTabProps) {
   return (
-    <FieldGroup className="gap-5">
-      <ImageUploadField
-        label="Foto de perfil"
-        hint="Recomendado: 400×400px (quadrado). Exibida em círculo na página pública."
-        currentUrl={data.profilePhoto}
-        onUpload={(fileUrl) => onChange({ profilePhoto: fileUrl })}
-        disabled={disabled}
-        shape="circle"
-      />
-
-      <Field>
-        <FieldLabel htmlFor="bio">Bio</FieldLabel>
-        <Textarea
-          id="bio"
-          rows={4}
-          placeholder="Escreva sobre você, sua experiência e metodologia..."
-          value={data.bio ?? ""}
-          onChange={(e) => onChange({ bio: e.target.value })}
+    <div className="space-y-5">
+      <div className="flex w-full flex-col gap-5">
+        <ImageUploadField
+          label="Foto de perfil"
+          hint="Recomendado: 400×400px (quadrado). Exibida em círculo na página pública."
+          currentUrl={data.profilePhoto}
+          onUpload={(fileUrl) => onChange({ profilePhoto: fileUrl })}
           disabled={disabled}
+          shape="circle"
         />
-      </Field>
 
-      <Field>
-        <FieldLabel htmlFor="phoneNumber">Telefone (WhatsApp)</FieldLabel>
-        <Input
-          id="phoneNumber"
-          type="tel"
-          placeholder="(11) 99999-9999"
-          value={data.phoneNumber ?? ""}
-          onChange={(e) => onChange({ phoneNumber: formatPhone(e.target.value) })}
-          disabled={disabled}
-        />
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor="specialties">Especialidades (separadas por vírgula)</FieldLabel>
-        <Input
-          id="specialties"
-          placeholder="Ex: musculação, emagrecimento, funcional"
-          value={(data.specialties ?? []).join(", ")}
-          onChange={(e) =>
-            onChange({
-              specialties: e.target.value
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean),
-            })
-          }
-          disabled={disabled}
-        />
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor="themeColor">Cor primária</FieldLabel>
-        <div className="flex items-center gap-3">
-          <input
-            id="themeColor"
-            type="color"
-            className="h-10 w-16 cursor-pointer rounded-md border bg-transparent p-1"
-            value={data.themeColor ?? "#6366f1"}
-            onChange={(e) => onChange({ themeColor: e.target.value })}
+        <Field>
+          <FieldLabel htmlFor="bio">Bio</FieldLabel>
+          <Textarea
+            id="bio"
+            rows={4}
+            placeholder="Escreva sobre você, sua experiência e metodologia..."
+            value={data.bio ?? ""}
+            onChange={(e) => onChange({ bio: e.target.value })}
             disabled={disabled}
           />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="phoneNumber">Telefone (WhatsApp)</FieldLabel>
           <Input
-            type="text"
-            value={data.themeColor ?? ""}
-            onChange={(e) => onChange({ themeColor: e.target.value })}
-            placeholder="#6366f1"
-            className="max-w-32"
+            id="phoneNumber"
+            type="tel"
+            placeholder="(11) 99999-9999"
+            value={data.phoneNumber ?? ""}
+            onChange={(e) => onChange({ phoneNumber: formatPhone(e.target.value) })}
             disabled={disabled}
           />
-        </div>
-      </Field>
+        </Field>
 
-      <Field>
-        <FieldLabel htmlFor="themeColorSecondary">Cor secundária (acento)</FieldLabel>
-        <div className="flex items-center gap-3">
-          <input
-            id="themeColorSecondary"
-            type="color"
-            className="h-10 w-16 cursor-pointer rounded-md border bg-transparent p-1"
-            value={data.themeColorSecondary ?? "#a855f7"}
-            onChange={(e) => onChange({ themeColorSecondary: e.target.value })}
-            disabled={disabled}
-          />
+        <Field>
+          <FieldLabel htmlFor="specialties">Especialidades (separadas por vírgula)</FieldLabel>
           <Input
-            type="text"
-            value={data.themeColorSecondary ?? ""}
-            onChange={(e) => onChange({ themeColorSecondary: e.target.value })}
-            placeholder="#a855f7"
-            className="max-w-32"
+            id="specialties"
+            placeholder="Ex: musculação, emagrecimento, funcional"
+            value={(data.specialties ?? []).join(", ")}
+            onChange={(e) =>
+              onChange({
+                specialties: e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+              })
+            }
             disabled={disabled}
           />
-        </div>
-      </Field>
-    </FieldGroup>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="themeColor">Cor primária</FieldLabel>
+          <div className="flex items-center gap-3">
+            <input
+              id="themeColor"
+              type="color"
+              className="h-10 w-16 cursor-pointer rounded-md border bg-transparent p-1"
+              value={data.themeColor ?? "#6366f1"}
+              onChange={(e) => onChange({ themeColor: e.target.value })}
+              disabled={disabled}
+            />
+            <Input
+              type="text"
+              value={data.themeColor ?? ""}
+              onChange={(e) => onChange({ themeColor: e.target.value })}
+              placeholder="#6366f1"
+              className="max-w-32"
+              disabled={disabled}
+            />
+          </div>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="themeColorSecondary">Cor secundária (acento)</FieldLabel>
+          <div className="flex items-center gap-3">
+            <input
+              id="themeColorSecondary"
+              type="color"
+              className="h-10 w-16 cursor-pointer rounded-md border bg-transparent p-1"
+              value={data.themeColorSecondary ?? "#a855f7"}
+              onChange={(e) => onChange({ themeColorSecondary: e.target.value })}
+              disabled={disabled}
+            />
+            <Input
+              type="text"
+              value={data.themeColorSecondary ?? ""}
+              onChange={(e) => onChange({ themeColorSecondary: e.target.value })}
+              placeholder="#a855f7"
+              className="max-w-32"
+              disabled={disabled}
+            />
+          </div>
+        </Field>
+      </div>
+
+      <div className="flex justify-end border-t pt-4">
+        <Button onClick={onSave} disabled={isSaving || disabled}>
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" />
+              Salvando...
+            </>
+          ) : (
+            "Salvar"
+          )}
+        </Button>
+      </div>
+    </div>
   )
 }

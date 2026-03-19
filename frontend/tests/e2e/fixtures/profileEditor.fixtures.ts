@@ -11,6 +11,8 @@ const baseProfile = {
   phoneNumber: "(11) 98765-4321",
   specialties: ["Funcional", "Musculação"],
   themeColor: "#0066CC",
+  themeColorSecondary: null,
+  lpLayout: "1",
   lpTitle: "Transforme seu corpo",
   lpSubtitle: "Treino personalizado para seus objetivos",
   lpHeroImage: null,
@@ -19,6 +21,7 @@ const baseProfile = {
   lpImage1: null,
   lpImage2: null,
   lpImage3: null,
+  lpDraftData: null,
 }
 
 export const profileEditorFixtures = {
@@ -32,10 +35,20 @@ export const profileEditorFixtures = {
     lpSubtitle: null,
     lpAboutTitle: null,
     lpAboutText: null,
+    lpDraftData: null,
   },
   updated: {
     ...baseProfile,
     bio: "Bio atualizada com sucesso.",
     phoneNumber: "(11) 91234-5678",
+    lpDraftData: null,
+  },
+  withDraft: {
+    ...baseProfile,
+    lpDraftData: {
+      lpLayout: "2",
+      lpTitle: "Título do rascunho",
+      lpSubtitle: "Subtítulo do rascunho",
+    },
   },
 }

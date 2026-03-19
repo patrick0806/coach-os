@@ -1,12 +1,12 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-19 (white-label subdomain plan added)
+Last updated: 2026-03-19 (LP editor draft/publish + SEO + branding minor)
 
 ---
 
 ## Backend Status
 
-All backend modules are **completed** (731 tests passing).
+All backend modules are **completed** (747 tests passing).
 
 | Module | Notes |
 |--------|-------|
@@ -31,11 +31,11 @@ All backend modules are **completed** (731 tests passing).
 |------|--------|-------|
 | **Dashboard** | in progress | layout + placeholder done; real stats pending |
 | **Billing / Subscription** | completed | /assinatura, /assinatura/bloqueado, trial banner, 403 interceptor |
-| **Public page (LP)** | completed | /personais/[slug] + editor /pagina-publica + sub-rotas auth branded |
-| **Student portal** | completed | login, treinos, execução, progresso, agenda + bottom nav |
+| **Public page (LP)** | completed | /personais/[slug] + editor /pagina-publica + draft/publish system; SEO com og:url, twitter:card, JSON-LD |
+| **Student portal** | completed | login, treinos, execução, progresso, agenda + bottom nav; branding com brand color nav, "Treinando com [Nome]", footer |
 | **Admin panel** | completed | /admin/dashboard, /admin/planos, /admin/whitelist, /admin/admins, /admin/tenants |
 | **Progress checkins** | completed | Unified checkin view (metrics + photos); behavior tests passing |
-| **White-label branding** | not started | Sprint 1: logo+specialties na LP, branding no portal do aluno |
+| **White-label branding** | partial | Portal do aluno: brand color nav + "Treinando com [Nome]" + footer. LP: specialties e logoUrl pendentes |
 | **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
 | **Progress charts** | not started | Backlog: line graphs, comparisons |
 | **Notifications** | not started | Backlog: preferences page |

@@ -10,18 +10,9 @@ const updateProfileSchema = z.object({
   phoneNumber: z.string().max(20).optional(),
   specialties: z.array(z.string()).optional(),
   themeColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  themeColorSecondary: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   profilePhoto: z.string().url().optional(),
   logoUrl: z.string().url().optional(),
-  lpTitle: z.string().max(200).optional(),
-  lpSubtitle: z.string().max(300).optional(),
-  lpHeroImage: z.string().url().optional(),
-  lpAboutTitle: z.string().max(200).optional(),
-  lpAboutText: z.string().optional(),
-  lpImage1: z.string().url().optional(),
-  lpImage2: z.string().url().optional(),
-  lpImage3: z.string().url().optional(),
-  lpLayout: z.enum(["1", "2", "3", "4"]).optional(),
-  themeColorSecondary: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
 });
 
 @Injectable()

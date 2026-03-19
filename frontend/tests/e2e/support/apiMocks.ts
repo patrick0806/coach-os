@@ -903,6 +903,26 @@ export async function mockRequestProfilePhotoUpload(
   })
 }
 
+export async function mockSaveLpDraft(page: Page): Promise<void> {
+  await page.route("**/api/v1/profile/lp-draft*", (route: Route) => {
+    if (route.request().method() === "PUT") {
+      route.fulfill({ status: 200, contentType: "application/json", json: {} })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockPublishLpDraft(page: Page): Promise<void> {
+  await page.route("**/api/v1/profile/lp/publish*", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 200, contentType: "application/json", json: {} })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
 // =============================================================================
 // Student Portal — Checkins
 // =============================================================================

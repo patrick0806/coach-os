@@ -1,54 +1,72 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ExternalLink, Loader2, Save } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 import axios from "axios"
 import { toast } from "sonner"
 
-import { Button } from "@/shared/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 import { useGetMyProfile } from "@/features/profileEditor/hooks/useGetMyProfile"
 import { useUpdateProfile } from "@/features/profileEditor/hooks/useUpdateProfile"
+import { useSaveLpDraft } from "@/features/profileEditor/hooks/useSaveLpDraft"
+import { usePublishLpDraft } from "@/features/profileEditor/hooks/usePublishLpDraft"
 import { ProfileTab } from "@/features/profileEditor/components/profileTab"
 import { PageTab } from "@/features/profileEditor/components/pageTab"
-import type { ProfileData, UpdateProfileData } from "@/features/profileEditor/services/profile.service"
+import type {
+  ProfileData,
+  UpdateProfileData,
+  LpDraftData,
+} from "@/features/profileEditor/services/profile.service"
+import { Loader2 } from "lucide-react"
 
 export function LpEditorPage() {
   const { data: profile, isLoading } = useGetMyProfile()
   const updateProfile = useUpdateProfile()
+  const saveLpDraft = useSaveLpDraft()
+  const publishLpDraft = usePublishLpDraft()
 
-  const [draft, setDraft] = useState<ProfileData | null>(null)
+  const [profileDraft, setProfileDraft] = useState<ProfileData | null>(null)
+  const [lpDraft, setLpDraft] = useState<LpDraftData | null>(null)
 
   useEffect(() => {
-    if (profile && !draft) {
-      setDraft(profile)
-    }
-  }, [profile, draft])
+    if (profile && !profileDraft) {
+      setProfileDraft(profile)
 
-  function handleChange(patch: Partial<UpdateProfileData>) {
-    setDraft((prev) => (prev ? { ...prev, ...patch } : prev))
+      // Initialize LP draft from lpDraftData if it exists, otherwise from live lp* fields
+      const initialLpDraft: LpDraftData = profile.lpDraftData ?? {
+        lpLayout: profile.lpLayout,
+        lpTitle: profile.lpTitle ?? undefined,
+        lpSubtitle: profile.lpSubtitle ?? undefined,
+        lpHeroImage: profile.lpHeroImage ?? undefined,
+        lpAboutTitle: profile.lpAboutTitle ?? undefined,
+        lpAboutText: profile.lpAboutText ?? undefined,
+        lpImage1: profile.lpImage1 ?? undefined,
+        lpImage2: profile.lpImage2 ?? undefined,
+        lpImage3: profile.lpImage3 ?? undefined,
+      }
+      setLpDraft(initialLpDraft)
+    }
+  }, [profile, profileDraft])
+
+  function handleProfileChange(patch: Partial<UpdateProfileData>) {
+    setProfileDraft((prev) => (prev ? { ...prev, ...patch } : prev))
   }
 
-  async function handleSave() {
-    if (!draft) return
+  function handleLpChange(patch: Partial<LpDraftData>) {
+    setLpDraft((prev) => (prev ? { ...prev, ...patch } : prev))
+  }
+
+  async function handleSaveProfile() {
+    if (!profileDraft) return
 
     const payload: UpdateProfileData = {
-      bio: draft.bio ?? undefined,
-      phoneNumber: draft.phoneNumber ?? undefined,
-      specialties: draft.specialties ?? undefined,
-      themeColor: draft.themeColor ?? undefined,
-      profilePhoto: draft.profilePhoto ?? undefined,
-      logoUrl: draft.logoUrl ?? undefined,
-      lpTitle: draft.lpTitle ?? undefined,
-      lpSubtitle: draft.lpSubtitle ?? undefined,
-      lpHeroImage: draft.lpHeroImage ?? undefined,
-      lpAboutTitle: draft.lpAboutTitle ?? undefined,
-      lpAboutText: draft.lpAboutText ?? undefined,
-      lpImage1: draft.lpImage1 ?? undefined,
-      lpImage2: draft.lpImage2 ?? undefined,
-      lpImage3: draft.lpImage3 ?? undefined,
-      lpLayout: draft.lpLayout ?? undefined,
-      themeColorSecondary: draft.themeColorSecondary ?? undefined,
+      bio: profileDraft.bio ?? undefined,
+      phoneNumber: profileDraft.phoneNumber ?? undefined,
+      specialties: profileDraft.specialties ?? undefined,
+      themeColor: profileDraft.themeColor ?? undefined,
+      themeColorSecondary: profileDraft.themeColorSecondary ?? undefined,
+      profilePhoto: profileDraft.profilePhoto ?? undefined,
+      logoUrl: profileDraft.logoUrl ?? undefined,
     }
 
     try {
@@ -62,7 +80,33 @@ export function LpEditorPage() {
     }
   }
 
-  if (isLoading || !draft) {
+  async function handleSaveDraft() {
+    if (!lpDraft) return
+
+    try {
+      await saveLpDraft.mutateAsync(lpDraft)
+      toast.success("Rascunho salvo! A página pública não foi alterada.")
+    } catch (err) {
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? "Erro ao salvar rascunho")
+        : "Erro ao salvar rascunho"
+      toast.error(message)
+    }
+  }
+
+  async function handlePublish() {
+    try {
+      await publishLpDraft.mutateAsync()
+      toast.success("Página publicada com sucesso!")
+    } catch (err) {
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? "Erro ao publicar página")
+        : "Erro ao publicar página"
+      toast.error(message)
+    }
+  }
+
+  if (isLoading || !profileDraft || !lpDraft) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
@@ -70,7 +114,7 @@ export function LpEditorPage() {
     )
   }
 
-  const isPending = updateProfile.isPending
+  const hasDraft = !!profile?.lpDraftData
 
   return (
     <div className="space-y-6">
@@ -81,30 +125,15 @@ export function LpEditorPage() {
             Configure seu perfil e sua landing page profissional.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <a
-            href={`/personais/${draft.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-          >
-            <ExternalLink className="size-4" />
-            Visualizar página
-          </a>
-          <Button onClick={handleSave} disabled={isPending}>
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 size-4" />
-                Salvar
-              </>
-            )}
-          </Button>
-        </div>
+        <a
+          href={`/personais/${profileDraft.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          <ExternalLink className="size-4" />
+          Visualizar página
+        </a>
       </div>
 
       <Tabs defaultValue="perfil">
@@ -113,10 +142,25 @@ export function LpEditorPage() {
           <TabsTrigger value="pagina">Página</TabsTrigger>
         </TabsList>
         <TabsContent value="perfil" className="mt-6">
-          <ProfileTab data={draft} onChange={handleChange} disabled={isPending} />
+          <ProfileTab
+            data={profileDraft}
+            onChange={handleProfileChange}
+            disabled={updateProfile.isPending}
+            onSave={handleSaveProfile}
+            isSaving={updateProfile.isPending}
+          />
         </TabsContent>
         <TabsContent value="pagina" className="mt-6">
-          <PageTab data={draft} onChange={handleChange} disabled={isPending} />
+          <PageTab
+            data={lpDraft}
+            onChange={handleLpChange}
+            disabled={saveLpDraft.isPending || publishLpDraft.isPending}
+            hasDraft={hasDraft}
+            onSaveDraft={handleSaveDraft}
+            onPublish={handlePublish}
+            isSavingDraft={saveLpDraft.isPending}
+            isPublishing={publishLpDraft.isPending}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,5 +1,17 @@
 import { randomUUID } from "crypto";
 import { InferSelectModel, relations } from "drizzle-orm";
+
+export interface LpFields {
+  lpLayout?: string;
+  lpTitle?: string;
+  lpSubtitle?: string;
+  lpHeroImage?: string;
+  lpAboutTitle?: string;
+  lpAboutText?: string;
+  lpImage1?: string;
+  lpImage2?: string;
+  lpImage3?: string;
+}
 import {
   boolean,
   json,
@@ -41,6 +53,7 @@ export const personals = pgTable(
     lpImage1: varchar("lp_image_1", { length: 500 }),
     lpImage2: varchar("lp_image_2", { length: 500 }),
     lpImage3: varchar("lp_image_3", { length: 500 }),
+    lpDraftData: json("lp_draft_data").$type<LpFields | null>().default(null),
     stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
     stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
     subscriptionStatus: varchar("subscription_status", { length: 30 }),

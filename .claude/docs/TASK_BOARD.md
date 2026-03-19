@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-19 (white-label subdomain plan)
+Last updated: 2026-03-19 (LP editor draft/publish + SEO + branding minor)
 
 ---
 
@@ -17,16 +17,32 @@ Last updated: 2026-03-19 (white-label subdomain plan)
 
 ### Sprint 1 — Quick Wins White-label (sem risco, sem impacto em auth/infra)
 
-**LP pública (`/personais/[slug]`)**
-- [ ] Exibir `specialties` como badges no hero da LP (dados já vêm de GET /public/:slug)
-- [ ] Exibir `logoUrl` no hero da LP (campo já existe, não renderizado na LP principal)
+**LP editor — Draft/Publish system** ✅
+- [x] Backend: coluna `lpDraftData` + migration 0007
+- [x] Backend: `PUT /profile/lp-draft` (SaveLpDraftUseCase) — routing fix aplicado
+- [x] Backend: `POST /profile/lp/publish` (PublishLpDraftUseCase) — routing fix aplicado
+- [x] Frontend: profile.service.ts separado (UpdateProfileData vs LpDraftData)
+- [x] Frontend: hooks useSaveLpDraft + usePublishLpDraft
+- [x] Frontend: pageTab.tsx com botões "Salvar rascunho" / "Publicar" + badge "Rascunho pendente"
+- [x] Frontend: pageTab.tsx com link "Visualizar rascunho" quando há draft
+- [x] Frontend: profileTab.tsx com botão "Salvar" interno
+- [x] Frontend: lpEditorPage.tsx com dois drafts separados
+- [x] Frontend: pré-visualização do rascunho em `/pagina-publica/rascunho` (route group (preview))
+- [x] Templates renomeados: Conversão, Autoridade, Minimalista, Impacto
+- [x] Testes E2E atualizados — 68/68 passando (all browsers)
 
-**Portal do aluno — branding básico**
-- [ ] Layout do aluno lê `personalSlug` do `studentAuthStore`
-- [ ] Buscar `/public/:slug` no layout do aluno (GET já existe)
-- [ ] Aplicar `themeColor` como CSS var `--brand-color` no layout do aluno
-- [ ] Exibir `logoUrl` do coach no header do portal do aluno
-- [ ] Footer do portal: nome do coach em vez de "Coach OS"
+**LP pública — SEO** ✅
+- [x] og:url, twitter:card, canonical
+- [x] JSON-LD Person schema
+
+**Portal do aluno — branding minor** ✅
+- [x] Nav ativo com brand color (via CSS style inline)
+- [x] "Treinando com [Nome]" abaixo do logo/nome
+- [x] Footer "[Nome] · via Coach OS"
+
+**LP pública (`/personais/[slug]`) — pendente**
+- [ ] Exibir `specialties` como badges no hero da LP
+- [ ] Exibir `logoUrl` no hero da LP
 
 **Testes**
 - [ ] Atualizar behavior tests do studentPortal para cobrir branding (logo, cor)
