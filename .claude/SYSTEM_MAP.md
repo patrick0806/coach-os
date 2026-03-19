@@ -751,6 +751,88 @@ onboardingCompleted set to true
 
 ---
 
+# Admin Flows
+
+## Get Dashboard Stats
+
+Admin views platform stats
+↓
+GET /admin/stats
+↓
+Returns: totalCoaches, payingCoaches, newThisMonth, totalStudents, whitelistedCoaches
+
+---
+
+## List Plans (Admin)
+
+Admin views all plans including inactive
+↓
+GET /admin/plans
+↓
+Returns all plans ordered by order field
+
+---
+
+## Create / Update / Delete Plan (Admin)
+
+Admin manages SaaS plans
+↓
+POST /admin/plans | PUT /admin/plans/:id | DELETE /admin/plans/:id
+↓
+Delete is soft (isActive = false)
+
+---
+
+## Manage Whitelist
+
+Admin adds/removes coaches from whitelist
+↓
+POST /admin/whitelist/:personalId | DELETE /admin/whitelist/:personalId
+↓
+Sets personal.isWhitelisted = true/false
+
+---
+
+## Manage Admins
+
+Admin creates/deletes other admins
+↓
+POST /admin/admins | DELETE /admin/admins/:id
+↓
+Cannot delete own account
+
+---
+
+## List Tenants (Admin)
+
+Admin views all coaches with pagination and search
+↓
+GET /admin/tenants?page&size&search
+↓
+Returns paginated list
+
+---
+
+## Get Tenant (Admin)
+
+Admin views tenant details
+↓
+GET /admin/tenants/:id
+↓
+Returns full tenant detail with subscription info
+
+---
+
+## Update Tenant Status (Admin)
+
+Admin changes tenant access status
+↓
+PATCH /admin/tenants/:id/status
+↓
+Updates personal.accessStatus
+
+---
+
 # Business Rules
 
 - All timestamps must be stored in UTC

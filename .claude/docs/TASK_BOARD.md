@@ -1,16 +1,19 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-18 (subscription system complete)
+Last updated: 2026-03-18 (admin module complete)
 
 ---
 
 ## Backlog
 
-### Module: platform/admins
+### Module: platform/admins ✅ DONE
 
-- [ ] Implement AdminRepository (findByUserId)
-- [ ] Implement admin guard (restrict routes to ADMIN role)
-- [ ] Implement admin module registration
+- [x] Implement AdminsRepository (findById, findByUserId, create, findAll, deleteById)
+- [x] Implement admin module with 14 contexts (stats, plans CRUD, whitelist, admins, tenants)
+- [x] Extend PlansRepository (findAllAdmin, create, update, deleteById)
+- [x] Extend PersonalsRepository (findAllPaginated, countAll, countByAccessStatus, countWhitelisted, countCreatedThisMonth)
+- [x] Extend StudentsRepository (countAll)
+- [x] All admin routes protected with @Roles(ApplicationRoles.ADMIN) + @BypassTenantAccess()
 
 ### Module: platform/subscriptions ✅ DONE
 
@@ -28,17 +31,17 @@ Last updated: 2026-03-18 (subscription system complete)
 - [x] Implement Stripe webhook handler (subscription.updated, subscription.deleted, invoice.paid, invoice.payment_failed)
 - [x] Implement webhook unit tests
 
-### Module: platform/tenants
+### Module: platform/tenants ✅ DONE
 
-- [ ] Implement ListTenantsUseCase (admin only)
-- [ ] Implement list tenants controller (GET /admin/tenants)
-- [ ] Implement list tenants unit tests
-- [ ] Implement GetTenantUseCase (admin only)
-- [ ] Implement get tenant controller (GET /admin/tenants/:id)
-- [ ] Implement get tenant unit tests
-- [ ] Implement SuspendTenantUseCase (admin only)
-- [ ] Implement suspend tenant controller (PATCH /admin/tenants/:id/suspend)
-- [ ] Implement suspend tenant unit tests
+- [x] Implement ListTenantsUseCase (admin only, paginated + search)
+- [x] Implement list tenants controller (GET /admin/tenants)
+- [x] Implement list tenants unit tests
+- [x] Implement GetTenantUseCase (admin only)
+- [x] Implement get tenant controller (GET /admin/tenants/:id)
+- [x] Implement get tenant unit tests
+- [x] Implement UpdateTenantStatusUseCase (admin only)
+- [x] Implement update status controller (PATCH /admin/tenants/:id/status)
+- [x] Implement update status unit tests
 
 ### Frontend: billing ✅ DONE
 
@@ -50,6 +53,23 @@ Last updated: 2026-03-18 (subscription system complete)
 - [x] Add "Assinatura" link in sidebar footer
 - [x] Add 403 interceptor in axios for paywall redirect
 - [x] Student limit UI: toast with upgrade CTA on student_limit_reached
+
+### Frontend: admin panel ✅ DONE
+
+- [x] Implement admin types (admin.types.ts)
+- [x] Implement admin service (admin.service.ts)
+- [x] Implement admin hooks (useAdminStats, useAdminPlans, useAdminWhitelist, useAdminAdmins, useAdminTenants)
+- [x] Implement AdminSidebar component
+- [x] Implement (admin)/layout.tsx with ADMIN role guard
+- [x] Implement /admin/dashboard (5 stats cards)
+- [x] Implement /admin/planos (CRUD de planos)
+- [x] Implement /admin/whitelist (add/remove coaches)
+- [x] Implement /admin/admins (create/delete admins, conflict error handling)
+- [x] Implement /admin/tenants (paginated + debounced search)
+- [x] Implement /admin/tenants/[id] (detail + status change)
+- [x] Implement admin.fixtures.ts
+- [x] Add admin mock helpers to apiMocks.ts (injectMockAdminAuth, mockAdminStats, mockAdminPlans, etc.)
+- [x] Implement admin.behavior.spec.ts (18 behavioral tests)
 
 ### Frontend: dashboard
 

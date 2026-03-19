@@ -13,8 +13,12 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
-    onSuccess: () => {
-      router.push("/dashboard");
+    onSuccess: (result) => {
+      if (result.user.role === "ADMIN") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)

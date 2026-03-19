@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-18 (subscription system complete)
+Last updated: 2026-03-18 (admin module complete)
 
 ---
 
@@ -8,10 +8,10 @@ Last updated: 2026-03-18 (subscription system complete)
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| **platform/admins** | not started | Next: admin guard, admin repository |
-| **platform/subscriptions** | completed | GET /subscriptions/current, PATCH /subscriptions/plan, POST /subscriptions/cancel, POST /subscriptions/portal — 686 tests passing |
-| **platform/webhooks** | completed | POST /webhooks/stripe — handles subscription.updated, subscription.deleted, invoice.paid, invoice.payment_failed — 686 tests passing |
-| **platform/tenants** | not started | Backlog: admin tenant management |
+| **platform/admins** | completed | AdminsRepository + AdminModule with 14 contexts — 731 tests passing |
+| **platform/subscriptions** | completed | GET /subscriptions/current, PATCH /subscriptions/plan, POST /subscriptions/cancel, POST /subscriptions/portal — 731 tests passing |
+| **platform/webhooks** | completed | POST /webhooks/stripe — handles subscription.updated, subscription.deleted, invoice.paid, invoice.payment_failed — 731 tests passing |
+| **platform/tenants** | completed | GET /admin/tenants, GET /admin/tenants/:id, PATCH /admin/tenants/:id/status — 731 tests passing |
 | **progress/checkins** | completed | POST+GET /me/progress-checkins (student self-service), 626 tests passing |
 | **progress/photos** | completed | POST /me/progress-photos/upload-url (student), 626 tests passing |
 | **scheduling/appointments** | completed | GET /me/appointments (student), 626 tests passing |
@@ -19,7 +19,7 @@ Last updated: 2026-03-18 (subscription system complete)
 | **public** | completed | GET /public/:slug now includes availabilityRules, 626 tests passing |
 | **enums** | completed | GET /enums/muscle-groups + /enums/attendance-types (protected, 24h cache), 638 tests passing |
 
-All other backend modules are **completed** (686 tests passing).
+All other backend modules are **completed** (731 tests passing).
 
 ---
 
@@ -35,6 +35,8 @@ All other backend modules are **completed** (686 tests passing).
 | **Institutional Pages** | not started | Backlog: FAQ, Contact, Terms, Privacy, About |
 | **Progress checkins** | completed | Unified checkin view (replaces Métricas + Fotos tabs); checkinCard, createCheckinDialog |
 | **Progress charts** | not started | Backlog: line graphs, metric comparisons |
+
+| **Admin panel** | completed | /admin/dashboard, /admin/planos, /admin/whitelist, /admin/admins, /admin/tenants + behavior tests |
 
 All other frontend areas are **completed**.
 

@@ -30,6 +30,7 @@ export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
         currentUrl={data.profilePhoto}
         onUpload={(fileUrl) => onChange({ profilePhoto: fileUrl })}
         disabled={disabled}
+        shape="circle"
       />
 
       <Field>

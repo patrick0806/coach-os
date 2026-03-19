@@ -967,3 +967,104 @@ export async function mockStudentTrainingSchedules(page: Page, schedules: object
     }
   })
 }
+
+// =============================================================================
+// Admin
+// =============================================================================
+
+export async function injectMockAdminAuth(page: Page): Promise<void> {
+  const ADMIN_USER = {
+    id: "mock-admin-id",
+    name: "Admin Test",
+    email: "admin@coachos.com",
+    role: "ADMIN",
+    tenantId: "",
+  }
+  const now = Math.floor(Date.now() / 1000)
+  await page.context().addCookies([
+    {
+      name: "coach_os_at",
+      value: FAKE_ACCESS_TOKEN,
+      domain: "localhost",
+      path: "/",
+      expires: now + 900,
+    },
+    {
+      name: "coach_os_user",
+      value: JSON.stringify(ADMIN_USER),
+      domain: "localhost",
+      path: "/",
+      expires: now + 30 * 24 * 3600,
+    },
+  ])
+}
+
+export async function mockAdminStats(page: Page, stats: object): Promise<void> {
+  await page.route("**/api/v1/admin/stats*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: stats })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAdminPlans(page: Page, plans: object[]): Promise<void> {
+  await page.route("**/api/v1/admin/plans*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: plans })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAdminPlansStateful(
+  page: Page,
+  initial: object[],
+  afterMutation: object[]
+): Promise<void> {
+  let callCount = 0
+  await page.route("**/api/v1/admin/plans*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      const response = callCount === 0 ? initial : afterMutation
+      callCount++
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAdminWhitelist(page: Page, coaches: object[]): Promise<void> {
+  await page.route("**/api/v1/admin/whitelist*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: coaches })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAdminAdmins(page: Page, admins: object[]): Promise<void> {
+  await page.route("**/api/v1/admin/admins*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: admins })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockAdminTenants(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/admin/tenants*", (route: Route) => {
+    const method = route.request().method()
+    const url = route.request().url()
+    const isListGet = method === "GET" && !url.match(/\/admin\/tenants\/[^/?]+(?:\?|$)/)
+    if (isListGet) {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}

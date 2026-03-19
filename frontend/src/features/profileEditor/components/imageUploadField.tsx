@@ -15,9 +15,11 @@ interface ImageUploadFieldProps {
   currentUrl: string | null | undefined
   onUpload: (fileUrl: string) => void
   disabled?: boolean
+  /** "circle" renders a fixed-size circle preview matching the public page hero; "banner" (default) renders a full-width rectangle */
+  shape?: "circle" | "banner"
 }
 
-export function ImageUploadField({ label, hint, currentUrl, onUpload, disabled }: ImageUploadFieldProps) {
+export function ImageUploadField({ label, hint, currentUrl, onUpload, disabled, shape = "banner" }: ImageUploadFieldProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -59,21 +61,18 @@ export function ImageUploadField({ label, hint, currentUrl, onUpload, disabled }
       />
 
       {currentUrl ? (
-        <div className="overflow-hidden rounded-lg border bg-muted">
-          <div className="relative h-32 w-full">
-            <Image
-              src={currentUrl}
-              alt={label}
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-          <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <ImageIcon className="size-3.5" />
-              Imagem atual
-            </span>
+        shape === "circle" ? (
+          <div className="flex items-center gap-4">
+            <div className="size-24 shrink-0 overflow-hidden rounded-full border-4 border-border shadow-md">
+              <Image
+                src={currentUrl}
+                alt={label}
+                width={96}
+                height={96}
+                className="size-full object-cover"
+                unoptimized
+              />
+            </div>
             <Button
               type="button"
               variant="outline"
@@ -81,25 +80,72 @@ export function ImageUploadField({ label, hint, currentUrl, onUpload, disabled }
               disabled={isDisabled}
               onClick={() => fileInputRef.current?.click()}
             >
-              {isUploading ? <Loader2 className="size-3.5 animate-spin" /> : "Trocar"}
+              {isUploading ? <Loader2 className="size-3.5 animate-spin" /> : "Trocar foto"}
             </Button>
           </div>
-        </div>
+        ) : (
+          <div className="overflow-hidden rounded-lg border bg-muted">
+            <div className="relative h-32 w-full">
+              <Image
+                src={currentUrl}
+                alt={label}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <ImageIcon className="size-3.5" />
+                Imagem atual
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isDisabled}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {isUploading ? <Loader2 className="size-3.5 animate-spin" /> : "Trocar"}
+              </Button>
+            </div>
+          </div>
+        )
       ) : (
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full h-24 border-dashed"
-          disabled={isDisabled}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {isUploading ? (
-            <Loader2 className="mr-2 size-4 animate-spin" />
-          ) : (
-            <Upload className="mr-2 size-4" />
-          )}
-          {isUploading ? "Enviando..." : "Selecionar imagem"}
-        </Button>
+        shape === "circle" ? (
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              disabled={isDisabled}
+              onClick={() => fileInputRef.current?.click()}
+              className="flex size-24 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-border bg-muted transition-colors hover:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isUploading ? (
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+              ) : (
+                <Upload className="size-6 text-muted-foreground" />
+              )}
+            </button>
+            <p className="text-xs text-muted-foreground">
+              {isUploading ? "Enviando..." : "Clique no círculo para selecionar"}
+            </p>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-24 border-dashed"
+            disabled={isDisabled}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {isUploading ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <Upload className="mr-2 size-4" />
+            )}
+            {isUploading ? "Enviando..." : "Selecionar imagem"}
+          </Button>
+        )
       )}
     </div>
   )
