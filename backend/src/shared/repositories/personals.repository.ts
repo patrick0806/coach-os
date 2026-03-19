@@ -7,7 +7,7 @@ import { users } from "@config/database/schema/users";
 
 @Injectable()
 export class PersonalsRepository {
-  constructor(private readonly drizzle: DrizzleProvider) {}
+  constructor(private readonly drizzle: DrizzleProvider) { }
 
   async findById(id: string): Promise<Personal | undefined> {
     const result = await this.drizzle.db
@@ -83,7 +83,7 @@ export class PersonalsRepository {
   async setWhitelisted(id: string, value: boolean): Promise<void> {
     await this.drizzle.db
       .update(personals)
-      .set({ isWhitelisted: value })
+      .set({ isWhitelisted: value } as any)
       .where(eq(personals.id, id));
   }
 
