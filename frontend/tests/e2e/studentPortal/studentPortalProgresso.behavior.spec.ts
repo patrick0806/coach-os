@@ -142,7 +142,7 @@ test.describe("Student Progresso — Create Dialog", () => {
   test("dialog shows Métricas section", async ({ page }) => {
     await setupPage(page, studentCheckinFixtures.empty)
     await page.getByTestId("add-checkin-button").click()
-    await expect(page.getByText("Métricas")).toBeVisible()
+    await expect(page.getByText("Métricas", { exact: true })).toBeVisible()
   })
 
   test("dialog shows metric input fields", async ({ page }) => {
@@ -156,7 +156,7 @@ test.describe("Student Progresso — Create Dialog", () => {
   test("dialog shows Fotos section", async ({ page }) => {
     await setupPage(page, studentCheckinFixtures.empty)
     await page.getByTestId("add-checkin-button").click()
-    await expect(page.getByText("Fotos")).toBeVisible()
+    await expect(page.getByText("Fotos", { exact: true })).toBeVisible()
     await expect(page.getByRole("button", { name: /Adicionar fotos/i })).toBeVisible()
   })
 

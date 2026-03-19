@@ -3,6 +3,7 @@ import { type Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { publicServerFetch } from "@/lib/serverFetch"
+import { getContrastColor } from "@/lib/colorContrast"
 import type { PublicProfile } from "@/features/publicPage/types/publicPage.types"
 import { Layout1 } from "@/features/publicPage/layouts/layout1"
 import { Layout2 } from "@/features/publicPage/layouts/layout2"
@@ -52,11 +53,14 @@ export default async function PublicPage({ params }: PageProps) {
 
   if (!profile) notFound()
 
+  const primaryHex = profile.themeColor ?? "#6366f1"
+  const secondaryHex = profile.themeColorSecondary ?? primaryHex
+
   const cssVars: CSSProperties = {
-    "--brand-color": profile.themeColor ?? "#6366f1",
-    ...(profile.themeColorSecondary
-      ? { "--brand-color-secondary": profile.themeColorSecondary }
-      : {}),
+    "--brand-color": primaryHex,
+    "--brand-color-secondary": secondaryHex,
+    "--brand-text-color": getContrastColor(primaryHex),
+    "--brand-text-color-secondary": getContrastColor(secondaryHex),
   } as CSSProperties
 
   const pageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/personais/${slug}`

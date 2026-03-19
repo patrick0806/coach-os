@@ -72,8 +72,8 @@ export function Layout3({ profile, slug }: Layout3Props) {
                   key={specialty}
                   className="rounded-full border px-3 py-1 text-xs font-medium"
                   style={{
-                    borderColor: "var(--brand-color, hsl(var(--primary)))",
-                    color: "var(--brand-color, hsl(var(--primary)))",
+                    borderColor: "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))",
+                    color: "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))",
                   }}
                 >
                   {specialty}
@@ -85,8 +85,8 @@ export function Layout3({ profile, slug }: Layout3Props) {
           <div className="flex flex-wrap justify-center gap-3">
             <a
               href="#planos"
-              className="inline-flex items-center justify-center rounded-full px-8 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+              className="inline-flex items-center justify-center rounded-full px-8 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+              style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))", color: "var(--brand-text-color, white)" }}
             >
               Ver planos
             </a>
@@ -146,8 +146,8 @@ export function Layout3({ profile, slug }: Layout3Props) {
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold">{plan.name}</h3>
                       <span
-                        className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                        style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+                        className="rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{ backgroundColor: "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))", color: "var(--brand-text-color-secondary, white)" }}
                       >
                         {plan.attendanceType === "online" ? "Online" : "Presencial"}
                       </span>

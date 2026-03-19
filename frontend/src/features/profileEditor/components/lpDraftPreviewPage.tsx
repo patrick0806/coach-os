@@ -16,6 +16,7 @@ import { Layout3 } from "@/features/publicPage/layouts/layout3"
 import { Layout4 } from "@/features/publicPage/layouts/layout4"
 import type { PublicProfile } from "@/features/publicPage/types/publicPage.types"
 import { api } from "@/lib/axios"
+import { getContrastColor } from "@/lib/colorContrast"
 
 export function LpDraftPreviewPage() {
   const router = useRouter()
@@ -78,11 +79,14 @@ export function LpDraftPreviewPage() {
     lpImage3: draft.lpImage3 ?? publicProfile.lpImage3,
   }
 
+  const primaryHex = publicProfile.themeColor ?? "#6366f1"
+  const secondaryHex = publicProfile.themeColorSecondary ?? primaryHex
+
   const cssVars: CSSProperties = {
-    "--brand-color": publicProfile.themeColor ?? "#6366f1",
-    ...(publicProfile.themeColorSecondary
-      ? { "--brand-color-secondary": publicProfile.themeColorSecondary }
-      : {}),
+    "--brand-color": primaryHex,
+    "--brand-color-secondary": secondaryHex,
+    "--brand-text-color": getContrastColor(primaryHex),
+    "--brand-text-color-secondary": getContrastColor(secondaryHex),
   } as CSSProperties
 
   function renderLayout() {

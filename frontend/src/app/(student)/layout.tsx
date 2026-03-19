@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils"
 interface CoachBranding {
   coachName: string
   logoUrl: string | null
-  themeColor: string | null
 }
 
 interface StudentLayoutProps {
@@ -54,31 +53,19 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
           setBranding({
             coachName: profile.coachName,
             logoUrl: profile.logoUrl ?? null,
-            themeColor: profile.themeColor ?? null,
           })
         }
       })
       .catch(() => null)
   }, [])
 
-  const user = studentAuthStore.getUser()
-
   function handleLogout() {
     studentAuthService.logout()
     router.push("/")
   }
 
-  const brandStyle = branding?.themeColor
-    ? ({ "--brand-color": branding.themeColor } as CSSProperties)
-    : undefined
-
-  // Active nav item style using brand color when available
-  const activeStyle = branding?.themeColor
-    ? { color: branding.themeColor }
-    : undefined
-
   return (
-    <div className="min-h-screen bg-background" style={brandStyle}>
+    <div className="min-h-screen bg-background">
       {/* Mobile header */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-card">
         <div className="flex h-14 items-center justify-between px-4">
@@ -140,14 +127,11 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                 <Link
                   key={href}
                   href={href}
-                  style={isActive ? activeStyle : undefined}
                   className={cn(
                     "flex flex-col items-center gap-1 rounded-full px-4 py-1.5 text-xs transition-colors",
-                    isActive && !activeStyle
+                    isActive
                       ? "bg-primary/10 text-primary"
-                      : !isActive
-                        ? "text-muted-foreground hover:text-foreground"
-                        : "",
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                   data-testid={`nav-${label.toLowerCase()}`}
                 >

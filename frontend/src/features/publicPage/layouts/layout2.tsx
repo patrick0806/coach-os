@@ -59,8 +59,8 @@ export function Layout2({ profile, slug }: Layout2Props) {
                   {profile.specialties.map((specialty) => (
                     <span
                       key={specialty}
-                      className="rounded-full px-3 py-1 text-xs font-medium text-white"
-                      style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+                      className="rounded-full px-3 py-1 text-xs font-medium"
+                      style={{ backgroundColor: "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))", color: "var(--brand-text-color-secondary, white)" }}
                     >
                       {specialty}
                     </span>
@@ -71,8 +71,8 @@ export function Layout2({ profile, slug }: Layout2Props) {
               <div className="flex flex-wrap gap-3">
                 <a
                   href="#planos"
-                  className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+                  className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))", color: "var(--brand-text-color, white)" }}
                 >
                   Ver planos
                 </a>
@@ -131,8 +131,8 @@ export function Layout2({ profile, slug }: Layout2Props) {
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-semibold text-lg leading-tight">{plan.name}</h3>
                       <span
-                        className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-                        style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+                        className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium"
+                        style={{ backgroundColor: "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))", color: "var(--brand-text-color-secondary, white)" }}
                       >
                         {plan.attendanceType === "online" ? "Online" : "Presencial"}
                       </span>

@@ -29,8 +29,8 @@ export function Layout4({ profile, slug }: Layout4Props) {
     <>
       {/* Hero — dark, primary color as background */}
       <section
-        className="relative flex min-h-[75vh] flex-col items-center justify-center px-4 py-20 text-center text-white"
-        style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+        className="relative flex min-h-[75vh] flex-col items-center justify-center px-4 py-20 text-center"
+        style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))", color: "var(--brand-text-color, white)" }}
       >
         {/* Subtle pattern overlay */}
         <div
@@ -73,9 +73,9 @@ export function Layout4({ profile, slug }: Layout4Props) {
           )}
 
           <div className="max-w-3xl space-y-4">
-            <h1 className="text-5xl font-black tracking-tight md:text-7xl">{title}</h1>
+            <h1 className="text-5xl font-black tracking-tight md:text-7xl" style={{ color: "var(--brand-text-color, white)" }}>{title}</h1>
             {profile.lpSubtitle && (
-              <p className="text-xl text-white/80">{profile.lpSubtitle}</p>
+              <p className="text-xl opacity-80" style={{ color: "var(--brand-text-color, white)" }}>{profile.lpSubtitle}</p>
             )}
           </div>
 
@@ -140,10 +140,11 @@ export function Layout4({ profile, slug }: Layout4Props) {
                   >
                     {isHighlighted && (
                       <div
-                        className="py-1.5 text-center text-xs font-bold text-white"
+                        className="py-1.5 text-center text-xs font-bold"
                         style={{
                           backgroundColor:
                             "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))",
+                          color: "var(--brand-text-color-secondary, white)",
                         }}
                       >
                         Mais popular
@@ -154,8 +155,8 @@ export function Layout4({ profile, slug }: Layout4Props) {
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-semibold text-lg leading-tight">{plan.name}</h3>
                         <span
-                          className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-                          style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+                          className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          style={{ backgroundColor: "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))", color: "var(--brand-text-color-secondary, white)" }}
                         >
                           {plan.attendanceType === "online" ? "Online" : "Presencial"}
                         </span>

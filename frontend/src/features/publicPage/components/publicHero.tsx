@@ -87,10 +87,17 @@ export function PublicHero({ profile, slug }: PublicHeroProps) {
                 <span
                   key={specialty}
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    profile.lpHeroImage
-                      ? "bg-white/20 text-white backdrop-blur-sm"
-                      : "bg-primary/10 text-primary"
+                    profile.lpHeroImage ? "backdrop-blur-sm" : ""
                   }`}
+                  style={
+                    profile.lpHeroImage
+                      ? { backgroundColor: "rgba(255,255,255,0.2)", color: "white" }
+                      : {
+                          backgroundColor:
+                            "var(--brand-color-secondary, var(--brand-color, hsl(var(--primary))))",
+                          color: "var(--brand-text-color-secondary, white)",
+                        }
+                  }
                 >
                   {specialty}
                 </span>
@@ -102,8 +109,8 @@ export function PublicHero({ profile, slug }: PublicHeroProps) {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a
             href="#planos"
-            className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
+            className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))", color: "var(--brand-text-color, white)" }}
           >
             Ver planos
           </a>
