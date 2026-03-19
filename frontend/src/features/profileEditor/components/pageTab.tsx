@@ -1,12 +1,8 @@
 "use client"
 
-import Link from "next/link"
 import { Input } from "@/shared/ui/input"
 import { Textarea } from "@/shared/ui/textarea"
 import { Field, FieldLabel } from "@/shared/ui/field"
-import { Button } from "@/shared/ui/button"
-import { Badge } from "@/shared/ui/badge"
-import { Eye, Loader2 } from "lucide-react"
 import { ImageUploadField } from "@/features/profileEditor/components/imageUploadField"
 import type { LpDraftData } from "@/features/profileEditor/services/profile.service"
 
@@ -76,23 +72,9 @@ interface PageTabProps {
   data: LpDraftData & { lpLayout?: string }
   onChange: (patch: Partial<LpDraftData>) => void
   disabled?: boolean
-  hasDraft: boolean
-  onSaveDraft: () => void
-  onPublish: () => void
-  isSavingDraft: boolean
-  isPublishing: boolean
 }
 
-export function PageTab({
-  data,
-  onChange,
-  disabled,
-  hasDraft,
-  onSaveDraft,
-  onPublish,
-  isSavingDraft,
-  isPublishing,
-}: PageTabProps) {
+export function PageTab({ data, onChange, disabled }: PageTabProps) {
   const currentLayout = data.lpLayout ?? "1"
 
   return (
@@ -207,55 +189,6 @@ export function PageTab({
               disabled={disabled}
             />
           </div>
-        </div>
-      </div>
-
-      {/* Draft/publish actions */}
-      <div className="flex items-center justify-between border-t pt-4">
-        {hasDraft ? (
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-xs">
-              Rascunho pendente
-            </Badge>
-            <Link
-              href="/pagina-publica/rascunho"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              <Eye className="size-3" />
-              Visualizar rascunho
-            </Link>
-          </div>
-        ) : (
-          <div />
-        )}
-        <div className="flex gap-2 ml-auto">
-          <Button
-            variant="outline"
-            onClick={onSaveDraft}
-            disabled={isSavingDraft || disabled}
-          >
-            {isSavingDraft ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              "Salvar rascunho"
-            )}
-          </Button>
-          <Button
-            onClick={onPublish}
-            disabled={isPublishing || !hasDraft || disabled}
-          >
-            {isPublishing ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Publicando...
-              </>
-            ) : (
-              "Publicar"
-            )}
-          </Button>
         </div>
       </div>
     </div>

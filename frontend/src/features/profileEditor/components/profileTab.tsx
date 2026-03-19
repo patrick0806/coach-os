@@ -3,8 +3,6 @@
 import { Input } from "@/shared/ui/input"
 import { Textarea } from "@/shared/ui/textarea"
 import { Field, FieldLabel } from "@/shared/ui/field"
-import { Button } from "@/shared/ui/button"
-import { Loader2 } from "lucide-react"
 import { ImageUploadField } from "@/features/profileEditor/components/imageUploadField"
 import type { ProfileData, UpdateProfileData } from "@/features/profileEditor/services/profile.service"
 
@@ -21,11 +19,9 @@ interface ProfileTabProps {
   data: ProfileData
   onChange: (patch: Partial<UpdateProfileData>) => void
   disabled?: boolean
-  onSave: () => void
-  isSaving: boolean
 }
 
-export function ProfileTab({ data, onChange, disabled, onSave, isSaving }: ProfileTabProps) {
+export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
   return (
     <div className="space-y-5">
       <div className="flex w-full flex-col gap-5">
@@ -123,19 +119,6 @@ export function ProfileTab({ data, onChange, disabled, onSave, isSaving }: Profi
             />
           </div>
         </Field>
-      </div>
-
-      <div className="flex justify-end border-t pt-4">
-        <Button onClick={onSave} disabled={isSaving || disabled}>
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Salvando...
-            </>
-          ) : (
-            "Salvar"
-          )}
-        </Button>
       </div>
     </div>
   )
