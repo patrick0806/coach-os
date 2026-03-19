@@ -1,64 +1,69 @@
 "use client"
 
-import { MapPin } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Clock } from "lucide-react"
 import type { StudentTrainingSchedule } from "@/features/studentPortal/types/studentPortalSchedule.types"
 
 interface WeeklyScheduleViewProps {
   schedules: StudentTrainingSchedule[]
 }
 
-const DAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
+const WEEKDAYS = [
+  { key: 1, label: "Seg" },
+  { key: 2, label: "Ter" },
+  { key: 3, label: "Qua" },
+  { key: 4, label: "Qui" },
+  { key: 5, label: "Sex" },
+]
 
 export function WeeklyScheduleView({ schedules }: WeeklyScheduleViewProps) {
-  // Group schedules by day of week
-  const byDay = schedules.reduce<Record<number, StudentTrainingSchedule[]>>(
+  // Index schedules by dayOfWeek for quick lookup
+  const byDay = schedules.reduce<Record<number, StudentTrainingSchedule>>(
     (acc, schedule) => {
-      const day = schedule.dayOfWeek
-      if (!acc[day]) acc[day] = []
-      acc[day].push(schedule)
+      acc[schedule.dayOfWeek] = schedule
       return acc
     },
     {},
   )
 
-  // Sort days that have schedules
-  const activeDays = Object.keys(byDay)
-    .map(Number)
-    .sort((a, b) => a - b)
-
   return (
-    <div className="space-y-2" data-testid="weekly-schedule-view">
-      {activeDays.map((day) => (
-        <Card key={day} data-testid="schedule-day-card">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <CardTitle className="text-sm font-medium text-primary">
-              {DAY_LABELS[day]}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-3 pt-0">
-            <div className="space-y-1.5">
-              {byDay[day].map((schedule) => (
-                <div
-                  key={schedule.id}
-                  className="flex items-center justify-between"
-                  data-testid="schedule-item"
-                >
-                  <span className="text-sm">
-                    {schedule.startTime} – {schedule.endTime}
-                  </span>
-                  {schedule.location && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="h-3 w-3" />
-                      <span>{schedule.location}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
+    <div data-testid="weekly-schedule-view">
+      {/* Day columns header */}
+      <div className="grid grid-cols-5 border-b border-border/40 bg-muted/30">
+        {WEEKDAYS.map(({ key, label }) => (
+          <div
+            key={key}
+            className="py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div className="grid grid-cols-5 gap-1.5 p-3">
+        {WEEKDAYS.map(({ key }) => {
+          const schedule = byDay[key]
+          return schedule ? (
+            <div
+              key={key}
+              className="flex flex-col items-center rounded-lg border border-primary/30 bg-primary/10 px-1 py-2.5 text-center text-primary"
+              data-testid="schedule-day-active"
+            >
+              <Clock className="mb-1 h-3 w-3 opacity-70" />
+              <p className="text-[10px] font-semibold leading-none">{schedule.startTime}</p>
+              <p className="mt-1 text-[9px] leading-tight opacity-80">Treino</p>
             </div>
-          </CardContent>
-        </Card>
-      ))}
+          ) : (
+            <div
+              key={key}
+              className="flex items-center justify-center rounded-lg border border-dashed border-border/40 py-4"
+              data-testid="schedule-day-free"
+            >
+              <span className="text-[9px] text-muted-foreground/40">livre</span>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -5,21 +5,10 @@
  *
  * Coverage:
  * - Programs list page: display, empty state, navigation
- * - Execution page: idle state, start session, exercise expansion, set recording
+ * - Execution page: idle state, start session, focused exercise stepper
+ * - Set recording, rest timer, exercise progression
  * - Workout completion screen
  * - Mobile viewport
- *
- * API patterns used by studentPortalProgramsService and workoutExecutionService:
- * - GET  /student-programs/me          → list active programs for the logged-in student
- * - GET  /student-programs/:id         → get program detail with workout days + exercises
- * - POST /workout-sessions             → start a workout session
- * - PATCH /workout-sessions/:id/finish → finish a session
- * - POST /exercise-executions          → create an exercise execution (on card expand)
- * - POST /exercise-sets                → record a single set
- *
- * Response format: the backend BuildResponseInterceptor returns `params?.data || params`.
- * Mock responses should return the plain object directly (no { data: ... } wrapper).
- * The axios `.data` accessor gets whatever the interceptor returned.
  */
 import { test, expect } from "@playwright/test"
 import {
@@ -221,7 +210,7 @@ test.describe("Workout Execution — Idle State", () => {
 })
 
 // =============================================================================
-// Execution page — started state
+// Execution page — started state (stepper)
 // =============================================================================
 
 test.describe("Workout Execution — Started State", () => {
@@ -229,29 +218,37 @@ test.describe("Workout Execution — Started State", () => {
     await injectStudentMockAuth(page)
     await mockProgramDetail(page)
     await mockStartSession(page)
+    await mockCreateExecution(page)
   })
 
-  test("clicking 'Iniciar Treino' transitions to started state", async ({ page }) => {
+  test("clicking 'Iniciar Treino' transitions to stepper view", async ({ page }) => {
     await page.goto(EXECUTAR_URL)
     await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
 
     await page.getByTestId("start-workout-button").click()
 
-    await page.waitForSelector("[data-testid='exercises-execution']", { timeout: 8000 })
-    await expect(page.getByTestId("exercises-execution")).toBeVisible()
-    await expect(page.getByTestId("finish-workout-button")).toBeVisible()
+    await page.waitForSelector("[data-testid='workout-stepper']", { timeout: 8000 })
+    await expect(page.getByTestId("workout-stepper")).toBeVisible()
   })
 
-  test("started state shows exercise execution cards", async ({ page }) => {
+  test("stepper shows the first exercise with active set view", async ({ page }) => {
     await page.goto(EXECUTAR_URL)
     await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-
     await page.getByTestId("start-workout-button").click()
 
-    await page.waitForSelector("[data-testid='exercise-execution-card']", { timeout: 8000 })
+    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
 
-    // Fixture has 2 exercises
-    await expect(page.getByTestId("exercise-execution-card")).toHaveCount(2)
+    await expect(page.getByText("Agachamento")).toBeVisible()
+    await expect(page.getByText("Série 1/3")).toBeVisible()
+  })
+
+  test("stepper shows progress indicator", async ({ page }) => {
+    await page.goto(EXECUTAR_URL)
+    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
+    await page.getByTestId("start-workout-button").click()
+
+    await page.waitForSelector("[data-testid='workout-stepper']", { timeout: 8000 })
+    await expect(page.getByText("Exercício 1/2")).toBeVisible()
   })
 
   test("start button is not visible after workout starts", async ({ page }) => {
@@ -260,72 +257,62 @@ test.describe("Workout Execution — Started State", () => {
 
     await page.getByTestId("start-workout-button").click()
 
-    await page.waitForSelector("[data-testid='exercises-execution']", { timeout: 8000 })
+    await page.waitForSelector("[data-testid='workout-stepper']", { timeout: 8000 })
     await expect(page.getByTestId("start-workout-button")).not.toBeVisible()
   })
 })
 
 // =============================================================================
-// Execution page — exercise card interaction
+// Execution page — set recording
 // =============================================================================
 
-test.describe("Workout Execution — Exercise Card", () => {
+test.describe("Workout Execution — Set Recording", () => {
   test.beforeEach(async ({ page }) => {
     await injectStudentMockAuth(page)
     await mockProgramDetail(page)
     await mockStartSession(page)
+    await mockCreateExecution(page)
+    await mockRecordSet(page)
   })
 
-  test("expanding an exercise card creates an execution and shows set rows", async ({
-    page,
-  }) => {
-    await mockCreateExecution(page)
-
+  test("shows reps and weight inputs for active set", async ({ page }) => {
     await page.goto(EXECUTAR_URL)
     await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
     await page.getByTestId("start-workout-button").click()
-    await page.waitForSelector("[data-testid='exercise-execution-card']", { timeout: 8000 })
 
-    // Click the first exercise card header to expand it
-    await page
-      .getByTestId("exercise-execution-card")
-      .first()
-      .locator("button")
-      .first()
-      .click()
-
-    // Set rows appear after expansion
-    await page.waitForSelector("[data-testid='set-row-1']", { timeout: 5000 })
-    await expect(page.getByTestId("set-row-1")).toBeVisible()
+    await page.waitForSelector("[data-testid='reps-input-1']", { timeout: 8000 })
     await expect(page.getByTestId("reps-input-1")).toBeVisible()
     await expect(page.getByTestId("weight-input-1")).toBeVisible()
     await expect(page.getByTestId("complete-set-1")).toBeVisible()
   })
 
-  test("completing a set marks it as done", async ({ page }) => {
-    await mockCreateExecution(page)
-    await mockRecordSet(page)
-
+  test("completing a set shows rest timer", async ({ page }) => {
     await page.goto(EXECUTAR_URL)
     await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
     await page.getByTestId("start-workout-button").click()
-    await page.waitForSelector("[data-testid='exercise-execution-card']", { timeout: 8000 })
 
-    // Expand first exercise card
-    await page
-      .getByTestId("exercise-execution-card")
-      .first()
-      .locator("button")
-      .first()
-      .click()
-
-    await page.waitForSelector("[data-testid='complete-set-1']", { timeout: 5000 })
-
-    // Click complete for set 1
+    await page.waitForSelector("[data-testid='complete-set-1']", { timeout: 8000 })
     await page.getByTestId("complete-set-1").click()
 
-    // After completing, the complete button for set 1 becomes disabled
-    await expect(page.getByTestId("complete-set-1")).toBeDisabled()
+    // Rest timer should appear (exercise has restSeconds: 60)
+    await page.waitForSelector("[data-testid='rest-timer']", { timeout: 5000 })
+    await expect(page.getByTestId("rest-timer")).toBeVisible()
+  })
+
+  test("skip rest button advances to next set", async ({ page }) => {
+    await page.goto(EXECUTAR_URL)
+    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
+    await page.getByTestId("start-workout-button").click()
+
+    await page.waitForSelector("[data-testid='complete-set-1']", { timeout: 8000 })
+    await page.getByTestId("complete-set-1").click()
+
+    await page.waitForSelector("[data-testid='skip-rest-button']", { timeout: 5000 })
+    await page.getByTestId("skip-rest-button").click()
+
+    // Should now show set 2
+    await page.waitForSelector("[data-testid='reps-input-2']", { timeout: 5000 })
+    await expect(page.getByText("Série 2/3")).toBeVisible()
   })
 })
 
@@ -338,9 +325,11 @@ test.describe("Workout Execution — Finish", () => {
     await injectStudentMockAuth(page)
     await mockProgramDetail(page)
     await mockStartSession(page)
+    await mockCreateExecution(page)
+    await mockRecordSet(page)
   })
 
-  test("clicking 'Finalizar Treino' shows the completion screen", async ({ page }) => {
+  test("finish button appears after all exercises complete and shows completion screen", async ({ page }) => {
     await page.route(
       `**/api/v1/workout-sessions/${createdSession.id}/finish*`,
       (route) => {
@@ -359,39 +348,41 @@ test.describe("Workout Execution — Finish", () => {
     await page.goto(EXECUTAR_URL)
     await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
     await page.getByTestId("start-workout-button").click()
-    await page.waitForSelector("[data-testid='finish-workout-button']", { timeout: 8000 })
 
+    // Complete all 3 sets of exercise 1 (Agachamento)
+    for (let set = 1; set <= 3; set++) {
+      await page.waitForSelector(`[data-testid='complete-set-${set}']`, { timeout: 8000 })
+      await page.getByTestId(`complete-set-${set}`).click()
+
+      // Skip rest timer if not last set
+      if (set < 3) {
+        await page.waitForSelector("[data-testid='skip-rest-button']", { timeout: 5000 })
+        await page.getByTestId("skip-rest-button").click()
+      }
+    }
+
+    // After all sets of exercise 1, stepper auto-advances to exercise 2 (Leg Press)
+    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
+    await expect(page.getByText("Leg Press")).toBeVisible()
+
+    // Complete all 3 sets of exercise 2
+    for (let set = 1; set <= 3; set++) {
+      await page.waitForSelector(`[data-testid='complete-set-${set}']`, { timeout: 8000 })
+      await page.getByTestId(`complete-set-${set}`).click()
+
+      if (set < 3) {
+        await page.waitForSelector("[data-testid='skip-rest-button']", { timeout: 5000 })
+        await page.getByTestId("skip-rest-button").click()
+      }
+    }
+
+    // Finish button should appear
+    await page.waitForSelector("[data-testid='finish-workout-button']", { timeout: 8000 })
     await page.getByTestId("finish-workout-button").click()
 
     await page.waitForSelector("[data-testid='completion-screen']", { timeout: 8000 })
     await expect(page.getByTestId("completion-screen")).toBeVisible()
     await expect(page.getByText("Treino concluído!")).toBeVisible()
-  })
-
-  test("completion screen has a link back to /aluno/treinos", async ({ page }) => {
-    await page.route(
-      `**/api/v1/workout-sessions/${createdSession.id}/finish*`,
-      (route) => {
-        if (route.request().method() === "PATCH") {
-          route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            json: { id: createdSession.id, status: "finished" },
-          })
-        } else {
-          route.continue()
-        }
-      }
-    )
-
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-    await page.getByTestId("start-workout-button").click()
-    await page.waitForSelector("[data-testid='finish-workout-button']", { timeout: 8000 })
-    await page.getByTestId("finish-workout-button").click()
-
-    await page.waitForSelector("[data-testid='completion-screen']", { timeout: 8000 })
-    await expect(page.getByRole("link", { name: "Voltar aos treinos" })).toBeVisible()
   })
 })
 

@@ -4,7 +4,6 @@ import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { ExternalLink, MapPin, Video } from "lucide-react"
 
-import { Badge } from "@/shared/ui/badge"
 import { cn } from "@/lib/utils"
 import type { StudentAppointment } from "@/features/studentPortal/types/studentPortalSchedule.types"
 
@@ -18,13 +17,10 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "Cancelada",
 }
 
-const STATUS_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  scheduled: "default",
-  completed: "secondary",
-  cancelled: "destructive",
+const STATUS_STYLES: Record<string, string> = {
+  scheduled: "bg-success/15 text-success",
+  completed: "bg-muted text-muted-foreground",
+  cancelled: "bg-destructive/15 text-destructive",
 }
 
 export function AppointmentListItem({ appointment }: AppointmentListItemProps) {
@@ -37,7 +33,7 @@ export function AppointmentListItem({ appointment }: AppointmentListItemProps) {
   return (
     <div
       className={cn(
-        "flex items-start justify-between rounded-lg border px-4 py-3",
+        "flex items-start justify-between rounded-xl border border-border/60 bg-card px-4 py-3",
         appointment.status === "cancelled" && "opacity-60",
       )}
       data-testid="appointment-item"
@@ -71,9 +67,12 @@ export function AppointmentListItem({ appointment }: AppointmentListItemProps) {
         )}
       </div>
 
-      <Badge variant={STATUS_VARIANTS[appointment.status] ?? "outline"}>
+      <span className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+        STATUS_STYLES[appointment.status] ?? "bg-muted text-muted-foreground",
+      )}>
         {STATUS_LABELS[appointment.status] ?? appointment.status}
-      </Badge>
+      </span>
     </div>
   )
 }

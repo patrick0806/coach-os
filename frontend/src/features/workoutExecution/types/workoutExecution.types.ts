@@ -48,6 +48,13 @@ export interface RecordSetResponse {
   completionStatus: string
 }
 
+export interface CompletedSetData {
+  setNumber: number
+  performedReps: number
+  usedWeight: string
+  status: "completed" | "skipped"
+}
+
 export interface ExerciseSetItem {
   id: string
   setNumber: number

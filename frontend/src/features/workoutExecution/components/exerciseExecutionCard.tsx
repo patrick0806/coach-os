@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ChevronDown, ChevronUp, Dumbbell } from "lucide-react"
 
 import { Card, CardContent, CardHeader } from "@/shared/ui/card"
@@ -24,12 +24,14 @@ interface ExerciseExecutionCardProps {
     restSeconds: number | null
     status: "completed" | "skipped"
   }) => Promise<RecordSetResponse>
+  onComplete?: () => void
 }
 
 export function ExerciseExecutionCard({
   exercise,
   onCreateExecution,
   onRecordSet,
+  onComplete,
 }: ExerciseExecutionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [executionId, setExecutionId] = useState<string | null>(null)
@@ -84,6 +86,14 @@ export function ExerciseExecutionCard({
   }
 
   const isFullyCompleted = completedSets.length >= totalSets
+  const nextActiveSet = completedSets.length + 1
+
+  useEffect(() => {
+    if (isFullyCompleted) {
+      onComplete?.()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFullyCompleted])
 
   return (
     <Card data-testid="exercise-execution-card">
@@ -140,7 +150,7 @@ export function ExerciseExecutionCard({
                 plannedReps={exercise.repetitions}
                 plannedWeight={exercise.plannedWeight}
                 onComplete={(data) => handleSetComplete(setNum, data)}
-                disabled={completedSets.includes(setNum) || !executionId}
+                disabled={completedSets.includes(setNum) || !executionId || setNum > nextActiveSet || showTimer}
               />
             ))}
           </div>

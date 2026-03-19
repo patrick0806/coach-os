@@ -1,15 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Timer } from "lucide-react"
+
+import { Button } from "@/shared/ui/button"
 
 interface RestTimerProps {
   seconds: number
   onComplete?: () => void
+  onSkip?: () => void
 }
 
-export function RestTimer({ seconds, onComplete }: RestTimerProps) {
+export function RestTimer({ seconds, onComplete, onSkip }: RestTimerProps) {
   const [remaining, setRemaining] = useState(seconds)
+  const onCompleteRef = useRef(onComplete)
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
 
   useEffect(() => {
     setRemaining(seconds)
@@ -17,7 +25,7 @@ export function RestTimer({ seconds, onComplete }: RestTimerProps) {
 
   useEffect(() => {
     if (remaining <= 0) {
-      onComplete?.()
+      onCompleteRef.current?.()
       return
     }
 
@@ -26,7 +34,7 @@ export function RestTimer({ seconds, onComplete }: RestTimerProps) {
     }, 1000)
 
     return () => clearTimeout(timer)
-  }, [remaining, onComplete])
+  }, [remaining])
 
   const minutes = Math.floor(remaining / 60)
   const secs = remaining % 60
@@ -35,20 +43,32 @@ export function RestTimer({ seconds, onComplete }: RestTimerProps) {
   const progress = ((seconds - remaining) / seconds) * 100
 
   return (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground" data-testid="rest-timer">
-      <Timer className="h-4 w-4 shrink-0" />
-      <div className="flex-1">
-        <div className="flex items-center justify-between mb-1">
-          <span>Descanso</span>
-          <span className="font-mono font-medium text-foreground">{formatted}</span>
-        </div>
-        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-1000 ease-linear"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+    <div className="flex flex-col items-center gap-4 py-6" data-testid="rest-timer">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Timer className="h-5 w-5" />
+        <span className="text-sm font-medium">Descanso</span>
       </div>
+
+      <span className="text-4xl font-mono font-bold text-foreground">{formatted}</span>
+
+      <div className="h-2 w-full max-w-xs rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full bg-primary transition-all duration-1000 ease-linear rounded-full"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      {onSkip && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onSkip}
+          className="text-muted-foreground"
+          data-testid="skip-rest-button"
+        >
+          Pular Descanso
+        </Button>
+      )}
     </div>
   )
 }

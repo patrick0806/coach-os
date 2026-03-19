@@ -2,7 +2,7 @@
  * Student Portal — Agenda Behavioral Tests
  *
  * All API calls are mocked via page.route(). No backend required.
- * Tests cover: training schedules list, appointments list, empty states.
+ * Tests cover: weekly schedule grid, appointments list, empty states.
  */
 import { test, expect } from "@playwright/test"
 import {
@@ -31,9 +31,10 @@ async function setupPage(
 // =============================================================================
 
 test.describe("Student Agenda — Sections", () => {
-  test("renders Horários Fixos section", async ({ page }) => {
+  test("renders agenda card with header", async ({ page }) => {
     await setupPage(page)
-    await expect(page.getByRole("heading", { name: "Horários Fixos" })).toBeVisible()
+    await expect(page.getByText("Sua agenda")).toBeVisible()
+    await expect(page.getByText("Semana atual")).toBeVisible()
   })
 
   test("renders Próximas Aulas section", async ({ page }) => {
@@ -43,42 +44,42 @@ test.describe("Student Agenda — Sections", () => {
 })
 
 // =============================================================================
-// Training Schedules
+// Training Schedules — Weekly Grid
 // =============================================================================
 
-test.describe("Student Agenda — Horários Fixos", () => {
+test.describe("Student Agenda — Weekly Grid", () => {
   test("renders weekly schedule view when schedules exist", async ({ page }) => {
     await setupPage(page)
     await expect(page.getByTestId("weekly-schedule-view")).toBeVisible()
   })
 
-  test("shows schedule day cards", async ({ page }) => {
+  test("shows active day cells for training days", async ({ page }) => {
     await setupPage(page)
-    await expect(page.getByTestId("schedule-day-card").first()).toBeVisible()
+    // withSchedules has 3 active days (Mon=1, Wed=3, Fri=5)
+    await expect(page.getByTestId("schedule-day-active")).toHaveCount(3)
   })
 
-  test("renders correct number of day cards", async ({ page }) => {
+  test("shows free day cells for non-training days", async ({ page }) => {
     await setupPage(page)
-    // withSchedules has 3 days (Mon, Wed, Fri)
-    await expect(page.getByTestId("schedule-day-card")).toHaveCount(3)
+    // 5 weekdays - 3 active = 2 free
+    await expect(page.getByTestId("schedule-day-free")).toHaveCount(2)
   })
 
   test("shows day labels in Portuguese", async ({ page }) => {
     await setupPage(page)
     await expect(page.getByText("Seg")).toBeVisible()
     await expect(page.getByText("Qua")).toBeVisible()
-    await expect(page.getByText("Sex")).toBeVisible()
+    await expect(page.getByTestId("weekly-schedule-view").getByText("Sex")).toBeVisible()
   })
 
-  test("shows time range on schedule items", async ({ page }) => {
+  test("shows time on active day cells", async ({ page }) => {
     await setupPage(page)
-    await expect(page.getByTestId("schedule-item").first()).toBeVisible()
-    await expect(page.getByText("08:00 – 09:00").first()).toBeVisible()
+    await expect(page.getByText("08:00").first()).toBeVisible()
   })
 
-  test("shows location on schedule item when provided", async ({ page }) => {
+  test("shows training count badge", async ({ page }) => {
     await setupPage(page)
-    await expect(page.getByText("Academia Central").first()).toBeVisible()
+    await expect(page.getByText("3 treinos")).toBeVisible()
   })
 
   test("shows empty message when no schedules", async ({ page }) => {
@@ -88,10 +89,9 @@ test.describe("Student Agenda — Horários Fixos", () => {
 
   test("renders single day schedule", async ({ page }) => {
     await setupPage(page, studentAppointmentFixtures.empty, studentScheduleFixtures.singleDay)
-    // singleDay has dayOfWeek=2 → Ter
-    await expect(page.getByText("Ter")).toBeVisible()
-    await expect(page.getByText("07:00 – 08:30")).toBeVisible()
-    await expect(page.getByText("Parque do Ibirapuera")).toBeVisible()
+    // singleDay has dayOfWeek=2 → Ter column should be active
+    await expect(page.getByTestId("schedule-day-active")).toHaveCount(1)
+    await expect(page.getByText("07:00")).toBeVisible()
   })
 })
 
@@ -110,7 +110,7 @@ test.describe("Student Agenda — Próximas Aulas", () => {
     await expect(page.getByText("Academia Central")).toBeVisible()
   })
 
-  test("shows appointment status badge Agendada", async ({ page }) => {
+  test("shows appointment status Agendada", async ({ page }) => {
     await setupPage(page)
     await expect(page.getByText("Agendada")).toBeVisible()
   })
@@ -137,7 +137,7 @@ test.describe("Student Agenda — Próximas Aulas", () => {
     await expect(page.getByTestId("appointment-item")).toHaveCount(3)
   })
 
-  test("shows Concluída badge for completed appointment", async ({ page }) => {
+  test("shows Concluída for completed appointment", async ({ page }) => {
     await setupPage(page, studentAppointmentFixtures.multiple)
     await expect(page.getByText("Concluída")).toBeVisible()
   })
@@ -175,15 +175,15 @@ test.describe("Student Agenda — All Empty", () => {
 test.describe("Student Agenda — Mobile", () => {
   test.use({ viewport: { width: 375, height: 812 } })
 
-  test("renders both sections on mobile", async ({ page }) => {
+  test("renders agenda card and appointments on mobile", async ({ page }) => {
     await setupPage(page)
-    await expect(page.getByRole("heading", { name: "Horários Fixos" })).toBeVisible()
+    await expect(page.getByText("Sua agenda")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Próximas Aulas" })).toBeVisible()
   })
 
-  test("shows schedule cards on mobile", async ({ page }) => {
+  test("shows weekly grid on mobile", async ({ page }) => {
     await setupPage(page)
-    await expect(page.getByTestId("schedule-day-card").first()).toBeVisible()
+    await expect(page.getByTestId("weekly-schedule-view")).toBeVisible()
   })
 
   test("shows appointment items on mobile", async ({ page }) => {

@@ -5,6 +5,7 @@ import { CalendarDays } from "lucide-react"
 
 import { useStudentTrainingSchedules } from "@/features/studentPortal/hooks/useStudentTrainingSchedules"
 import { useStudentMyAppointments } from "@/features/studentPortal/hooks/useStudentMyAppointments"
+import { AgendaCard } from "@/features/studentPortal/components/agendaCard"
 import { WeeklyScheduleView } from "@/features/studentPortal/components/weeklyScheduleView"
 import { AppointmentListItem } from "@/features/studentPortal/components/appointmentListItem"
 import { EmptyState } from "@/shared/components/emptyState"
@@ -30,17 +31,22 @@ export default function StudentAgendaPage() {
 
   return (
     <div className="space-y-6" data-testid="agenda-page">
-      {/* Training schedules section */}
+      {/* Weekly schedule card */}
       <section>
-        <h2 className="text-lg font-semibold mb-3">Horários Fixos</h2>
         {schedulesLoading ? (
           <LoadingState variant="list" />
-        ) : schedules.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nenhum horário fixo configurado.
-          </p>
         ) : (
-          <WeeklyScheduleView schedules={schedules} />
+          <AgendaCard trainingCount={schedules.length}>
+            {schedules.length === 0 ? (
+              <div className="px-4 py-4">
+                <p className="text-sm text-muted-foreground">
+                  Nenhum horário fixo configurado.
+                </p>
+              </div>
+            ) : (
+              <WeeklyScheduleView schedules={schedules} />
+            )}
+          </AgendaCard>
         )}
       </section>
 
