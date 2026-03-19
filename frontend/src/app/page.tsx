@@ -18,9 +18,9 @@ import { FeatureBlock } from "@/features/marketing/components/featureBlock";
 import { PlanCard } from "@/features/marketing/components/planCard";
 
 export const metadata: Metadata = {
-  title: "Domine sua agenda, escale seus treinos",
+  title: "Coach OS — Plataforma para personal trainers online e presencial",
   description:
-    "A plataforma completa para Personal Trainers que desejam profissionalismo, agilidade na montagem de treinos e uma gestão financeira impecável.",
+    "Portal do aluno com a sua marca, agenda inteligente e programas de treino completos. A plataforma para coaches que atendem online e presencial.",
   alternates: {
     canonical: "/",
   },
@@ -45,20 +45,20 @@ export default async function HomePage() {
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
               <Zap className="h-3.5 w-3.5" />
-              Plataforma completa para Personal Trainers
+              Para coaches online e presencial
             </div>
 
             <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl">
-              Domine sua agenda, <br />
+              Sua identidade. <br />
               <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/40 bg-clip-text text-transparent">
-                escale seus treinos
+                Seus alunos. Um lugar.
               </span>
             </h1>
 
             <p className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-              A plataforma completa para Personal Trainers que desejam
-              profissionalismo, agilidade na montagem de treinos e uma gestão
-              impecável.
+              Portal do aluno com a sua marca, agenda inteligente e programas
+              de treino completos. Pare de gerenciar no WhatsApp — seu negócio
+              merece uma plataforma profissional.
             </p>
 
             <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -66,7 +66,7 @@ export default async function HomePage() {
                 href="/cadastro"
                 className="group flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-primary/30"
               >
-                Começar 30 dias grátis
+                Começar 14 dias grátis
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
@@ -81,22 +81,19 @@ export default async function HomePage() {
               Não precisa de cartão de crédito para começar.
             </p>
 
-            {/* Social proof stats */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {/* Positioning pills */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               {[
-                { value: "500+", label: "coaches ativos" },
-                { value: "10k+", label: "alunos gerenciados" },
-                { value: "98%", label: "satisfação" },
-              ].map((stat, i) => (
-                <div key={stat.label} className="flex items-center gap-2">
-                  {i > 0 && (
-                    <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
-                  )}
-                  <span className="text-sm">
-                    <span className="font-bold text-foreground">{stat.value}</span>{" "}
-                    <span className="text-muted-foreground">{stat.label}</span>
-                  </span>
-                </div>
+                "Portal com sua marca",
+                "Online e presencial",
+                "Sem cartão para começar",
+              ].map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-border/60 bg-card/40 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur-sm"
+                >
+                  {item}
+                </span>
               ))}
             </div>
           </div>
@@ -106,18 +103,18 @@ export default async function HomePage() {
             {[
               {
                 icon: Users,
-                label: "Gestão de Alunos",
-                desc: "Controle total de perfis e evolução",
+                label: "Portal com sua marca",
+                desc: "Aluno acessa com a identidade visual do seu negócio",
               },
               {
                 icon: Dumbbell,
-                label: "Prescrição Ágil",
-                desc: "Crie treinos complexos em segundos",
+                label: "Prescrição completa",
+                desc: "Templates, programas individuais e execução pelo aluno",
               },
               {
                 icon: Calendar,
-                label: "Agenda Online",
-                desc: "Agendamentos e recorrência automática",
+                label: "Agenda inteligente",
+                desc: "Online, presencial ou recorrente — sem conflitos",
               },
             ].map((f) => (
               <div
@@ -276,8 +273,8 @@ export default async function HomePage() {
               <br className="hidden sm:block" /> sua consultoria?
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg opacity-90">
-              Junte-se a centenas de treinadores que já economizam horas de
-              trabalho manual toda semana.
+              Comece agora e explore tudo por 14 dias sem precisar de cartão.
+              Cancele quando quiser.
             </p>
 
             <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -299,7 +296,7 @@ export default async function HomePage() {
             {/* Mini stats */}
             <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 border-t border-primary-foreground/20 pt-8">
               {[
-                "30 dias grátis sem cartão",
+                "14 dias grátis sem cartão",
                 "Suporte incluso",
                 "Cancele quando quiser",
               ].map((item) => (

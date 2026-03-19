@@ -12,7 +12,7 @@ import { subscriptionService } from "@/features/billing/services/subscription.se
 const REASON_MESSAGES: Record<string, { title: string; description: string; ctaLabel: string; ctaAction: "checkout" | "portal" | "href"; ctaHref?: string }> = {
   trial: {
     title: "Seu período de teste encerrou",
-    description: "O trial gratuito de 7 dias chegou ao fim. Assine agora para continuar usando o Coach OS.",
+    description: "O trial gratuito de 14 dias chegou ao fim. Assine agora para continuar usando o Coach OS.",
     ctaLabel: "Assinar agora",
     ctaAction: "checkout",
   },

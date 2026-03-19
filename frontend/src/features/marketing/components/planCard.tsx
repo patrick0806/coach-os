@@ -55,7 +55,7 @@ export function PlanCard({ plan }: PlanCardProps) {
             : "border border-border bg-card text-foreground hover:bg-muted"
         )}
       >
-        {plan.hasTrial ? "Começar 30 dias grátis" : "Começar agora"}
+        {plan.hasTrial ? "Começar 14 dias grátis" : "Começar agora"}
       </Link>
     </div>
   );

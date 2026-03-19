@@ -15,7 +15,7 @@ import { generateUniqueSlug } from "@shared/utils/generateUniqueSlug.util";
 import { generateSetupToken } from "@shared/utils/token.util";
 import { validate } from "@shared/utils/validation.util";
 
-const TRIAL_DAYS = 7;
+const TRIAL_DAYS = 14;
 
 const registerSchema = z.object({
   name: z.string().min(3).max(150),

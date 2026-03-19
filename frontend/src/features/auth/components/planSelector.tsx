@@ -96,7 +96,7 @@ export function PlanSelector({
       </Button>
 
       <p className="text-center text-xs text-muted-foreground">
-        Todos os planos incluem 7 dias grátis para testar
+        Todos os planos incluem 14 dias grátis para testar
       </p>
     </div>
   );
