@@ -5,8 +5,8 @@
  *
  * Coverage:
  * - Programs list page: display, empty state, navigation
- * - Execution page: idle state, start session, focused exercise stepper
- * - Set recording, rest timer, exercise progression
+ * - Execution page: idle state, start session, exercise list, free-order selection
+ * - Set recording, rest timer, back-to-list navigation
  * - Workout completion screen
  * - Mobile viewport
  */
@@ -100,6 +100,14 @@ async function mockRecordSet(page: import("@playwright/test").Page) {
   })
 }
 
+/** Start workout and wait for the exercise list to appear */
+async function startWorkout(page: import("@playwright/test").Page) {
+  await page.goto(EXECUTAR_URL)
+  await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
+  await page.getByTestId("start-workout-button").click()
+  await page.waitForSelector("[data-testid='exercise-list']", { timeout: 8000 })
+}
+
 // =============================================================================
 // Programs list page
 // =============================================================================
@@ -128,7 +136,6 @@ test.describe("Workout Portal — Programs List", () => {
     await page.goto(TREINOS_URL)
     await page.waitForSelector("[data-testid='workout-day-link']", { timeout: 8000 })
 
-    // Fixture has 1 workout day
     await expect(page.getByTestId("workout-day-link")).toHaveCount(1)
     await expect(page.getByText("Treino A — Pernas")).toBeVisible()
   })
@@ -193,7 +200,6 @@ test.describe("Workout Execution — Idle State", () => {
     await page.goto(EXECUTAR_URL)
     await page.waitForSelector("[data-testid='exercise-preview-item']", { timeout: 8000 })
 
-    // Fixture has 2 exercises
     await expect(page.getByTestId("exercise-preview-item")).toHaveCount(2)
     await expect(page.getByText("Agachamento")).toBeVisible()
     await expect(page.getByText("Leg Press")).toBeVisible()
@@ -210,10 +216,10 @@ test.describe("Workout Execution — Idle State", () => {
 })
 
 // =============================================================================
-// Execution page — started state (stepper)
+// Execution page — exercise list (free order)
 // =============================================================================
 
-test.describe("Workout Execution — Started State", () => {
+test.describe("Workout Execution — Exercise List", () => {
   test.beforeEach(async ({ page }) => {
     await injectStudentMockAuth(page)
     await mockProgramDetail(page)
@@ -221,44 +227,47 @@ test.describe("Workout Execution — Started State", () => {
     await mockCreateExecution(page)
   })
 
-  test("clicking 'Iniciar Treino' transitions to stepper view", async ({ page }) => {
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
+  test("clicking 'Iniciar Treino' shows exercise list", async ({ page }) => {
+    await startWorkout(page)
 
-    await page.getByTestId("start-workout-button").click()
-
-    await page.waitForSelector("[data-testid='workout-stepper']", { timeout: 8000 })
-    await expect(page.getByTestId("workout-stepper")).toBeVisible()
-  })
-
-  test("stepper shows the first exercise with active set view", async ({ page }) => {
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-    await page.getByTestId("start-workout-button").click()
-
-    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
-
-    await expect(page.getByText("Agachamento")).toBeVisible()
-    await expect(page.getByText("Série 1/3")).toBeVisible()
-  })
-
-  test("stepper shows progress indicator", async ({ page }) => {
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-    await page.getByTestId("start-workout-button").click()
-
-    await page.waitForSelector("[data-testid='workout-stepper']", { timeout: 8000 })
-    await expect(page.getByText("Exercício 1/2")).toBeVisible()
+    await expect(page.getByTestId("exercise-list")).toBeVisible()
+    await expect(page.getByTestId("exercise-list-item")).toHaveCount(2)
+    await expect(page.getByTestId("finish-workout-button")).toBeVisible()
   })
 
   test("start button is not visible after workout starts", async ({ page }) => {
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
+    await startWorkout(page)
 
-    await page.getByTestId("start-workout-button").click()
-
-    await page.waitForSelector("[data-testid='workout-stepper']", { timeout: 8000 })
     await expect(page.getByTestId("start-workout-button")).not.toBeVisible()
+  })
+
+  test("clicking an exercise opens the focused exercise view", async ({ page }) => {
+    await startWorkout(page)
+
+    // Click the second exercise (Leg Press) — free order
+    await page.getByTestId("exercise-list-item").nth(1).click()
+
+    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
+    await expect(page.getByText("Leg Press")).toBeVisible()
+    await expect(page.getByText("Série 1/3")).toBeVisible()
+  })
+
+  test("back-to-list button returns to exercise list", async ({ page }) => {
+    await startWorkout(page)
+
+    // Enter first exercise
+    await page.getByTestId("exercise-list-item").first().click()
+    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
+
+    // Go back
+    await page.getByTestId("back-to-list-button").click()
+    await expect(page.getByTestId("exercise-list")).toBeVisible()
+  })
+
+  test("shows progress indicator", async ({ page }) => {
+    await startWorkout(page)
+
+    await expect(page.getByText("0/2 concluídos")).toBeVisible()
   })
 })
 
@@ -276,9 +285,8 @@ test.describe("Workout Execution — Set Recording", () => {
   })
 
   test("shows reps and weight inputs for active set", async ({ page }) => {
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-    await page.getByTestId("start-workout-button").click()
+    await startWorkout(page)
+    await page.getByTestId("exercise-list-item").first().click()
 
     await page.waitForSelector("[data-testid='reps-input-1']", { timeout: 8000 })
     await expect(page.getByTestId("reps-input-1")).toBeVisible()
@@ -287,22 +295,19 @@ test.describe("Workout Execution — Set Recording", () => {
   })
 
   test("completing a set shows rest timer", async ({ page }) => {
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-    await page.getByTestId("start-workout-button").click()
+    await startWorkout(page)
+    await page.getByTestId("exercise-list-item").first().click()
 
     await page.waitForSelector("[data-testid='complete-set-1']", { timeout: 8000 })
     await page.getByTestId("complete-set-1").click()
 
-    // Rest timer should appear (exercise has restSeconds: 60)
     await page.waitForSelector("[data-testid='rest-timer']", { timeout: 5000 })
     await expect(page.getByTestId("rest-timer")).toBeVisible()
   })
 
   test("skip rest button advances to next set", async ({ page }) => {
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-    await page.getByTestId("start-workout-button").click()
+    await startWorkout(page)
+    await page.getByTestId("exercise-list-item").first().click()
 
     await page.waitForSelector("[data-testid='complete-set-1']", { timeout: 8000 })
     await page.getByTestId("complete-set-1").click()
@@ -310,9 +315,30 @@ test.describe("Workout Execution — Set Recording", () => {
     await page.waitForSelector("[data-testid='skip-rest-button']", { timeout: 5000 })
     await page.getByTestId("skip-rest-button").click()
 
-    // Should now show set 2
     await page.waitForSelector("[data-testid='reps-input-2']", { timeout: 5000 })
     await expect(page.getByText("Série 2/3")).toBeVisible()
+  })
+
+  test("completing all sets returns to exercise list with exercise marked done", async ({ page }) => {
+    await startWorkout(page)
+    await page.getByTestId("exercise-list-item").first().click()
+
+    // Complete all 3 sets
+    for (let set = 1; set <= 3; set++) {
+      await page.waitForSelector(`[data-testid='complete-set-${set}']`, { timeout: 8000 })
+      await page.getByTestId(`complete-set-${set}`).click()
+
+      if (set < 3) {
+        await page.waitForSelector("[data-testid='skip-rest-button']", { timeout: 5000 })
+        await page.getByTestId("skip-rest-button").click()
+      }
+    }
+
+    // Should return to list with exercise marked as done
+    await page.waitForSelector("[data-testid='exercise-list']", { timeout: 8000 })
+    await expect(page.getByText("1/2 concluídos")).toBeVisible()
+    // First exercise shows "Concluído" label
+    await expect(page.getByTestId("exercise-list-item").first().getByText("Concluído")).toBeVisible()
   })
 })
 
@@ -329,7 +355,7 @@ test.describe("Workout Execution — Finish", () => {
     await mockRecordSet(page)
   })
 
-  test("finish button appears after all exercises complete and shows completion screen", async ({ page }) => {
+  test("finish button is always visible and shows completion screen", async ({ page }) => {
     await page.route(
       `**/api/v1/workout-sessions/${createdSession.id}/finish*`,
       (route) => {
@@ -345,44 +371,39 @@ test.describe("Workout Execution — Finish", () => {
       }
     )
 
-    await page.goto(EXECUTAR_URL)
-    await page.waitForSelector("[data-testid='start-workout-button']", { timeout: 8000 })
-    await page.getByTestId("start-workout-button").click()
+    await startWorkout(page)
 
-    // Complete all 3 sets of exercise 1 (Agachamento)
-    for (let set = 1; set <= 3; set++) {
-      await page.waitForSelector(`[data-testid='complete-set-${set}']`, { timeout: 8000 })
-      await page.getByTestId(`complete-set-${set}`).click()
+    // Finish button is visible from the start
+    await expect(page.getByTestId("finish-workout-button")).toBeVisible()
 
-      // Skip rest timer if not last set
-      if (set < 3) {
-        await page.waitForSelector("[data-testid='skip-rest-button']", { timeout: 5000 })
-        await page.getByTestId("skip-rest-button").click()
-      }
-    }
-
-    // After all sets of exercise 1, stepper auto-advances to exercise 2 (Leg Press)
-    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
-    await expect(page.getByText("Leg Press")).toBeVisible()
-
-    // Complete all 3 sets of exercise 2
-    for (let set = 1; set <= 3; set++) {
-      await page.waitForSelector(`[data-testid='complete-set-${set}']`, { timeout: 8000 })
-      await page.getByTestId(`complete-set-${set}`).click()
-
-      if (set < 3) {
-        await page.waitForSelector("[data-testid='skip-rest-button']", { timeout: 5000 })
-        await page.getByTestId("skip-rest-button").click()
-      }
-    }
-
-    // Finish button should appear
-    await page.waitForSelector("[data-testid='finish-workout-button']", { timeout: 8000 })
     await page.getByTestId("finish-workout-button").click()
 
     await page.waitForSelector("[data-testid='completion-screen']", { timeout: 8000 })
     await expect(page.getByTestId("completion-screen")).toBeVisible()
     await expect(page.getByText("Treino concluído!")).toBeVisible()
+  })
+
+  test("completion screen has a link back to /aluno/treinos", async ({ page }) => {
+    await page.route(
+      `**/api/v1/workout-sessions/${createdSession.id}/finish*`,
+      (route) => {
+        if (route.request().method() === "PATCH") {
+          route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            json: { id: createdSession.id, status: "finished" },
+          })
+        } else {
+          route.continue()
+        }
+      }
+    )
+
+    await startWorkout(page)
+    await page.getByTestId("finish-workout-button").click()
+
+    await page.waitForSelector("[data-testid='completion-screen']", { timeout: 8000 })
+    await expect(page.getByRole("link", { name: "Voltar aos treinos" })).toBeVisible()
   })
 })
 
@@ -404,7 +425,6 @@ test.describe("Workout Portal — Mobile", () => {
     await expect(page.getByTestId("programs-list")).toBeVisible()
     await expect(page.getByTestId("program-card")).toBeVisible()
 
-    // No horizontal overflow
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
     expect(bodyWidth).toBeLessThanOrEqual(390)
   })
@@ -419,7 +439,6 @@ test.describe("Workout Portal — Mobile", () => {
     await expect(page.getByTestId("exercises-preview")).toBeVisible()
     await expect(page.getByTestId("start-workout-button")).toBeVisible()
 
-    // No horizontal overflow
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
     expect(bodyWidth).toBeLessThanOrEqual(390)
   })

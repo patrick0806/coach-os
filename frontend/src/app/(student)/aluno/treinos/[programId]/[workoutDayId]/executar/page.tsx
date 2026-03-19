@@ -37,7 +37,6 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [isStarting, setIsStarting] = useState(false)
   const [isFinishing, setIsFinishing] = useState(false)
-  const [allExercisesComplete, setAllExercisesComplete] = useState(false)
 
   if (isLoading) {
     return <LoadingState variant="card" />
@@ -175,23 +174,21 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
                 completionStatus: data.status,
               })
             }
-            onAllComplete={() => setAllExercisesComplete(true)}
+            onAllComplete={handleFinish}
           />
 
-          {allExercisesComplete && (
-            <Button
-              className="w-full min-h-12"
-              onClick={handleFinish}
-              disabled={isFinishing}
-              data-testid="finish-workout-button"
-            >
-              {isFinishing ? (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                "Finalizar Treino"
-              )}
-            </Button>
-          )}
+          <Button
+            className="w-full min-h-12"
+            onClick={handleFinish}
+            disabled={isFinishing}
+            data-testid="finish-workout-button"
+          >
+            {isFinishing ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              "Finalizar Treino"
+            )}
+          </Button>
         </>
       )}
     </div>

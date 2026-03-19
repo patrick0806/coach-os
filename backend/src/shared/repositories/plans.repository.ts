@@ -9,7 +9,7 @@ export type Plan = InferSelectModel<typeof plans>;
 
 @Injectable()
 export class PlansRepository {
-  constructor(private readonly drizzle: DrizzleProvider) {}
+  constructor(private readonly drizzle: DrizzleProvider) { }
 
   async findById(id: string): Promise<Plan | undefined> {
     const result = await this.drizzle.db
@@ -105,7 +105,7 @@ export class PlansRepository {
     // Soft delete: set isActive to false
     await this.drizzle.db
       .update(plans)
-      .set({ isActive: false })
+      .set({ isActive: false } as any)
       .where(eq(plans.id, id));
   }
 }

@@ -1,9 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { ArrowLeft, Check, ChevronRight, Dumbbell } from "lucide-react"
 
 import { ActiveExerciseView } from "@/features/workoutExecution/components/activeExerciseView"
 import { RestTimer } from "@/features/workoutExecution/components/restTimer"
+import { Button } from "@/shared/ui/button"
 import type { StudentExerciseItem } from "@/features/studentPrograms/types/studentPrograms.types"
 import type {
   CompletedSetData,
@@ -12,6 +14,14 @@ import type {
 } from "@/features/workoutExecution/types/workoutExecution.types"
 
 type StepperPhase = "set" | "rest"
+type ViewMode = "list" | "exercise"
+
+interface ExerciseState {
+  executionId: string | null
+  completedSets: CompletedSetData[]
+  currentSetNumber: number
+  isComplete: boolean
+}
 
 interface WorkoutStepperProps {
   exercises: StudentExerciseItem[]
@@ -37,120 +47,149 @@ export function WorkoutStepper({
   onRecordSet,
   onAllComplete,
 }: WorkoutStepperProps) {
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
-  const [currentSetNumber, setCurrentSetNumber] = useState(1)
+  const [viewMode, setViewMode] = useState<ViewMode>("list")
+  const [activeExerciseId, setActiveExerciseId] = useState<string | null>(null)
   const [phase, setPhase] = useState<StepperPhase>("set")
-  const [executionId, setExecutionId] = useState<string | null>(null)
-  const [completedSets, setCompletedSets] = useState<CompletedSetData[]>([])
   const [isCreatingExecution, setIsCreatingExecution] = useState(false)
-  const createdForIndex = useRef<number>(-1)
 
-  const currentExercise = exercises[currentExerciseIndex]
+  // Per-exercise state, keyed by exercise.id
+  const [exerciseStates, setExerciseStates] = useState<Record<string, ExerciseState>>(() => {
+    const initial: Record<string, ExerciseState> = {}
+    for (const ex of exercises) {
+      initial[ex.id] = {
+        executionId: null,
+        completedSets: [],
+        currentSetNumber: 1,
+        isComplete: false,
+      }
+    }
+    return initial
+  })
+
+  const createdExecutionFor = useRef<Set<string>>(new Set())
+
+  const activeExercise = exercises.find((e) => e.id === activeExerciseId)
+  const activeState = activeExerciseId ? exerciseStates[activeExerciseId] : null
+  const completedCount = Object.values(exerciseStates).filter((s) => s.isComplete).length
   const totalExercises = exercises.length
 
-  // Create execution when exercise changes
-  const createExecutionForCurrent = useCallback(async () => {
-    if (!currentExercise || createdForIndex.current === currentExerciseIndex) return
-    createdForIndex.current = currentExerciseIndex
+  // Check if all exercises are complete
+  const allComplete = completedCount === totalExercises
+  const prevAllComplete = useRef(false)
+
+  useEffect(() => {
+    if (allComplete && !prevAllComplete.current) {
+      onAllComplete()
+    }
+    prevAllComplete.current = allComplete
+  }, [allComplete, onAllComplete])
+
+  // Create execution when entering an exercise
+  const createExecutionForExercise = useCallback(async (exercise: StudentExerciseItem) => {
+    if (createdExecutionFor.current.has(exercise.id)) return
+    createdExecutionFor.current.add(exercise.id)
 
     setIsCreatingExecution(true)
     try {
-      const execution = await onCreateExecution(currentExercise.id, currentExercise.exerciseId)
-      setExecutionId(execution.id)
+      const execution = await onCreateExecution(exercise.id, exercise.exerciseId)
+      setExerciseStates((prev) => ({
+        ...prev,
+        [exercise.id]: { ...prev[exercise.id], executionId: execution.id },
+      }))
     } catch {
-      // Error handled by mutation
+      createdExecutionFor.current.delete(exercise.id)
     } finally {
       setIsCreatingExecution(false)
     }
-  }, [currentExercise, currentExerciseIndex, onCreateExecution])
+  }, [onCreateExecution])
 
-  useEffect(() => {
-    createExecutionForCurrent()
-  }, [createExecutionForCurrent])
+  function handleSelectExercise(exerciseId: string) {
+    const exercise = exercises.find((e) => e.id === exerciseId)
+    if (!exercise) return
+
+    setActiveExerciseId(exerciseId)
+    setViewMode("exercise")
+    setPhase("set")
+    createExecutionForExercise(exercise)
+  }
+
+  function handleBackToList() {
+    setViewMode("list")
+    setActiveExerciseId(null)
+    setPhase("set")
+  }
 
   async function handleSetComplete(data: { reps: number; weight: string; status: "completed" | "skipped" }) {
-    if (!executionId || !currentExercise) return
+    if (!activeExercise || !activeState?.executionId) return
 
     try {
       await onRecordSet({
-        executionId,
-        setNumber: currentSetNumber,
+        executionId: activeState.executionId,
+        setNumber: activeState.currentSetNumber,
         performedReps: data.reps,
         usedWeight: data.weight,
-        plannedReps: currentExercise.repetitions,
-        plannedWeight: currentExercise.plannedWeight,
-        restSeconds: currentExercise.restSeconds,
+        plannedReps: activeExercise.repetitions,
+        plannedWeight: activeExercise.plannedWeight,
+        restSeconds: activeExercise.restSeconds,
         status: data.status,
       })
 
-      const newCompletedSet: CompletedSetData = {
-        setNumber: currentSetNumber,
+      const newSet: CompletedSetData = {
+        setNumber: activeState.currentSetNumber,
         performedReps: data.reps,
         usedWeight: data.weight,
         status: data.status,
       }
-      setCompletedSets((prev) => [...prev, newCompletedSet])
 
-      const isLastSet = currentSetNumber >= currentExercise.sets
+      const updatedSets = [...activeState.completedSets, newSet]
+      const isLastSet = activeState.currentSetNumber >= activeExercise.sets
+
+      setExerciseStates((prev) => ({
+        ...prev,
+        [activeExercise.id]: {
+          ...prev[activeExercise.id],
+          completedSets: updatedSets,
+          currentSetNumber: isLastSet ? activeState.currentSetNumber : activeState.currentSetNumber + 1,
+          isComplete: isLastSet,
+        },
+      }))
 
       if (isLastSet) {
-        // Move to next exercise
-        advanceToNextExercise()
-      } else if (data.status === "completed" && currentExercise.restSeconds) {
-        // Show rest timer
+        // Exercise done — go back to list
+        setViewMode("list")
+        setActiveExerciseId(null)
+        setPhase("set")
+      } else if (data.status === "completed" && activeExercise.restSeconds) {
         setPhase("rest")
-      } else {
-        // Advance to next set directly
-        setCurrentSetNumber((prev) => prev + 1)
       }
     } catch {
       // Error handled by mutation
-    }
-  }
-
-  function advanceToNextExercise() {
-    const nextIndex = currentExerciseIndex + 1
-    if (nextIndex >= totalExercises) {
-      onAllComplete()
-    } else {
-      setCurrentExerciseIndex(nextIndex)
-      setCurrentSetNumber(1)
-      setPhase("set")
-      setExecutionId(null)
-      setCompletedSets([])
     }
   }
 
   function handleRestComplete() {
-    setCurrentSetNumber((prev) => prev + 1)
     setPhase("set")
   }
 
-  function handleRestSkip() {
-    handleRestComplete()
-  }
-
-  if (!currentExercise) return null
-
-  // Progress bar segments
-  const progressPercent = ((currentExerciseIndex) / totalExercises) * 100
+  // Progress
+  const progressPercent = totalExercises > 0 ? (completedCount / totalExercises) * 100 : 0
 
   return (
     <div className="space-y-4" data-testid="workout-stepper">
       {/* Progress header */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Exercício {currentExerciseIndex + 1}/{totalExercises}</span>
+          <span>{completedCount}/{totalExercises} concluídos</span>
           <span>{Math.round(progressPercent)}%</span>
         </div>
         <div className="flex gap-1">
-          {exercises.map((_, i) => (
+          {exercises.map((ex) => (
             <div
-              key={exercises[i].id}
+              key={ex.id}
               className={`h-1.5 flex-1 rounded-full transition-colors ${
-                i < currentExerciseIndex
+                exerciseStates[ex.id]?.isComplete
                   ? "bg-primary"
-                  : i === currentExerciseIndex
+                  : ex.id === activeExerciseId
                     ? "bg-primary/50"
                     : "bg-muted"
               }`}
@@ -159,24 +198,105 @@ export function WorkoutStepper({
         </div>
       </div>
 
-      {/* Exercise content or rest timer */}
-      {isCreatingExecution ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      {/* List view — pick any exercise */}
+      {viewMode === "list" && (
+        <div
+          className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xl"
+          data-testid="exercise-list"
+        >
+          {exercises.map((exercise, index) => {
+            const state = exerciseStates[exercise.id]
+            const isComplete = state?.isComplete
+            const setsInfo = state && state.completedSets.length > 0 && !isComplete
+              ? `${state.completedSets.length}/${exercise.sets} séries`
+              : null
+
+            return (
+              <button
+                key={exercise.id}
+                type="button"
+                onClick={() => !isComplete && handleSelectExercise(exercise.id)}
+                disabled={isComplete}
+                className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+                  index < exercises.length - 1 ? "border-b border-border/40" : ""
+                } ${isComplete ? "opacity-50" : "hover:bg-muted/30"}`}
+                data-testid="exercise-list-item"
+              >
+                {isComplete ? (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary bg-primary">
+                    <Check className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                ) : setsInfo ? (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <Dumbbell className="h-4 w-4 text-primary" />
+                  </div>
+                ) : (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-background">
+                    <Dumbbell className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
+
+                <div className="min-w-0 flex-1">
+                  <p className={`text-sm font-medium truncate ${isComplete ? "line-through text-muted-foreground" : ""}`}>
+                    {exercise.exercise.name}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {isComplete ? (
+                      "Concluído"
+                    ) : setsInfo ? (
+                      <span className="text-primary font-medium">{setsInfo}</span>
+                    ) : (
+                      <>
+                        {exercise.sets} séries
+                        {exercise.repetitions ? ` × ${exercise.repetitions} reps` : ""}
+                        {exercise.plannedWeight ? ` — ${exercise.plannedWeight}kg` : ""}
+                      </>
+                    )}
+                  </p>
+                </div>
+
+                {!isComplete && (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                )}
+              </button>
+            )
+          })}
         </div>
-      ) : phase === "rest" && currentExercise.restSeconds ? (
-        <RestTimer
-          seconds={currentExercise.restSeconds}
-          onComplete={handleRestComplete}
-          onSkip={handleRestSkip}
-        />
-      ) : (
-        <ActiveExerciseView
-          exercise={currentExercise}
-          currentSetNumber={currentSetNumber}
-          completedSets={completedSets}
-          onSetComplete={handleSetComplete}
-        />
+      )}
+
+      {/* Exercise focus view */}
+      {viewMode === "exercise" && activeExercise && activeState && (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBackToList}
+            className="gap-1.5 text-muted-foreground -ml-2"
+            data-testid="back-to-list-button"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar à lista
+          </Button>
+
+          {isCreatingExecution ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          ) : phase === "rest" && activeExercise.restSeconds ? (
+            <RestTimer
+              seconds={activeExercise.restSeconds}
+              onComplete={handleRestComplete}
+              onSkip={handleRestComplete}
+            />
+          ) : (
+            <ActiveExerciseView
+              exercise={activeExercise}
+              currentSetNumber={activeState.currentSetNumber}
+              completedSets={activeState.completedSets}
+              onSetComplete={handleSetComplete}
+            />
+          )}
+        </>
       )}
     </div>
   )
