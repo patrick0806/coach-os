@@ -31,6 +31,8 @@ export interface PublicProfile {
   specialties: string[] | null
   phoneNumber: string | null
   themeColor: string | null
+  themeColorSecondary: string | null
+  lpLayout: string
   lpTitle: string | null
   lpSubtitle: string | null
   lpHeroImage: string | null

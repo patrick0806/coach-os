@@ -10,6 +10,8 @@ export interface ProfileData {
   phoneNumber: string | null
   specialties: string[] | null
   themeColor: string | null
+  themeColorSecondary: string | null
+  lpLayout: string
   lpTitle: string | null
   lpSubtitle: string | null
   lpHeroImage: string | null
@@ -35,6 +37,8 @@ export interface UpdateProfileData {
   lpImage1?: string
   lpImage2?: string
   lpImage3?: string
+  lpLayout?: string
+  themeColorSecondary?: string
 }
 
 export interface PhotoUploadResponse {

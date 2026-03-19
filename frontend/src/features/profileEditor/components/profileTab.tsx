@@ -76,7 +76,7 @@ export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
       </Field>
 
       <Field>
-        <FieldLabel htmlFor="themeColor">Cor da marca</FieldLabel>
+        <FieldLabel htmlFor="themeColor">Cor primária</FieldLabel>
         <div className="flex items-center gap-3">
           <input
             id="themeColor"
@@ -91,6 +91,28 @@ export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
             value={data.themeColor ?? ""}
             onChange={(e) => onChange({ themeColor: e.target.value })}
             placeholder="#6366f1"
+            className="max-w-32"
+            disabled={disabled}
+          />
+        </div>
+      </Field>
+
+      <Field>
+        <FieldLabel htmlFor="themeColorSecondary">Cor secundária (acento)</FieldLabel>
+        <div className="flex items-center gap-3">
+          <input
+            id="themeColorSecondary"
+            type="color"
+            className="h-10 w-16 cursor-pointer rounded-md border bg-transparent p-1"
+            value={data.themeColorSecondary ?? "#a855f7"}
+            onChange={(e) => onChange({ themeColorSecondary: e.target.value })}
+            disabled={disabled}
+          />
+          <Input
+            type="text"
+            value={data.themeColorSecondary ?? ""}
+            onChange={(e) => onChange({ themeColorSecondary: e.target.value })}
+            placeholder="#a855f7"
             className="max-w-32"
             disabled={disabled}
           />

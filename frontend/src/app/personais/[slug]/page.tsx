@@ -4,11 +4,10 @@ import { notFound } from "next/navigation"
 
 import { publicServerFetch } from "@/lib/serverFetch"
 import type { PublicProfile } from "@/features/publicPage/types/publicPage.types"
-import { PublicHero } from "@/features/publicPage/components/publicHero"
-import { PublicAbout } from "@/features/publicPage/components/publicAbout"
-import { PublicServicePlans } from "@/features/publicPage/components/publicServicePlans"
-import { PublicAvailability } from "@/features/publicPage/components/publicAvailability"
-import { PublicStudentArea } from "@/features/publicPage/components/publicStudentArea"
+import { Layout1 } from "@/features/publicPage/layouts/layout1"
+import { Layout2 } from "@/features/publicPage/layouts/layout2"
+import { Layout3 } from "@/features/publicPage/layouts/layout3"
+import { Layout4 } from "@/features/publicPage/layouts/layout4"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -35,16 +34,29 @@ export default async function PublicPage({ params }: PageProps) {
 
   if (!profile) notFound()
 
+  const cssVars: CSSProperties = {
+    "--brand-color": profile.themeColor ?? "#6366f1",
+    ...(profile.themeColorSecondary
+      ? { "--brand-color-secondary": profile.themeColorSecondary }
+      : {}),
+  } as CSSProperties
+
+  function renderLayout() {
+    switch (profile!.lpLayout) {
+      case "2":
+        return <Layout2 profile={profile!} slug={slug} />
+      case "3":
+        return <Layout3 profile={profile!} slug={slug} />
+      case "4":
+        return <Layout4 profile={profile!} slug={slug} />
+      default:
+        return <Layout1 profile={profile!} slug={slug} />
+    }
+  }
+
   return (
-    <div
-      className="min-h-screen bg-background"
-      style={profile.themeColor ? ({ "--brand-color": profile.themeColor } as CSSProperties) : undefined}
-    >
-      <PublicHero profile={profile} slug={slug} />
-      <PublicAbout profile={profile} />
-      <PublicServicePlans plans={profile.servicePlans} phoneNumber={profile.phoneNumber} />
-      <PublicAvailability rules={profile.availabilityRules} occupiedSlots={profile.occupiedSlots} />
-      <PublicStudentArea slug={slug} />
+    <div className="min-h-screen bg-background" style={cssVars}>
+      {renderLayout()}
     </div>
   )
 }

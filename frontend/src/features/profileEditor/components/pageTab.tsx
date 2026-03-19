@@ -6,6 +6,68 @@ import { Field, FieldGroup, FieldLabel } from "@/shared/ui/field"
 import { ImageUploadField } from "@/features/profileEditor/components/imageUploadField"
 import type { ProfileData, UpdateProfileData } from "@/features/profileEditor/services/profile.service"
 
+const LAYOUTS = [
+  {
+    id: "1",
+    name: "Clássico",
+    description: "Hero centralizado, seções empilhadas",
+    thumbnail: (
+      <div className="space-y-1">
+        <div className="mx-auto h-3 w-3 rounded-full bg-current opacity-60" />
+        <div className="h-4 w-full rounded bg-current opacity-40" />
+        <div className="h-2 w-3/4 mx-auto rounded bg-current opacity-20" />
+        <div className="h-6 w-full rounded bg-current opacity-10" />
+      </div>
+    ),
+  },
+  {
+    id: "2",
+    name: "Split",
+    description: "Texto à esquerda, foto à direita",
+    thumbnail: (
+      <div className="flex gap-1 items-center">
+        <div className="flex-1 space-y-1">
+          <div className="h-3 w-full rounded bg-current opacity-40" />
+          <div className="h-2 w-3/4 rounded bg-current opacity-20" />
+          <div className="h-4 w-1/2 rounded bg-current opacity-30" />
+        </div>
+        <div className="size-8 rounded-lg bg-current opacity-20 shrink-0" />
+      </div>
+    ),
+  },
+  {
+    id: "3",
+    name: "Minimalista",
+    description: "Tipografia grande, muito espaço branco",
+    thumbnail: (
+      <div className="space-y-2 pt-1">
+        <div className="h-5 w-full rounded bg-current opacity-40" />
+        <div className="h-2 w-2/3 mx-auto rounded bg-current opacity-20" />
+        <div className="flex justify-center gap-1">
+          <div className="h-1.5 w-8 rounded-full border border-current opacity-40" />
+          <div className="h-1.5 w-8 rounded-full border border-current opacity-40" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "4",
+    name: "Negrito",
+    description: "Hero escuro, planos com destaque",
+    thumbnail: (
+      <div className="space-y-1">
+        <div className="h-6 w-full rounded bg-current opacity-60" />
+        <div className="h-2 w-2/3 mx-auto rounded bg-current opacity-20" />
+        <div className="flex gap-1">
+          <div className="h-5 flex-1 rounded bg-current opacity-10" />
+          <div className="h-5 flex-1 rounded border-2 border-current opacity-40" />
+          <div className="h-5 flex-1 rounded bg-current opacity-10" />
+        </div>
+      </div>
+    ),
+  },
+]
+
 interface PageTabProps {
   data: ProfileData
   onChange: (patch: Partial<UpdateProfileData>) => void
@@ -13,8 +75,39 @@ interface PageTabProps {
 }
 
 export function PageTab({ data, onChange, disabled }: PageTabProps) {
+  const currentLayout = data.lpLayout ?? "1"
+
   return (
     <FieldGroup className="gap-5">
+      {/* Layout picker */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Layout da página</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {LAYOUTS.map((layout) => {
+            const isActive = currentLayout === layout.id
+            return (
+              <button
+                key={layout.id}
+                type="button"
+                disabled={disabled}
+                onClick={() => onChange({ lpLayout: layout.id })}
+                className={`flex flex-col gap-2 rounded-xl border-2 p-3 text-left transition-colors ${
+                  isActive
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border bg-background text-muted-foreground hover:border-muted-foreground/40"
+                } disabled:pointer-events-none disabled:opacity-50`}
+              >
+                <div className="w-full">{layout.thumbnail}</div>
+                <div>
+                  <p className="text-xs font-semibold leading-tight">{layout.name}</p>
+                  <p className="text-[10px] leading-tight opacity-70">{layout.description}</p>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       <Field>
         <FieldLabel htmlFor="lpTitle">Título principal</FieldLabel>
         <Input

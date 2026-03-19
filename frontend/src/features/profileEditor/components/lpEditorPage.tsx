@@ -47,6 +47,8 @@ export function LpEditorPage() {
       lpImage1: draft.lpImage1 ?? undefined,
       lpImage2: draft.lpImage2 ?? undefined,
       lpImage3: draft.lpImage3 ?? undefined,
+      lpLayout: draft.lpLayout ?? undefined,
+      themeColorSecondary: draft.themeColorSecondary ?? undefined,
     }
 
     try {
