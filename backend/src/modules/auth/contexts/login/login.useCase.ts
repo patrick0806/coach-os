@@ -6,6 +6,7 @@ import { z } from "zod";
 import { env } from "@config/env";
 import { ApplicationRoles } from "@shared/enums";
 import { IAccessToken } from "@shared/interfaces/accessToken.interface";
+import { AdminsRepository } from "@shared/repositories/admins.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
@@ -44,6 +45,7 @@ export class LoginUseCase {
     private readonly personalsRepository: PersonalsRepository,
     private readonly studentsRepository: StudentsRepository,
     private readonly plansRepository: PlansRepository,
+    private readonly adminsRepository: AdminsRepository,
     private readonly jwtService: JwtService,
   ) { }
 
@@ -145,6 +147,33 @@ export class LoginUseCase {
           tenantId: student.tenantId,
           personalSlug: personal.slug,
         },
+      };
+    }
+
+    // Admin login flow
+    if (user.role === ApplicationRoles.ADMIN) {
+      const admin = await this.adminsRepository.findByUserId(user.id);
+
+      if (!admin) {
+        throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
+      }
+
+      const tokenPayload: IAccessToken = {
+        sub: user.id,
+        role: ApplicationRoles.ADMIN,
+        profileId: admin.id,
+        personalId: null,
+        personalSlug: null,
+      };
+
+      const accessToken = this.jwtService.sign(tokenPayload);
+      const { raw: refreshToken, hash: refreshTokenHash } = generateSetupToken();
+      await this.usersRepository.updateRefreshTokenHash(user.id, refreshTokenHash);
+
+      return {
+        accessToken,
+        refreshToken,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role, tenantId: admin.id },
       };
     }
 

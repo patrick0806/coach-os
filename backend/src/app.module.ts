@@ -34,6 +34,7 @@ import { CoachingContractsModule } from "@modules/coaching/contracts/contracts.m
 import { EnumsModule } from "@modules/enums/enums.module";
 import { WebhooksModule } from "@modules/platform/webhooks/webhooks.module";
 import { SubscriptionsModule } from "@modules/platform/subscriptions/subscriptions.module";
+import { AdminModule } from "@modules/platform/admin/admin.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 
@@ -71,6 +72,7 @@ import { DatabaseModule } from "@config/database/database.module";
     EnumsModule,
     WebhooksModule,
     SubscriptionsModule,
+    AdminModule,
     RouterModule.register([
       {
         path: "health",
@@ -163,6 +165,10 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         path: "subscriptions",
         module: SubscriptionsModule,
+      },
+      {
+        path: "admin",
+        module: AdminModule,
       },
     ]),
   ],

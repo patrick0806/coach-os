@@ -6,6 +6,7 @@ import type { StringValue } from "ms";
 import { env } from "@config/env";
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { StripeProvider } from "@shared/providers/stripe.provider";
+import { AdminsRepository } from "@shared/repositories/admins.repository";
 import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
@@ -46,6 +47,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     JwtStrategy,
     StripeProvider,
     ResendProvider,
+    AdminsRepository,
     PersonalsRepository,
     UsersRepository,
     PlansRepository,

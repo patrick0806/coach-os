@@ -63,12 +63,17 @@ const makePlansRepository = () => ({
   findById: vi.fn().mockResolvedValue(undefined),
 });
 
+const makeAdminsRepository = () => ({
+  findByUserId: vi.fn().mockResolvedValue({ id: "admin-id", userId: "admin-user-id" }),
+});
+
 describe("LoginUseCase", () => {
   let useCase: LoginUseCase;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let studentsRepository: ReturnType<typeof makeStudentsRepository>;
   let plansRepository: ReturnType<typeof makePlansRepository>;
+  let adminsRepository: ReturnType<typeof makeAdminsRepository>;
   let jwtService: ReturnType<typeof makeJwtService>;
 
   beforeEach(() => {
@@ -76,6 +81,7 @@ describe("LoginUseCase", () => {
     personalsRepository = makePersonalsRepository();
     studentsRepository = makeStudentsRepository();
     plansRepository = makePlansRepository();
+    adminsRepository = makeAdminsRepository();
     jwtService = makeJwtService();
 
     useCase = new LoginUseCase(
@@ -83,6 +89,7 @@ describe("LoginUseCase", () => {
       personalsRepository as any,
       studentsRepository as any,
       plansRepository as any,
+      adminsRepository as any,
       jwtService as any,
     );
   });
@@ -232,6 +239,47 @@ describe("LoginUseCase", () => {
         profileId: "student-id",
         personalId: "personal-id",
         personalSlug: "joao-silva",
+      }),
+    );
+  });
+
+  // --- ADMIN branch ---
+
+  it("should login an ADMIN successfully", async () => {
+    usersRepository.findByEmail.mockResolvedValue(makeUser({ role: "ADMIN", id: "admin-user-id" }));
+
+    const result = await useCase.execute({
+      email: "admin@coachos.com",
+      password: "Str0ngPass!",
+    });
+
+    expect(result.accessToken).toBe("access.token.here");
+    expect(result.refreshToken).toBeDefined();
+    expect(result.user.role).toBe("ADMIN");
+    expect(result.user.tenantId).toBe("admin-id");
+  });
+
+  it("should throw UnauthorizedException when ADMIN record not found", async () => {
+    usersRepository.findByEmail.mockResolvedValue(makeUser({ role: "ADMIN", id: "admin-user-id" }));
+    adminsRepository.findByUserId.mockResolvedValue(undefined);
+
+    await expect(
+      useCase.execute({ email: "admin@coachos.com", password: "Str0ngPass!" }),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it("should build correct JWT payload with ADMIN role", async () => {
+    usersRepository.findByEmail.mockResolvedValue(makeUser({ role: "ADMIN", id: "admin-user-id" }));
+
+    await useCase.execute({ email: "admin@coachos.com", password: "Str0ngPass!" });
+
+    expect(jwtService.sign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sub: "admin-user-id",
+        role: ApplicationRoles.ADMIN,
+        profileId: "admin-id",
+        personalId: null,
+        personalSlug: null,
       }),
     );
   });

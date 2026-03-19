@@ -36,6 +36,7 @@ import {
   appointmentRequests,
   availabilityExceptions,
   studentInvitationTokens,
+  admins,
 } from "./schema";
 
 // Drizzle ORM type inference excludes optional/defaulted columns from insert types.
@@ -203,6 +204,19 @@ async function clean(db: ReturnType<typeof drizzle>) {
     }
 
     await db.delete(users).where(eq(users.id, demoUser.id));
+  }
+
+  // Remove demo admin
+  const [demoAdminUser] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, "admin@coachos.com"))
+    .limit(1);
+
+  if (demoAdminUser) {
+    await db.delete(admins).where(eq(admins.userId, demoAdminUser.id));
+    await db.delete(users).where(eq(users.id, demoAdminUser.id));
+    console.log("✓ Demo admin removed");
   }
 
   // Remove global exercises (tenantId is null)
@@ -1127,6 +1141,46 @@ async function seed(db: ReturnType<typeof drizzle>) {
     } else {
       console.log(`✓ Demo students already exist (${existingStudents.length}), skipping`);
     }
+
+    // ─── Demo Admin ────────────────────────────────────────────────────────────
+    const adminPassword = await argon2.hash("Admin@123456" + env.HASH_PEPPER, {
+      type: argon2.argon2id,
+    });
+
+    let [adminUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, "admin@coachos.com"))
+      .limit(1);
+
+    if (!adminUser) {
+      await db.insert(users).values(sv({
+        name: "Admin Coach OS",
+        email: "admin@coachos.com",
+        password: adminPassword,
+        role: "ADMIN",
+        isActive: true,
+      }));
+      [adminUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, "admin@coachos.com"))
+        .limit(1);
+    }
+
+    if (!adminUser) throw new Error("Failed to create admin user");
+
+    const [existingAdmin] = await db
+      .select()
+      .from(admins)
+      .where(eq(admins.userId, adminUser.id))
+      .limit(1);
+
+    if (!existingAdmin) {
+      await db.insert(admins).values(sv({ userId: adminUser.id }));
+    }
+
+    console.log("✓ Demo admin seeded (email: admin@coachos.com, password: Admin@123456)");
 
     console.log("Seed completed successfully!");
   } catch (error) {

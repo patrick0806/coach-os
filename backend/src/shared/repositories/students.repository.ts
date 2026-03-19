@@ -138,6 +138,13 @@ export class StudentsRepository {
     };
   }
 
+  async countAll(): Promise<number> {
+    const result = await this.drizzle.db
+      .select({ value: sql<number>`count(*)` })
+      .from(students);
+    return Number(result[0]?.value ?? 0);
+  }
+
   async countByTenantId(tenantId: string): Promise<number> {
     const result = await this.drizzle.db
       .select({ value: sql<number>`count(*)` })
