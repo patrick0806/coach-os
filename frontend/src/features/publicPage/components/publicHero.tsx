@@ -39,24 +39,36 @@ export function PublicHero({ profile, slug }: PublicHeroProps) {
       )}
 
       <div className="relative z-10 flex flex-col items-center gap-6">
-        {/* Coach photo */}
-        <div className="size-24 overflow-hidden rounded-full border-4 border-white/30 shadow-lg">
-          {profile.profilePhoto ? (
+        {/* Logo or coach photo */}
+        {profile.logoUrl ? (
+          <div className="h-16 max-w-[200px]">
             <Image
-              src={profile.profilePhoto}
-              alt={profile.coachName}
-              width={96}
-              height={96}
-              className="size-full object-cover"
+              src={profile.logoUrl}
+              alt={`Logo de ${profile.coachName}`}
+              width={200}
+              height={64}
+              className="h-full w-auto object-contain drop-shadow-md"
             />
-          ) : (
-            <div className="flex size-full items-center justify-center bg-muted">
-              <Dumbbell className="size-10 text-muted-foreground" />
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="size-24 overflow-hidden rounded-full border-4 border-white/30 shadow-lg">
+            {profile.profilePhoto ? (
+              <Image
+                src={profile.profilePhoto}
+                alt={profile.coachName}
+                width={96}
+                height={96}
+                className="size-full object-cover"
+              />
+            ) : (
+              <div className="flex size-full items-center justify-center bg-muted">
+                <Dumbbell className="size-10 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="max-w-2xl space-y-3">
+        <div className="max-w-2xl space-y-3 text-center">
           <h1
             className={`text-4xl font-bold tracking-tight md:text-5xl ${profile.lpHeroImage ? "text-white" : "text-foreground"}`}
           >
@@ -68,6 +80,22 @@ export function PublicHero({ profile, slug }: PublicHeroProps) {
             >
               {profile.lpSubtitle}
             </p>
+          )}
+          {profile.specialties && profile.specialties.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2 pt-1">
+              {profile.specialties.map((specialty) => (
+                <span
+                  key={specialty}
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    profile.lpHeroImage
+                      ? "bg-white/20 text-white backdrop-blur-sm"
+                      : "bg-primary/10 text-primary"
+                  }`}
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
           )}
         </div>
 

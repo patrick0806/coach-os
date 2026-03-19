@@ -27,6 +27,7 @@ export interface PublicProfile {
   coachName: string
   bio: string | null
   profilePhoto: string | null
+  logoUrl: string | null
   specialties: string[] | null
   phoneNumber: string | null
   themeColor: string | null

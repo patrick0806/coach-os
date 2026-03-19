@@ -1,14 +1,21 @@
 "use client"
 
-import { useEffect, type ReactNode } from "react"
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { CalendarDays, Dumbbell, LogOut, TrendingUp } from "lucide-react"
 
 import { studentAuthStore } from "@/stores/studentAuthStore"
 import { studentAuthService } from "@/features/studentAuth/services/studentAuth.service"
 import { Button } from "@/shared/ui/button"
 import { cn } from "@/lib/utils"
+
+interface CoachBranding {
+  coachName: string
+  logoUrl: string | null
+  themeColor: string | null
+}
 
 interface StudentLayoutProps {
   children: ReactNode
@@ -20,9 +27,12 @@ const NAV_ITEMS = [
   { href: "/aluno/agenda", label: "Agenda", icon: CalendarDays },
 ]
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333"
+
 export default function StudentLayout({ children }: StudentLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const [branding, setBranding] = useState<CoachBranding | null>(null)
 
   useEffect(() => {
     // Guard: redirect to home if student is not authenticated
@@ -31,6 +41,26 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
     }
   }, [router])
 
+  useEffect(() => {
+    // Fetch coach branding using personalSlug stored in student session
+    const user = studentAuthStore.getUser()
+    if (!user?.personalSlug) return
+
+    fetch(`${BASE_URL}/public/${user.personalSlug}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        const profile = json?.data ?? json
+        if (profile) {
+          setBranding({
+            coachName: profile.coachName,
+            logoUrl: profile.logoUrl ?? null,
+            themeColor: profile.themeColor ?? null,
+          })
+        }
+      })
+      .catch(() => null)
+  }, [])
+
   const user = studentAuthStore.getUser()
 
   function handleLogout() {
@@ -38,16 +68,32 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
     router.push("/")
   }
 
+  const brandStyle = branding?.themeColor
+    ? ({ "--brand-color": branding.themeColor } as CSSProperties)
+    : undefined
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={brandStyle}>
       {/* Mobile header */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-card">
         <div className="flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <Dumbbell className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-sm">
-              {user?.name ?? "Portal do Aluno"}
-            </span>
+            {branding?.logoUrl ? (
+              <Image
+                src={branding.logoUrl}
+                alt={branding.coachName}
+                width={100}
+                height={32}
+                className="h-8 w-auto object-contain"
+              />
+            ) : (
+              <>
+                <Dumbbell className="h-5 w-5 text-primary" />
+                <span className="font-semibold text-sm">
+                  {branding?.coachName ?? "Portal do Aluno"}
+                </span>
+              </>
+            )}
           </div>
 
           <Button

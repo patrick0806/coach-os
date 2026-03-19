@@ -121,7 +121,24 @@ describe("GetPublicProfileUseCase", () => {
     expect(result.coachName).toBe("João Silva");
     expect(result.bio).toBe("Treinador especialista");
     expect(result.themeColor).toBe("#FF5733");
+    expect(result.logoUrl).toBeNull();
     expect(personalsRepository.findBySlug).toHaveBeenCalledWith("coach-joao");
+  });
+
+  it("should include logoUrl when coach has a logo", async () => {
+    personalsRepository.findBySlug.mockResolvedValue(
+      makePersonal({ logoUrl: "https://example.com/logo.png" }),
+    );
+
+    const result = await useCase.execute("coach-joao");
+
+    expect(result.logoUrl).toBe("https://example.com/logo.png");
+  });
+
+  it("should include specialties in response", async () => {
+    const result = await useCase.execute("coach-joao");
+
+    expect(result.specialties).toEqual(["musculação", "emagrecimento"]);
   });
 
   it("should throw NotFoundException when slug not found", async () => {

@@ -1,25 +1,27 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-18 (admin module complete)
+Last updated: 2026-03-19 (white-label subdomain plan added)
 
 ---
 
 ## Backend Status
 
-| Module | Status | Notes |
-|--------|--------|-------|
-| **platform/admins** | completed | AdminsRepository + AdminModule with 14 contexts — 731 tests passing |
-| **platform/subscriptions** | completed | GET /subscriptions/current, PATCH /subscriptions/plan, POST /subscriptions/cancel, POST /subscriptions/portal — 731 tests passing |
-| **platform/webhooks** | completed | POST /webhooks/stripe — handles subscription.updated, subscription.deleted, invoice.paid, invoice.payment_failed — 731 tests passing |
-| **platform/tenants** | completed | GET /admin/tenants, GET /admin/tenants/:id, PATCH /admin/tenants/:id/status — 731 tests passing |
-| **progress/checkins** | completed | POST+GET /me/progress-checkins (student self-service), 626 tests passing |
-| **progress/photos** | completed | POST /me/progress-photos/upload-url (student), 626 tests passing |
-| **scheduling/appointments** | completed | GET /me/appointments (student), 626 tests passing |
-| **scheduling/trainingSchedules** | completed | GET /me/training-schedules (student) + ownership validation |
-| **public** | completed | GET /public/:slug now includes availabilityRules, 626 tests passing |
-| **enums** | completed | GET /enums/muscle-groups + /enums/attendance-types (protected, 24h cache), 638 tests passing |
+All backend modules are **completed** (731 tests passing).
 
-All other backend modules are **completed** (731 tests passing).
+| Module | Notes |
+|--------|-------|
+| platform/auth | login, register, refresh, password reset, setup |
+| platform/admins | 14 contexts — stats, plans, whitelist, admins, tenants |
+| platform/subscriptions | GET current, PATCH plan, POST cancel, POST portal |
+| platform/webhooks | subscription.updated/deleted, invoice.paid/payment_failed |
+| platform/tenants | list, get, update status (admin only) |
+| training | exercises, templates, student programs, execution |
+| scheduling | availability rules/exceptions, appointments, training schedules, calendar |
+| coaching | relations, service plans, contracts, notes, progress photos |
+| students | invite, accept-invite, shareable link |
+| progress | checkins (POST+GET /me), photos upload-url |
+| public | GET /public/:slug (inclui availabilityRules) |
+| enums | GET /enums/muscle-groups + /enums/attendance-types |
 
 ---
 
@@ -27,18 +29,17 @@ All other backend modules are **completed** (731 tests passing).
 
 | Area | Status | Notes |
 |------|--------|-------|
-| **Dashboard** | in progress | layout + placeholder done; real sidebar nav + stats pending |
-| **Billing / Subscription** | completed | /assinatura (plan cards, status, change/cancel dialogs), /assinatura/bloqueado (paywall), trial banner, sidebar link |
-| **Public page** | completed | LP renderizada em /personais/[slug]; editor em /pagina-publica; sub-rotas auth branded |
-| **Student portal** | completed | Layout + bottom nav, login, treinos, execução, progresso (/aluno/progresso) com criação própria, agenda (/aluno/agenda) |
+| **Dashboard** | in progress | layout + placeholder done; real stats pending |
+| **Billing / Subscription** | completed | /assinatura, /assinatura/bloqueado, trial banner, 403 interceptor |
+| **Public page (LP)** | completed | /personais/[slug] + editor /pagina-publica + sub-rotas auth branded |
+| **Student portal** | completed | login, treinos, execução, progresso, agenda + bottom nav |
+| **Admin panel** | completed | /admin/dashboard, /admin/planos, /admin/whitelist, /admin/admins, /admin/tenants |
+| **Progress checkins** | completed | Unified checkin view (metrics + photos); behavior tests passing |
+| **White-label branding** | not started | Sprint 1: logo+specialties na LP, branding no portal do aluno |
+| **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
+| **Progress charts** | not started | Backlog: line graphs, comparisons |
 | **Notifications** | not started | Backlog: preferences page |
 | **Institutional Pages** | not started | Backlog: FAQ, Contact, Terms, Privacy, About |
-| **Progress checkins** | completed | Unified checkin view (replaces Métricas + Fotos tabs); checkinCard, createCheckinDialog |
-| **Progress charts** | not started | Backlog: line graphs, metric comparisons |
-
-| **Admin panel** | completed | /admin/dashboard, /admin/planos, /admin/whitelist, /admin/admins, /admin/tenants + behavior tests |
-
-All other frontend areas are **completed**.
 
 ---
 
@@ -47,29 +48,31 @@ All other frontend areas are **completed**.
 | Component | Status | Notes |
 |-----------|--------|-------|
 | **CI/CD** | not started | No pipeline configured |
-| **Monitoring** | not started | Better Stack planned but not integrated |
-
-All other infrastructure components are **completed**.
+| **Monitoring** | not started | Better Stack planned |
+| **Wildcard DNS/SSL** | not started | Needed for subdomain routing (Sprint 2) |
+| **Nginx wildcard** | not started | `*.coachos.com.br` → frontend (Sprint 2) |
 
 ---
 
 ## Next Milestones
 
-### Milestone 6 — Student-facing product ✅ (portal completo)
-- ~~Student portal: progress page + appointments page~~ — concluído
-- ~~Coach public page and branding (editor + rendering)~~ — concluído
-- Notifications — backlog
-- **Validates:** Phases 11, 12, 13
+### Milestone 9 — White-label Quick Wins (Sprint 1)
+Zero risco de regressão. Sem impacto em auth/infra.
+- Exibir `specialties` como badges na LP do coach
+- Exibir `logoUrl` no hero da LP
+- Portal do aluno busca perfil via `/public/:slug` e aplica `themeColor` + `logoUrl`
+- **Validates:** PRD Fase 6 (branding básico)
 
-### Milestone 7 — Billing & Subscription ✅
-- ~~Stripe webhooks (subscription.updated, deleted, invoice.paid, payment_failed)~~ — concluído
-- ~~Subscription endpoints (GET current, PATCH plan, POST cancel, POST portal)~~ — concluído
-- ~~Frontend billing page (/assinatura)~~ — concluído
-- ~~Paywall page + 403 interceptor~~ — concluído
-- ~~Trial banner in dashboard layout~~ — concluído
+### Milestone 10 — Subdomain Foundation (Sprints 2+3)
+Infra + cookies + CORS + Next.js middleware.
+- Wildcard DNS e SSL (`*.coachos.com.br`)
+- Backend: `COOKIE_DOMAIN` env + CORS regex
+- Frontend: middleware + migração de rotas `/coach/[slug]/`
+- Portal do aluno totalmente brandado via subdomínio
+- **Validates:** White-label real, isolamento por subdomínio
 
-### Milestone 8 — Polish & Infrastructure
-- Progress charts (line graphs, metric comparisons)
+### Milestone 11 — Polish & Infrastructure
+- Progress charts (line graphs, comparisons)
 - Dashboard real stats
 - Notification preferences
 - CI/CD pipeline

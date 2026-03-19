@@ -16,6 +16,7 @@ export interface PublicProfileResult {
   coachName: string;
   bio: string | null;
   profilePhoto: string | null;
+  logoUrl: string | null;
   specialties: string[] | null;
   phoneNumber: string | null;
   themeColor: string | null;
@@ -65,6 +66,7 @@ export class GetPublicProfileUseCase {
       coachName: personal.coachName,
       bio: personal.bio,
       profilePhoto: personal.profilePhoto,
+      logoUrl: personal.logoUrl,
       specialties: personal.specialties,
       phoneNumber: personal.phoneNumber,
       themeColor: personal.themeColor,

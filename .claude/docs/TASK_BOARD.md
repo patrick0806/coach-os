@@ -1,120 +1,115 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-18 (admin module complete)
+Last updated: 2026-03-19 (white-label subdomain plan)
 
 ---
 
-## Backlog
-
-### Module: platform/admins ✅ DONE
-
-- [x] Implement AdminsRepository (findById, findByUserId, create, findAll, deleteById)
-- [x] Implement admin module with 14 contexts (stats, plans CRUD, whitelist, admins, tenants)
-- [x] Extend PlansRepository (findAllAdmin, create, update, deleteById)
-- [x] Extend PersonalsRepository (findAllPaginated, countAll, countByAccessStatus, countWhitelisted, countCreatedThisMonth)
-- [x] Extend StudentsRepository (countAll)
-- [x] All admin routes protected with @Roles(ApplicationRoles.ADMIN) + @BypassTenantAccess()
-
-### Module: platform/subscriptions ✅ DONE
-
-- [x] Implement GetSubscriptionUseCase
-- [x] Implement subscription response DTO
-- [x] Implement get subscription controller (GET /subscriptions/current)
-- [x] Implement get subscription unit tests
-- [x] Implement ChangeSubscriptionPlanUseCase (upgrade/downgrade via Stripe)
-- [x] Implement change plan controller (PATCH /subscriptions/plan)
-- [x] Implement change plan unit tests
-- [x] Implement CancelSubscriptionUseCase
-- [x] Implement cancel subscription controller (POST /subscriptions/cancel)
-- [x] Implement cancel subscription unit tests
-- [x] Implement CreatePortalSessionUseCase (POST /subscriptions/portal)
-- [x] Implement Stripe webhook handler (subscription.updated, subscription.deleted, invoice.paid, invoice.payment_failed)
-- [x] Implement webhook unit tests
-
-### Module: platform/tenants ✅ DONE
-
-- [x] Implement ListTenantsUseCase (admin only, paginated + search)
-- [x] Implement list tenants controller (GET /admin/tenants)
-- [x] Implement list tenants unit tests
-- [x] Implement GetTenantUseCase (admin only)
-- [x] Implement get tenant controller (GET /admin/tenants/:id)
-- [x] Implement get tenant unit tests
-- [x] Implement UpdateTenantStatusUseCase (admin only)
-- [x] Implement update status controller (PATCH /admin/tenants/:id/status)
-- [x] Implement update status unit tests
-
-### Frontend: billing ✅ DONE
-
-- [x] Implement subscription service (getCurrentSubscription, changePlan, cancelSubscription, getPortalUrl)
-- [x] Implement useSubscription hook (React Query)
-- [x] Implement billing page (/assinatura) with plan cards, status card, change/cancel dialogs
-- [x] Implement paywall page (/assinatura/bloqueado) with trial/payment/inactive variants
-- [x] Implement trial banner in dashboard layout (differenceInDays, urgent style ≤2 days)
-- [x] Add "Assinatura" link in sidebar footer
-- [x] Add 403 interceptor in axios for paywall redirect
-- [x] Student limit UI: toast with upgrade CTA on student_limit_reached
-
-### Frontend: admin panel ✅ DONE
-
-- [x] Implement admin types (admin.types.ts)
-- [x] Implement admin service (admin.service.ts)
-- [x] Implement admin hooks (useAdminStats, useAdminPlans, useAdminWhitelist, useAdminAdmins, useAdminTenants)
-- [x] Implement AdminSidebar component
-- [x] Implement (admin)/layout.tsx with ADMIN role guard
-- [x] Implement /admin/dashboard (5 stats cards)
-- [x] Implement /admin/planos (CRUD de planos)
-- [x] Implement /admin/whitelist (add/remove coaches)
-- [x] Implement /admin/admins (create/delete admins, conflict error handling)
-- [x] Implement /admin/tenants (paginated + debounced search)
-- [x] Implement /admin/tenants/[id] (detail + status change)
-- [x] Implement admin.fixtures.ts
-- [x] Add admin mock helpers to apiMocks.ts (injectMockAdminAuth, mockAdminStats, mockAdminPlans, etc.)
-- [x] Implement admin.behavior.spec.ts (18 behavioral tests)
+## Em andamento
 
 ### Frontend: dashboard
 
 - [ ] Implement real sidebar navigation
 - [ ] Implement dashboard stats (real data from API)
 
-### Frontend: progress (backlog)
+---
 
-- [ ] Implement progress charts (line graphs, comparisons)
+## Backlog — White-label (Milestone 9–10)
 
-### Frontend: public page ✅ DONE
+### Sprint 1 — Quick Wins White-label (sem risco, sem impacto em auth/infra)
 
-- [x] Implement public page service (profileEditor/services/profile.service.ts)
-- [x] Implement public page editor (bio, photo, specialties, colors) — /pagina-publica
-- [x] Implement public page preview (link "Visualizar página" in editor)
-- [x] Implement public page rendering (/personais/[slug])
-- [x] Add availabilityRules to GET /public/:slug backend
-- [x] Auth branded sub-routes: /personais/[slug]/configurar-senha, esqueci-senha, redefinir-senha
-- [x] Sidebar link enabled for /pagina-publica
+**LP pública (`/personais/[slug]`)**
+- [ ] Exibir `specialties` como badges no hero da LP (dados já vêm de GET /public/:slug)
+- [ ] Exibir `logoUrl` no hero da LP (campo já existe, não renderizado na LP principal)
 
-### Frontend: student portal ✅ DONE
+**Portal do aluno — branding básico**
+- [ ] Layout do aluno lê `personalSlug` do `studentAuthStore`
+- [ ] Buscar `/public/:slug` no layout do aluno (GET já existe)
+- [ ] Aplicar `themeColor` como CSS var `--brand-color` no layout do aluno
+- [ ] Exibir `logoUrl` do coach no header do portal do aluno
+- [ ] Footer do portal: nome do coach em vez de "Coach OS"
 
-- [x] Implement student progress page (`/aluno/progresso`)
-- [x] Implement student appointments page (`/aluno/agenda`)
-- [x] Implement bottom navigation (Treinos / Progresso / Agenda)
-- [x] Fix metric labels (PT-BR)
-- [x] Allow student to create own progress checkin (metrics + photos)
+**Testes**
+- [ ] Atualizar behavior tests do studentPortal para cobrir branding (logo, cor)
+- [ ] Atualizar behavior tests da publicPage para cobrir specialties e logo
+
+---
+
+### Sprint 2 — Fundação de Subdomínios (infra + backend)
+
+> Pré-requisito: DNS wildcard e Cloudflare configurados
+
+**Infraestrutura**
+- [ ] Configurar wildcard DNS `*.coachos.com.br → IP da VM`
+- [ ] Obter wildcard SSL via Certbot + Cloudflare DNS (`*.coachos.com.br`)
+- [ ] Nginx: adicionar `server_name *.coachos.com.br` apontando para frontend
+
+**Backend — cookies**
+- [ ] Adicionar `COOKIE_DOMAIN` em `backend/src/config/env/index.ts`
+- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `login.controller.ts`
+- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `register.controller.ts`
+- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `refreshToken.controller.ts`
+- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie do student auth (login do aluno)
+
+**Backend — CORS**
+- [ ] Substituir lista hardcoded de origens em `main.ts` por função regex: `*.coachos.com.br`
+- [ ] Manter `localhost` permitido para desenvolvimento local
+
+**Frontend — cookies**
+- [ ] Adicionar `domain` nos cookies escritos em `authCookies.ts`
+- [ ] Adicionar `domain` nos cookies escritos em `studentAuthCookies.ts`
+
+**Testes**
+- [ ] Verificar manualmente: cookie de refresh enviado de `joao.coachos.com.br` para `api.coachos.com.br`
+- [ ] Verificar CORS não bloqueia subdomínios novos
+
+---
+
+### Sprint 3 — Proxy Next.js + Migração de Rotas
+
+> Pré-requisito: Sprint 2 concluído
+> Next.js renomeou `middleware.ts` para `proxy.ts` (deprecation warning se usar o nome antigo)
+
+**Proxy**
+- [ ] Criar `frontend/src/proxy.ts` com detecção de subdomínio via `host` header
+- [ ] Proxy reescreve `joao.coachos.com.br/*` → `/coach/joao/*` (transparente para o Next.js)
+- [ ] Excluir `www`, `app`, `admin` da regra de rewrite (subdomínios reservados)
+
+**Estrutura de rotas**
+- [ ] Criar `src/app/coach/[slug]/page.tsx` (LP do coach — migrar de `/personais/[slug]`)
+- [ ] Criar `src/app/coach/[slug]/aluno/layout.tsx` (layout com branding do coach)
+- [ ] Migrar `src/app/(student)/aluno/*` → `src/app/coach/[slug]/aluno/*`
+- [ ] Criar `src/app/coach/[slug]/login/page.tsx` (login do aluno brandado)
+- [ ] Manter `/personais/[slug]` com redirect 301 → `[slug].coachos.com.br` (backward compat)
+
+**Autenticação do aluno**
+- [ ] Redirect pós-login do aluno: `[slug].coachos.com.br/aluno/treinos`
+- [ ] Links de retorno no portal apontam para `[slug].coachos.com.br`
+
+**Testes**
+- [ ] Atualizar behavior tests: proxy rewrite funciona com mock de `host` header
+- [ ] Smoke test: fluxo completo aluno em `joao.coachos.com.br/aluno/treinos`
+- [ ] Verificar: `/personais/joao` redireciona 301 para `joao.coachos.com.br`
+
+---
+
+## Backlog — Outros
+
+### Frontend: progress charts
+- [ ] Implement progress charts (line graphs, metric comparisons)
 
 ### Frontend: notifications
-
 - [ ] Implement notification preferences page
 
-### Frontend: E2E Behavior Tests ✅ DONE
-
-- [x] profileEditor behavior tests (load, tabs, save, error, mobile)
-- [x] publicPage behavior tests (not-found fallback, auth sub-pages fallback)
-- [x] studentPortal/progresso behavior tests (list, empty, create dialog, expand)
-- [x] studentPortal/agenda behavior tests (schedules, appointments, empty states, mobile)
-- [x] Added mock helpers to apiMocks.ts (profile, student checkins, appointments, schedules)
-
 ### Infrastructure
-
 - [ ] CI/CD pipeline
 - [ ] Monitoring (Better Stack integration)
 
 ### Institutional Pages
-
 - [ ] FAQ, Contact, Terms, Privacy, About
+
+---
+
+## Descartado
+
+- **Tina CMS para editor de página** — não adequado: é Git-backed, dados estão no PostgreSQL, cria segunda fonte de verdade. Editor atual (form-based) é suficiente.
+- **Custom domains (Sprint 5)** — complexidade muito alta. Avaliar somente após validação com coaches Elite.
