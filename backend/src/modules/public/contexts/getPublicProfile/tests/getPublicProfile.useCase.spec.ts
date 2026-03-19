@@ -12,6 +12,8 @@ const makePersonal = (overrides = {}) => ({
   profilePhoto: "https://example.com/photo.jpg",
   logoUrl: null,
   themeColor: "#FF5733",
+  themeColorSecondary: null,
+  lpLayout: "1",
   phoneNumber: "+55 11 99999-9999",
   specialties: ["musculação", "emagrecimento"],
   onboardingCompleted: true,
@@ -197,5 +199,26 @@ describe("GetPublicProfileUseCase", () => {
     const result = await useCase.execute("coach-joao");
 
     expect(result.occupiedSlots).toHaveLength(0);
+  });
+
+  it("should include lpLayout and themeColorSecondary in response", async () => {
+    personalsRepository.findBySlug.mockResolvedValue(
+      makePersonal({ lpLayout: "2", themeColorSecondary: "#a855f7" }),
+    );
+
+    const result = await useCase.execute("coach-joao");
+
+    expect(result.lpLayout).toBe("2");
+    expect(result.themeColorSecondary).toBe("#a855f7");
+  });
+
+  it("should default lpLayout to '1' when not set", async () => {
+    personalsRepository.findBySlug.mockResolvedValue(
+      makePersonal({ lpLayout: null }),
+    );
+
+    const result = await useCase.execute("coach-joao");
+
+    expect(result.lpLayout).toBe("1");
   });
 });

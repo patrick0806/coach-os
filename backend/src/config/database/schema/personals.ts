@@ -27,6 +27,8 @@ export const personals = pgTable(
     profilePhoto: varchar("profile_photo", { length: 500 }),
     logoUrl: varchar("logo_url", { length: 500 }),
     themeColor: varchar("theme_color", { length: 7 }),
+    themeColorSecondary: varchar("theme_color_secondary", { length: 7 }),
+    lpLayout: varchar("lp_layout", { length: 10 }).notNull().default("1"),
     phoneNumber: varchar("phone_number", { length: 20 }),
     specialties: json("specialties").$type<string[]>().default([]),
     onboardingCompleted: boolean("onboarding_completed").notNull().default(false),

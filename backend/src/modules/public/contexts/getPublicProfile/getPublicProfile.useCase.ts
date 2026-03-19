@@ -20,6 +20,8 @@ export interface PublicProfileResult {
   specialties: string[] | null;
   phoneNumber: string | null;
   themeColor: string | null;
+  themeColorSecondary: string | null;
+  lpLayout: string;
   lpTitle: string | null;
   lpSubtitle: string | null;
   lpHeroImage: string | null;
@@ -70,6 +72,8 @@ export class GetPublicProfileUseCase {
       specialties: personal.specialties,
       phoneNumber: personal.phoneNumber,
       themeColor: personal.themeColor,
+      themeColorSecondary: personal.themeColorSecondary,
+      lpLayout: personal.lpLayout ?? "1",
       lpTitle: personal.lpTitle,
       lpSubtitle: personal.lpSubtitle,
       lpHeroImage: personal.lpHeroImage,

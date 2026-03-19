@@ -20,6 +20,8 @@ const updateProfileSchema = z.object({
   lpImage1: z.string().url().optional(),
   lpImage2: z.string().url().optional(),
   lpImage3: z.string().url().optional(),
+  lpLayout: z.enum(["1", "2", "3", "4"]).optional(),
+  themeColorSecondary: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
 });
 
 @Injectable()

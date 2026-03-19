@@ -42,4 +42,10 @@ export class UpdateProfileRequestDTO {
 
   @ApiPropertyOptional({ example: "https://example.com/img3.jpg" })
   lpImage3?: string;
+
+  @ApiPropertyOptional({ example: "1", enum: ["1", "2", "3", "4"] })
+  lpLayout?: string;
+
+  @ApiPropertyOptional({ example: "#a855f7" })
+  themeColorSecondary?: string;
 }
