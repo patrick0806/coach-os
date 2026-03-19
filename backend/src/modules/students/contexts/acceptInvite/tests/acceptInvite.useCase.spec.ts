@@ -45,6 +45,7 @@ const makePersonalsRepository = () => ({
   findById: vi.fn().mockResolvedValue({
     id: "tenant-id-1",
     subscriptionPlanId: "plan-id-1",
+    isWhitelisted: false,
   }),
 });
 
@@ -168,6 +169,19 @@ describe("AcceptInviteUseCase", () => {
     personalsRepository.findById.mockResolvedValue(undefined);
 
     await expect(useCase.execute(validBody)).rejects.toThrow(NotFoundException);
+  });
+
+  it("should skip student limit check for whitelisted personal", async () => {
+    personalsRepository.findById.mockResolvedValue({
+      id: "tenant-id-1",
+      subscriptionPlanId: "plan-id-1",
+      isWhitelisted: true,
+    });
+    studentsRepository.countByTenantId.mockResolvedValue(10); // at the limit
+
+    const result = await useCase.execute(validBody);
+    expect(result).toEqual({ message: "Account created successfully" });
+    expect(studentsRepository.countByTenantId).not.toHaveBeenCalled();
   });
 
   it("should throw ValidationException on invalid input", async () => {

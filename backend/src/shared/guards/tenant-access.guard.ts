@@ -63,6 +63,11 @@ export class TenantAccessGuard implements CanActivate {
       throw new TenantBlockedException("subscription_inactive", "Tenant not found");
     }
 
+    // Whitelisted accounts bypass all subscription checks
+    if (personal.isWhitelisted) {
+      return true;
+    }
+
     // If there is a Stripe subscription, prioritize its status over local accessStatus
     if (personal.subscriptionStatus) {
       if (personal.subscriptionStatus === "past_due") {

@@ -54,6 +54,7 @@ const makePersonal = (
   trialStartedAt: new Date("2026-03-01T00:00:00.000Z"),
   trialEndsAt: new Date("2026-04-01T00:00:00.000Z"),
   accessStatus: "trialing",
+  isWhitelisted: false,
   createdAt: new Date("2026-03-01T00:00:00.000Z"),
   updatedAt: new Date("2026-03-01T00:00:00.000Z"),
   ...overrides,
@@ -297,6 +298,57 @@ describe("TenantAccessGuard", () => {
       ),
     ).rejects.toMatchObject({
       code: "subscription_inactive",
+    });
+  });
+
+  describe("whitelisted account", () => {
+    it("should allow access regardless of accessStatus expired", async () => {
+      personalsRepository.findById.mockResolvedValue(
+        makePersonal({
+          isWhitelisted: true,
+          accessStatus: "expired",
+          subscriptionStatus: null,
+        }),
+      );
+
+      const result = await guard.canActivate(
+        makeContext({ role: ApplicationRoles.PERSONAL, personalId: "personal-id" }),
+      );
+
+      expect(result).toBe(true);
+    });
+
+    it("should allow access even with no Stripe subscription", async () => {
+      personalsRepository.findById.mockResolvedValue(
+        makePersonal({
+          isWhitelisted: true,
+          accessStatus: "expired",
+          subscriptionStatus: null,
+          stripeSubscriptionId: null,
+        }),
+      );
+
+      const result = await guard.canActivate(
+        makeContext({ role: ApplicationRoles.PERSONAL, personalId: "personal-id" }),
+      );
+
+      expect(result).toBe(true);
+      expect(personalsRepository.updateSubscription).not.toHaveBeenCalled();
+    });
+
+    it("should allow student access when personal is whitelisted", async () => {
+      personalsRepository.findById.mockResolvedValue(
+        makePersonal({
+          isWhitelisted: true,
+          accessStatus: "past_due",
+        }),
+      );
+
+      const result = await guard.canActivate(
+        makeContext({ role: ApplicationRoles.STUDENT, personalId: "personal-id" }),
+      );
+
+      expect(result).toBe(true);
     });
   });
 

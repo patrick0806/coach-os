@@ -42,6 +42,7 @@ const makePersonalsRepository = () => ({
   findById: vi.fn().mockResolvedValue({
     id: "tenant-id-1",
     subscriptionPlanId: "plan-id-1",
+    isWhitelisted: false,
   }),
 });
 
@@ -213,6 +214,20 @@ describe("CreateStudentUseCase", () => {
     await useCase.execute(validBody, tenantId);
 
     expect(coachingContractsRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should skip student limit check for whitelisted personal", async () => {
+    personalsRepository.findById.mockResolvedValue({
+      id: "tenant-id-1",
+      subscriptionPlanId: "plan-id-1",
+      isWhitelisted: true,
+    });
+    studentsRepository.countByTenantId.mockResolvedValue(10); // at the limit
+
+    // Should not throw despite being at the limit
+    const result = await useCase.execute(validBody, tenantId);
+    expect(result.id).toBe("student-id-1");
+    expect(studentsRepository.countByTenantId).not.toHaveBeenCalled();
   });
 
   it("should throw NotFoundException when servicePlanId references unknown plan", async () => {

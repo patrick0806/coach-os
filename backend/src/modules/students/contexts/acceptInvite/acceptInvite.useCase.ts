@@ -51,10 +51,12 @@ export class AcceptInviteUseCase {
     const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
     if (!plan) throw new NotFoundException("Plan not found");
 
-    // Re-check student limit for token's tenant
-    const count = await this.studentsRepository.countByTenantId(tenantId);
-    if (count >= plan.maxStudents) {
-      throw new ForbiddenException("Student limit reached for this coach");
+    // Re-check student limit for token's tenant (skip for whitelisted accounts)
+    if (!personal.isWhitelisted) {
+      const count = await this.studentsRepository.countByTenantId(tenantId);
+      if (count >= plan.maxStudents) {
+        throw new ForbiddenException("Student limit reached for this coach");
+      }
     }
 
     // Hash password with pepper

@@ -38,10 +38,12 @@ export class InviteStudentUseCase {
     const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
     if (!plan) throw new NotFoundException("Plan not found");
 
-    // Check student limit
-    const count = await this.studentsRepository.countByTenantId(tenantId);
-    if (count >= plan.maxStudents) {
-      throw new ForbiddenException("Student limit reached for your current plan");
+    // Check student limit (skip for whitelisted accounts)
+    if (!personal.isWhitelisted) {
+      const count = await this.studentsRepository.countByTenantId(tenantId);
+      if (count >= plan.maxStudents) {
+        throw new ForbiddenException("Student limit reached for your current plan");
+      }
     }
 
     // Check if student already exists in this tenant

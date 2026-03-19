@@ -30,6 +30,7 @@ export const personals = pgTable(
     phoneNumber: varchar("phone_number", { length: 20 }),
     specialties: json("specialties").$type<string[]>().default([]),
     onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
+    isWhitelisted: boolean("is_whitelisted").notNull().default(false),
     lpTitle: varchar("lp_title", { length: 200 }),
     lpSubtitle: varchar("lp_subtitle", { length: 300 }),
     lpHeroImage: varchar("lp_hero_image", { length: 500 }),

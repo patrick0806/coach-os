@@ -18,6 +18,7 @@ const makePersonalsRepository = () => ({
     id: "tenant-id-1",
     userId: "coach-user-id",
     subscriptionPlanId: "plan-id-1",
+    isWhitelisted: false,
   }),
 });
 
@@ -122,6 +123,20 @@ describe("InviteStudentUseCase", () => {
     personalsRepository.findById.mockResolvedValue(undefined);
 
     await expect(useCase.execute(validBody, tenantId)).rejects.toThrow(NotFoundException);
+  });
+
+  it("should skip student limit check for whitelisted personal", async () => {
+    personalsRepository.findById.mockResolvedValue({
+      id: "tenant-id-1",
+      userId: "coach-user-id",
+      subscriptionPlanId: "plan-id-1",
+      isWhitelisted: true,
+    });
+    studentsRepository.countByTenantId.mockResolvedValue(10); // at the limit
+
+    const result = await useCase.execute(validBody, tenantId);
+    expect(result).toEqual({ message: "Invitation sent successfully" });
+    expect(studentsRepository.countByTenantId).not.toHaveBeenCalled();
   });
 
   it("should throw ValidationException on invalid input", async () => {

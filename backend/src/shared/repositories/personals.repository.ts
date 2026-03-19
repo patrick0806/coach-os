@@ -80,6 +80,13 @@ export class PersonalsRepository {
       .where(eq(personals.id, id));
   }
 
+  async setWhitelisted(id: string, value: boolean): Promise<void> {
+    await this.drizzle.db
+      .update(personals)
+      .set({ isWhitelisted: value })
+      .where(eq(personals.id, id));
+  }
+
   async findByStripeCustomerId(customerId: string): Promise<Personal | undefined> {
     const result = await this.drizzle.db
       .select()
