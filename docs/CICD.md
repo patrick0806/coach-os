@@ -141,6 +141,70 @@ O `--remove-orphans` remove containers de serviços que foram removidos do `dock
 
 ---
 
+## Persistência de Dados e Migrations
+
+### Por que os dados dos clientes não se perdem no deploy
+
+O banco de dados usa um **volume nomeado** do Docker:
+
+```yaml
+postgres:
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:   # gerenciado pelo Docker, independente dos containers
+```
+
+O volume `postgres_data` existe no disco do servidor e é apenas **montado** pelo container do postgres. Quando o deploy recria os containers, o volume permanece intacto. Os dados só são perdidos se alguém executar explicitamente `docker compose down -v` ou `docker volume rm postgres_data` — comandos que nunca fazem parte do pipeline.
+
+| Comando executado no deploy | Apaga dados? |
+|-----------------------------|-------------|
+| `docker compose pull` | ❌ |
+| `docker compose up -d` | ❌ |
+| `docker compose down` (sem `-v`) | ❌ |
+| `docker compose down -v` | ✅ **sim — nunca executar em produção** |
+
+### Como as migrations são aplicadas automaticamente
+
+O `docker-compose.yml` define um **init container** (`migrate`) que roda a cada deploy:
+
+```yaml
+migrate:
+  image: ghcr.io/patrick0806/coach-os/backend:latest
+  command: ["node", "dist/config/database/migrate.js"]
+  depends_on:
+    postgres:
+      condition: service_healthy
+  restart: "no"   # roda uma vez e sai
+
+backend:
+  depends_on:
+    migrate:
+      condition: service_completed_successfully  # só sobe se migrate passou
+```
+
+**Sequência garantida a cada deploy:**
+
+```
+postgres saudável
+       │
+       ▼
+  migrate roda
+  (aplica novas migrations, é idempotente — não refaz o que já foi feito)
+       │
+  ┌────┴────┐
+  │ passou? │
+  └────┬────┘
+  sim  │  não → deploy falha, backend não sobe, produção continua na versão anterior
+       ▼
+  backend sobe
+```
+
+Drizzle ORM mantém uma tabela interna de controle (`drizzle_migrations`) que registra quais migrations já foram aplicadas — rodar duas vezes é seguro.
+
+---
+
 ## Configuração no GitHub — Passo a Passo
 
 ### 1. Branch Protection em `main`
