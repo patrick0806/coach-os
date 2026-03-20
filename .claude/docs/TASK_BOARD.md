@@ -1,6 +1,30 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-20 (Email templates premium — React Email + 13 templates)
+Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
+
+---
+
+## Concluído recentemente
+
+### Brand Logo na UI ✅
+- [x] Navbar (home + páginas institucionais): logo antes do texto "CoachOS" — desktop e mobile
+- [x] Sidebar dashboard: substituído ícone dumbbell pelo logo (sem box colorido)
+- [x] Header mobile dashboard: idem
+- [x] Sidebar admin: idem
+- [x] Painel de branding auth (login/cadastro): idem
+
+### CI/CD — GitHub Actions ✅
+- [x] `.github/workflows/ci.yml`: lint + typecheck + unit tests + db:migrate + integration tests (backend) e lint + typecheck + build + Playwright behavioral (frontend)
+- [x] `.github/workflows/cd.yml`: build imagens GHCR (SHA + latest) + deploy via SSH — dispara somente quando CI passa em main
+- [x] `docker-compose.yml`: adicionadas referências de imagem `ghcr.io/patrick0806/coach-os/backend:latest` e frontend
+- [x] `docs/CICD.md`: documentação completa com branch protection, secrets, setup do servidor e rollback
+
+### Observabilidade — Better Stack + eBPF ✅
+- [x] Better Stack: 3 sources criadas (backend, frontend, infra) + 2 applications de error tracking
+- [x] `docker-compose.yml`: serviços `otel-collector` e `beyla` adicionados com configuração eBPF
+- [x] `monitoring/otel-collector.yml`: pipeline completo — docker_observer + receiver_creator + routing connector + hostmetrics + OTLP
+- [x] `.env.example`: todos os tokens e DSNs documentados
+- [x] `docs/OBSERVABILITY.md`: documentação completa com arquitetura, variáveis, onde cadastrar, alertas recomendados e próximos passos (SDK)
 
 ---
 
@@ -137,8 +161,9 @@ Last updated: 2026-03-20 (Email templates premium — React Email + 13 templates
 - [ ] Implement notification preferences page
 
 ### Infrastructure
-- [ ] CI/CD pipeline
-- [ ] Monitoring (Better Stack integration)
+- [x] ~~CI/CD pipeline~~ ✅ — ver docs/CICD.md
+- [x] ~~Monitoring (Better Stack integration)~~ ✅ — ver docs/OBSERVABILITY.md
+- [ ] Error SDK: integrar Sentry SDK no NestJS (`backend/src/instrument.ts`) e no Next.js (`npx @sentry/wizard -i nextjs`)
 
 ### Institutional Pages ✅
 - [x] `/faq` — accordion por categoria + busca client-side + CTA para contato

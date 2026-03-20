@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-20 (Email templates premium — React Email + 13 templates)
+Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
 
 ---
 
@@ -35,11 +35,11 @@ All backend modules are **completed** (758 tests passing).
 | **Student portal** | completed | login, treinos, execução, progresso, agenda + bottom nav; branding com brand color nav, "Treinando com [Nome]", footer |
 | **Admin panel** | completed | /admin/dashboard, /admin/planos, /admin/whitelist, /admin/admins, /admin/tenants |
 | **Progress checkins** | completed | Unified checkin view (metrics + photos); behavior tests passing |
-| **White-label branding** | partial | Portal do aluno: brand color nav + "Treinando com [Nome]" + footer. LP: specialties e logoUrl pendentes |
+| **White-label branding** | completed | Portal do aluno: brand color nav + "Treinando com [Nome]" + footer. LP: specialties + logoUrl. Brand logo no navbar, sidebar, dashboard, admin e auth |
 | **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
 | **Progress charts** | not started | Backlog: line graphs, comparisons |
 | **Notifications** | not started | Backlog: preferences page |
-| **Institutional Pages** | not started | Backlog: FAQ, Contact, Terms, Privacy, About |
+| **Institutional Pages** | completed | /faq, /contato, /termos, /privacidade, /sobre + footer expandido |
 
 ---
 
@@ -47,8 +47,9 @@ All backend modules are **completed** (758 tests passing).
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **CI/CD** | not started | No pipeline configured |
-| **Monitoring** | not started | Better Stack planned |
+| **CI/CD** | completed | GitHub Actions: ci.yml (quality gates) + cd.yml (build GHCR + deploy SSH). Docs em docs/CICD.md |
+| **Monitoring** | completed | OTel Collector + Beyla eBPF + Better Stack (3 sources + 2 error apps). Docs em docs/OBSERVABILITY.md |
+| **Error SDK** | not started | Applications criadas no Better Stack; Sentry SDK pendente de integração no código |
 | **Wildcard DNS/SSL** | not started | Needed for subdomain routing (Sprint 2) |
 | **Nginx wildcard** | not started | `*.coachos.com.br` → frontend (Sprint 2) |
 
@@ -71,8 +72,10 @@ Infra + cookies + CORS + Next.js middleware.
 - Portal do aluno totalmente brandado via subdomínio
 - **Validates:** White-label real, isolamento por subdomínio
 
-### Milestone 11 — Polish & Infrastructure
-- Progress charts (line graphs, comparisons)
-- Dashboard real stats
-- Notification preferences
-- CI/CD pipeline
+### Milestone 11 — Polish & Infrastructure ✅ (parcial)
+- Progress charts (line graphs, comparisons) — pendente
+- Dashboard real stats — pendente
+- Notification preferences — pendente
+- ~~CI/CD pipeline~~ ✅
+- ~~Monitoring (Better Stack + eBPF)~~ ✅
+- ~~Brand logo no header/sidebar~~ ✅
