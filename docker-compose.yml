@@ -23,6 +23,7 @@ services:
   # Backend — NestJS / Fastify
   # ─────────────────────────────────────────
   backend:
+    image: ghcr.io/patrick0806/coach-os/backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -49,6 +50,7 @@ services:
   # Frontend — Next.js
   # ─────────────────────────────────────────
   frontend:
+    image: ghcr.io/patrick0806/coach-os/frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
