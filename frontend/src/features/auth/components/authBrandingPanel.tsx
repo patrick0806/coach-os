@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Users, Dumbbell, Calendar, TrendingUp } from "lucide-react";
 
 const features = [
@@ -35,9 +36,7 @@ export function AuthBrandingPanel() {
       {/* Logo & headline */}
       <div className="relative">
         <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Dumbbell className="h-5 w-5" />
-          </div>
+          <Image src="/logo_transparent.png" alt="Coach OS" width={40} height={40} />
           <span className="text-xl font-bold tracking-tight">Coach OS</span>
         </div>
 

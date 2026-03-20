@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { differenceInDays } from "date-fns";
-import { Dumbbell } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { authStore } from "@/stores/authStore";
@@ -90,9 +90,7 @@ export default function DashboardLayout({
         <header className="flex h-16 items-center gap-3 border-b border-border bg-background px-4 lg:px-8">
           <MobileSidebarTrigger />
           <div className="flex items-center gap-3 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Dumbbell className="h-4 w-4" />
-            </div>
+            <Image src="/logo_transparent.png" alt="Coach OS" width={32} height={32} />
             <span className="font-bold tracking-tight">Coach OS</span>
           </div>
         </header>

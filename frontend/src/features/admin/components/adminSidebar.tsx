@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, CreditCard, Dumbbell, LogOut, Shield, Users, List } from "lucide-react";
+import { BarChart3, CreditCard, LogOut, Shield, Users, List } from "lucide-react";
 
 import { authStore } from "@/stores/authStore";
 import { Button } from "@/shared/ui/button";
@@ -33,9 +34,7 @@ export function AdminSidebar() {
   return (
     <aside className="hidden w-64 shrink-0 border-r border-sidebar-border lg:flex lg:flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-6">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-          <Dumbbell className="size-4" />
-        </div>
+        <Image src="/logo_transparent.png" alt="Coach OS" width={32} height={32} />
         <div>
           <span className="font-bold tracking-tight">Coach OS</span>
           <p className="text-xs text-muted-foreground">Admin</p>

@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import {
@@ -67,9 +68,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-6">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-          <Dumbbell className="size-4" />
-        </div>
+        <Image src="/logo_transparent.png" alt="Coach OS" width={32} height={32} />
         <span className="font-bold tracking-tight">Coach OS</span>
       </div>
 

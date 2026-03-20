@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Menu } from "lucide-react";
 
@@ -12,7 +13,8 @@ export function Navbar() {
       className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg"
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <Link href="/" className="text-xl font-bold tracking-tight">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
+          <Image src="/logo_transparent.png" alt="Coach OS" width={28} height={28} />
           Coach<span className="text-primary">OS</span>
         </Link>
 
@@ -64,7 +66,8 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-72 p-0">
               <div className="flex h-full flex-col px-6 py-8">
-                <Link href="/" className="mb-8 text-xl font-bold tracking-tight">
+                <Link href="/" className="mb-8 flex items-center gap-2 text-xl font-bold tracking-tight">
+                  <Image src="/logo_transparent.png" alt="Coach OS" width={28} height={28} />
                   Coach<span className="text-primary">OS</span>
                 </Link>
 
