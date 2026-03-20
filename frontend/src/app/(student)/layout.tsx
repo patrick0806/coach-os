@@ -59,6 +59,17 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       .catch(() => null)
   }, [])
 
+  useEffect(() => {
+    // Dynamically update favicon with coach's logo when branding loads
+    if (!branding?.logoUrl) return
+
+    const existing = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null
+    const link = existing ?? document.createElement("link")
+    link.rel = "icon"
+    link.href = branding.logoUrl
+    if (!existing) document.head.appendChild(link)
+  }, [branding?.logoUrl])
+
   function handleLogout() {
     studentAuthService.logout()
     router.push("/")

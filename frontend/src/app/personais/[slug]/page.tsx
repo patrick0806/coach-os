@@ -31,6 +31,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     alternates: { canonical: pageUrl },
+    icons: profile.logoUrl
+      ? { icon: [{ url: profile.logoUrl }], apple: [{ url: profile.logoUrl }] }
+      : undefined,
     openGraph: {
       title,
       description,
