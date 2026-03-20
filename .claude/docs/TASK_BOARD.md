@@ -4,99 +4,11 @@ Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
 
 ---
 
-## Concluído recentemente
-
-### Brand Logo na UI ✅
-- [x] Navbar (home + páginas institucionais): logo antes do texto "CoachOS" — desktop e mobile
-- [x] Sidebar dashboard: substituído ícone dumbbell pelo logo (sem box colorido)
-- [x] Header mobile dashboard: idem
-- [x] Sidebar admin: idem
-- [x] Painel de branding auth (login/cadastro): idem
-
-### CI/CD — GitHub Actions ✅
-- [x] `.github/workflows/ci.yml`: lint + typecheck + unit tests + db:migrate + integration tests (backend) e lint + typecheck + build + Playwright behavioral (frontend)
-- [x] `.github/workflows/cd.yml`: build imagens GHCR (SHA + latest) + deploy via SSH — dispara somente quando CI passa em main
-- [x] `docker-compose.yml`: adicionadas referências de imagem `ghcr.io/patrick0806/coach-os/backend:latest` e frontend
-- [x] `docs/CICD.md`: documentação completa com branch protection, secrets, setup do servidor e rollback
-
-### Observabilidade — Better Stack + eBPF ✅
-- [x] Better Stack: 3 sources criadas (backend, frontend, infra) + 2 applications de error tracking
-- [x] `docker-compose.yml`: serviços `otel-collector` e `beyla` adicionados com configuração eBPF
-- [x] `monitoring/otel-collector.yml`: pipeline completo — docker_observer + receiver_creator + routing connector + hostmetrics + OTLP
-- [x] `.env.example`: todos os tokens e DSNs documentados
-- [x] `docs/OBSERVABILITY.md`: documentação completa com arquitetura, variáveis, onde cadastrar, alertas recomendados e próximos passos (SDK)
-
----
-
-## Concluído recentemente
-
-### Email Templates Premium ✅
-- [x] Instalar `@react-email/components`, `@react-email/render`, `react`, `react-dom`
-- [x] Configurar `"jsx": "react-jsx"` no tsconfig.json + TSX no include
-- [x] Configurar SWC plugin no vite.config.ts para suporte a TSX
-- [x] Criar componentes base: `emailLayout`, `emailButton`, `emailDetailCard`
-- [x] Criar 13 templates: welcome, passwordResetRequest, passwordResetConfirm, planSubscribed, planChanged, planCancelled, accessLost, paymentFailed, paymentRetry, trialEndingSoon, studentInvite, studentPasswordSetup, studentPasswordResetConfirm
-- [x] Refatorar `resend.provider.ts`: método `sendWithTemplate` + todos os novos métodos
-- [x] Adicionar envio de email em: register, resetPassword, setupPassword, cancelSubscription, changePlan, processStripeEvent
-- [x] Adicionar handler `customer.subscription.trial_will_end` no webhook Stripe
-- [x] Atualizar módulos: SubscriptionsModule e WebhooksModule com ResendProvider/UsersRepository
-- [x] Atualizar todos os testes afetados (758/758 passando)
-
----
-
-## Concluído recentemente
-
-### Página de Configurações — Alterar Senha ✅
-- [x] Backend: `PATCH /auth/change-password` (autenticado) — verifica senha atual, hash nova, invalida sessões
-- [x] Backend: 11 testes passando
-- [x] Frontend: `authService.changePassword()`
-- [x] Frontend: `useChangePassword` hook
-- [x] Frontend: `ChangePasswordForm` component com show/hide toggle
-- [x] Frontend: página `/settings`
-- [x] Sidebar: link Configurações habilitado
-
----
-
-## Backlog — White-label (Milestone 9–10)
-
-### Sprint 1 — Quick Wins White-label (sem risco, sem impacto em auth/infra)
-
-**LP editor — Draft/Publish system** ✅
-- [x] Backend: coluna `lpDraftData` + migration 0007
-- [x] Backend: `PUT /profile/lp-draft` (SaveLpDraftUseCase) — routing fix aplicado
-- [x] Backend: `POST /profile/lp/publish` (PublishLpDraftUseCase) — routing fix aplicado
-- [x] Frontend: profile.service.ts separado (UpdateProfileData vs LpDraftData)
-- [x] Frontend: hooks useSaveLpDraft + usePublishLpDraft
-- [x] Frontend: pageTab.tsx com botões "Salvar rascunho" / "Publicar" + badge "Rascunho pendente"
-- [x] Frontend: pageTab.tsx com link "Visualizar rascunho" quando há draft
-- [x] Frontend: profileTab.tsx com botão "Salvar" interno
-- [x] Frontend: lpEditorPage.tsx com dois drafts separados
-- [x] Frontend: pré-visualização do rascunho em `/pagina-publica/rascunho` (route group (preview))
-- [x] Templates renomeados: Conversão, Autoridade, Minimalista, Impacto
-- [x] Testes E2E atualizados — 68/68 passando (all browsers)
-
-**LP pública — SEO** ✅
-- [x] og:url, twitter:card, canonical
-- [x] JSON-LD Person schema
-
-**Portal do aluno — branding minor** ✅
-- [x] Nav ativo com brand color (via CSS style inline)
-- [x] "Treinando com [Nome]" abaixo do logo/nome
-- [x] Footer "[Nome] · via Coach OS"
-
-**LP pública (`/personais/[slug]`)** ✅
-- [x] Exibir `specialties` como badges no hero da LP
-- [x] Exibir `logoUrl` no hero da LP
-
-**Testes** ✅
-- [x] Atualizar behavior tests do studentPortal para cobrir branding (logo, cor)
-- [x] Atualizar behavior tests da publicPage para cobrir specialties e logo
-
----
+## Backlog — Subdomínios (Milestone 10)
 
 ### Sprint 2 — Fundação de Subdomínios (infra + backend)
 
-> Pré-requisito: DNS wildcard e Cloudflare configurados
+> Pré-requisito: DNS wildcard e Cloudflare configurados (ver docs/SERVER_SETUP.md)
 
 **Infraestrutura**
 - [ ] Configurar wildcard DNS `*.coachos.com.br → IP da VM`
@@ -154,24 +66,19 @@ Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
 
 ## Backlog — Outros
 
-### Frontend: progress charts
-- [ ] Implement progress charts (line graphs, metric comparisons)
+### Frontend: Dashboard stats reais
+- [ ] Integrar dados reais na página `/dashboard` (hoje usa placeholders)
 
-### Frontend: notifications
-- [ ] Implement notification preferences page
+### Frontend: Progress charts
+- [ ] Implementar gráficos de linha e comparativo de métricas do aluno
 
-### Infrastructure
-- [x] ~~CI/CD pipeline~~ ✅ — ver docs/CICD.md
-- [x] ~~Monitoring (Better Stack integration)~~ ✅ — ver docs/OBSERVABILITY.md
-- [ ] Error SDK: integrar Sentry SDK no NestJS (`backend/src/instrument.ts`) e no Next.js (`npx @sentry/wizard -i nextjs`)
+### Frontend: Notifications
+- [ ] Implementar página de preferências de notificação
 
-### Institutional Pages ✅
-- [x] `/faq` — accordion por categoria + busca client-side + CTA para contato
-- [x] `/contato` — formulário com feedback de sucesso + sidebar de info
-- [x] `/termos` — documento legal com TOC lateral sticky (desktop)
-- [x] `/privacidade` — política LGPD com TOC lateral sticky (desktop)
-- [x] `/sobre` — brand story + valores + CTA
-- [x] Footer expandido com links Produto / Empresa / Legal
+### Infrastructure: Error SDK
+- [ ] Integrar Sentry SDK no NestJS — criar `backend/src/instrument.ts` + importar em `main.ts`
+- [ ] Integrar Sentry SDK no Next.js — `npx @sentry/wizard -i nextjs`
+- [ ] Usar DSNs documentados em `docs/OBSERVABILITY.md`
 
 ---
 

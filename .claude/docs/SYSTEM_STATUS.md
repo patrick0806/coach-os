@@ -30,16 +30,9 @@ All backend modules are **completed** (758 tests passing).
 | Area | Status | Notes |
 |------|--------|-------|
 | **Dashboard** | in progress | layout + placeholder done; real stats pending |
-| **Billing / Subscription** | completed | /assinatura, /assinatura/bloqueado, trial banner, 403 interceptor |
-| **Public page (LP)** | completed | /personais/[slug] + editor /pagina-publica + draft/publish system; SEO com og:url, twitter:card, JSON-LD |
-| **Student portal** | completed | login, treinos, execução, progresso, agenda + bottom nav; branding com brand color nav, "Treinando com [Nome]", footer |
-| **Admin panel** | completed | /admin/dashboard, /admin/planos, /admin/whitelist, /admin/admins, /admin/tenants |
-| **Progress checkins** | completed | Unified checkin view (metrics + photos); behavior tests passing |
-| **White-label branding** | completed | Portal do aluno: brand color nav + "Treinando com [Nome]" + footer. LP: specialties + logoUrl. Brand logo no navbar, sidebar, dashboard, admin e auth |
 | **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
 | **Progress charts** | not started | Backlog: line graphs, comparisons |
 | **Notifications** | not started | Backlog: preferences page |
-| **Institutional Pages** | completed | /faq, /contato, /termos, /privacidade, /sobre + footer expandido |
 
 ---
 
@@ -47,22 +40,13 @@ All backend modules are **completed** (758 tests passing).
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **CI/CD** | completed | GitHub Actions: ci.yml (quality gates) + cd.yml (build GHCR + deploy SSH). Docs em docs/CICD.md |
-| **Monitoring** | completed | OTel Collector + Beyla eBPF + Better Stack (3 sources + 2 error apps). Docs em docs/OBSERVABILITY.md |
 | **Error SDK** | not started | Applications criadas no Better Stack; Sentry SDK pendente de integração no código |
-| **Wildcard DNS/SSL** | not started | Needed for subdomain routing (Sprint 2) |
-| **Nginx wildcard** | not started | `*.coachos.com.br` → frontend (Sprint 2) |
+| **Wildcard DNS/SSL** | not started | Needed for subdomain routing (Sprint 2) — ver docs/SERVER_SETUP.md |
+| **Nginx wildcard** | not started | `*.coachos.com.br` → frontend (Sprint 2) — config pronta em docs/SERVER_SETUP.md |
 
 ---
 
 ## Next Milestones
-
-### Milestone 9 — White-label Quick Wins (Sprint 1)
-Zero risco de regressão. Sem impacto em auth/infra.
-- Exibir `specialties` como badges na LP do coach
-- Exibir `logoUrl` no hero da LP
-- Portal do aluno busca perfil via `/public/:slug` e aplica `themeColor` + `logoUrl`
-- **Validates:** PRD Fase 6 (branding básico)
 
 ### Milestone 10 — Subdomain Foundation (Sprints 2+3)
 Infra + cookies + CORS + Next.js middleware.
@@ -72,10 +56,8 @@ Infra + cookies + CORS + Next.js middleware.
 - Portal do aluno totalmente brandado via subdomínio
 - **Validates:** White-label real, isolamento por subdomínio
 
-### Milestone 11 — Polish & Infrastructure ✅ (parcial)
-- Progress charts (line graphs, comparisons) — pendente
-- Dashboard real stats — pendente
-- Notification preferences — pendente
-- ~~CI/CD pipeline~~ ✅
-- ~~Monitoring (Better Stack + eBPF)~~ ✅
-- ~~Brand logo no header/sidebar~~ ✅
+### Milestone 11 — Polish
+- Dashboard real stats
+- Progress charts (line graphs, comparisons)
+- Notification preferences
+- Error SDK (Sentry no NestJS + Next.js)
