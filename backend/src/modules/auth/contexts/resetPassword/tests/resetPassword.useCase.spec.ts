@@ -25,6 +25,11 @@ const makeTokenRecord = (overrides = {}) => ({
 const makeUsersRepository = () => ({
   updatePassword: vi.fn().mockResolvedValue(undefined),
   updateRefreshTokenHash: vi.fn().mockResolvedValue(undefined),
+  findById: vi.fn().mockResolvedValue({ id: USER_ID, name: "João Silva", email: "joao@email.com" }),
+});
+
+const makeResendProvider = () => ({
+  sendPasswordResetConfirm: vi.fn().mockResolvedValue(undefined),
 });
 
 const makePasswordTokensRepository = () => ({
@@ -44,16 +49,19 @@ describe("ResetPasswordUseCase", () => {
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let passwordTokensRepository: ReturnType<typeof makePasswordTokensRepository>;
   let drizzle: ReturnType<typeof makeDrizzle>;
+  let resendProvider: ReturnType<typeof makeResendProvider>;
 
   beforeEach(() => {
     usersRepository = makeUsersRepository();
     passwordTokensRepository = makePasswordTokensRepository();
     drizzle = makeDrizzle();
+    resendProvider = makeResendProvider();
 
     useCase = new ResetPasswordUseCase(
       usersRepository as any,
       passwordTokensRepository as any,
       drizzle as any,
+      resendProvider as any,
     );
   });
 
@@ -97,6 +105,14 @@ describe("ResetPasswordUseCase", () => {
     await expect(
       useCase.execute({ token: RAW_TOKEN, password: "N3wStr0ng!" }),
     ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it("should send password reset confirmation email after successful reset", async () => {
+    await useCase.execute({ token: RAW_TOKEN, password: "N3wStr0ng!" });
+
+    expect(resendProvider.sendPasswordResetConfirm).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "joao@email.com" }),
+    );
   });
 
   it("should hash password with argon2 and pepper", async () => {

@@ -5,6 +5,7 @@ import { PlansRepository } from "@shared/repositories/plans.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { StripeProvider } from "@shared/providers/stripe.provider";
+import { ResendProvider } from "@shared/providers/resend.provider";
 
 import { GetSubscriptionController } from "./contexts/getSubscription/getSubscription.controller";
 import { GetSubscriptionUseCase } from "./contexts/getSubscription/getSubscription.useCase";
@@ -27,6 +28,7 @@ import { CreateCheckoutSessionUseCase } from "./contexts/createCheckoutSession/c
   ],
   providers: [
     StripeProvider,
+    ResendProvider,
     PersonalsRepository,
     PlansRepository,
     StudentsRepository,

@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { env } from "@config/env";
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { ResendProvider } from "@shared/providers/resend.provider";
 import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { hashToken } from "@shared/utils/token.util";
@@ -22,6 +23,7 @@ export class ResetPasswordUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly passwordTokensRepository: PasswordTokensRepository,
     private readonly drizzle: DrizzleProvider,
+    private readonly resendProvider: ResendProvider,
   ) {}
 
   async execute(body: unknown): Promise<void> {
@@ -51,5 +53,11 @@ export class ResetPasswordUseCase {
       // Invalidate all active sessions to force re-login with the new password
       await this.usersRepository.updateRefreshTokenHash(tokenRecord.userId, null, tx);
     });
+
+    // Fire-and-forget confirmation email — failure must not block the reset flow
+    const user = await this.usersRepository.findById(tokenRecord.userId);
+    if (user) {
+      this.resendProvider.sendPasswordResetConfirm({ to: user.email, userName: user.name });
+    }
   }
 }

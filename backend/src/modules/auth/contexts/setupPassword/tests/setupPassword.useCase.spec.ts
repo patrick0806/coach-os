@@ -25,6 +25,11 @@ const makeTokenRecord = (overrides = {}) => ({
 const makeUsersRepository = () => ({
   updatePassword: vi.fn().mockResolvedValue(undefined),
   updateRefreshTokenHash: vi.fn().mockResolvedValue(undefined),
+  findById: vi.fn().mockResolvedValue({ id: USER_ID, name: "Ana Paula", email: "ana@email.com" }),
+});
+
+const makeResendProvider = () => ({
+  sendStudentPasswordSetupConfirm: vi.fn().mockResolvedValue(undefined),
 });
 
 const makePasswordTokensRepository = () => ({
@@ -44,16 +49,19 @@ describe("SetupPasswordUseCase", () => {
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let passwordTokensRepository: ReturnType<typeof makePasswordTokensRepository>;
   let drizzle: ReturnType<typeof makeDrizzle>;
+  let resendProvider: ReturnType<typeof makeResendProvider>;
 
   beforeEach(() => {
     usersRepository = makeUsersRepository();
     passwordTokensRepository = makePasswordTokensRepository();
     drizzle = makeDrizzle();
+    resendProvider = makeResendProvider();
 
     useCase = new SetupPasswordUseCase(
       usersRepository as any,
       passwordTokensRepository as any,
       drizzle as any,
+      resendProvider as any,
     );
   });
 
@@ -97,6 +105,14 @@ describe("SetupPasswordUseCase", () => {
     await expect(
       useCase.execute({ token: RAW_TOKEN, password: "Str0ngP@ss!" }),
     ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it("should send password setup confirmation email after successful setup", async () => {
+    await useCase.execute({ token: RAW_TOKEN, password: "Str0ngP@ss!" });
+
+    expect(resendProvider.sendStudentPasswordSetupConfirm).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "ana@email.com" }),
+    );
   });
 
   it("should hash password with argon2 and pepper", async () => {

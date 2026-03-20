@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
+import { UsersRepository } from "@shared/repositories/users.repository";
 import { StripeProvider } from "@shared/providers/stripe.provider";
+import { ResendProvider } from "@shared/providers/resend.provider";
 
 export interface CancelSubscriptionResult {
   subscriptionExpiresAt: string | null;
@@ -12,6 +14,8 @@ export class CancelSubscriptionUseCase {
   constructor(
     private readonly personalsRepository: PersonalsRepository,
     private readonly stripeProvider: StripeProvider,
+    private readonly usersRepository: UsersRepository,
+    private readonly resendProvider: ResendProvider,
   ) {}
 
   async execute(personalId: string): Promise<CancelSubscriptionResult> {
@@ -36,6 +40,16 @@ export class CancelSubscriptionUseCase {
           subscriptionExpiresAt: new Date(subscription.cancel_at * 1000),
         });
       }
+    }
+
+    // Fire-and-forget cancellation email — failure must not block the response
+    const user = await this.usersRepository.findById(personal.userId);
+    if (user) {
+      this.resendProvider.sendPlanCancelled({
+        to: user.email,
+        userName: user.name,
+        expiresAt: subscriptionExpiresAt ?? undefined,
+      });
     }
 
     return { subscriptionExpiresAt };

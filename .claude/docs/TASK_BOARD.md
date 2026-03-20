@@ -1,6 +1,22 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-19 (LP editor draft/publish + SEO + branding minor)
+Last updated: 2026-03-20 (Email templates premium — React Email + 13 templates)
+
+---
+
+## Concluído recentemente
+
+### Email Templates Premium ✅
+- [x] Instalar `@react-email/components`, `@react-email/render`, `react`, `react-dom`
+- [x] Configurar `"jsx": "react-jsx"` no tsconfig.json + TSX no include
+- [x] Configurar SWC plugin no vite.config.ts para suporte a TSX
+- [x] Criar componentes base: `emailLayout`, `emailButton`, `emailDetailCard`
+- [x] Criar 13 templates: welcome, passwordResetRequest, passwordResetConfirm, planSubscribed, planChanged, planCancelled, accessLost, paymentFailed, paymentRetry, trialEndingSoon, studentInvite, studentPasswordSetup, studentPasswordResetConfirm
+- [x] Refatorar `resend.provider.ts`: método `sendWithTemplate` + todos os novos métodos
+- [x] Adicionar envio de email em: register, resetPassword, setupPassword, cancelSubscription, changePlan, processStripeEvent
+- [x] Adicionar handler `customer.subscription.trial_will_end` no webhook Stripe
+- [x] Atualizar módulos: SubscriptionsModule e WebhooksModule com ResendProvider/UsersRepository
+- [x] Atualizar todos os testes afetados (758/758 passando)
 
 ---
 

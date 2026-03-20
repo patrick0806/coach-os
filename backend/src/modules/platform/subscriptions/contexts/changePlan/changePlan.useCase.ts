@@ -2,7 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
+import { UsersRepository } from "@shared/repositories/users.repository";
 import { StripeProvider } from "@shared/providers/stripe.provider";
+import { ResendProvider } from "@shared/providers/resend.provider";
 import { validate } from "@shared/utils/validation.util";
 
 import { changePlanSchema } from "./dtos/request.dto";
@@ -13,6 +15,8 @@ export class ChangePlanUseCase {
     private readonly personalsRepository: PersonalsRepository,
     private readonly plansRepository: PlansRepository,
     private readonly stripeProvider: StripeProvider,
+    private readonly usersRepository: UsersRepository,
+    private readonly resendProvider: ResendProvider,
   ) {}
 
   async execute(personalId: string, body: unknown): Promise<void> {
@@ -58,5 +62,15 @@ export class ChangePlanUseCase {
     await this.personalsRepository.updateSubscription(personal.id, {
       subscriptionPlanId: newPlan.id,
     });
+
+    // Fire-and-forget plan changed email — failure must not block the response
+    const user = await this.usersRepository.findById(personal.userId);
+    if (user) {
+      this.resendProvider.sendPlanChanged({
+        to: user.email,
+        userName: user.name,
+        newPlanName: newPlan.name,
+      });
+    }
   }
 }

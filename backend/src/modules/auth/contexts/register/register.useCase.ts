@@ -11,6 +11,7 @@ import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { StripeProvider } from "@shared/providers/stripe.provider";
+import { ResendProvider } from "@shared/providers/resend.provider";
 import { generateUniqueSlug } from "@shared/utils/generateUniqueSlug.util";
 import { generateSetupToken } from "@shared/utils/token.util";
 import { validate } from "@shared/utils/validation.util";
@@ -49,6 +50,7 @@ export class RegisterUseCase {
     private readonly plansRepository: PlansRepository,
     private readonly jwtService: JwtService,
     private readonly stripeProvider: StripeProvider,
+    private readonly resendProvider: ResendProvider,
   ) { }
 
   async execute(body: unknown): Promise<RegisterResult> {
@@ -134,6 +136,9 @@ export class RegisterUseCase {
     // Generate refresh token (opaque, stored as hash)
     const { raw: refreshToken, hash: refreshTokenHash } = generateSetupToken();
     await this.usersRepository.updateRefreshTokenHash(user.id, refreshTokenHash);
+
+    // Fire-and-forget welcome email — failure must not block registration
+    this.resendProvider.sendWelcome({ to: user.email, userName: user.name });
 
     return {
       accessToken,

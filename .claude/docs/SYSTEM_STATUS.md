@@ -1,19 +1,19 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-19 (LP editor draft/publish + SEO + branding minor)
+Last updated: 2026-03-20 (Email templates premium — React Email + 13 templates)
 
 ---
 
 ## Backend Status
 
-All backend modules are **completed** (747 tests passing).
+All backend modules are **completed** (758 tests passing).
 
 | Module | Notes |
 |--------|-------|
 | platform/auth | login, register, refresh, password reset, setup |
 | platform/admins | 14 contexts — stats, plans, whitelist, admins, tenants |
 | platform/subscriptions | GET current, PATCH plan, POST cancel, POST portal |
-| platform/webhooks | subscription.updated/deleted, invoice.paid/payment_failed |
+| platform/webhooks | subscription.updated/deleted, invoice.paid/payment_failed, trial_will_end |
 | platform/tenants | list, get, update status (admin only) |
 | training | exercises, templates, student programs, execution |
 | scheduling | availability rules/exceptions, appointments, training schedules, calendar |

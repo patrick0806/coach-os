@@ -65,6 +65,10 @@ const makeStripeProvider = () => ({
   client: null,
 });
 
+const makeResendProvider = () => ({
+  sendWelcome: vi.fn().mockResolvedValue(undefined),
+});
+
 describe("RegisterUseCase", () => {
   let useCase: RegisterUseCase;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
@@ -72,6 +76,7 @@ describe("RegisterUseCase", () => {
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let jwtService: ReturnType<typeof makeJwtService>;
   let stripeProvider: ReturnType<typeof makeStripeProvider>;
+  let resendProvider: ReturnType<typeof makeResendProvider>;
 
   beforeEach(() => {
     usersRepository = makeUsersRepository();
@@ -79,6 +84,7 @@ describe("RegisterUseCase", () => {
     personalsRepository = makePersonalsRepository();
     jwtService = makeJwtService();
     stripeProvider = makeStripeProvider();
+    resendProvider = makeResendProvider();
 
     useCase = new RegisterUseCase(
       usersRepository as any,
@@ -86,6 +92,7 @@ describe("RegisterUseCase", () => {
       plansRepository as any,
       jwtService as any,
       stripeProvider as any,
+      resendProvider as any,
     );
   });
 
@@ -206,6 +213,18 @@ describe("RegisterUseCase", () => {
     const [, storedHash] = usersRepository.updateRefreshTokenHash.mock.calls[0];
     expect(storedHash).not.toBe(result.refreshToken);
     expect(storedHash).toHaveLength(64); // SHA-256 hex
+  });
+
+  it("should send welcome email after successful registration", async () => {
+    await useCase.execute({
+      name: "João Silva",
+      email: "joao@email.com",
+      password: "Str0ngPass!",
+    });
+
+    expect(resendProvider.sendWelcome).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "joao@email.com" }),
+    );
   });
 
   it("should set trialing status when Stripe is not configured", async () => {

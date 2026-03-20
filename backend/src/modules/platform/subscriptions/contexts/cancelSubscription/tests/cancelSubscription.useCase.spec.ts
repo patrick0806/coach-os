@@ -7,9 +7,18 @@ const CANCEL_AT = 1800000000;
 
 const makePersonal = (overrides = {}) => ({
   id: "personal-id-1",
+  userId: "user-id-1",
   stripeSubscriptionId: "sub_test123",
   subscriptionExpiresAt: null,
   ...overrides,
+});
+
+const makeUsersRepository = () => ({
+  findById: vi.fn().mockResolvedValue({ id: "user-id-1", name: "João Silva", email: "joao@email.com" }),
+});
+
+const makeResendProvider = () => ({
+  sendPlanCancelled: vi.fn().mockResolvedValue(undefined),
 });
 
 const makeStripeProvider = (configured = true) => ({
@@ -30,13 +39,27 @@ describe("CancelSubscriptionUseCase", () => {
   let useCase: CancelSubscriptionUseCase;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let stripeProvider: ReturnType<typeof makeStripeProvider>;
+  let usersRepository: ReturnType<typeof makeUsersRepository>;
+  let resendProvider: ReturnType<typeof makeResendProvider>;
 
   beforeEach(() => {
     personalsRepository = makePersonalsRepository();
     stripeProvider = makeStripeProvider();
+    usersRepository = makeUsersRepository();
+    resendProvider = makeResendProvider();
     useCase = new CancelSubscriptionUseCase(
       personalsRepository as any,
       stripeProvider as any,
+      usersRepository as any,
+      resendProvider as any,
+    );
+  });
+
+  it("should send cancellation email after successful cancellation", async () => {
+    await useCase.execute("personal-id-1");
+
+    expect(resendProvider.sendPlanCancelled).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "joao@email.com" }),
     );
   });
 
@@ -66,6 +89,8 @@ describe("CancelSubscriptionUseCase", () => {
     useCase = new CancelSubscriptionUseCase(
       personalsRepository as any,
       stripeProvider as any,
+      usersRepository as any,
+      resendProvider as any,
     );
 
     const result = await useCase.execute("personal-id-1");
@@ -79,6 +104,8 @@ describe("CancelSubscriptionUseCase", () => {
     useCase = new CancelSubscriptionUseCase(
       personalsRepository as any,
       stripeProvider as any,
+      usersRepository as any,
+      resendProvider as any,
     );
 
     await useCase.execute("personal-id-1");

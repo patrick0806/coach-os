@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { env } from "@config/env";
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { ResendProvider } from "@shared/providers/resend.provider";
 import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { hashToken } from "@shared/utils/token.util";
@@ -22,6 +23,7 @@ export class SetupPasswordUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly passwordTokensRepository: PasswordTokensRepository,
     private readonly drizzle: DrizzleProvider,
+    private readonly resendProvider: ResendProvider,
   ) {}
 
   async execute(body: unknown): Promise<void> {
@@ -50,5 +52,14 @@ export class SetupPasswordUseCase {
       await this.usersRepository.updatePassword(tokenRecord.userId, hashedPassword, tx);
       await this.passwordTokensRepository.markSetupTokenAsUsed(tokenRecord.id, tx);
     });
+
+    // Fire-and-forget confirmation email — failure must not block the setup flow
+    const user = await this.usersRepository.findById(tokenRecord.userId);
+    if (user) {
+      this.resendProvider.sendStudentPasswordSetupConfirm({
+        to: user.email,
+        studentName: user.name,
+      });
+    }
   }
 }

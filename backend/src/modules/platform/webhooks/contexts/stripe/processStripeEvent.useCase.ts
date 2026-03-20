@@ -1,11 +1,16 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import Stripe from "stripe";
 
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
 import { env } from "@config/env";
 import { logger } from "@config/pino.config";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
+import { UsersRepository } from "@shared/repositories/users.repository";
 import { StripeProvider } from "@shared/providers/stripe.provider";
+import { ResendProvider } from "@shared/providers/resend.provider";
 
 function resolveAccessStatus(
   stripeStatus: string,
@@ -32,6 +37,8 @@ export class ProcessStripeEventUseCase {
     private readonly stripeProvider: StripeProvider,
     private readonly personalsRepository: PersonalsRepository,
     private readonly plansRepository: PlansRepository,
+    private readonly usersRepository: UsersRepository,
+    private readonly resendProvider: ResendProvider,
   ) {}
 
   async execute(rawBody: Buffer, signature: string): Promise<void> {
@@ -72,6 +79,9 @@ export class ProcessStripeEventUseCase {
         break;
       case "invoice.payment_failed":
         await this.handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
+        break;
+      case "customer.subscription.trial_will_end":
+        await this.handleTrialWillEnd(event.data.object as Stripe.Subscription);
         break;
       default:
         logger.info({ type: event.type }, "Unhandled Stripe event type");
@@ -128,6 +138,12 @@ export class ProcessStripeEventUseCase {
       accessStatus: "expired",
     });
 
+    // Fire-and-forget email — failure must not block the webhook response
+    const user = await this.usersRepository.findById(personal.userId);
+    if (user) {
+      this.resendProvider.sendAccessLost({ to: user.email, userName: user.name });
+    }
+
     logger.info({ personalId: personal.id }, "Subscription deleted");
   }
 
@@ -155,6 +171,25 @@ export class ProcessStripeEventUseCase {
       ...(subscriptionExpiresAt ? { subscriptionExpiresAt } : {}),
     });
 
+    // Fire-and-forget email — failure must not block the webhook response
+    const user = await this.usersRepository.findById(personal.userId);
+    if (user) {
+      const plan = personal.subscriptionPlanId
+        ? await this.plansRepository.findById(personal.subscriptionPlanId)
+        : undefined;
+
+      const expiresAtFormatted = subscriptionExpiresAt
+        ? format(subscriptionExpiresAt, "dd/MM/yyyy", { locale: ptBR })
+        : undefined;
+
+      this.resendProvider.sendPlanSubscribed({
+        to: user.email,
+        userName: user.name,
+        planName: plan?.name ?? "Coach OS",
+        expiresAt: expiresAtFormatted,
+      });
+    }
+
     logger.info({ personalId: personal.id }, "Invoice paid — access confirmed active");
   }
 
@@ -172,6 +207,53 @@ export class ProcessStripeEventUseCase {
       subscriptionStatus: "past_due",
     });
 
+    // Fire-and-forget email — failure must not block the webhook response
+    const user = await this.usersRepository.findById(personal.userId);
+    if (user) {
+      const nextAttempt = (invoice as any).next_payment_attempt as number | null;
+
+      if (nextAttempt) {
+        const retryDate = format(new Date(nextAttempt * 1000), "dd/MM/yyyy 'às' HH:mm", {
+          locale: ptBR,
+        });
+        this.resendProvider.sendPaymentRetry({
+          to: user.email,
+          userName: user.name,
+          retryDate,
+        });
+      } else {
+        this.resendProvider.sendPaymentFailed({ to: user.email, userName: user.name });
+      }
+    }
+
     logger.info({ personalId: personal.id }, "Invoice payment failed — access set to past_due");
+  }
+
+  private async handleTrialWillEnd(subscription: Stripe.Subscription): Promise<void> {
+    const customerId = subscription.customer as string;
+    const personal = await this.personalsRepository.findByStripeCustomerId(customerId);
+
+    if (!personal) {
+      logger.warn({ customerId }, "Personal not found for Stripe customer");
+      return;
+    }
+
+    // Fire-and-forget email — failure must not block the webhook response
+    const user = await this.usersRepository.findById(personal.userId);
+    if (user) {
+      const trialEnd = subscription.trial_end;
+      const trialEndsAt = trialEnd
+        ? format(new Date(trialEnd * 1000), "dd/MM/yyyy", { locale: ptBR })
+        : "";
+
+      this.resendProvider.sendTrialEndingSoon({
+        to: user.email,
+        userName: user.name,
+        trialEndsAt,
+        upgradeUrl: `${env.APP_URL}/assinatura`,
+      });
+    }
+
+    logger.info({ personalId: personal.id }, "Trial will end soon — notification sent");
   }
 }

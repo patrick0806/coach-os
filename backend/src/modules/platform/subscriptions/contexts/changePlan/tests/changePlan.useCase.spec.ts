@@ -7,9 +7,18 @@ const PLAN_UUID = "d5f8c3a2-e1b4-4f7d-9c6e-2a0b8f3d1e5c";
 
 const makePersonal = (overrides = {}) => ({
   id: "personal-id-1",
+  userId: "user-id-1",
   stripeSubscriptionId: "sub_test123",
   subscriptionPlanId: "11111111-1111-1111-1111-111111111111",
   ...overrides,
+});
+
+const makeUsersRepository = () => ({
+  findById: vi.fn().mockResolvedValue({ id: "user-id-1", name: "João Silva", email: "joao@email.com" }),
+});
+
+const makeResendProvider = () => ({
+  sendPlanChanged: vi.fn().mockResolvedValue(undefined),
 });
 
 const makePlan = (overrides = {}) => ({
@@ -51,15 +60,29 @@ describe("ChangePlanUseCase", () => {
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let plansRepository: ReturnType<typeof makePlansRepository>;
   let stripeProvider: ReturnType<typeof makeStripeProvider>;
+  let usersRepository: ReturnType<typeof makeUsersRepository>;
+  let resendProvider: ReturnType<typeof makeResendProvider>;
 
   beforeEach(() => {
     personalsRepository = makePersonalsRepository();
     plansRepository = makePlansRepository();
     stripeProvider = makeStripeProvider();
+    usersRepository = makeUsersRepository();
+    resendProvider = makeResendProvider();
     useCase = new ChangePlanUseCase(
       personalsRepository as any,
       plansRepository as any,
       stripeProvider as any,
+      usersRepository as any,
+      resendProvider as any,
+    );
+  });
+
+  it("should send plan changed email after successful plan change", async () => {
+    await useCase.execute("personal-id-1", { planId: PLAN_UUID });
+
+    expect(resendProvider.sendPlanChanged).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "joao@email.com", newPlanName: "Pro" }),
     );
   });
 
@@ -113,6 +136,8 @@ describe("ChangePlanUseCase", () => {
       personalsRepository as any,
       plansRepository as any,
       stripeProvider as any,
+      usersRepository as any,
+      resendProvider as any,
     );
 
     await useCase.execute("personal-id-1", { planId: PLAN_UUID });
@@ -130,6 +155,8 @@ describe("ChangePlanUseCase", () => {
       personalsRepository as any,
       plansRepository as any,
       stripeProvider as any,
+      usersRepository as any,
+      resendProvider as any,
     );
 
     await useCase.execute("personal-id-1", { planId: PLAN_UUID });

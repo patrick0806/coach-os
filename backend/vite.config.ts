@@ -48,6 +48,10 @@ export default defineConfig({
     swc.vite({
       // Explicitly set the module type to avoid inheriting this value from a `.swcrc` config file
       module: { type: 'es6' },
+      jsc: {
+        parser: { syntax: 'typescript', tsx: true },
+        transform: { react: { runtime: 'automatic' } },
+      },
     }),
   ],
   resolve: {
