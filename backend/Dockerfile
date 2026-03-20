@@ -20,6 +20,7 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/config/database/migrations ./dist/config/database/migrations
 
 RUN npm ci --omit=dev --ignore-scripts
 
