@@ -1,0 +1,142 @@
+services:
+  # ─────────────────────────────────────────
+  # Database
+  # ─────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - coach-os-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────
+  # Backend — NestJS / Fastify
+  # ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      NODE_ENV: production
+      OTEL_SERVICE_NAME: coach-os-backend
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    ports:
+      - "30001:30001"
+    networks:
+      - coach-os-net
+    labels:
+      service: "coach-os-backend"
+      logging: "true"
+
+  # ─────────────────────────────────────────
+  # Frontend — Next.js
+  # ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./frontend/.env.local
+    environment:
+      NODE_ENV: production
+      OTEL_SERVICE_NAME: coach-os-frontend
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
+      NEXT_PUBLIC_BETTERSTACK_DSN: ${BETTERSTACK_FRONTEND_DSN}
+    depends_on:
+      - backend
+      - otel-collector
+    ports:
+      - "3000:3000"
+    networks:
+      - coach-os-net
+    labels:
+      service: "coach-os-frontend"
+      logging: "true"
+
+  # ─────────────────────────────────────────
+  # OpenTelemetry Collector
+  # Collects logs (Docker), host metrics, and
+  # receives traces from Beyla via OTLP.
+  # ─────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    environment:
+      BETTERSTACK_BACKEND_TOKEN: ${BETTERSTACK_BACKEND_TOKEN}
+      BETTERSTACK_BACKEND_HOST: ${BETTERSTACK_BACKEND_HOST}
+      BETTERSTACK_FRONTEND_TOKEN: ${BETTERSTACK_FRONTEND_TOKEN}
+      BETTERSTACK_FRONTEND_HOST: ${BETTERSTACK_FRONTEND_HOST}
+      BETTERSTACK_INFRA_TOKEN: ${BETTERSTACK_INFRA_TOKEN}
+      BETTERSTACK_INFRA_HOST: ${BETTERSTACK_INFRA_HOST}
+    volumes:
+      - ./monitoring/otel-collector.yml:/etc/otelcol-contrib/config.yaml:ro
+      - /proc:/proc:ro
+      - /sys/kernel/debug:/sys/kernel/debug:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    privileged: true
+    pid: host
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - coach-os-net
+
+  # ─────────────────────────────────────────
+  # Beyla — eBPF auto-instrumentation
+  # Instruments the backend process via eBPF
+  # (zero code changes) and emits OTLP traces.
+  # Requires: kernel ≥ 4.18, privileged, pid: host
+  # ─────────────────────────────────────────
+  beyla:
+    image: grafana/beyla:1.9
+    restart: unless-stopped
+    privileged: true
+    pid: host
+    environment:
+      # Watch backend port for HTTP/gRPC instrumentation
+      BEYLA_OPEN_PORT: "30001"
+      BEYLA_SERVICE_NAME: "coach-os-backend"
+      BEYLA_SERVICE_NAMESPACE: "coach-os"
+      BEYLA_LOG_LEVEL: "INFO"
+      # Trace sampling: 1.0 = 100%, reduce in high-traffic production
+      BEYLA_SAMPLER_RATIO: "1.0"
+      # Export to local OTel Collector via OTLP
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
+    volumes:
+      - /sys/kernel/debug:/sys/kernel/debug:ro
+      - /proc:/proc:ro
+    depends_on:
+      - otel-collector
+      - backend
+    networks:
+      - coach-os-net
+
+# ─────────────────────────────────────────
+# Volumes & Networks
+# ─────────────────────────────────────────
+volumes:
+  postgres_data:
+
+networks:
+  coach-os-net:
+    driver: bridge

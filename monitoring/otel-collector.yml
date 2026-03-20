@@ -1,0 +1,226 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# OpenTelemetry Collector — Coach OS
+#
+# Architecture:
+#   Beyla (eBPF traces) ──► otlp receiver
+#   Docker container logs ──► receiver_creator (docker_observer) ──► routing
+#   Host metrics (eBPF/proc) ──► hostmetrics receiver
+#
+# Routing:
+#   logs with label service=coach-os-backend  ──► Better Stack (backend)
+#   logs with label service=coach-os-frontend ──► Better Stack (frontend)
+#   traces + host metrics                     ──► Better Stack (infra)
+# ─────────────────────────────────────────────────────────────────────────────
+
+extensions:
+  # Discovers Docker containers on the host via Docker socket.
+  # Feeds the receiver_creator with container metadata (ID, labels).
+  docker_observer:
+    endpoint: unix:///var/run/docker.sock
+    # Exclude monitoring infrastructure from log collection
+    excluded_images:
+      - otel/opentelemetry-collector-contrib
+      - grafana/beyla
+      - postgres
+
+  # Healthcheck endpoint for liveness probes
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  # ── OTLP: receives traces/metrics from Beyla (eBPF) and future SDK instrumentation
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # ── Host metrics: CPU, memory, disk, network, process-level stats
+  # The process scraper leverages /proc (eBPF-mapped on Linux) for per-process data.
+  hostmetrics:
+    root_path: /proc
+    collection_interval: 30s
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      disk: {}
+      filesystem:
+        exclude_mount_points:
+          mount_points: [/dev, /proc, /sys, /run/k3s/containerd, /var/lib/docker]
+          match_type: strict
+      load: {}
+      memory:
+        metrics:
+          system.memory.utilization:
+            enabled: true
+      network: {}
+      paging: {}
+      process:
+        mute_process_name_error: true
+        mute_process_exe_error: true
+        mute_process_io_error: true
+        metrics:
+          process.cpu.utilization:
+            enabled: true
+
+  # ── Dynamic log collection from Docker containers via eBPF-style discovery
+  # docker_observer discovers running containers; receiver_creator spins up
+  # a filelog sub-receiver per container, with the correct service.name set.
+  receiver_creator:
+    watch_observers: [docker_observer]
+    receivers:
+      filelog/backend:
+        # Only watch containers labelled service=coach-os-backend
+        rule: type == "container" && labels["service"] == "coach-os-backend"
+        config:
+          include:
+            - "/var/lib/docker/containers/`endpoint.ID`/*-json.log"
+          include_file_path: true
+          start_at: end
+          operators:
+            # Parse Docker log wrapper: {"log":"...","stream":"stdout","time":"..."}
+            - type: json_parser
+              timestamp:
+                parse_from: attributes.time
+                layout: "%Y-%m-%dT%H:%M:%S.%NZ"
+            # Promote the actual log line to body
+            - type: move
+              from: attributes.log
+              to: body
+            # Try to parse pino JSON logs (best effort)
+            - type: json_parser
+              parse_from: body
+              on_error: send_quiet
+          resource:
+            service.name: coach-os-backend
+            deployment.environment: production
+
+      filelog/frontend:
+        # Only watch containers labelled service=coach-os-frontend
+        rule: type == "container" && labels["service"] == "coach-os-frontend"
+        config:
+          include:
+            - "/var/lib/docker/containers/`endpoint.ID`/*-json.log"
+          include_file_path: true
+          start_at: end
+          operators:
+            - type: json_parser
+              timestamp:
+                parse_from: attributes.time
+                layout: "%Y-%m-%dT%H:%M:%S.%NZ"
+            - type: move
+              from: attributes.log
+              to: body
+          resource:
+            service.name: coach-os-frontend
+            deployment.environment: production
+
+processors:
+  # ── Memory safety: drop data before OOM
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # ── Batch to reduce API calls and improve throughput
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+    send_batch_max_size: 2000
+
+  # ── Enrich all telemetry with host metadata (hostname, OS)
+  resourcedetection:
+    detectors: [env, system]
+    timeout: 5s
+    system:
+      hostname_sources: [os]
+
+connectors:
+  # ── Routes logs to the correct Better Stack source by service.name
+  routing:
+    default_pipelines: [logs/infra]
+    error_mode: ignore
+    table:
+      - statement: route() where resource.attributes["service.name"] == "coach-os-backend"
+        pipelines: [logs/backend]
+      - statement: route() where resource.attributes["service.name"] == "coach-os-frontend"
+        pipelines: [logs/frontend]
+
+exporters:
+  # ── Better Stack: backend application logs
+  otlphttp/backend:
+    endpoint: "https://${env:BETTERSTACK_BACKEND_HOST}"
+    headers:
+      Authorization: "Bearer ${env:BETTERSTACK_BACKEND_TOKEN}"
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+
+  # ── Better Stack: frontend application logs
+  otlphttp/frontend:
+    endpoint: "https://${env:BETTERSTACK_FRONTEND_HOST}"
+    headers:
+      Authorization: "Bearer ${env:BETTERSTACK_FRONTEND_TOKEN}"
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+
+  # ── Better Stack: infrastructure metrics + eBPF traces
+  otlphttp/infra:
+    endpoint: "https://${env:BETTERSTACK_INFRA_HOST}"
+    headers:
+      Authorization: "Bearer ${env:BETTERSTACK_INFRA_TOKEN}"
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+
+service:
+  extensions: [docker_observer, health_check]
+
+  telemetry:
+    logs:
+      level: warn
+
+  pipelines:
+    # ── eBPF traces from Beyla (HTTP spans, gRPC spans)
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [otlphttp/infra]
+
+    # ── Host-level metrics: CPU, memory, disk, network, process
+    metrics/infra:
+      receivers: [hostmetrics]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [otlphttp/infra]
+
+    # ── App metrics from future explicit OTel SDK instrumentation
+    metrics/apps:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/infra]
+
+    # ── Log fan-in: collects from receiver_creator, feeds routing connector
+    logs/collect:
+      receivers: [receiver_creator]
+      processors: [memory_limiter, batch]
+      exporters: [routing]
+
+    # ── Routed pipelines per destination
+    logs/backend:
+      receivers: [routing]
+      exporters: [otlphttp/backend]
+
+    logs/frontend:
+      receivers: [routing]
+      exporters: [otlphttp/frontend]
+
+    logs/infra:
+      receivers: [routing]
+      exporters: [otlphttp/infra]
