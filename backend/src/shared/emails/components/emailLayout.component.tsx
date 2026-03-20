@@ -1,5 +1,5 @@
 import React from "react";
-import { Html, Head, Body, Container, Section, Text, Preview } from "@react-email/components";
+import { Html, Head, Body, Container, Section, Text, Preview, Img } from "@react-email/components";
 
 const colors = {
   background: "#fafaf9",
@@ -32,9 +32,16 @@ export function EmailLayout({ preview, children }: EmailLayoutProps) {
         <Container style={{ maxWidth: "600px", margin: "0 auto", padding: "40px 20px" }}>
           {/* Header */}
           <Section style={{ textAlign: "center", marginBottom: "32px" }}>
+            <Img
+              src="https://coach-os.s3.us-east-1.amazonaws.com/logos/logo_transparent.png"
+              alt="Coach OS"
+              width={56}
+              height={56}
+              style={{ margin: "0 auto 8px" }}
+            />
             <Text
               style={{
-                fontSize: "24px",
+                fontSize: "20px",
                 fontWeight: "bold",
                 color: colors.primary,
                 margin: "0",
