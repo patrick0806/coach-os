@@ -32,7 +32,7 @@ export interface LoginResult {
   accessToken: string;
   refreshToken: string;
   user: { id: string; name: string; email: string; role: string; tenantId: string; personalSlug?: string };
-  personal?: { id: string; slug: string };
+  personal?: { id: string; slug: string; onboardingCompleted: boolean };
   subscription?: LoginSubscriptionInfo;
 }
 
@@ -97,7 +97,7 @@ export class LoginUseCase {
         accessToken,
         refreshToken,
         user: { id: user.id, name: user.name, email: user.email, role: user.role, tenantId: personal.id },
-        personal: { id: personal.id, slug: personal.slug },
+        personal: { id: personal.id, slug: personal.slug, onboardingCompleted: personal.onboardingCompleted },
         subscription: {
           accessStatus: personal.accessStatus,
           subscriptionStatus: personal.subscriptionStatus ?? null,

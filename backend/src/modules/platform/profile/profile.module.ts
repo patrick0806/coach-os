@@ -13,6 +13,10 @@ import { SaveLpDraftController } from "./contexts/saveLpDraft/saveLpDraft.contro
 import { SaveLpDraftUseCase } from "./contexts/saveLpDraft/saveLpDraft.useCase";
 import { PublishLpDraftController } from "./contexts/publishLpDraft/publishLpDraft.controller";
 import { PublishLpDraftUseCase } from "./contexts/publishLpDraft/publishLpDraft.useCase";
+import { GetTourProgressController } from "./contexts/getTourProgress/getTourProgress.controller";
+import { GetTourProgressUseCase } from "./contexts/getTourProgress/getTourProgress.useCase";
+import { MarkPageTouredController } from "./contexts/markPageToured/markPageToured.controller";
+import { MarkPageTouredUseCase } from "./contexts/markPageToured/markPageToured.useCase";
 
 @Module({
   controllers: [
@@ -21,6 +25,8 @@ import { PublishLpDraftUseCase } from "./contexts/publishLpDraft/publishLpDraft.
     RequestPhotoUploadController,
     SaveLpDraftController,
     PublishLpDraftController,
+    GetTourProgressController,
+    MarkPageTouredController,
   ],
   providers: [
     PersonalsRepository,
@@ -30,6 +36,8 @@ import { PublishLpDraftUseCase } from "./contexts/publishLpDraft/publishLpDraft.
     RequestPhotoUploadUseCase,
     SaveLpDraftUseCase,
     PublishLpDraftUseCase,
+    GetTourProgressUseCase,
+    MarkPageTouredUseCase,
   ],
 })
 export class ProfileModule {}

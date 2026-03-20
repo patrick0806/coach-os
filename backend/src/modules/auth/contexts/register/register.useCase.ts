@@ -38,7 +38,7 @@ export interface RegisterResult {
   accessToken: string;
   refreshToken: string;
   user: { id: string; name: string; email: string; role: string };
-  personal: { id: string; slug: string };
+  personal: { id: string; slug: string; onboardingCompleted: boolean };
   subscription: RegisterSubscriptionInfo;
 }
 
@@ -152,6 +152,7 @@ export class RegisterUseCase {
       personal: {
         id: personal.id,
         slug: personal.slug,
+        onboardingCompleted: personal.onboardingCompleted,
       },
       subscription: {
         accessStatus: personal.accessStatus,

@@ -21,6 +21,7 @@ const makePersonal = (overrides = {}) => ({
   userId: "user-id",
   slug: "joao-silva",
   accessStatus: "trialing",
+  onboardingCompleted: false,
   subscriptionPlanId: PLAN_ID,
   trialStartedAt: new Date(),
   trialEndsAt: new Date(),
@@ -316,6 +317,7 @@ describe("RegisterUseCase", () => {
     expect(result.personal).toMatchObject({
       id: "personal-id",
       slug: "joao-silva",
+      onboardingCompleted: false,
     });
     expect(result.refreshToken).toBeDefined();
     expect(typeof result.refreshToken).toBe("string");

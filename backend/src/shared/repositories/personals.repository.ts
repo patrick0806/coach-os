@@ -226,6 +226,43 @@ export class PersonalsRepository {
       .where(eq(personals.id, id));
   }
 
+  async getTourProgress(tenantId: string): Promise<string[]> {
+    const result = await this.drizzle.db
+      .select({ tourCompletedPages: personals.tourCompletedPages })
+      .from(personals)
+      .where(eq(personals.id, tenantId))
+      .limit(1);
+
+    return (result[0]?.tourCompletedPages as string[]) ?? [];
+  }
+
+  async markPageToured(tenantId: string, page: string): Promise<string[]> {
+    const current = await this.getTourProgress(tenantId);
+    const updated = Array.from(new Set([...current, page]));
+
+    const ALL_TOUR_PAGES = [
+      "exercises",
+      "students",
+      "training",
+      "schedule",
+      "availability",
+      "services",
+      "landingPage",
+      "profile",
+    ];
+    const allCompleted = ALL_TOUR_PAGES.every((p) => updated.includes(p));
+
+    await this.drizzle.db
+      .update(personals)
+      .set({
+        tourCompletedPages: updated,
+        ...(allCompleted && { onboardingCompleted: true }),
+      } as any)
+      .where(eq(personals.id, tenantId));
+
+    return updated;
+  }
+
   async publishLpDraft(id: string): Promise<void> {
     const profile = await this.findById(id);
     if (!profile?.lpDraftData) return;

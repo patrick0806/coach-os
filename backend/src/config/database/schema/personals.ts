@@ -54,6 +54,7 @@ export const personals = pgTable(
     lpImage2: varchar("lp_image_2", { length: 500 }),
     lpImage3: varchar("lp_image_3", { length: 500 }),
     lpDraftData: json("lp_draft_data").$type<LpFields | null>().default(null),
+    tourCompletedPages: json("tour_completed_pages").$type<string[]>().default([]),
     stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
     stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
     subscriptionStatus: varchar("subscription_status", { length: 30 }),

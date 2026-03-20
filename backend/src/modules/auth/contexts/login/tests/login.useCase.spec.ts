@@ -30,6 +30,7 @@ const makePersonal = (overrides = {}) => ({
   userId: "user-id",
   slug: "joao-silva",
   accessStatus: "trialing",
+  onboardingCompleted: false,
   ...overrides,
 });
 
@@ -104,6 +105,7 @@ describe("LoginUseCase", () => {
     expect(result.refreshToken).toBeDefined();
     expect(result.user.email).toBe("joao@email.com");
     expect(result.personal!.id).toBe("personal-id");
+    expect(result.personal!.onboardingCompleted).toBe(false);
   });
 
   it("should throw UnauthorizedException when email is not found", async () => {

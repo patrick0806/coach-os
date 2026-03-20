@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
+Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo + Onboarding Tutorial planejado)
 
 ---
 
@@ -30,6 +30,7 @@ All backend modules are **completed** (758 tests passing).
 | Area | Status | Notes |
 |------|--------|-------|
 | **Dashboard** | in progress | layout + placeholder done; real stats pending |
+| **Onboarding Tutorial** | not started | Milestone 12: checklist no dashboard + driver.js in-place por página + botão no header; feature flag SHOW_TUTORIAL |
 | **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
 | **Progress charts** | not started | Backlog: line graphs, comparisons |
 | **Notifications** | not started | Backlog: preferences page |
@@ -55,6 +56,13 @@ Infra + cookies + CORS + Next.js middleware.
 - Frontend: middleware + migração de rotas `/coach/[slug]/`
 - Portal do aluno totalmente brandado via subdomínio
 - **Validates:** White-label real, isolamento por subdomínio
+
+### Milestone 12 — Onboarding Tutorial
+- Backend: migration `tour_completed_pages jsonb` em `personals` + endpoints `GET/POST /profile/tour-progress/:page`; auto-seta `onboarding_completed` quando todas as 8 páginas visitadas
+- Backend: expor `onboardingCompleted` no login/register
+- Frontend: feature flag `SHOW_TUTORIAL`; checklist no dashboard; driver.js tour in-place por página (8 módulos); botão "Tutorial" no header para rever a qualquer momento
+- Estado sincronizado entre dispositivos via banco (localStorage apenas como cache)
+- **Validates:** Coach novo se orienta sem suporte; tour pode ser desligado globalmente via env var
 
 ### Milestone 11 — Polish
 - Dashboard real stats

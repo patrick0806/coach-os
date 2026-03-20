@@ -10,6 +10,7 @@ class UserDTO {
 class PersonalDTO {
   @ApiProperty() id: string;
   @ApiProperty() slug: string;
+  @ApiProperty() onboardingCompleted: boolean;
 }
 
 export class RegisterResponseDTO {
