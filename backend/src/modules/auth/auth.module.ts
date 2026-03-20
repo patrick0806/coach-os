@@ -25,6 +25,8 @@ import { ResetPasswordController } from "./contexts/resetPassword/resetPassword.
 import { ResetPasswordUseCase } from "./contexts/resetPassword/resetPassword.useCase";
 import { SetupPasswordController } from "./contexts/setupPassword/setupPassword.controller";
 import { SetupPasswordUseCase } from "./contexts/setupPassword/setupPassword.useCase";
+import { ChangePasswordController } from "./contexts/changePassword/changePassword.controller";
+import { ChangePasswordUseCase } from "./contexts/changePassword/changePassword.useCase";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 
 @Module({
@@ -42,6 +44,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     RequestPasswordResetController,
     ResetPasswordController,
     SetupPasswordController,
+    ChangePasswordController,
   ],
   providers: [
     JwtStrategy,
@@ -59,6 +62,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     RequestPasswordResetUseCase,
     ResetPasswordUseCase,
     SetupPasswordUseCase,
+    ChangePasswordUseCase,
   ],
   exports: [JwtModule, PersonalsRepository],
 })

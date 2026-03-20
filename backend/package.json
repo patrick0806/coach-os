@@ -6,10 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "rm -rf dist && nest build && npx swc src/shared/emails -d dist --config-file .swcrc-emails.json --strip-leading-paths",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "npx swc src/shared/emails -d dist --config-file .swcrc-emails.json --strip-leading-paths && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint --config ./eslint.config.mjs \"{src,apps,libs,test}/**/*.ts\" --fix",

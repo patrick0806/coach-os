@@ -134,8 +134,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Link>
         <Link
           href="/settings"
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors opacity-40 pointer-events-none"
           onClick={onNavigate}
+          className={cn(
+            "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+            isActive("/settings")
+              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+              : "hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+          )}
         >
           <Settings className="size-4 shrink-0" />
           Configurações

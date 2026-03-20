@@ -20,12 +20,16 @@ Last updated: 2026-03-20 (Email templates premium — React Email + 13 templates
 
 ---
 
-## Em andamento
+## Concluído recentemente
 
-### Frontend: dashboard
-
-- [ ] Implement real sidebar navigation
-- [ ] Implement dashboard stats (real data from API)
+### Página de Configurações — Alterar Senha ✅
+- [x] Backend: `PATCH /auth/change-password` (autenticado) — verifica senha atual, hash nova, invalida sessões
+- [x] Backend: 11 testes passando
+- [x] Frontend: `authService.changePassword()`
+- [x] Frontend: `useChangePassword` hook
+- [x] Frontend: `ChangePasswordForm` component com show/hide toggle
+- [x] Frontend: página `/settings`
+- [x] Sidebar: link Configurações habilitado
 
 ---
 
