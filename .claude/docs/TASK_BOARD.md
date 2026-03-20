@@ -40,13 +40,13 @@ Last updated: 2026-03-19 (LP editor draft/publish + SEO + branding minor)
 - [x] "Treinando com [Nome]" abaixo do logo/nome
 - [x] Footer "[Nome] · via Coach OS"
 
-**LP pública (`/personais/[slug]`) — pendente**
-- [ ] Exibir `specialties` como badges no hero da LP
-- [ ] Exibir `logoUrl` no hero da LP
+**LP pública (`/personais/[slug]`)** ✅
+- [x] Exibir `specialties` como badges no hero da LP
+- [x] Exibir `logoUrl` no hero da LP
 
-**Testes**
-- [ ] Atualizar behavior tests do studentPortal para cobrir branding (logo, cor)
-- [ ] Atualizar behavior tests da publicPage para cobrir specialties e logo
+**Testes** ✅
+- [x] Atualizar behavior tests do studentPortal para cobrir branding (logo, cor)
+- [x] Atualizar behavior tests da publicPage para cobrir specialties e logo
 
 ---
 
@@ -120,8 +120,13 @@ Last updated: 2026-03-19 (LP editor draft/publish + SEO + branding minor)
 - [ ] CI/CD pipeline
 - [ ] Monitoring (Better Stack integration)
 
-### Institutional Pages
-- [ ] FAQ, Contact, Terms, Privacy, About
+### Institutional Pages ✅
+- [x] `/faq` — accordion por categoria + busca client-side + CTA para contato
+- [x] `/contato` — formulário com feedback de sucesso + sidebar de info
+- [x] `/termos` — documento legal com TOC lateral sticky (desktop)
+- [x] `/privacidade` — política LGPD com TOC lateral sticky (desktop)
+- [x] `/sobre` — brand story + valores + CTA
+- [x] Footer expandido com links Produto / Empresa / Legal
 
 ---
 

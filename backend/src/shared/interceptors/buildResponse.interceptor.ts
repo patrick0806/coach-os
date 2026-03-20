@@ -10,6 +10,7 @@ import { map, Observable } from "rxjs";
 import { HEADERS } from "@shared/constants";
 import { LogBuilderService } from "@shared/providers";
 import { getHeader } from "@shared/utils";
+import { env } from "@config/env";
 
 @Injectable()
 export class BuildResponseInterceptor implements NestInterceptor {
