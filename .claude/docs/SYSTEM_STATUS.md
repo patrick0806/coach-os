@@ -29,7 +29,7 @@ All backend modules are **completed** (775 tests passing).
 
 | Area | Status | Notes |
 |------|--------|-------|
-| **Dashboard** | in progress | layout + placeholder done; real stats pending |
+| **Dashboard** | ✅ done | layout + real stats integrated |
 | **Onboarding Tutorial** | ✅ done | Milestone 12 completo: backend (tour progress endpoints) + frontend (config, store, driver.js tours, checklist, header button) + 26 testes E2E passando |
 | **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
 | **Progress charts** | not started | Backlog: line graphs, comparisons |
@@ -41,7 +41,7 @@ All backend modules are **completed** (775 tests passing).
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Error SDK** | not started | Applications criadas no Better Stack; Sentry SDK pendente de integração no código |
+| **Error SDK** | ✅ done | Better Stack cobre logs + uptime + telemetria; Sentry descartado como redundante |
 | **Wildcard DNS/SSL** | not started | Needed for subdomain routing (Sprint 2) — ver docs/SERVER_SETUP.md |
 | **Nginx wildcard** | not started | `*.coachos.com.br` → frontend (Sprint 2) — config pronta em docs/SERVER_SETUP.md |
 

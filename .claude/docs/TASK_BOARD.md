@@ -165,7 +165,7 @@ Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
 ## Backlog — Outros
 
 ### Frontend: Dashboard stats reais
-- [ ] Integrar dados reais na página `/dashboard` (hoje usa placeholders)
+- [x] Integrar dados reais na página `/dashboard` ✅
 
 ### Frontend: Progress charts
 - [ ] Implementar gráficos de linha e comparativo de métricas do aluno
@@ -173,14 +173,10 @@ Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
 ### Frontend: Notifications
 - [ ] Implementar página de preferências de notificação
 
-### Infrastructure: Error SDK
-- [ ] Integrar Sentry SDK no NestJS — criar `backend/src/instrument.ts` + importar em `main.ts`
-- [ ] Integrar Sentry SDK no Next.js — `npx @sentry/wizard -i nextjs`
-- [ ] Usar DSNs documentados em `docs/OBSERVABILITY.md`
-
 ---
 
 ## Descartado
 
 - **Tina CMS para editor de página** — não adequado: é Git-backed, dados estão no PostgreSQL, cria segunda fonte de verdade. Editor atual (form-based) é suficiente.
 - **Custom domains (Sprint 5)** — complexidade muito alta. Avaliar somente após validação com coaches Elite.
+- **Sentry Error SDK** — descartado; Better Stack já cobre logs, uptime e telemetria. Redundante.

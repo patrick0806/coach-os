@@ -18,14 +18,13 @@ Guia completo para preparar o servidor do zero até o primeiro deploy funcionand
 1. [Configuração inicial do sistema](#1-configuração-inicial-do-sistema)
 2. [Instalar Docker](#2-instalar-docker)
 3. [Instalar Nginx](#3-instalar-nginx)
-4. [Instalar Certbot + SSL wildcard](#4-instalar-certbot--ssl-wildcard)
+4. [Instalar certificado SSL (Cloudflare Origin Certificate)](#4-instalar-certificado-ssl-cloudflare-origin-certificate)
 5. [Configurar Nginx](#5-configurar-nginx)
 6. [Preparar o projeto](#6-preparar-o-projeto)
 7. [Configurar variáveis de ambiente](#7-configurar-variáveis-de-ambiente)
 8. [Autenticar no GHCR](#8-autenticar-no-ghcr)
 9. [Primeiro deploy manual](#9-primeiro-deploy-manual)
 10. [Verificar funcionamento](#10-verificar-funcionamento)
-11. [Configurar renovação automática do SSL](#11-configurar-renovação-automática-do-ssl)
 
 ---
 
@@ -103,60 +102,56 @@ curl -I http://localhost
 
 ---
 
-## 4. Instalar Certbot + SSL wildcard
+## 4. Instalar certificado SSL (Cloudflare Origin Certificate)
 
-O SSL wildcard (`*.coachos.com.br`) exige **DNS challenge** — o Certbot precisa criar um registro TXT no DNS. Usamos o plugin do Cloudflare para isso automaticamente.
+Usamos o **Cloudflare Origin Certificate** em vez do Certbot. Vantagens:
+- Válido por 15 anos — sem renovação automática necessária
+- Suporta wildcard `*.coachos.com.br` nativamente
+- Zero configuração de DNS challenge ou plugins
 
-### 4.1 Instalar Certbot com plugin Cloudflare
+### 4.1 Ativar Full (strict) no Cloudflare
 
-```bash
-sudo apt install -y python3-certbot-nginx python3-certbot-dns-cloudflare
-```
+No painel do Cloudflare → seu domínio → **SSL/TLS → Overview** → selecionar **Full (strict)**.
 
-### 4.2 Obter o token da API do Cloudflare
+Isso garante que a conexão entre Cloudflare e sua VM seja criptografada e validada com o Origin Certificate.
 
-1. Acesse [dash.cloudflare.com](https://dash.cloudflare.com) → **My Profile** → **API Tokens**
-2. Clique em **Create Token**
-3. Use o template **Edit zone DNS**
-4. Em **Zone Resources**: selecione `Include → Specific zone → coachos.com.br`
-5. Clique em **Continue to summary** → **Create Token**
-6. **Copie o token** (aparece apenas uma vez)
+### 4.2 Emitir o Origin Certificate
 
-### 4.3 Criar arquivo de credenciais do Cloudflare
+No painel do Cloudflare → **SSL/TLS → Origin Server** → **Create Certificate**:
 
-```bash
-sudo mkdir -p /etc/letsencrypt/cloudflare
-sudo nano /etc/letsencrypt/cloudflare/credentials.ini
-```
+- Deixar **"Let Cloudflare generate a key and CSR"** selecionado
+- Confirmar que os hostnames incluem `coachos.com.br` e `*.coachos.com.br`
+- Validade: **15 years**
+- Clicar em **Create**
 
-Conteúdo do arquivo:
-```ini
-dns_cloudflare_api_token = SEU_TOKEN_CLOUDFLARE_AQUI
-```
+O Cloudflare exibirá dois blocos de texto — **copie ambos agora** (a Private Key não é exibida novamente):
+- **Origin Certificate** → será o `cert.pem`
+- **Private Key** → será o `key.pem`
+
+### 4.3 Instalar os certificados na VM
 
 ```bash
-# Proteger o arquivo (apenas root pode ler)
-sudo chmod 600 /etc/letsencrypt/cloudflare/credentials.ini
+# Criar diretório para os certificados
+sudo mkdir -p /etc/ssl/coachos
 ```
 
-### 4.4 Emitir o certificado wildcard
+Cole o conteúdo de cada arquivo (use o editor de sua preferência):
 
 ```bash
-sudo certbot certonly \
-  --dns-cloudflare \
-  --dns-cloudflare-credentials /etc/letsencrypt/cloudflare/credentials.ini \
-  -d coachos.com.br \
-  -d "*.coachos.com.br" \
-  --preferred-challenges dns-01 \
-  --agree-tos \
-  --email seu-email@coachos.com.br
+sudo nano /etc/ssl/coachos/cert.pem   # colar o Origin Certificate
+sudo nano /etc/ssl/coachos/key.pem    # colar a Private Key
 ```
 
-O Certbot vai criar automaticamente o registro TXT no Cloudflare, aguardar a propagação e emitir o certificado.
+Proteger a chave privada:
 
-**Certificados gerados em:**
-- `/etc/letsencrypt/live/coachos.com.br/fullchain.pem`
-- `/etc/letsencrypt/live/coachos.com.br/privkey.pem`
+```bash
+sudo chmod 644 /etc/ssl/coachos/cert.pem
+sudo chmod 600 /etc/ssl/coachos/key.pem
+```
+
+**Caminhos finais:**
+- `/etc/ssl/coachos/cert.pem`
+- `/etc/ssl/coachos/key.pem`
 
 ---
 
@@ -177,29 +172,49 @@ Cole o conteúdo abaixo:
 server {
     listen 80;
     listen [::]:80;
-    server_name coachos.com.br www.coachos.com.br api.coachos.com.br *.coachos.com.br;
+    server_name coachos.com.br www.coachos.com.br *.coachos.com.br;
 
     return 301 https://$host$request_uri;
 }
 
 # ─────────────────────────────────────────
-# Frontend — app.coachos.com.br + www + raiz
+# Principal — coachos.com.br + www
+# Frontend em / e Backend em /api/*
 # ─────────────────────────────────────────
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
     server_name coachos.com.br www.coachos.com.br;
 
-    ssl_certificate     /etc/letsencrypt/live/coachos.com.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/coachos.com.br/privkey.pem;
-    include             /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+    ssl_certificate     /etc/ssl/coachos/cert.pem;
+    ssl_certificate_key /etc/ssl/coachos/key.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
 
     # Segurança
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options "nosniff";
     add_header Referrer-Policy "strict-origin-when-cross-origin";
 
+    # Backend — qualquer coisa que comece com /api/
+    # Cobre: /api/v1/*, /api/v2/*, /api/docs, etc.
+    location ~ ^/api/ {
+        proxy_pass         http://localhost:30001;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # Limite de tamanho do body (uploads)
+        client_max_body_size 10M;
+
+        # Timeouts para operações longas
+        proxy_read_timeout    60s;
+        proxy_connect_timeout 10s;
+    }
+
+    # Frontend — todo o restante
     location / {
         proxy_pass         http://localhost:3000;
         proxy_http_version 1.1;
@@ -214,50 +229,19 @@ server {
 }
 
 # ─────────────────────────────────────────
-# Backend — api.coachos.com.br
-# ─────────────────────────────────────────
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name api.coachos.com.br;
-
-    ssl_certificate     /etc/letsencrypt/live/coachos.com.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/coachos.com.br/privkey.pem;
-    include             /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
-
-    # Limite de tamanho do body (uploads)
-    client_max_body_size 10M;
-
-    location / {
-        proxy_pass         http://localhost:30001;
-        proxy_http_version 1.1;
-        proxy_set_header   Host $host;
-        proxy_set_header   X-Real-IP $remote_addr;
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header   X-Forwarded-Proto $scheme;
-
-        # Timeouts para operações longas (ex: geração de relatório)
-        proxy_read_timeout  60s;
-        proxy_connect_timeout 10s;
-    }
-}
-
-# ─────────────────────────────────────────
 # Wildcard — *.coachos.com.br → Frontend
-# Prepara infraestrutura para subdomínios por coach
-# (ex: joao.coachos.com.br → portal do aluno brandado)
-# Ativado agora; o Next.js proxy.ts fará o roteamento interno
+# Subdomínios por coach (ex: joao.coachos.com.br)
+# O Next.js proxy.ts faz o roteamento interno
 # ─────────────────────────────────────────
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
     server_name *.coachos.com.br;
 
-    ssl_certificate     /etc/letsencrypt/live/coachos.com.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/coachos.com.br/privkey.pem;
-    include             /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+    ssl_certificate     /etc/ssl/coachos/cert.pem;
+    ssl_certificate_key /etc/ssl/coachos/key.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
 
     location / {
         proxy_pass         http://localhost:3000;
@@ -289,23 +273,19 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-> **Nota:** se o Certbot ainda não gerou os arquivos `options-ssl-nginx.conf` e `ssl-dhparams.pem`, rode:
-> ```bash
-> sudo certbot --nginx -d coachos.com.br   # gera os arquivos de configuração SSL
-> ```
-
 ### 5.3 Configurar DNS no Cloudflare
 
-No painel do Cloudflare, adicione os seguintes registros para o domínio `coachos.com.br`:
+No painel do Cloudflare, configure os seguintes registros para o domínio `coachos.com.br`:
 
 | Tipo | Nome | Conteúdo | Proxy |
 |------|------|----------|-------|
 | A | `@` | IP_DA_VM | ☁️ Proxied |
 | A | `www` | IP_DA_VM | ☁️ Proxied |
-| A | `api` | IP_DA_VM | ☁️ Proxied |
-| A | `*` | IP_DA_VM | 🔶 DNS only (wildcard SSL não funciona com Cloudflare proxy) |
+| A | `*` | IP_DA_VM | ☁️ Proxied |
 
-> O registro wildcard `*` deve ficar com proxy **desativado** (DNS only / ícone cinza). O SSL é gerenciado pelo Nginx + Certbot, não pelo Cloudflare.
+> Todos os registros ficam com proxy **ativado** (ícone laranja). O Cloudflare termina o SSL para o usuário e usa o Origin Certificate para se comunicar com a VM de forma segura (Full strict).
+>
+> Não há registro `api` separado — backend e frontend estão no mesmo domínio (`coachos.com.br`), roteados pelo Nginx via path (`/api/*` → backend, restante → frontend).
 
 ---
 
@@ -441,6 +421,7 @@ nano /opt/coach-os/frontend/.env.local
 ```env
 NEXT_PUBLIC_API_URL=https://api.coachos.com.br
 NEXT_PUBLIC_BETTERSTACK_DSN=https://3S9TgQitHA414KPojpZxhKxz@s2311384.eu-fsn-3.betterstackdata.com/2311384
+NEXT_PUBLIC_SHOW_TUTORIAL=true
 ```
 
 ### 7.4 Proteger os arquivos de ambiente
@@ -508,7 +489,7 @@ curl -I http://localhost:3000
 
 # Verificar via Nginx (HTTPS)
 curl -I https://coachos.com.br
-curl -I https://api.coachos.com.br/api/v1/health
+curl -I https://coachos.com.br/api/v1/health
 
 # Verificar wildcard (quando subdomínios estiverem em uso)
 curl -I https://teste.coachos.com.br
@@ -520,41 +501,13 @@ docker compose logs migrate --tail=20
 
 ---
 
-## 11. Configurar renovação automática do SSL
-
-O Certbot adiciona automaticamente um cron job, mas verifique:
-
-```bash
-# Testar renovação (modo dry-run, não renova de verdade)
-sudo certbot renew --dry-run
-
-# Ver o timer do systemd criado pelo Certbot
-sudo systemctl status certbot.timer
-
-# Se quiser adicionar reload do Nginx após renovação
-sudo nano /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
-```
-
-Conteúdo do hook:
-```bash
-#!/bin/bash
-systemctl reload nginx
-```
-
-```bash
-sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
-```
-
-O Certbot renovará automaticamente quando o certificado estiver a menos de 30 dias do vencimento.
-
----
 
 ## Resumo de portas
 
 | Serviço | Porta interna | Exposta externamente via |
 |---------|--------------|--------------------------|
-| Frontend (Next.js) | 3000 | Nginx → `coachos.com.br` + `*.coachos.com.br` |
-| Backend (NestJS) | 30001 | Nginx → `api.coachos.com.br` |
+| Frontend (Next.js) | 3000 | Nginx → `coachos.com.br` + `*.coachos.com.br` (path `/`) |
+| Backend (NestJS) | 30001 | Nginx → `coachos.com.br` (path `/api/*`) |
 | PostgreSQL | 5432 | Não exposta (apenas interno Docker) |
 | OTel Collector gRPC | 4317 | Não exposta (apenas interno Docker) |
 | OTel Collector HTTP | 4318 | Não exposta (apenas interno Docker) |
