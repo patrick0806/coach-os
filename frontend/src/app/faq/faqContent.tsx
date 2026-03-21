@@ -136,7 +136,7 @@ export function FaqContent() {
           <div className="py-16 text-center">
             <p className="text-muted-foreground">
               Nenhuma pergunta encontrada para{" "}
-              <span className="font-medium text-foreground">"{search}"</span>.
+              <span className="font-medium text-foreground">&quot;{search}&quot;</span>.
             </p>
             <Link
               href="/contato"

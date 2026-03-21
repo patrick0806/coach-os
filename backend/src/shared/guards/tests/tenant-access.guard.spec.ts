@@ -35,6 +35,8 @@ const makePersonal = (
   profilePhoto: null,
   logoUrl: null,
   themeColor: "#10b981",
+  themeColorSecondary: null,
+  lpLayout: null,
   phoneNumber: null,
   specialties: [],
   onboardingCompleted: false,

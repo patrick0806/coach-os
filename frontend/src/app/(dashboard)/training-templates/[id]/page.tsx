@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { startTransition, useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, ClipboardList, Plus } from "lucide-react"
 
@@ -34,7 +34,7 @@ export default function ProgramTemplateBuilderPage() {
   useEffect(() => {
     if (template?.workoutTemplates.length && expandedWorkoutId === null) {
       const sorted = [...template.workoutTemplates].sort((a, b) => a.order - b.order)
-      setExpandedWorkoutId(sorted[0]?.id ?? null)
+      startTransition(() => setExpandedWorkoutId(sorted[0]?.id ?? null))
     }
   }, [template, expandedWorkoutId])
 

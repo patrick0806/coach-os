@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { differenceInDays } from "date-fns";
 import Image from "next/image";
@@ -61,7 +61,7 @@ export default function DashboardLayout({
       router.replace("/login");
       return;
     }
-    setChecking(false);
+    startTransition(() => setChecking(false));
 
     // Subscribe to auth changes (e.g., token refresh failure → clear → redirect)
     const unsubscribe = authStore.subscribe((state) => {

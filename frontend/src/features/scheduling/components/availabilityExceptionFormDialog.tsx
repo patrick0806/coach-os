@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { startTransition, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -72,7 +72,7 @@ export function AvailabilityExceptionFormDialog({
     if (!open) {
       singleForm.reset()
       rangeForm.reset()
-      setIsRange(false)
+      startTransition(() => setIsRange(false))
     }
   }, [open, singleForm, rangeForm])
 

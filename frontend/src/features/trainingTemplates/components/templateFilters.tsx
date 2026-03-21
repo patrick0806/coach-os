@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Search } from "lucide-react"
 
 import { Input } from "@/shared/ui/input"
@@ -25,7 +25,7 @@ export function TemplateFilters({
   const [inputValue, setInputValue] = useState(search)
 
   const onSearchChangeRef = useRef(onSearchChange)
-  onSearchChangeRef.current = onSearchChange
+  useLayoutEffect(() => { onSearchChangeRef.current = onSearchChange })
 
   useEffect(() => {
     if (inputValue === search) return

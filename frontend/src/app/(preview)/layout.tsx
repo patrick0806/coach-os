@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { startTransition, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { authStore } from "@/stores/authStore"
@@ -15,7 +15,7 @@ export default function PreviewLayout({ children }: { children: React.ReactNode 
       router.replace("/login")
       return
     }
-    setChecking(false)
+    startTransition(() => setChecking(false))
 
     const unsubscribe = authStore.subscribe((state) => {
       if (!state.accessToken) {

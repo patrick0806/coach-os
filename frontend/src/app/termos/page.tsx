@@ -43,7 +43,7 @@ export default function TermosPage() {
           <section id="introducao" className="scroll-mt-24 space-y-3">
             <h2 className="text-xl font-bold">1. Introdução</h2>
             <p className="text-muted-foreground">
-              Estes Termos de Uso regulam o acesso e a utilização da plataforma Coach OS, operada por Coach OS Tecnologia Ltda. ("Coach OS", "nós"). Ao criar uma conta ou utilizar qualquer funcionalidade da plataforma, você ("Usuário") concorda integralmente com estes termos.
+              Estes Termos de Uso regulam o acesso e a utilização da plataforma Coach OS, operada por Coach OS Tecnologia Ltda. (&quot;Coach OS&quot;, &quot;nós&quot;). Ao criar uma conta ou utilizar qualquer funcionalidade da plataforma, você (&quot;Usuário&quot;) concorda integralmente com estes termos.
             </p>
             <p className="text-muted-foreground">
               Se você não concordar com qualquer disposição destes Termos, não utilize a plataforma.
@@ -134,7 +134,7 @@ export default function TermosPage() {
           <section id="limitacoes" className="scroll-mt-24 space-y-3">
             <h2 className="text-xl font-bold">8. Limitações de Responsabilidade</h2>
             <p className="text-muted-foreground">
-              A plataforma é fornecida "no estado em que se encontra". O Coach OS não garante disponibilidade ininterrupta e não se responsabiliza por danos indiretos, lucros cessantes ou perda de dados decorrentes do uso ou impossibilidade de uso da plataforma.
+              A plataforma é fornecida &quot;no estado em que se encontra&quot;. O Coach OS não garante disponibilidade ininterrupta e não se responsabiliza por danos indiretos, lucros cessantes ou perda de dados decorrentes do uso ou impossibilidade de uso da plataforma.
             </p>
             <p className="text-muted-foreground">
               Em nenhuma hipótese a responsabilidade do Coach OS excederá o valor pago pelo Usuário nos últimos 3 meses de assinatura.

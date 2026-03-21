@@ -177,7 +177,7 @@ export default function PrivacidadePage() {
           <section id="alteracoes" className="scroll-mt-24 space-y-3">
             <h2 className="text-xl font-bold">11. Alterações nesta Política</h2>
             <p className="text-muted-foreground">
-              Podemos atualizar esta Política periodicamente. Alterações relevantes serão comunicadas por e-mail. A data de "última atualização" no topo desta página indica a versão vigente.
+              Podemos atualizar esta Política periodicamente. Alterações relevantes serão comunicadas por e-mail. A data de &quot;última atualização&quot; no topo desta página indica a versão vigente.
             </p>
           </section>
 

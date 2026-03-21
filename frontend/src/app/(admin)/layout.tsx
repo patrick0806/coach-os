@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { authStore } from "@/stores/authStore";
@@ -21,7 +21,7 @@ export default function AdminLayout({
       router.replace("/dashboard");
       return;
     }
-    setChecking(false);
+    startTransition(() => setChecking(false));
   }, [router]);
 
   if (checking) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { startTransition, useEffect, useState } from "react"
 import Link from "next/link"
 import { ExternalLink, Eye, Loader2 } from "lucide-react"
 import axios from "axios"
@@ -35,8 +35,6 @@ export function LpEditorPage() {
 
   useEffect(() => {
     if (profile && !profileDraft) {
-      setProfileDraft(profile)
-
       // Initialize LP draft from lpDraftData if it exists, otherwise from live lp* fields
       const initialLpDraft: LpDraftData = profile.lpDraftData ?? {
         lpLayout: profile.lpLayout,
@@ -49,7 +47,10 @@ export function LpEditorPage() {
         lpImage2: profile.lpImage2 ?? undefined,
         lpImage3: profile.lpImage3 ?? undefined,
       }
-      setLpDraft(initialLpDraft)
+      startTransition(() => {
+        setProfileDraft(profile)
+        setLpDraft(initialLpDraft)
+      })
     }
   }, [profile, profileDraft])
 

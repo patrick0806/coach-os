@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Search } from "lucide-react"
 
 import { Input } from "@/shared/ui/input"
@@ -36,7 +36,7 @@ export function StudentFilters({
 
   // Keep a ref so the debounce effect doesn't need onSearchChange as a dependency
   const onSearchChangeRef = useRef(onSearchChange)
-  onSearchChangeRef.current = onSearchChange
+  useLayoutEffect(() => { onSearchChangeRef.current = onSearchChange })
 
   // Only schedule debounce when the user has typed something different from the current URL state.
   // Comparing against `search` prevents spurious router.replace calls on mount and

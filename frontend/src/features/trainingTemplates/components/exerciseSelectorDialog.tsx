@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -55,12 +55,9 @@ export function ExerciseSelectorDialog({
   const [searchInput, setSearchInput] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const searchRef = useRef(setDebouncedSearch)
-  searchRef.current = setDebouncedSearch
-
   useEffect(() => {
     const timer = setTimeout(() => {
-      searchRef.current(searchInput)
+      setDebouncedSearch(searchInput)
     }, DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [searchInput])
