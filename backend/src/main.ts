@@ -83,7 +83,11 @@ async function bootstrap() {
   app.enableCors({
     origin: isDev
       ? ["http://localhost:3000", "http://localhost:3001"]
-      : ["https://coachos.com.br", "http://www.coachos.com.br", "https://www.api.coachos.com.br", "https://api.coachos.com.br"],
+      : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+          if (!origin) return callback(null, true);
+          const allowed = /^https:\/\/([\w-]+\.)?coachos\.com\.br$/.test(origin);
+          callback(allowed ? null : new Error("CORS not allowed"), allowed);
+        },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     exposedHeaders: ["Access-Token", "Refresh-Token"],

@@ -66,6 +66,8 @@ const envSchema = z.object({
   STRIPE_PRICE_PRO: z.string().default(""),
   STRIPE_PRICE_EMPRESARIAL: z.string().default(""),
 
+  COOKIE_DOMAIN: z.string().default(""),
+
   CAN_CREATE_ADMIN: z
     .string()
     .transform((val) => val === "true")

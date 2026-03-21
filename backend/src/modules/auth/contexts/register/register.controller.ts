@@ -31,9 +31,10 @@ export class RegisterController {
     reply.setCookie("refreshToken", `${result.personal.id}.${result.refreshToken}`, {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: env.COOKIE_DOMAIN ? "lax" : "strict",
       path: "/api/v1/auth/refresh",
       maxAge: REFRESH_TOKEN_TTL_SECONDS,
+      ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
     });
 
     return {

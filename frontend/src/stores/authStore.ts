@@ -18,9 +18,13 @@ const USER_TTL_MINUTES = 30 * 24 * 60; // 30 days
 
 // --- Cookie helpers (client-only) ---
 
+const COOKIE_DOMAIN = process.env.NEXT_PUBLIC_COOKIE_DOMAIN ?? "";
+
 function setCookie(name: string, value: string, minutes: number): void {
   const expires = new Date(Date.now() + minutes * 60 * 1000).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Strict`;
+  let cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+  if (COOKIE_DOMAIN) cookie += `; domain=${COOKIE_DOMAIN}`;
+  document.cookie = cookie;
 }
 
 function getCookieValue(name: string): string | null {
@@ -30,7 +34,9 @@ function getCookieValue(name: string): string | null {
 }
 
 function deleteCookie(name: string): void {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  let cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+  if (COOKIE_DOMAIN) cookie += `; domain=${COOKIE_DOMAIN}`;
+  document.cookie = cookie;
 }
 
 // --- In-memory state ---
