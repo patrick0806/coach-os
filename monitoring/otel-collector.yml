@@ -17,7 +17,7 @@ extensions:
   # Feeds the receiver_creator with container metadata (ID, labels).
   docker_observer:
     endpoint: unix:///var/run/docker.sock
-    api_version: 1.47
+    api_version: "1.47"
     # Exclude monitoring infrastructure from log collection
     excluded_images:
       - otel/opentelemetry-collector-contrib
