@@ -112,6 +112,7 @@ services:
       BETTERSTACK_FRONTEND_HOST: ${BETTERSTACK_FRONTEND_HOST}
       BETTERSTACK_INFRA_TOKEN: ${BETTERSTACK_INFRA_TOKEN}
       BETTERSTACK_INFRA_HOST: ${BETTERSTACK_INFRA_HOST}
+      DOCKER_API_VERSION: "1.47"
     volumes:
       - ./monitoring/otel-collector.yml:/etc/otelcol-contrib/config.yaml:ro
       - /proc:/proc:ro

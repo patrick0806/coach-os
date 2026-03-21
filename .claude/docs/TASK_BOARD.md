@@ -1,182 +1,555 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
+Last updated: 2026-03-15
 
 ---
 
-## Backlog — Subdomínios (Milestone 10)
+## Current Sprint
 
-### Sprint 2 — Fundação de Subdomínios (infra + backend)
+### Module: auth
 
-> Pré-requisito: DNS wildcard e Cloudflare configurados (ver docs/SERVER_SETUP.md)
-
-**Infraestrutura**
-- [ ] Configurar wildcard DNS `*.coachos.com.br → IP da VM`
-- [ ] Obter wildcard SSL via Certbot + Cloudflare DNS (`*.coachos.com.br`)
-- [ ] Nginx: adicionar `server_name *.coachos.com.br` apontando para frontend
-
-**Backend — cookies**
-- [ ] Adicionar `COOKIE_DOMAIN` em `backend/src/config/env/index.ts`
-- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `login.controller.ts`
-- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `register.controller.ts`
-- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `refreshToken.controller.ts`
-- [ ] Aplicar `domain: COOKIE_DOMAIN` no cookie do student auth (login do aluno)
-
-**Backend — CORS**
-- [ ] Substituir lista hardcoded de origens em `main.ts` por função regex: `*.coachos.com.br`
-- [ ] Manter `localhost` permitido para desenvolvimento local
-
-**Frontend — cookies**
-- [ ] Adicionar `domain` nos cookies escritos em `authCookies.ts`
-- [ ] Adicionar `domain` nos cookies escritos em `studentAuthCookies.ts`
-
-**Testes**
-- [ ] Verificar manualmente: cookie de refresh enviado de `joao.coachos.com.br` para `api.coachos.com.br`
-- [ ] Verificar CORS não bloqueia subdomínios novos
+- [ ] Implement RegisterUseCase (create user + personal + Stripe customer + subscription)
+- [ ] Implement register request/response DTOs with Zod validation
+- [ ] Implement register controller (POST /auth/register)
+- [ ] Implement register unit tests
+- [ ] Implement LoginUseCase (validate credentials, generate JWT + refresh token)
+- [ ] Implement login request/response DTOs with Zod validation
+- [ ] Implement login controller (POST /auth/login)
+- [ ] Implement login unit tests
+- [ ] Implement RefreshTokenUseCase (rotate refresh token, issue new JWT)
+- [ ] Implement refresh token controller (POST /auth/refresh)
+- [ ] Implement refresh token unit tests
 
 ---
 
-### Sprint 3 — Proxy Next.js + Migração de Rotas
+## Next Tasks
 
-> Pré-requisito: Sprint 2 concluído
-> Next.js renomeou `middleware.ts` para `proxy.ts` (deprecation warning se usar o nome antigo)
+### Module: auth (continued)
 
-**Proxy**
-- [ ] Criar `frontend/src/proxy.ts` com detecção de subdomínio via `host` header
-- [ ] Proxy reescreve `joao.coachos.com.br/*` → `/coach/joao/*` (transparente para o Next.js)
-- [ ] Excluir `www`, `app`, `admin` da regra de rewrite (subdomínios reservados)
+- [ ] Implement RequestPasswordResetUseCase (generate token, send email via Resend)
+- [ ] Implement password reset request DTO with Zod validation
+- [ ] Implement password reset controller (POST /auth/password-reset/request)
+- [ ] Implement password reset request unit tests
+- [ ] Implement ResetPasswordUseCase (validate token, update password)
+- [ ] Implement reset password controller (POST /auth/password-reset/confirm)
+- [ ] Implement reset password unit tests
+- [ ] Implement SetupPasswordUseCase (first-time password setup for invited users)
+- [ ] Implement setup password controller (POST /auth/password-setup)
+- [ ] Implement setup password unit tests
 
-**Estrutura de rotas**
-- [ ] Criar `src/app/coach/[slug]/page.tsx` (LP do coach — migrar de `/personais/[slug]`)
-- [ ] Criar `src/app/coach/[slug]/aluno/layout.tsx` (layout com branding do coach)
-- [ ] Migrar `src/app/(student)/aluno/*` → `src/app/coach/[slug]/aluno/*`
-- [ ] Criar `src/app/coach/[slug]/login/page.tsx` (login do aluno brandado)
-- [ ] Manter `/personais/[slug]` com redirect 301 → `[slug].coachos.com.br` (backward compat)
+### Module: platform/plans
 
-**Autenticação do aluno**
-- [ ] Redirect pós-login do aluno: `[slug].coachos.com.br/aluno/treinos`
-- [ ] Links de retorno no portal apontam para `[slug].coachos.com.br`
+- [ ] Implement PlanRepository (findAll, findById)
+- [ ] Implement ListPlansUseCase
+- [ ] Implement list plans response DTO
+- [ ] Implement list plans controller (GET /plans)
+- [ ] Implement list plans unit tests
+- [ ] Implement seed script for default plans (Basic, Pro, Elite)
 
-**Testes**
-- [ ] Atualizar behavior tests: proxy rewrite funciona com mock de `host` header
-- [ ] Smoke test: fluxo completo aluno em `joao.coachos.com.br/aluno/treinos`
-- [ ] Verificar: `/personais/joao` redireciona 301 para `joao.coachos.com.br`
+### Module: platform/admins
 
----
+- [ ] Implement AdminRepository (findByUserId)
+- [ ] Implement admin guard (restrict routes to ADMIN role)
+- [ ] Implement admin module registration
 
-## Backlog — Onboarding Tutorial (Milestone 12)
+### Database
 
-> Feature flag: `SHOW_TUTORIAL=true` (backend) + `NEXT_PUBLIC_SHOW_TUTORIAL=true` (frontend).
-> Se `false`, nenhum código de tutorial executa. Todo o módulo de onboarding deve checar essa flag antes de qualquer operação.
-
----
-
-### Fase 1 — Backend ✅ CONCLUÍDA (2026-03-20)
-
-**Migração**
-- [x] Adicionar coluna `tour_completed_pages jsonb default '[]'` em `personals` via nova migration Drizzle
-
-**Repository**
-- [x] Adicionar `getTourProgress(tenantId): Promise<string[]>` em `personals.repository.ts`
-- [x] Adicionar `markPageToured(tenantId, page): Promise<string[]>` em `personals.repository.ts` — retorna array atualizado e auto-seta `onboarding_completed = true` quando todas as 8 páginas estiverem presentes
-
-**Contexts — getTourProgress**
-- [x] Criar `getTourProgress.useCase.spec.ts` (TDD)
-- [x] Criar `getTourProgress.useCase.ts`
-- [x] Criar `getTourProgress.controller.ts` — `GET /profile/tour-progress`, role PERSONAL
-
-**Contexts — markPageToured**
-- [x] Criar `markPageToured.useCase.spec.ts` (TDD)
-- [x] Criar `markPageToured.useCase.ts` — valida que `page` é uma das 8 chaves válidas, idempotente
-- [x] Criar `markPageToured.controller.ts` — `POST /profile/tour-progress/:page`, role PERSONAL
-
-**Module registration**
-- [x] Registrar os 2 novos controllers e useCases em `profile.module.ts`
-
-**Expor onboardingCompleted no auth**
-- [x] Adicionar `onboardingCompleted` ao DTO e useCase de login (`login/dtos/response.dto.ts` + `login.useCase.ts`)
-- [x] Adicionar `onboardingCompleted` ao DTO e useCase de register (`register/dtos/response.dto.ts` + `register.useCase.ts`)
-- [x] Atualizar testes de login e register para asserir campo presente
-
-**Validação**
-- [x] `npm run test` — 775 testes passando
+- [ ] Apply database migration (run db:migrate)
+- [ ] Implement seed data script (plans, global exercises)
 
 ---
 
-### Fase 2 — Frontend (dados e config) ✅ CONCLUÍDA (2026-03-20)
+## Backlog
 
-**Feature flag**
-- [x] Criar `frontend/src/features/onboarding/config.ts` — exporta `SHOW_TUTORIAL = process.env.NEXT_PUBLIC_SHOW_TUTORIAL === 'true'`
+### Module: platform/subscriptions
 
-**Tipos e store**
-- [x] Adicionar `onboardingCompleted?: boolean` ao tipo `AuthUser` em `auth.types.ts`
-- [x] Adicionar `setOnboardingCompleted()` no `authStore.ts` (seta campo + regravar cookie `coach_os_user`)
-- [x] Mergear `onboardingCompleted` no `auth.service.ts` (login e register)
+- [ ] Implement GetSubscriptionUseCase
+- [ ] Implement subscription response DTO
+- [ ] Implement get subscription controller (GET /subscriptions/current)
+- [ ] Implement get subscription unit tests
+- [ ] Implement ChangeSubscriptionPlanUseCase (upgrade/downgrade via Stripe)
+- [ ] Implement change plan controller (PATCH /subscriptions/plan)
+- [ ] Implement change plan unit tests
+- [ ] Implement CancelSubscriptionUseCase
+- [ ] Implement cancel subscription controller (POST /subscriptions/cancel)
+- [ ] Implement cancel subscription unit tests
+- [ ] Implement Stripe webhook handler (subscription.updated, subscription.deleted, invoice.paid)
+- [ ] Implement webhook unit tests
 
-**Services e hooks**
-- [x] Adicionar `getTourProgress()` e `markPageToured(page)` em `profile.service.ts`
-- [x] Criar `frontend/src/features/onboarding/hooks/useTourProgress.ts` — React Query: busca `GET /profile/tour-progress`, mantém em cache + sincroniza localStorage
-- [x] Criar `frontend/src/features/onboarding/hooks/usePageTour.ts` — recebe chave da página, verifica SHOW_TUTORIAL + localStorage, dispara driver.js, chama `markPageToured` ao concluir/pular
+### Module: platform/tenants
+
+- [ ] Implement ListTenantsUseCase (admin only)
+- [ ] Implement list tenants controller (GET /admin/tenants)
+- [ ] Implement list tenants unit tests
+- [ ] Implement GetTenantUseCase (admin only)
+- [ ] Implement get tenant controller (GET /admin/tenants/:id)
+- [ ] Implement get tenant unit tests
+- [ ] Implement SuspendTenantUseCase (admin only)
+- [ ] Implement suspend tenant controller (PATCH /admin/tenants/:id/suspend)
+- [ ] Implement suspend tenant unit tests
+
+### Module: platform/profile
+
+- [ ] Implement GetProfileUseCase
+- [ ] Implement profile response DTO
+- [ ] Implement get profile controller (GET /profile)
+- [ ] Implement get profile unit tests
+- [ ] Implement UpdateProfileUseCase
+- [ ] Implement update profile request DTO with Zod validation
+- [ ] Implement update profile controller (PUT /profile)
+- [ ] Implement update profile unit tests
+
+### Module: students
+
+- [ ] Implement StudentRepository (create, findAll, findById, update)
+- [ ] Implement CreateStudentUseCase (create user + student + coach-student relation)
+- [ ] Implement create student request/response DTOs with Zod validation
+- [ ] Implement create student controller (POST /students)
+- [ ] Implement create student unit tests
+- [ ] Implement ListStudentsUseCase (with pagination, tenant-scoped)
+- [ ] Implement list students response DTO
+- [ ] Implement list students controller (GET /students)
+- [ ] Implement list students unit tests
+- [ ] Implement GetStudentUseCase
+- [ ] Implement get student controller (GET /students/:id)
+- [ ] Implement get student unit tests
+- [ ] Implement UpdateStudentUseCase
+- [ ] Implement update student request DTO with Zod validation
+- [ ] Implement update student controller (PUT /students/:id)
+- [ ] Implement update student unit tests
+- [ ] Implement UpdateStudentStatusUseCase (active, paused, archived)
+- [ ] Implement update student status controller (PATCH /students/:id/status)
+- [ ] Implement update student status unit tests
+- [ ] Implement InviteStudentUseCase (generate invite token, send email via Resend)
+- [ ] Implement invite student request DTO
+- [ ] Implement invite student controller (POST /students/invite)
+- [ ] Implement invite student unit tests
+- [ ] Implement GenerateInviteLinkUseCase (shareable link for WhatsApp)
+- [ ] Implement generate invite link controller (POST /students/invite-link)
+- [ ] Implement generate invite link unit tests
+- [ ] Implement AcceptInviteUseCase (student creates account from invite)
+- [ ] Implement accept invite controller (POST /students/accept-invite)
+- [ ] Implement accept invite unit tests
+- [ ] Implement student limit enforcement (check plan maxStudents)
+
+### Module: coaching/notes
+
+- [ ] Implement StudentNoteRepository (create, findByStudentId)
+- [ ] Implement CreateNoteUseCase
+- [ ] Implement create note request/response DTOs with Zod validation
+- [ ] Implement create note controller (POST /students/:studentId/notes)
+- [ ] Implement create note unit tests
+- [ ] Implement ListNotesUseCase (chronological, tenant-scoped)
+- [ ] Implement list notes controller (GET /students/:studentId/notes)
+- [ ] Implement list notes unit tests
+- [ ] Implement UpdateNoteUseCase
+- [ ] Implement update note controller (PUT /notes/:id)
+- [ ] Implement update note unit tests
+- [ ] Implement DeleteNoteUseCase
+- [ ] Implement delete note controller (DELETE /notes/:id)
+- [ ] Implement delete note unit tests
+
+### Module: coaching/relations
+
+- [ ] Implement CoachStudentRelationRepository (create, findByTenantId, update)
+- [ ] Implement ListCoachStudentRelationsUseCase
+- [ ] Implement list relations controller (GET /coach-student-relations)
+- [ ] Implement list relations unit tests
+- [ ] Implement UpdateRelationStatusUseCase
+- [ ] Implement update relation status controller (PATCH /coach-student-relations/:id/status)
+- [ ] Implement update relation status unit tests
+
+### Module: exercises
+
+- [ ] Implement ExerciseRepository (create, findAll, findById, update, delete)
+- [ ] Implement CreateExerciseUseCase (private exercise, scoped to coach)
+- [ ] Implement create exercise request/response DTOs with Zod validation
+- [ ] Implement create exercise controller (POST /exercises)
+- [ ] Implement create exercise unit tests
+- [ ] Implement ListExercisesUseCase (global + coach private, with filters)
+- [ ] Implement list exercises response DTO
+- [ ] Implement list exercises controller (GET /exercises)
+- [ ] Implement list exercises unit tests
+- [ ] Implement GetExerciseUseCase
+- [ ] Implement get exercise controller (GET /exercises/:id)
+- [ ] Implement get exercise unit tests
+- [ ] Implement UpdateExerciseUseCase (only own private exercises)
+- [ ] Implement update exercise request DTO with Zod validation
+- [ ] Implement update exercise controller (PUT /exercises/:id)
+- [ ] Implement update exercise unit tests
+- [ ] Implement DeleteExerciseUseCase (only own private exercises)
+- [ ] Implement delete exercise controller (DELETE /exercises/:id)
+- [ ] Implement delete exercise unit tests
+- [ ] Implement exercise media upload (generate presigned URL for S3)
+- [ ] Implement media upload controller (POST /exercises/:id/upload-url)
+- [ ] Implement media upload unit tests
+
+### Module: training/programTemplates
+
+- [ ] Implement ProgramTemplateRepository (create, findAll, findById, update, delete, duplicate)
+- [ ] Implement CreateProgramTemplateUseCase
+- [ ] Implement create program template request/response DTOs with Zod validation
+- [ ] Implement create program template controller (POST /program-templates)
+- [ ] Implement create program template unit tests
+- [ ] Implement ListProgramTemplatesUseCase (tenant-scoped, with pagination)
+- [ ] Implement list program templates controller (GET /program-templates)
+- [ ] Implement list program templates unit tests
+- [ ] Implement GetProgramTemplateUseCase (with workout templates and exercises)
+- [ ] Implement get program template controller (GET /program-templates/:id)
+- [ ] Implement get program template unit tests
+- [ ] Implement UpdateProgramTemplateUseCase
+- [ ] Implement update program template request DTO
+- [ ] Implement update program template controller (PUT /program-templates/:id)
+- [ ] Implement update program template unit tests
+- [ ] Implement DuplicateProgramTemplateUseCase (deep copy)
+- [ ] Implement duplicate program template controller (POST /program-templates/:id/duplicate)
+- [ ] Implement duplicate program template unit tests
+- [ ] Implement DeleteProgramTemplateUseCase
+- [ ] Implement delete program template controller (DELETE /program-templates/:id)
+- [ ] Implement delete program template unit tests
+
+### Module: training/workoutTemplates
+
+- [ ] Implement WorkoutTemplateRepository (create, findById, update, delete, reorder)
+- [ ] Implement AddWorkoutTemplateUseCase
+- [ ] Implement add workout template request/response DTOs with Zod validation
+- [ ] Implement add workout template controller (POST /program-templates/:id/workouts)
+- [ ] Implement add workout template unit tests
+- [ ] Implement UpdateWorkoutTemplateUseCase
+- [ ] Implement update workout template controller (PUT /workout-templates/:id)
+- [ ] Implement update workout template unit tests
+- [ ] Implement DeleteWorkoutTemplateUseCase
+- [ ] Implement delete workout template controller (DELETE /workout-templates/:id)
+- [ ] Implement delete workout template unit tests
+- [ ] Implement ReorderWorkoutTemplatesUseCase
+- [ ] Implement reorder workout templates controller (PATCH /program-templates/:id/workouts/reorder)
+- [ ] Implement reorder workout templates unit tests
+
+### Module: training/exerciseTemplates
+
+- [ ] Implement ExerciseTemplateRepository (create, findById, update, delete, reorder)
+- [ ] Implement AddExerciseTemplateUseCase
+- [ ] Implement add exercise template request/response DTOs with Zod validation
+- [ ] Implement add exercise template controller (POST /workout-templates/:id/exercises)
+- [ ] Implement add exercise template unit tests
+- [ ] Implement UpdateExerciseTemplateUseCase
+- [ ] Implement update exercise template controller (PUT /exercise-templates/:id)
+- [ ] Implement update exercise template unit tests
+- [ ] Implement DeleteExerciseTemplateUseCase
+- [ ] Implement delete exercise template controller (DELETE /exercise-templates/:id)
+- [ ] Implement delete exercise template unit tests
+- [ ] Implement ReorderExerciseTemplatesUseCase
+- [ ] Implement reorder exercise templates controller (PATCH /workout-templates/:id/exercises/reorder)
+- [ ] Implement reorder exercise templates unit tests
+
+### Module: training/studentPrograms
+
+- [ ] Implement StudentProgramRepository (create, findAll, findById, update)
+- [ ] Implement AssignProgramUseCase (snapshot template into student program)
+- [ ] Implement assign program request/response DTOs with Zod validation
+- [ ] Implement assign program controller (POST /students/:studentId/programs)
+- [ ] Implement assign program unit tests
+- [ ] Implement ListStudentProgramsUseCase (tenant-scoped)
+- [ ] Implement list student programs controller (GET /students/:studentId/programs)
+- [ ] Implement list student programs unit tests
+- [ ] Implement GetStudentProgramUseCase (with workout days and exercises)
+- [ ] Implement get student program controller (GET /student-programs/:id)
+- [ ] Implement get student program unit tests
+- [ ] Implement UpdateStudentProgramStatusUseCase (active, finished, cancelled)
+- [ ] Implement update program status controller (PATCH /student-programs/:id/status)
+- [ ] Implement update program status unit tests
+
+### Module: training/workoutDays
+
+- [ ] Implement WorkoutDayRepository (findById, update, reorder)
+- [ ] Implement UpdateWorkoutDayUseCase
+- [ ] Implement update workout day request DTO with Zod validation
+- [ ] Implement update workout day controller (PUT /workout-days/:id)
+- [ ] Implement update workout day unit tests
+
+### Module: training/studentExercises
+
+- [ ] Implement StudentExerciseRepository (findById, update)
+- [ ] Implement UpdateStudentExerciseUseCase (weight, reps, rest, duration)
+- [ ] Implement update student exercise request DTO with Zod validation
+- [ ] Implement update student exercise controller (PUT /student-exercises/:id)
+- [ ] Implement update student exercise unit tests
+
+### Module: workoutExecution/sessions
+
+- [ ] Implement WorkoutSessionRepository (create, findById, findByStudentId, update)
+- [ ] Implement StartWorkoutSessionUseCase
+- [ ] Implement start session request/response DTOs with Zod validation
+- [ ] Implement start session controller (POST /workout-sessions)
+- [ ] Implement start session unit tests
+- [ ] Implement PauseWorkoutSessionUseCase
+- [ ] Implement pause session controller (PATCH /workout-sessions/:id/pause)
+- [ ] Implement pause session unit tests
+- [ ] Implement FinishWorkoutSessionUseCase
+- [ ] Implement finish session controller (PATCH /workout-sessions/:id/finish)
+- [ ] Implement finish session unit tests
+- [ ] Implement ListWorkoutSessionsUseCase (by student, with pagination)
+- [ ] Implement list sessions controller (GET /students/:studentId/workout-sessions)
+- [ ] Implement list sessions unit tests
+- [ ] Implement GetWorkoutSessionUseCase (with executions and sets)
+- [ ] Implement get session controller (GET /workout-sessions/:id)
+- [ ] Implement get session unit tests
+
+### Module: workoutExecution/exerciseExecutions
+
+- [ ] Implement ExerciseExecutionRepository (create, findById, update)
+- [ ] Implement CreateExerciseExecutionUseCase
+- [ ] Implement create execution request/response DTOs with Zod validation
+- [ ] Implement create execution controller (POST /exercise-executions)
+- [ ] Implement create execution unit tests
+
+### Module: workoutExecution/exerciseSets
+
+- [ ] Implement ExerciseSetRepository (create, findByExecutionId)
+- [ ] Implement RecordExerciseSetUseCase
+- [ ] Implement record set request/response DTOs with Zod validation
+- [ ] Implement record set controller (POST /exercise-sets)
+- [ ] Implement record set unit tests
+
+### Module: progress/records
+
+- [ ] Implement ProgressRecordRepository (create, findByStudentId)
+- [ ] Implement CreateProgressRecordUseCase
+- [ ] Implement create progress record request/response DTOs with Zod validation
+- [ ] Implement create progress record controller (POST /students/:studentId/progress-records)
+- [ ] Implement create progress record unit tests
+- [ ] Implement ListProgressRecordsUseCase (chronological, by metric type)
+- [ ] Implement list progress records controller (GET /students/:studentId/progress-records)
+- [ ] Implement list progress records unit tests
+
+### Module: progress/photos
+
+- [ ] Implement ProgressPhotoRepository (create, findByStudentId)
+- [ ] Implement RequestPhotoUploadUseCase (generate presigned URL)
+- [ ] Implement request photo upload controller (POST /students/:studentId/progress-photos/upload-url)
+- [ ] Implement request photo upload unit tests
+- [ ] Implement SaveProgressPhotoUseCase (store metadata after upload)
+- [ ] Implement save progress photo controller (POST /students/:studentId/progress-photos)
+- [ ] Implement save progress photo unit tests
+- [ ] Implement ListProgressPhotosUseCase (chronological)
+- [ ] Implement list progress photos controller (GET /students/:studentId/progress-photos)
+- [ ] Implement list progress photos unit tests
+
+### Module: scheduling/availability
+
+- [ ] Implement AvailabilityRuleRepository (create, findByTenantId, update, delete)
+- [ ] Implement CreateAvailabilityRuleUseCase
+- [ ] Implement create availability rule request/response DTOs with Zod validation
+- [ ] Implement create availability rule controller (POST /availability-rules)
+- [ ] Implement create availability rule unit tests
+- [ ] Implement ListAvailabilityRulesUseCase
+- [ ] Implement list availability rules controller (GET /availability-rules)
+- [ ] Implement list availability rules unit tests
+- [ ] Implement UpdateAvailabilityRuleUseCase
+- [ ] Implement update availability rule controller (PUT /availability-rules/:id)
+- [ ] Implement update availability rule unit tests
+- [ ] Implement DeleteAvailabilityRuleUseCase
+- [ ] Implement delete availability rule controller (DELETE /availability-rules/:id)
+- [ ] Implement delete availability rule unit tests
+
+### Module: scheduling/exceptions
+
+- [ ] Implement AvailabilityExceptionRepository (create, findByTenantId, delete)
+- [ ] Implement CreateAvailabilityExceptionUseCase
+- [ ] Implement create exception request/response DTOs with Zod validation
+- [ ] Implement create exception controller (POST /availability-exceptions)
+- [ ] Implement create exception unit tests
+- [ ] Implement ListAvailabilityExceptionsUseCase
+- [ ] Implement list exceptions controller (GET /availability-exceptions)
+- [ ] Implement list exceptions unit tests
+- [ ] Implement DeleteAvailabilityExceptionUseCase
+- [ ] Implement delete exception controller (DELETE /availability-exceptions/:id)
+- [ ] Implement delete exception unit tests
+
+### Module: scheduling/appointmentRequests
+
+- [ ] Implement AppointmentRequestRepository (create, findByTenantId, findById, update)
+- [ ] Implement CreateAppointmentRequestUseCase (student requests appointment)
+- [ ] Implement create request DTOs with Zod validation
+- [ ] Implement create request controller (POST /appointment-requests)
+- [ ] Implement create request unit tests
+- [ ] Implement ListAppointmentRequestsUseCase
+- [ ] Implement list requests controller (GET /appointment-requests)
+- [ ] Implement list requests unit tests
+- [ ] Implement ApproveAppointmentRequestUseCase (creates appointment)
+- [ ] Implement approve request controller (PATCH /appointment-requests/:id/approve)
+- [ ] Implement approve request unit tests
+- [ ] Implement RejectAppointmentRequestUseCase
+- [ ] Implement reject request controller (PATCH /appointment-requests/:id/reject)
+- [ ] Implement reject request unit tests
+
+### Module: scheduling/appointments
+
+- [ ] Implement AppointmentRepository (create, findByTenantId, findById, update)
+- [ ] Implement CreateAppointmentUseCase (coach manual creation, with overlap check)
+- [ ] Implement create appointment request/response DTOs with Zod validation
+- [ ] Implement create appointment controller (POST /appointments)
+- [ ] Implement create appointment unit tests
+- [ ] Implement ListAppointmentsUseCase (with date filters, pagination)
+- [ ] Implement list appointments controller (GET /appointments)
+- [ ] Implement list appointments unit tests
+- [ ] Implement GetAppointmentUseCase
+- [ ] Implement get appointment controller (GET /appointments/:id)
+- [ ] Implement get appointment unit tests
+- [ ] Implement CancelAppointmentUseCase (with cancellation reason)
+- [ ] Implement cancel appointment controller (PATCH /appointments/:id/cancel)
+- [ ] Implement cancel appointment unit tests
+- [ ] Implement overlap prevention logic (shared validation)
+- [ ] Implement available slots query (GET /appointments/available-slots)
+- [ ] Implement available slots unit tests
+
+### Module: coaching/servicePlans
+
+- [ ] Implement ServicePlanRepository (create, findByTenantId, findById, update)
+- [ ] Implement CreateServicePlanUseCase
+- [ ] Implement create service plan request/response DTOs with Zod validation
+- [ ] Implement create service plan controller (POST /service-plans)
+- [ ] Implement create service plan unit tests
+- [ ] Implement ListServicePlansUseCase
+- [ ] Implement list service plans controller (GET /service-plans)
+- [ ] Implement list service plans unit tests
+- [ ] Implement UpdateServicePlanUseCase
+- [ ] Implement update service plan controller (PUT /service-plans/:id)
+- [ ] Implement update service plan unit tests
+
+### Module: coaching/contracts
+
+- [ ] Implement CoachingContractRepository (create, findByTenantId, findById, update)
+- [ ] Implement CreateCoachingContractUseCase
+- [ ] Implement create contract request/response DTOs with Zod validation
+- [ ] Implement create contract controller (POST /coaching-contracts)
+- [ ] Implement create contract unit tests
+- [ ] Implement ListCoachingContractsUseCase
+- [ ] Implement list contracts controller (GET /coaching-contracts)
+- [ ] Implement list contracts unit tests
+- [ ] Implement CancelCoachingContractUseCase
+- [ ] Implement cancel contract controller (PATCH /coaching-contracts/:id/cancel)
+- [ ] Implement cancel contract unit tests
+
+### Frontend: auth
+
+- [ ] Implement auth service (register, login, refresh, password reset)
+- [ ] Implement registration page with plan selection
+- [ ] Implement login page
+- [ ] Implement password recovery page
+- [ ] Implement password reset page
+- [ ] Implement session management (store JWT, refresh token rotation)
+- [ ] Implement auth guard (redirect unauthenticated users)
+- [ ] Implement onboarding wizard flow
+
+### Frontend: dashboard
+
+- [ ] Implement dashboard layout (sidebar, header, content area)
+- [ ] Implement dashboard home page (overview stats)
+
+### Frontend: students
+
+- [ ] Implement students service (CRUD, invite, status)
+- [ ] Implement student list page (with pagination, search, filters)
+- [ ] Implement create student form
+- [ ] Implement student detail page
+- [ ] Implement edit student form
+- [ ] Implement invite student dialog
+- [ ] Implement student status management
+- [ ] Implement student notes section
+
+### Frontend: exercises
+
+- [ ] Implement exercises service (CRUD, upload)
+- [ ] Implement exercise library page (with search, muscle group filter)
+- [ ] Implement create exercise form (with media upload)
+- [ ] Implement exercise detail dialog
+- [ ] Implement edit exercise form
+
+### Frontend: training templates
+
+- [ ] Implement training templates service
+- [ ] Implement program template list page
+- [ ] Implement create program template form
+- [ ] Implement program template builder (add/edit/reorder workouts and exercises)
+- [ ] Implement duplicate program template action
+
+### Frontend: student programs
+
+- [ ] Implement student programs service
+- [ ] Implement assign program dialog (select template for student)
+- [ ] Implement student program detail page (workout days, exercises)
+- [ ] Implement customize student exercise form
+
+### Frontend: workout execution
+
+- [ ] Implement workout execution service
+- [ ] Implement workout session page (start, record sets, finish)
+- [ ] Implement workout history page
+
+### Frontend: progress
+
+- [ ] Implement progress service
+- [ ] Implement progress records page (record metrics, view history)
+- [ ] Implement progress photos page (upload, gallery)
+- [ ] Implement progress charts (line graphs, comparisons)
+
+### Frontend: scheduling
+
+- [ ] Implement scheduling service
+- [ ] Implement availability settings page (manage rules and exceptions)
+- [ ] Implement appointments page (calendar view, list view)
+- [ ] Implement create appointment dialog
+- [ ] Implement appointment request management
+
+### Frontend: coaching services
+
+- [ ] Implement coaching service
+- [ ] Implement service plans page (create, edit, list)
+- [ ] Implement coaching contracts page (create, list, manage)
+
+### Frontend: public page
+
+- [ ] Implement public page service
+- [ ] Implement public page editor (bio, photo, specialties, colors)
+- [ ] Implement public page preview
+- [ ] Implement public page rendering (app.com/personal/:slug)
+
+### Frontend: student portal
+
+- [ ] Implement student portal layout
+- [ ] Implement student login page
+- [ ] Implement student training page (view program, exercises)
+- [ ] Implement student workout execution page
+- [ ] Implement student progress page
+- [ ] Implement student appointments page
+
+### Frontend: notifications
+
+- [ ] Implement notification preferences page
 
 ---
 
-### Fase 3 — Frontend (tours driver.js) ✅ CONCLUÍDA (2026-03-20)
+## Completed
 
-- [x] Instalar `driver.js`
-- [x] Criar `frontend/src/features/onboarding/tours/exercises.tour.ts` (3–4 passos)
-- [x] Criar `frontend/src/features/onboarding/tours/students.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/training.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/schedule.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/availability.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/services.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/landingPage.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/profile.tour.ts`
-- [x] Integrar `usePageTour` em cada uma das 8 páginas de módulo via `PageTourInitializer`
+### Infrastructure
 
----
-
-### Fase 4 — Frontend (UI checklist + header) ✅ CONCLUÍDA (2026-03-20)
-
-**Checklist no dashboard**
-- [x] Criar `frontend/src/features/onboarding/components/onboardingChecklist.tsx` — widget com os 8 itens, progresso e links para cada página; some quando `onboardingCompleted = true`
-- [x] Montar checklist em `frontend/src/app/(dashboard)/dashboard/page.tsx` (role PERSONAL + SHOW_TUTORIAL)
-
-**Botão no header**
-- [x] Criar `frontend/src/features/onboarding/components/onboardingHeaderButton.tsx` — botão "Tutorial" que re-dispara `usePageTour` da página atual
-- [x] Montar botão em `frontend/src/app/(dashboard)/layout.tsx` (role PERSONAL + SHOW_TUTORIAL)
-
----
-
-### Fase 5 — Testes E2E ✅ CONCLUÍDA (2026-03-20)
-
-- [x] Criar `frontend/tests/e2e/fixtures/onboarding.fixtures.ts` (`MOCK_USER_NEW` com `onboardingCompleted: false`, `MOCK_USER_ONBOARDED`)
-- [x] Adicionar `mockGetTourProgress(page, completedPages)` e `mockMarkPageToured(page)` em `apiMocks.ts`
-- [x] Adicionar `injectMockAuthAs(page, user)` em `apiMocks.ts` (helper genérico para variantes de usuário)
-- [x] Criar `frontend/tests/e2e/onboarding/onboarding.behavior.spec.ts`:
-  - [x] Checklist aparece quando `onboardingCompleted === false` e SHOW_TUTORIAL ativo
-  - [x] Checklist não aparece quando `onboardingCompleted === true`
-  - [x] Botão "Tutorial" no header aparece para PERSONAL, não aparece para ADMIN
-  - [x] Itens do checklist marcados refletem `completedPages` retornado pela API
-  - [x] `SHOW_TUTORIAL=false` → documentado como não testável por teste (constante compilada em build time)
-- [x] `npm run test:e2e` — 26/26 behavioral tests passando
-
----
-
-## Backlog — Outros
-
-### Frontend: Dashboard stats reais
-- [x] Integrar dados reais na página `/dashboard` ✅
-
-### Frontend: Progress charts
-- [ ] Implementar gráficos de linha e comparativo de métricas do aluno
-
-### Frontend: Notifications
-- [ ] Implementar página de preferências de notificação
-
----
-
-## Descartado
-
-- **Tina CMS para editor de página** — não adequado: é Git-backed, dados estão no PostgreSQL, cria segunda fonte de verdade. Editor atual (form-based) é suficiente.
-- **Custom domains (Sprint 5)** — complexidade muito alta. Avaliar somente após validação com coaches Elite.
-- **Sentry Error SDK** — descartado; Better Stack já cobre logs, uptime e telemetria. Redundante.
+- [x] Backend project setup (NestJS + Fastify + SWC)
+- [x] Frontend project setup (Next.js)
+- [x] Database configuration (Drizzle ORM + PostgreSQL)
+- [x] Database schema definition (27 tables across 12 schema files)
+- [x] Migration generation (0000_mushy_black_bolt.sql)
+- [x] Migration reset script
+- [x] Shared guards (JWTAuth, Roles)
+- [x] Shared filters (HttpException, ValidationException, AllExceptions)
+- [x] Shared interceptors (BuildResponse)
+- [x] Shared decorators (Public, Roles, CurrentUser, BypassTenantAccess)
+- [x] Shared providers (Drizzle, Stripe, S3, Resend, LogBuilder)
+- [x] Shared utils (date, validation, token, slug, requestDuration, getHeader)
+- [x] Shared enums (ApplicationRoles: ADMIN, PERSONAL, STUDENT)
+- [x] Shared exceptions (Validation, TenantBlocked)
+- [x] Environment configuration
+- [x] Swagger configuration
+- [x] Pino logger configuration
+- [x] Health module (GET /health)
+- [x] App module with global guards (JWT + Roles)
