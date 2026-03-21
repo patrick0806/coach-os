@@ -27,9 +27,9 @@ test.describe("Home Page — Static Content", () => {
   })
 
   test("shows quick glance feature grid", async ({ page }) => {
-    await expect(page.getByText("Portal com sua marca").first()).toBeVisible()
-    await expect(page.getByText("Prescrição completa")).toBeVisible()
-    await expect(page.getByText("Agenda inteligente")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Portal com sua marca" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Prescrição completa" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Agenda inteligente" })).toBeVisible()
   })
 
   test("renders feature blocks", async ({ page }) => {

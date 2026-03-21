@@ -67,7 +67,7 @@ test.describe("Admin — Planos", () => {
   test("should open create plan dialog", async ({ page }) => {
     await page.getByRole("button", { name: /novo plano/i }).click()
     await expect(page.getByRole("dialog")).toBeVisible()
-    await expect(page.getByText("Novo Plano")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Novo Plano" })).toBeVisible()
   })
 
   test("should show validation error on empty submit", async ({ page }) => {
@@ -157,8 +157,8 @@ test.describe("Admin — Admins", () => {
   })
 
   test("should list admins", async ({ page }) => {
-    await expect(page.getByText("Super Admin")).toBeVisible()
-    await expect(page.getByText("admin@coachos.com")).toBeVisible()
+    await expect(page.getByRole("cell", { name: "Super Admin" })).toBeVisible()
+    await expect(page.getByRole("cell", { name: "admin@coachos.com" })).toBeVisible()
   })
 
   test("should open create admin dialog", async ({ page }) => {
