@@ -419,7 +419,7 @@ export async function mockCreateStudent(
 
 export async function mockGenerateInviteLink(
   page: Page,
-  link = "http://localhost:3001/convite?token=mock-invite-token-abc123"
+  link = "http://localhost:3099/convite?token=mock-invite-token-abc123"
 ): Promise<void> {
   await page.route("**/api/v1/students/invite-link*", (route: Route) => {
     if (route.request().method() === "POST") {

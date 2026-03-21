@@ -7,7 +7,7 @@
  * The login page (/personais/[slug]/login) is a Next.js Server Component that
  * fetches /public/:slug server-side via publicServerFetch. This fetch calls
  * NEXT_PUBLIC_API_URL (http://localhost:3000/api/v1) which is a different origin
- * from the Playwright dev server (http://localhost:3001). Playwright's page.route()
+ * from the Playwright dev server (http://localhost:3099). Playwright's page.route()
  * intercepts browser-level network requests only — it cannot intercept server-side
  * Node.js fetch calls made inside Next.js server components.
  *
