@@ -97,10 +97,9 @@ test.describe("Student Portal — Auth Guard", () => {
     })
 
     await page.goto("/aluno/treinos")
-    await page.waitForLoadState("networkidle")
 
-    // The student layout guard redirects unauthenticated users to "/"
-    await expect(page).toHaveURL("/")
+    // The proxy redirects unauthenticated students (no cookies) to "/"
+    await expect(page).toHaveURL("/", { timeout: 15000 })
   })
 })
 

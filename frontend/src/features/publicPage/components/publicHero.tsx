@@ -9,7 +9,7 @@ interface PublicHeroProps {
   hrefPrefix?: string
 }
 
-export function PublicHero({ profile, slug, hrefPrefix = "" }: PublicHeroProps) {
+export function PublicHero({ profile, slug: _slug, hrefPrefix = "" }: PublicHeroProps) {
   const title = profile.lpTitle ?? profile.coachName
 
   return (

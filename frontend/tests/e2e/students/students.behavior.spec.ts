@@ -10,7 +10,6 @@ import {
   mockStudentsList,
   mockStudentsListStateful,
   mockCreateStudent,
-  mockGenerateInviteLink,
   mockGenerateStudentAccessLink,
   mockServicePlansList,
 } from "../support/apiMocks"

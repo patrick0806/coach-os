@@ -42,7 +42,7 @@ interface WorkoutStepperProps {
 
 export function WorkoutStepper({
   exercises,
-  sessionId,
+  sessionId: _sessionId,
   onCreateExecution,
   onRecordSet,
   onAllComplete,

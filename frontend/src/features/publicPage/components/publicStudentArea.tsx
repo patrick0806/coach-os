@@ -6,7 +6,7 @@ interface PublicStudentAreaProps {
   hrefPrefix?: string
 }
 
-export function PublicStudentArea({ slug, hrefPrefix = "" }: PublicStudentAreaProps) {
+export function PublicStudentArea({ slug: _slug, hrefPrefix = "" }: PublicStudentAreaProps) {
   return (
     <section className="bg-muted/40 px-4 py-16">
       <div className="mx-auto max-w-md text-center space-y-6">
