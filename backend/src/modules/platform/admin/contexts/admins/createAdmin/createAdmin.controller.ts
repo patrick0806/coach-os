@@ -7,6 +7,8 @@ import { Roles } from "@shared/decorators/roles.decorator";
 import { ApplicationRoles } from "@shared/enums";
 
 import { CreateAdminUseCase } from "./createAdmin.useCase";
+import { CreateAdminRequestDTO } from "./dtos/request.dto";
+import { AdminResponseDTO } from "../listAdmins/dtos/response.dto";
 
 @ApiBearerAuth()
 @ApiTags(API_TAGS.ADMIN)
@@ -17,9 +19,9 @@ export class CreateAdminController {
   constructor(private readonly createAdminUseCase: CreateAdminUseCase) {}
 
   @ApiOperation({ summary: "Create admin user" })
-  @ApiCreatedResponse({ description: "Admin user created successfully" })
+  @ApiCreatedResponse({ description: "Admin user created successfully", type: AdminResponseDTO })
   @Post()
-  async handle(@Body() body: unknown) {
+  async handle(@Body() body: CreateAdminRequestDTO) {
     return this.createAdminUseCase.execute(body);
   }
 }
