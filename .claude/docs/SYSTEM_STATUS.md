@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-21
+Last updated: 2026-03-22
 
 ---
 
@@ -31,7 +31,7 @@ All backend modules are **completed** (775 tests passing).
 |------|--------|-------|
 | **Dashboard** | ✅ done | layout + real stats integrated |
 | **Onboarding Tutorial** | ✅ done | Milestone 12 completo: backend (tour progress endpoints) + frontend (config, store, driver.js tours, checklist, header button) + 26 testes E2E passando |
-| **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
+| **Subdomain routing** | ✅ done | Sprint 2 (cookies+CORS) + Sprint 3 (proxy+routes `/coach/[slug]`) completo; 661 testes E2E passando |
 | **Progress charts** | not started | Backlog: line graphs, comparisons |
 | **Notifications** | not started | Backlog: preferences page |
 
@@ -51,13 +51,13 @@ All backend modules are **completed** (775 tests passing).
 
 ## Next Milestones
 
-### Milestone 10 — Subdomain Foundation (Sprints 2+3)
+### Milestone 10 — Subdomain Foundation (Sprints 2+3) ✅ DONE
 Cookies + CORS + Next.js proxy + migração de rotas.
 - ~~Wildcard DNS e SSL (`*.coachos.com.br`)~~ ✅ done
 - ~~Nginx wildcard config~~ ✅ done
-- Backend: `COOKIE_DOMAIN` env + CORS regex
-- Frontend: proxy.ts + migração de rotas `/coach/[slug]/`
-- Portal do aluno totalmente brandado via subdomínio
+- ~~Backend: `COOKIE_DOMAIN` env + CORS regex~~ ✅ done
+- ~~Frontend: proxy.ts + migração de rotas `/coach/[slug]/`~~ ✅ done
+- ~~Portal do aluno totalmente brandado via subdomínio~~ ✅ done
 - **Validates:** White-label real, isolamento por subdomínio
 
 ### Milestone 12 — Onboarding Tutorial

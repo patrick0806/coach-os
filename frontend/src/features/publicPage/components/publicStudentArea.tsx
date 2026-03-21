@@ -3,9 +3,10 @@ import { LogIn, KeyRound } from "lucide-react"
 
 interface PublicStudentAreaProps {
   slug: string
+  hrefPrefix?: string
 }
 
-export function PublicStudentArea({ slug }: PublicStudentAreaProps) {
+export function PublicStudentArea({ slug, hrefPrefix = "" }: PublicStudentAreaProps) {
   return (
     <section className="bg-muted/40 px-4 py-16">
       <div className="mx-auto max-w-md text-center space-y-6">
@@ -18,7 +19,7 @@ export function PublicStudentArea({ slug }: PublicStudentAreaProps) {
 
         <div className="flex flex-col gap-3">
           <Link
-            href={`/personais/${slug}/login`}
+            href={`${hrefPrefix}/login`}
             className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: "var(--brand-color, hsl(var(--primary)))" }}
           >
@@ -27,7 +28,7 @@ export function PublicStudentArea({ slug }: PublicStudentAreaProps) {
           </Link>
 
           <Link
-            href={`/personais/${slug}/esqueci-senha`}
+            href={`${hrefPrefix}/esqueci-senha`}
             className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
             <KeyRound className="inline size-3.5 mr-1" />

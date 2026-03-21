@@ -1,4 +1,7 @@
+import { headers } from "next/headers"
+
 import { publicServerFetch } from "@/lib/serverFetch"
+import { getCoachHrefPrefix } from "@/lib/useCoachHref"
 import { StudentLoginForm } from "@/features/studentAuth/components/studentLoginForm"
 
 interface CoachPublicProfile {
@@ -28,11 +31,16 @@ export default async function StudentLoginPage({ params }: PageProps) {
       </div>
     )
   }
+
+  const host = (await headers()).get("host") ?? ""
+  const hrefPrefix = getCoachHrefPrefix(slug, host)
+
   return (
     <StudentLoginForm
       coachName={coach.coachName}
       coachLogoUrl={coach.profilePhoto}
       slug={slug}
+      hrefPrefix={hrefPrefix}
     />
   )
 }

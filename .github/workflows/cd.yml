@@ -90,6 +90,14 @@ jobs:
           labels: ${{ steps.meta-frontend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_COOKIE_DOMAIN=${{ secrets.NEXT_PUBLIC_COOKIE_DOMAIN }}
+            NEXT_PUBLIC_BASE_DOMAIN=${{ secrets.NEXT_PUBLIC_BASE_DOMAIN }}
+            NEXT_PUBLIC_SHOW_TUTORIAL=${{ secrets.NEXT_PUBLIC_SHOW_TUTORIAL }}
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_BETTERSTACK_DSN=${{ secrets.NEXT_PUBLIC_BETTERSTACK_DSN }}
 
   # ─────────────────────────────────────────
   # Deploy to production via SSH

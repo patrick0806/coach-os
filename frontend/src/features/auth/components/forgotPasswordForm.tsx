@@ -35,7 +35,7 @@ interface ForgotPasswordFormProps {
 export function ForgotPasswordForm({ slug }: ForgotPasswordFormProps) {
   const [status, setStatus] = useState<"idle" | "sent">("idle");
 
-  const loginHref = slug ? `/personais/${slug}/login` : "/login";
+  const loginHref = slug ? `/coach/${slug}/login` : "/login";
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: ForgotFormValues) =>

@@ -2,6 +2,7 @@
 
 import { use, useState } from "react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { ArrowLeft, Dumbbell, Play } from "lucide-react"
 
 import { studentAuthStore } from "@/stores/studentAuthStore"
@@ -12,17 +13,20 @@ import { useCreateExecution } from "@/features/workoutExecution/hooks/useCreateE
 import { useRecordSet } from "@/features/workoutExecution/hooks/useRecordSet"
 import { WorkoutStepper } from "@/features/workoutExecution/components/workoutStepper"
 import { WorkoutCompletionScreen } from "@/features/workoutExecution/components/workoutCompletionScreen"
+import { useCoachHref } from "@/lib/useCoachHref"
 import { LoadingState } from "@/shared/components/loadingState"
 import { Button } from "@/shared/ui/button"
 
 type ExecutionState = "idle" | "started" | "finished"
 
 interface PageProps {
-  params: Promise<{ programId: string; workoutDayId: string }>
+  params: Promise<{ slug: string; programId: string; workoutDayId: string }>
 }
 
 export default function ExecutarTreinoPage({ params }: PageProps) {
   const { programId, workoutDayId } = use(params)
+  const routeParams = useParams<{ slug: string }>()
+  const href = useCoachHref(routeParams.slug)
 
   const user = studentAuthStore.getUser()
   const studentId = user?.id ?? ""
@@ -50,7 +54,7 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
       <div className="py-8 text-center">
         <p className="text-muted-foreground">Dia de treino não encontrado.</p>
         <Button asChild variant="ghost" className="mt-4">
-          <Link href="/aluno/treinos">Voltar</Link>
+          <Link href={href("/aluno/treinos")}>Voltar</Link>
         </Button>
       </div>
     )
@@ -94,7 +98,7 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button asChild variant="ghost" size="icon" className="shrink-0">
-          <Link href="/aluno/treinos">
+          <Link href={href("/aluno/treinos")}>
             <ArrowLeft className="h-5 w-5" />
             <span className="sr-only">Voltar</span>
           </Link>

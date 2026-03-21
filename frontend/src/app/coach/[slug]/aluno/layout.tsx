@@ -8,6 +8,7 @@ import { CalendarDays, Dumbbell, LogOut, TrendingUp } from "lucide-react"
 
 import { studentAuthStore } from "@/stores/studentAuthStore"
 import { studentAuthService } from "@/features/studentAuth/services/studentAuth.service"
+import { useCoachHref } from "@/lib/useCoachHref"
 import { Button } from "@/shared/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -18,34 +19,43 @@ interface CoachBranding {
 
 interface StudentLayoutProps {
   children: ReactNode
+  params: Promise<{ slug: string }>
 }
-
-const NAV_ITEMS = [
-  { href: "/aluno/treinos", label: "Treinos", icon: Dumbbell },
-  { href: "/aluno/progresso", label: "Progresso", icon: TrendingUp },
-  { href: "/aluno/agenda", label: "Agenda", icon: CalendarDays },
-]
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333"
 
-export default function StudentLayout({ children }: StudentLayoutProps) {
+export default function StudentLayout({ children, params }: StudentLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [branding, setBranding] = useState<CoachBranding | null>(null)
+  const [slug, setSlug] = useState<string>("")
+
+  // Unwrap params (async in Next.js 16 App Router)
+  useEffect(() => {
+    params.then((p) => setSlug(p.slug))
+  }, [params])
+
+  const href = useCoachHref(slug)
+
+  const navItems = [
+    { path: "/aluno/treinos", label: "Treinos", icon: Dumbbell },
+    { path: "/aluno/progresso", label: "Progresso", icon: TrendingUp },
+    { path: "/aluno/agenda", label: "Agenda", icon: CalendarDays },
+  ]
 
   useEffect(() => {
-    // Guard: redirect to home if student is not authenticated
-    if (!studentAuthStore.isAuthenticated()) {
-      router.push("/")
+    // Guard: redirect to coach LP if student is not authenticated
+    if (!studentAuthStore.isAuthenticated() && slug) {
+      router.push(href("/"))
     }
-  }, [router])
+  }, [router, slug, href])
 
   useEffect(() => {
-    // Fetch coach branding using personalSlug stored in student session
-    const user = studentAuthStore.getUser()
-    if (!user?.personalSlug) return
+    // Fetch coach branding using slug from URL (primary) or personalSlug from session (fallback)
+    const brandingSlug = slug || studentAuthStore.getUser()?.personalSlug
+    if (!brandingSlug) return
 
-    fetch(`${BASE_URL}/public/${user.personalSlug}`)
+    fetch(`${BASE_URL}/public/${brandingSlug}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         const profile = json?.data ?? json
@@ -57,7 +67,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
         }
       })
       .catch(() => null)
-  }, [])
+  }, [slug])
 
   useEffect(() => {
     // Dynamically update favicon with coach's logo when branding loads
@@ -72,7 +82,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
   function handleLogout() {
     studentAuthService.logout()
-    router.push("/")
+    router.push(href("/"))
   }
 
   return (
@@ -132,12 +142,15 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/60 bg-card">
         <div className="mx-auto flex max-w-2xl flex-col items-center px-4 pt-2 pb-1">
           <div className="flex w-full items-center justify-around">
-            {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/")
+            {navItems.map(({ path, label, icon: Icon }) => {
+              const fullHref = href(path)
+              const isActive = pathname === fullHref || pathname.startsWith(fullHref + "/")
+                // Also check without prefix for subdomain mode
+                || pathname === path || pathname.startsWith(path + "/")
               return (
                 <Link
-                  key={href}
-                  href={href}
+                  key={path}
+                  href={fullHref}
                   className={cn(
                     "flex flex-col items-center gap-1 rounded-full px-4 py-1.5 text-xs transition-colors",
                     isActive

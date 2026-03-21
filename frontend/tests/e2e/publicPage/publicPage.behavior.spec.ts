@@ -1,7 +1,7 @@
 /**
  * Public Page — Behavioral Tests
  *
- * NOTE: The main public page at /personais/[slug] is a Next.js Server Component
+ * NOTE: The main public page at /coach/[slug] is a Next.js Server Component
  * that fetches data via publicServerFetch() (Node.js server-side).
  * Playwright page.route() cannot intercept server-side fetches.
  *
@@ -22,7 +22,7 @@ const TEST_SLUG = "test-slug-behavior"
 test.describe("Public Page — Not Found Behavior", () => {
   test("shows 404 when slug does not exist (no backend)", async ({ page }) => {
     // Without backend, publicServerFetch returns null → notFound()
-    const response = await page.goto(`/personais/${TEST_SLUG}`)
+    const response = await page.goto(`/coach/${TEST_SLUG}`)
     // Next.js renders 404 or the error page
     expect(response?.status()).toBe(404)
   })
@@ -34,23 +34,23 @@ test.describe("Public Page — Not Found Behavior", () => {
 
 test.describe("Public Page — Student Auth Fallback", () => {
   test("login page shows coach not found fallback without backend", async ({ page }) => {
-    await page.goto(`/personais/${TEST_SLUG}/login`)
+    await page.goto(`/coach/${TEST_SLUG}/login`)
     await expect(page.getByText("Treinador não encontrado")).toBeVisible({ timeout: 8000 })
     await expect(page.getByText(/link.*inválido|expirou/i)).toBeVisible()
   })
 
   test("esqueci-senha page shows coach not found fallback without backend", async ({ page }) => {
-    await page.goto(`/personais/${TEST_SLUG}/esqueci-senha`)
+    await page.goto(`/coach/${TEST_SLUG}/esqueci-senha`)
     await expect(page.getByText("Treinador não encontrado")).toBeVisible({ timeout: 8000 })
   })
 
   test("configurar-senha page shows coach not found fallback without backend", async ({ page }) => {
-    await page.goto(`/personais/${TEST_SLUG}/configurar-senha`)
+    await page.goto(`/coach/${TEST_SLUG}/configurar-senha`)
     await expect(page.getByText("Treinador não encontrado")).toBeVisible({ timeout: 8000 })
   })
 
   test("redefinir-senha page shows coach not found fallback without backend", async ({ page }) => {
-    await page.goto(`/personais/${TEST_SLUG}/redefinir-senha`)
+    await page.goto(`/coach/${TEST_SLUG}/redefinir-senha`)
     await expect(page.getByText("Treinador não encontrado")).toBeVisible({ timeout: 8000 })
   })
 })

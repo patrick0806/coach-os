@@ -6,9 +6,10 @@ import type { PublicProfile } from "@/features/publicPage/types/publicPage.types
 interface PublicHeroProps {
   profile: PublicProfile
   slug: string
+  hrefPrefix?: string
 }
 
-export function PublicHero({ profile, slug }: PublicHeroProps) {
+export function PublicHero({ profile, slug, hrefPrefix = "" }: PublicHeroProps) {
   const title = profile.lpTitle ?? profile.coachName
 
   return (
@@ -115,7 +116,7 @@ export function PublicHero({ profile, slug }: PublicHeroProps) {
             Ver planos
           </a>
           <Link
-            href={`/personais/${slug}/login`}
+            href={`${hrefPrefix}/login`}
             className="inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
           >
             Entrar como aluno

@@ -29,7 +29,7 @@ test.describe("Student Portal — Public Page @smoke", () => {
     const coach = await createIsolatedCoach(request)
     const slug = await getCoachSlug(request, coach.accessToken)
 
-    await page.goto(`/personais/${slug}`)
+    await page.goto(`/coach/${slug}`)
     await page.waitForLoadState("networkidle", { timeout: 15000 })
 
     // Coach name should appear on the public page
@@ -40,7 +40,7 @@ test.describe("Student Portal — Public Page @smoke", () => {
     const coach = await createIsolatedCoach(request)
     const slug = await getCoachSlug(request, coach.accessToken)
 
-    await page.goto(`/personais/${slug}`)
+    await page.goto(`/coach/${slug}`)
     await page.waitForLoadState("networkidle", { timeout: 15000 })
 
     await expect(page.getByText("Ver planos")).toBeVisible()
@@ -50,7 +50,7 @@ test.describe("Student Portal — Public Page @smoke", () => {
     const coach = await createIsolatedCoach(request)
     const slug = await getCoachSlug(request, coach.accessToken)
 
-    await page.goto(`/personais/${slug}`)
+    await page.goto(`/coach/${slug}`)
     await page.waitForLoadState("networkidle", { timeout: 15000 })
 
     await expect(page.getByText("Entrar como aluno")).toBeVisible()
@@ -60,11 +60,11 @@ test.describe("Student Portal — Public Page @smoke", () => {
     const coach = await createIsolatedCoach(request)
     const slug = await getCoachSlug(request, coach.accessToken)
 
-    await page.goto(`/personais/${slug}`)
+    await page.goto(`/coach/${slug}`)
     await page.waitForLoadState("networkidle", { timeout: 15000 })
 
     await page.getByText("Entrar como aluno").click()
-    await page.waitForURL(`**/personais/${slug}/login`, { timeout: 8000 })
+    await page.waitForURL(`**/coach/${slug}/login`, { timeout: 8000 })
 
     // Login form appears (with coach branding)
     await expect(page.getByRole("button", { name: /entrar/i })).toBeVisible({ timeout: 8000 })
@@ -74,7 +74,7 @@ test.describe("Student Portal — Public Page @smoke", () => {
     const coach = await createIsolatedCoach(request)
     const slug = await getCoachSlug(request, coach.accessToken)
 
-    await page.goto(`/personais/${slug}/login`)
+    await page.goto(`/coach/${slug}/login`)
     await page.waitForLoadState("networkidle", { timeout: 15000 })
 
     // Should show login form (not the "not found" fallback)

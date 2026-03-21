@@ -8,17 +8,18 @@ import { PublicStudentArea } from "@/features/publicPage/components/publicStuden
 interface Layout1Props {
   profile: PublicProfile
   slug: string
+  hrefPrefix?: string
 }
 
 // Layout 1 — Classic: centered hero, sections stacked vertically (default)
-export function Layout1({ profile, slug }: Layout1Props) {
+export function Layout1({ profile, slug, hrefPrefix = "" }: Layout1Props) {
   return (
     <>
-      <PublicHero profile={profile} slug={slug} />
+      <PublicHero profile={profile} slug={slug} hrefPrefix={hrefPrefix} />
       <PublicAbout profile={profile} />
       <PublicServicePlans plans={profile.servicePlans} phoneNumber={profile.phoneNumber} />
       <PublicAvailability rules={profile.availabilityRules} occupiedSlots={profile.occupiedSlots} />
-      <PublicStudentArea slug={slug} />
+      <PublicStudentArea slug={slug} hrefPrefix={hrefPrefix} />
     </>
   )
 }

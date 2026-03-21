@@ -1,11 +1,15 @@
 "use client"
 
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { CheckCircle2 } from "lucide-react"
 
+import { useCoachHref } from "@/lib/useCoachHref"
 import { Button } from "@/shared/ui/button"
 
 export function WorkoutCompletionScreen() {
+  const params = useParams<{ slug?: string }>()
+  const href = useCoachHref(params.slug ?? "")
   return (
     <div
       className="flex flex-col items-center justify-center gap-6 py-16 text-center"
@@ -23,7 +27,7 @@ export function WorkoutCompletionScreen() {
       </div>
 
       <Button asChild className="min-h-12 px-8">
-        <Link href="/aluno/treinos">Voltar aos treinos</Link>
+        <Link href={href("/aluno/treinos")}>Voltar aos treinos</Link>
       </Button>
     </div>
   )

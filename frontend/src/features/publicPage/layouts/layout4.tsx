@@ -13,10 +13,11 @@ function formatPrice(price: string): string {
 interface Layout4Props {
   profile: PublicProfile
   slug: string
+  hrefPrefix?: string
 }
 
 // Layout 4 — Bold: dark hero with primary color as background, plans with secondary color highlight
-export function Layout4({ profile, slug }: Layout4Props) {
+export function Layout4({ profile, slug, hrefPrefix = "" }: Layout4Props) {
   const title = profile.lpTitle ?? profile.coachName
 
   function buildWhatsappUrl(planName: string): string {
@@ -101,7 +102,7 @@ export function Layout4({ profile, slug }: Layout4Props) {
               Ver planos
             </a>
             <Link
-              href={`/personais/${slug}/login`}
+              href={`${hrefPrefix}/login`}
               className="inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 px-8 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
             >
               Entrar como aluno
@@ -202,7 +203,7 @@ export function Layout4({ profile, slug }: Layout4Props) {
       )}
 
       <PublicAvailability rules={profile.availabilityRules} occupiedSlots={profile.occupiedSlots} />
-      <PublicStudentArea slug={slug} />
+      <PublicStudentArea slug={slug} hrefPrefix={hrefPrefix} />
     </>
   )
 }

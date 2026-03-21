@@ -135,7 +135,7 @@ export function LpEditorPage() {
           </p>
         </div>
         <a
-          href={`/personais/${profileDraft.slug}`}
+          href={`/coach/${profileDraft.slug}`}
           target="_blank"
           rel="noopener noreferrer"
           data-tour="view-page-link"

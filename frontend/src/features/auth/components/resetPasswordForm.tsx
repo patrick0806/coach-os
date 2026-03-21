@@ -61,7 +61,7 @@ export function ResetPasswordForm({ slug }: ResetPasswordFormProps) {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
 
-  const loginHref = slug ? `/personais/${slug}/login` : "/login";
+  const loginHref = slug ? `/coach/${slug}/login` : "/login";
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);

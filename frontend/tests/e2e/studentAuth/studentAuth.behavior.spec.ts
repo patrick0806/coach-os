@@ -4,7 +4,7 @@
  * All API calls are mocked via page.route(). No backend required.
  *
  * Note on the login page server component:
- * The login page (/personais/[slug]/login) is a Next.js Server Component that
+ * The login page (/coach/[slug]/login) is a Next.js Server Component that
  * fetches /public/:slug server-side via publicServerFetch. This fetch calls
  * NEXT_PUBLIC_API_URL (http://localhost:3000/api/v1) which is a different origin
  * from the Playwright dev server (http://localhost:3099). Playwright's page.route()
@@ -25,7 +25,7 @@ import { MOCK_STUDENT_USER } from "../fixtures/studentWorkout.fixtures"
 import { injectStudentMockAuth } from "../support/apiMocks"
 
 const COACH_SLUG = "joao-silva"
-const LOGIN_URL = `/personais/${COACH_SLUG}/login`
+const LOGIN_URL = `/coach/${COACH_SLUG}/login`
 
 const FAKE_STUDENT_TOKEN =
   "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdHVkZW50LXVzZXIifQ.mock-student-sig"
@@ -46,7 +46,7 @@ test.describe("Student Login — Fallback", () => {
   })
 
   test("renders fallback for any invalid slug", async ({ page }) => {
-    await page.goto("/personais/coach-that-does-not-exist-xyz/login")
+    await page.goto("/coach/coach-that-does-not-exist-xyz/login")
     await page.waitForLoadState("networkidle")
 
     await expect(page.getByText("Treinador não encontrado")).toBeVisible()

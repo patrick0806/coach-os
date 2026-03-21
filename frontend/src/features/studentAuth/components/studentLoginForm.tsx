@@ -24,9 +24,10 @@ interface StudentLoginFormProps {
   coachName?: string
   coachLogoUrl?: string | null
   slug?: string
+  hrefPrefix?: string
 }
 
-export function StudentLoginForm({ coachName, coachLogoUrl, slug }: StudentLoginFormProps) {
+export function StudentLoginForm({ coachName, coachLogoUrl, slug, hrefPrefix = "" }: StudentLoginFormProps) {
   const { mutate: login, isPending } = useStudentLogin()
 
   const {
@@ -94,7 +95,7 @@ export function StudentLoginForm({ coachName, coachLogoUrl, slug }: StudentLogin
                   <Label htmlFor="password">Senha</Label>
                   {slug && (
                     <Link
-                      href={`/personais/${slug}/esqueci-senha`}
+                      href={`${hrefPrefix}/esqueci-senha`}
                       className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                     >
                       Esqueceu sua senha?

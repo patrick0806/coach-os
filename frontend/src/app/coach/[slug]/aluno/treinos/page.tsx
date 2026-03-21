@@ -1,16 +1,20 @@
 "use client"
 
 import Link from "next/link"
+import { useParams } from "next/navigation"
 import { ChevronRight, Dumbbell } from "lucide-react"
 
 import { useStudentActivePrograms } from "@/features/studentPortal/hooks/useStudentActivePrograms"
 import { useStudentProgramDetail } from "@/features/studentPortal/hooks/useStudentProgramDetail"
+import { useCoachHref } from "@/lib/useCoachHref"
 import { EmptyState } from "@/shared/components/emptyState"
 import { LoadingState } from "@/shared/components/loadingState"
 import type { StudentProgramItem } from "@/features/studentPrograms/types/studentPrograms.types"
 
 export default function StudentTreinosPage() {
   const { data, isLoading } = useStudentActivePrograms()
+  const params = useParams<{ slug: string }>()
+  const href = useCoachHref(params.slug)
 
   if (isLoading) {
     return <LoadingState variant="list" />
@@ -34,7 +38,7 @@ export default function StudentTreinosPage() {
       <h2 className="text-lg font-semibold">Meus Treinos</h2>
 
       {programs.map((program) => (
-        <ProgramCard key={program.id} program={program} />
+        <ProgramCard key={program.id} program={program} href={href} />
       ))}
     </div>
   )
@@ -42,9 +46,10 @@ export default function StudentTreinosPage() {
 
 interface ProgramCardProps {
   program: StudentProgramItem
+  href: (path: string) => string
 }
 
-function ProgramCard({ program }: ProgramCardProps) {
+function ProgramCard({ program, href }: ProgramCardProps) {
   const { data, isLoading } = useStudentProgramDetail(program.id)
 
   const workoutDays = data?.workoutDays ?? []
@@ -84,7 +89,7 @@ function ProgramCard({ program }: ProgramCardProps) {
           {workoutDays.map((day, index) => (
             <Link
               key={day.id}
-              href={`/aluno/treinos/${program.id}/${day.id}/executar`}
+              href={href(`/aluno/treinos/${program.id}/${day.id}/executar`)}
               className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 ${
                 index < workoutDays.length - 1 ? "border-b border-border/40" : ""
               }`}

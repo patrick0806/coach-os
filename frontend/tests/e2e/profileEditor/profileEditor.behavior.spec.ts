@@ -60,7 +60,7 @@ test.describe("Profile Editor — Load & Display", () => {
     await setupPage(page)
     const link = page.getByText("Visualizar página")
     const href = await link.getAttribute("href")
-    expect(href).toContain(`/personais/${profileEditorFixtures.complete.slug}`)
+    expect(href).toContain(`/coach/${profileEditorFixtures.complete.slug}`)
   })
 })
 

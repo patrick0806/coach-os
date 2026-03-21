@@ -13,10 +13,11 @@ function formatPrice(price: string): string {
 interface Layout2Props {
   profile: PublicProfile
   slug: string
+  hrefPrefix?: string
 }
 
 // Layout 2 — Split: text left, photo right. No background image in hero.
-export function Layout2({ profile, slug }: Layout2Props) {
+export function Layout2({ profile, slug, hrefPrefix = "" }: Layout2Props) {
   const title = profile.lpTitle ?? profile.coachName
 
   function buildWhatsappUrl(planName: string): string {
@@ -77,7 +78,7 @@ export function Layout2({ profile, slug }: Layout2Props) {
                   Ver planos
                 </a>
                 <Link
-                  href={`/personais/${slug}/login`}
+                  href={`${hrefPrefix}/login`}
                   className="inline-flex items-center justify-center rounded-lg border px-6 py-3 text-sm font-semibold transition-colors hover:bg-muted"
                 >
                   Entrar como aluno
@@ -172,7 +173,7 @@ export function Layout2({ profile, slug }: Layout2Props) {
       )}
 
       <PublicAvailability rules={profile.availabilityRules} occupiedSlots={profile.occupiedSlots} />
-      <PublicStudentArea slug={slug} />
+      <PublicStudentArea slug={slug} hrefPrefix={hrefPrefix} />
     </>
   )
 }

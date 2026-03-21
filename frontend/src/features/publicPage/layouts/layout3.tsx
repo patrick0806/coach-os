@@ -12,10 +12,11 @@ function formatPrice(price: string): string {
 interface Layout3Props {
   profile: PublicProfile
   slug: string
+  hrefPrefix?: string
 }
 
 // Layout 3 — Minimal: clean hero, light background, large typography, plans as list
-export function Layout3({ profile, slug }: Layout3Props) {
+export function Layout3({ profile, slug, hrefPrefix = "" }: Layout3Props) {
   const title = profile.lpTitle ?? profile.coachName
   const images = [profile.lpImage1, profile.lpImage2, profile.lpImage3].filter(Boolean) as string[]
 
@@ -91,7 +92,7 @@ export function Layout3({ profile, slug }: Layout3Props) {
               Ver planos
             </a>
             <Link
-              href={`/personais/${slug}/login`}
+              href={`${hrefPrefix}/login`}
               className="inline-flex items-center justify-center rounded-full border px-8 py-3 text-sm font-semibold transition-colors hover:bg-muted"
             >
               Entrar como aluno
@@ -191,7 +192,7 @@ export function Layout3({ profile, slug }: Layout3Props) {
       )}
 
       <PublicAvailability rules={profile.availabilityRules} occupiedSlots={profile.occupiedSlots} />
-      <PublicStudentArea slug={slug} />
+      <PublicStudentArea slug={slug} hrefPrefix={hrefPrefix} />
     </>
   )
 }

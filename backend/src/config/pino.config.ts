@@ -3,8 +3,16 @@ import { pino } from 'pino';
 const isDev = process.env.NODE_ENV !== 'production';
 
 export const pinoConfig = {
-  level: isDev ? 'info' : 'info',/*'error',*/
-  transport: isDev
+  level: 'info',//isDev ? 'info' : 'info',/*'error',*/
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: false,
+      ignore: 'pid,hostname',
+      singleLine: false,
+    },
+  } /*isDev
     ? {
       target: 'pino-pretty',
       options: {
@@ -14,7 +22,7 @@ export const pinoConfig = {
         singleLine: false,
       },
     }
-    : undefined,
+    : undefined*/,
   formatters: {
     level: (label: string) => {
       return { level: label };
