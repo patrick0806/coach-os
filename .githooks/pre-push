@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # pre-push hook — runs quality checks before pushing to remote
 # Blocks the push if lint, typecheck, backend tests, or frontend E2E fail.
+# Frontend E2E: builds the app first (avoids Next.js dev-lock conflict with a
+# running dev server on port 3001), then starts via `npm start` on port 3099.
 #
 # Setup (run once after cloning):
 #   git config core.hooksPath .githooks
@@ -39,7 +41,8 @@ BACKEND_PID=$!
   cd "$FRONTEND_DIR"
   npm run lint --silent 2>&1 && \
   npm run typecheck --silent 2>&1 && \
-  npx playwright test --project=chromium 2>&1
+  npm run build --silent 2>&1 && \
+  CI=true npx playwright test --project=chromium 2>&1
 ) > "$FRONTEND_LOG" 2>&1 &
 FRONTEND_PID=$!
 
@@ -59,9 +62,9 @@ else
 fi
 
 if wait $FRONTEND_PID; then
-  echo -e "  ${GREEN}✓${NC} Frontend — lint, typecheck, behavioral E2E"
+  echo -e "  ${GREEN}✓${NC} Frontend — lint, typecheck, build, behavioral E2E"
 else
-  echo -e "  ${RED}✗${NC} Frontend — failed"
+  echo -e "  ${RED}✗${NC} Frontend — failed (lint / typecheck / build / E2E)"
   echo ""
   cat "$FRONTEND_LOG"
   FAILED=1

@@ -48,6 +48,7 @@ const makePersonal = (
   lpImage1: null,
   lpImage2: null,
   lpImage3: null,
+  lpDraftData: null,
   stripeCustomerId: null,
   stripeSubscriptionId: null,
   subscriptionStatus: null,
