@@ -8,11 +8,16 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm run dev -- --port 3001",
+    // In CI: use the already-built production server (much faster startup)
+    // Locally: use dev server for hot reload
+    command: process.env.CI
+      ? "npm start -- --port 3001"
+      : "npm run dev -- --port 3001",
     url: "http://localhost:3001",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
+      PORT: "3001",
       E2E_BYPASS_AUTH: "true",
       NEXT_PUBLIC_SHOW_TUTORIAL: "true",
       ...(process.env.CI && {
