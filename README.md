@@ -49,43 +49,48 @@ O Coach OS combina:
 └── CLAUDE.md
 ```
 
-## Pré-requisitos
+## Setup após clonar
 
-- Node.js 20+
-- npm
-- PostgreSQL
-- Docker opcional para banco local
+```bash
+# 1. Ativar o pre-push hook (obrigatório — roda uma vez)
+git config core.hooksPath .githooks
+
+# 2. Instalar dependências
+cd backend && npm install && cd ..
+cd frontend && npm install && cd ..
+```
+
+O hook garante que lint, typecheck e testes unitários passam antes de cada push. Veja `docs/CICD.md` para detalhes.
 
 ## Variáveis de ambiente
 
-Antes de rodar o projeto, configure:
+Copie os exemplos e preencha com os valores locais:
 
-- `backend/.env`
-- variáveis públicas do frontend, como `NEXT_PUBLIC_API_URL`
+```bash
+cp backend/.env.example backend/.env
+```
 
-Use os arquivos de configuração do código como referência:
+Referências:
+- `backend/src/config/env/index.ts` — todas as variáveis do backend com seus defaults
+- `frontend/src/` — variáveis `NEXT_PUBLIC_*` necessárias
 
-- `backend/src/config/env`
-- `frontend/src/services`
+## Como rodar localmente
 
-## Como rodar
-
-### Banco de dados local com Docker
+### Banco de dados com Docker
 
 ```bash
 docker run --name coach-os-db \
   -p 5432:5432 \
-  -e POSTGRES_DB=coach-os-db \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=123 \
-  -d postgres:16.2-alpine
+  -e POSTGRES_DB=coachos \
+  -e POSTGRES_USER=coachos \
+  -e POSTGRES_PASSWORD=coachos \
+  -d postgres:16-alpine
 ```
 
 ### Backend
 
 ```bash
 cd backend
-npm install
 npm run db:migrate
 npm run db:seed
 npm run start:dev
@@ -95,7 +100,6 @@ npm run start:dev
 
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
 
@@ -104,60 +108,58 @@ npm run dev
 ### Backend
 
 ```bash
-npm run start:dev
-npm run test
-npm run test:watch
-npm run test:e2e
-npm run test:cov
-npm run typecheck
-npm run lint
-npm run check:all
+npm run start:dev      # servidor em modo watch
+npm run test           # testes unitários
+npm run test:watch     # testes em modo watch
+npm run test:e2e       # testes de integração (requer banco)
+npm run test:cov       # testes com cobertura
+npm run lint           # ESLint
+npm run typecheck      # tsc --noEmit
+npm run db:migrate     # aplica migrations pendentes
+npm run db:seed        # popula banco com dados iniciais
 ```
 
 ### Frontend
 
 ```bash
-npm run dev
-npm run build
-npm run lint
-npm run typecheck
-npm run test:e2e
+npm run dev            # servidor de desenvolvimento
+npm run build          # build de produção
+npm run lint           # ESLint
+npm run typecheck      # tsc --noEmit
+npm run test:e2e       # testes Playwright comportamentais (sem backend)
+npm run test:e2e:smoke # smoke tests (requer backend rodando)
 ```
 
-## Qualidade e testes
+## Qualidade e CI/CD
 
-O projeto segue TDD no backend e agora possui uma camada de validação local mais completa.
+### Pre-push hook (local)
 
-### Backend
+A cada `git push`, o hook em `.githooks/pre-push` roda automaticamente:
+- **Backend:** lint + typecheck + testes unitários (paralelo)
+- **Frontend:** lint + typecheck
 
-- testes unitários com Vitest
-- suíte E2E mínima com Vitest + Nest testing
-- `husky` com hook de `pre-commit`
-- `pre-push` rodando `npm run test` e `npm run test:e2e`
-- `lint-staged` para arquivos TypeScript staged
-- `check:all` para lint, typecheck e testes
+Push é bloqueado se qualquer verificação falhar. Para bypass em emergências: `git push --no-verify`.
 
-### Frontend
+### CI — GitHub Actions
 
-- testes E2E com Playwright
-- cenários de cadastro, login e painel
-- cobertura responsiva com projeto mobile em Chromium
+O CI foca no que exige ambiente limpo:
+- **Backend:** testes de integração contra PostgreSQL real
+- **Frontend:** build de produção + testes E2E com Playwright
+
+### CD — Deploy automático
+
+Após CI passar em `main`, o CD constrói as imagens Docker e faz deploy via SSH.
+
+Veja `docs/CICD.md` para o fluxo completo.
 
 ## Convenções do projeto
 
 - código, comentários e commits em inglês
 - interface, labels e mensagens em português
-- arquitetura modular
-- validação com Zod
-- evitar `any`
-- separação clara entre módulos, shared e config
-
-## Observações
-
-- o `core.hooksPath` do git é configurado para `backend/.husky`
-- os testes E2E do frontend usam porta dedicada no Playwright para evitar conflito com instâncias locais
-- o middleware do frontend possui bypass controlado por `E2E_BYPASS_AUTH=true` apenas para execução de testes E2E mockados
-- para rodar os testes do frontend localmente a api precisa estar rodando
+- arquitetura modular com separação clara backend/frontend
+- validação com Zod em todas as bordas do sistema
+- evitar `any` — tipos explícitos sempre
+- commits seguem Conventional Commits + Gitmoji
 
 ## Licença
 

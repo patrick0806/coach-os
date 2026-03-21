@@ -16,33 +16,27 @@ A separação garante que **código com testes quebrados nunca chega ao servidor
 ## Fluxo Completo
 
 ```
-Developer abre PR
+Developer faz git push
        │
        ▼
-   CI executa
-   ├── Backend Quality
-   │     ├── lint
-   │     ├── typecheck
-   │     ├── unit tests (coverage)
-   │     ├── db:migrate (banco de teste)
-   │     └── integration tests
-   └── Frontend Quality
-         ├── lint
-         ├── typecheck
-         ├── build Next.js
-         └── Playwright behavioral E2E (sem backend)
+   pre-push hook (.githooks/pre-push) — roda LOCAL antes do push
+   ├── Backend: lint + typecheck + unit tests  ┐ paralelo
+   └── Frontend: lint + typecheck + E2E        ┘ (~4–5 min)
        │
-       ▼ (ambos precisam passar)
+       ▼ (falhou → push bloqueado, corrigir antes de continuar)
+       ▼ (passou → push vai para o GitHub)
+       │
+       ▼
+   CI executa no GitHub Actions (ambiente limpo)
+   └── Backend Integration
+         ├── db:migrate (banco de teste)
+         └── integration tests (Vitest contra postgres:16)
+       │
+       ▼ (precisa passar)
    PR pode ser mergeado
        │
        ▼
-   Push chega em main
-       │
-       ▼
-   CI roda novamente em main
-       │
-       ▼ (CI passou)
-   CD dispara automaticamente
+   Push chega em main → CI roda novamente → CD dispara
    ├── Build imagem backend  → ghcr.io/.../backend:sha + :latest
    ├── Build imagem frontend → ghcr.io/.../frontend:sha + :latest
    ├── Push para GHCR
@@ -54,18 +48,53 @@ Developer abre PR
 
 ---
 
+## Pre-push Hook — Validação Local
+
+O projeto usa um hook Git (`pre-push`) para bloquear o push localmente caso qualquer verificação falhe. Todo o ciclo de qualidade roda local — o CI fica reservado apenas para o que exige infraestrutura limpa (banco de dados).
+
+O hook fica em `.githooks/pre-push` (rastreado pelo Git) e roda automaticamente a cada `git push`.
+
+### Setup obrigatório após clonar
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Executar **uma única vez** após clonar o repositório. Sem isso, o hook não é ativado.
+
+### O que o hook roda (em paralelo)
+
+| | Backend | Frontend |
+|--|---------|----------|
+| Lint | `npm run lint` | `npm run lint` |
+| Typecheck | `npm run typecheck` | `npm run typecheck` |
+| Testes | `npm run test` | `npx playwright test --project=chromium` |
+
+O frontend usa `reuseExistingServer: true` — se o servidor de desenvolvimento já estiver rodando na porta 3001, o Playwright o reutiliza (sem overhead). Caso contrário, inicia automaticamente.
+
+Tempo estimado: ~4–5 min (frontend E2E é o gargalo, roda em paralelo com o backend).
+
+### Bypass em emergências
+
+```bash
+git push --no-verify
+```
+
+Usar apenas em situações excepcionais (hotfix crítico). O CI ainda valida as integration tests no GitHub.
+
+---
+
 ## CI — Detalhamento dos Jobs
 
-### Backend Quality
+Lint, typecheck, unit tests e E2E comportamentais **não rodam no CI** — são garantidos pelo pre-push hook local. O CI roda apenas o que exige infraestrutura isolada: banco de dados real.
+
+### Backend Integration
 
 Roda em `ubuntu-latest` com um container PostgreSQL como serviço.
 
 | Etapa | Comando | Observação |
 |-------|---------|-----------|
 | Install | `npm ci` | Cache via `setup-node` |
-| Lint | `npm run lint` | ESLint + TypeScript |
-| Type check | `npm run typecheck` | `tsc --noEmit` |
-| Unit tests | `npm run test:cov` | Vitest + cobertura v8 |
 | Migrations | `npm run db:migrate` | Aplica schema no banco de teste |
 | Integration tests | `npm run test:e2e` | Vitest contra banco real (postgres:16) |
 
@@ -82,33 +111,6 @@ DATABASE_SSL=false
 ```
 
 Os demais env vars do backend (`JWT_SECRET`, `STRIPE_*`, `AWS_*` etc.) usam os valores padrão definidos em `backend/src/config/env/index.ts` — que só exigem valores seguros em `NODE_ENV=production`.
-
-**Artefatos salvos:** `backend/coverage/` — disponível por 7 dias na aba _Actions_ do repositório.
-
----
-
-### Frontend Quality
-
-Roda em `ubuntu-latest` sem serviços externos (os testes E2E comportamentais mocam todas as chamadas de API).
-
-| Etapa | Comando | Observação |
-|-------|---------|-----------|
-| Install | `npm ci` | Cache via `setup-node` |
-| Lint | `npm run lint` | ESLint + Next.js rules |
-| Type check | `npm run typecheck` | `tsc --noEmit` |
-| Build | `npm run build` | Valida build de produção |
-| Playwright | `npx playwright test --project=chromium` | Apenas testes comportamentais (sem backend) |
-
-**Variáveis injetadas no build:**
-
-```
-NEXT_TELEMETRY_DISABLED=1
-NODE_TLS_REJECT_UNAUTHORIZED=0
-NEXT_PUBLIC_API_URL=http://localhost:30001   ← placeholder para resolução de build
-E2E_BYPASS_AUTH=true                        ← injeta cookies falsos, pula /auth/refresh
-```
-
-**Artefatos salvos:** `frontend/playwright-report/` — disponível por 7 dias.
 
 ---
 
@@ -217,13 +219,12 @@ Configure a regra para o branch `main`:
   - [x] Require approvals: `1` (recomendado)
 - [x] **Require status checks to pass before merging**
   - [x] Require branches to be up to date before merging
-  - Adicionar os checks obrigatórios:
-    - `Backend Quality`
-    - `Frontend Quality`
+  - Adicionar o check obrigatório:
+    - `Backend Integration`
 - [x] **Do not allow bypassing the above settings** (bloqueia até admins)
 - [x] **Restrict who can push to matching branches** (opcional, para times maiores)
 
-> Depois de criar a regra, os nomes dos jobs (`Backend Quality`, `Frontend Quality`) só aparecem para seleção após o CI ter rodado ao menos uma vez no repositório.
+> O nome do job (`Backend Integration`) só aparece para seleção após o CI ter rodado ao menos uma vez no repositório.
 
 ---
 

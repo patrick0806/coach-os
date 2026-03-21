@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # pre-push hook — runs quality checks before pushing to remote
-# Blocks the push if lint, typecheck, or backend tests fail.
-# E2E tests are excluded (too slow for local hooks — covered by CI).
+# Blocks the push if lint, typecheck, backend tests, or frontend E2E fail.
 #
 # Setup (run once after cloning):
 #   git config core.hooksPath .githooks
@@ -39,7 +38,8 @@ BACKEND_PID=$!
 (
   cd "$FRONTEND_DIR"
   npm run lint --silent 2>&1 && \
-  npm run typecheck --silent 2>&1
+  npm run typecheck --silent 2>&1 && \
+  npx playwright test --project=chromium 2>&1
 ) > "$FRONTEND_LOG" 2>&1 &
 FRONTEND_PID=$!
 
@@ -59,7 +59,7 @@ else
 fi
 
 if wait $FRONTEND_PID; then
-  echo -e "  ${GREEN}✓${NC} Frontend — lint, typecheck"
+  echo -e "  ${GREEN}✓${NC} Frontend — lint, typecheck, behavioral E2E"
 else
   echo -e "  ${RED}✗${NC} Frontend — failed"
   echo ""
