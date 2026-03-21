@@ -33,8 +33,10 @@ export async function injectMockAuthAs(page: Page, user: object): Promise<void> 
       expires: now + 30 * 24 * 3600,
     },
   ])
-  // Return all pages as already toured so driver.js never starts during tests.
-  // Onboarding-specific tests override this by calling mockGetTourProgress() after.
+  // Populate localStorage before any React script runs so useTourProgress
+  // sees all pages as completed via placeholderData. This prevents driver.js
+  // from firing in behavioral tests (the tour fires when localStorage is empty
+  // before the API response arrives). Onboarding tests override via mockGetTourProgress().
   const ALL_TOUR_PAGES = [
     "students",
     "exercises",
@@ -45,6 +47,10 @@ export async function injectMockAuthAs(page: Page, user: object): Promise<void> 
     "landingPage",
     "profile",
   ]
+  await page.addInitScript((pages) => {
+    localStorage.setItem("coach_os_tour_progress", JSON.stringify(pages))
+    localStorage.setItem("coach_os_toured_pages", JSON.stringify(pages))
+  }, ALL_TOUR_PAGES)
   await page.route("**/api/v1/profile/tour-progress**", (route: Route) => {
     if (route.request().method() === "GET") {
       route.fulfill({ status: 200, contentType: "application/json", json: ALL_TOUR_PAGES })
