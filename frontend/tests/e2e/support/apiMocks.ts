@@ -33,11 +33,23 @@ export async function injectMockAuthAs(page: Page, user: object): Promise<void> 
       expires: now + 30 * 24 * 3600,
     },
   ])
+  // Return all pages as already toured so driver.js never starts during tests.
+  // Onboarding-specific tests override this by calling mockGetTourProgress() after.
+  const ALL_TOUR_PAGES = [
+    "students",
+    "exercises",
+    "training",
+    "schedule",
+    "availability",
+    "services",
+    "landingPage",
+    "profile",
+  ]
   await page.route("**/api/v1/profile/tour-progress**", (route: Route) => {
     if (route.request().method() === "GET") {
-      route.fulfill({ status: 200, contentType: "application/json", json: [] })
+      route.fulfill({ status: 200, contentType: "application/json", json: ALL_TOUR_PAGES })
     } else if (route.request().method() === "POST") {
-      route.fulfill({ status: 200, contentType: "application/json", json: [] })
+      route.fulfill({ status: 200, contentType: "application/json", json: ALL_TOUR_PAGES })
     } else {
       route.fallback()
     }
