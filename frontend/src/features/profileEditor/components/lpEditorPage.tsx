@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
 import { useGetMyProfile } from "@/features/profileEditor/hooks/useGetMyProfile"
+import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
+import { startLandingPageTour } from "@/features/onboarding/tours/landingPage.tour"
 import { useUpdateProfile } from "@/features/profileEditor/hooks/useUpdateProfile"
 import { useSaveLpDraft } from "@/features/profileEditor/hooks/useSaveLpDraft"
 import { usePublishLpDraft } from "@/features/profileEditor/hooks/usePublishLpDraft"
@@ -121,6 +123,8 @@ export function LpEditorPage() {
 
   return (
     <div className="space-y-6">
+      <PageTourInitializer page="landingPage" startTour={startLandingPageTour} />
+
       {/* Page header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -133,6 +137,7 @@ export function LpEditorPage() {
           href={`/personais/${profileDraft.slug}`}
           target="_blank"
           rel="noopener noreferrer"
+          data-tour="view-page-link"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           <ExternalLink className="size-4" />
@@ -146,7 +151,7 @@ export function LpEditorPage() {
       >
         {/* Tabs row + context-aware action buttons */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList>
+          <TabsList data-tour="lp-tabs">
             <TabsTrigger value="perfil">Perfil</TabsTrigger>
             <TabsTrigger value="pagina">Página</TabsTrigger>
           </TabsList>
@@ -191,6 +196,7 @@ export function LpEditorPage() {
                   variant="outline"
                   onClick={handleSaveDraft}
                   disabled={saveLpDraft.isPending}
+                  data-tour="save-draft-btn"
                 >
                   {saveLpDraft.isPending ? (
                     <>
@@ -205,6 +211,7 @@ export function LpEditorPage() {
                   size="sm"
                   onClick={handlePublish}
                   disabled={!hasDraft || publishLpDraft.isPending}
+                  data-tour="publish-btn"
                 >
                   {publishLpDraft.isPending ? (
                     <>

@@ -14,6 +14,7 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       E2E_BYPASS_AUTH: "true",
+      NEXT_PUBLIC_SHOW_TUTORIAL: "true",
       ...(process.env.CI && {
         NEXT_PUBLIC_API_URL: "http://127.0.0.1:3333",
       }),

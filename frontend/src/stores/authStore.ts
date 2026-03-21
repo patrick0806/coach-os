@@ -102,6 +102,13 @@ export const authStore = {
     notify();
   },
 
+  setOnboardingCompleted(): void {
+    if (!state.user) return;
+    state.user = { ...state.user, onboardingCompleted: true };
+    setCookie(AUTH_USER_COOKIE, JSON.stringify(state.user), USER_TTL_MINUTES);
+    notify();
+  },
+
   clear(): void {
     state.accessToken = null;
     state.user = null;

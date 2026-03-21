@@ -69,7 +69,7 @@ function RowActions({ student, onEdit, onInvite }: RowActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-8">
+        <Button variant="ghost" size="icon" className="size-8" data-tour="student-row-actions">
           <MoreHorizontal className="size-4" />
           <span className="sr-only">Ações</span>
         </Button>

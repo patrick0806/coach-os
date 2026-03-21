@@ -9,6 +9,8 @@ import { LoadingState } from "@/shared/components/loadingState"
 import { PageHeader } from "@/shared/components/pageHeader"
 import { TemplateFilters } from "@/features/trainingTemplates/components/templateFilters"
 import { TemplateGrid } from "@/features/trainingTemplates/components/templateGrid"
+import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
+import { startTrainingTour } from "@/features/onboarding/tours/training.tour"
 import { ProgramTemplateFormDialog } from "@/features/trainingTemplates/components/programTemplateFormDialog"
 import { DeleteProgramTemplateDialog } from "@/features/trainingTemplates/components/deleteProgramTemplateDialog"
 import { useProgramTemplates } from "@/features/trainingTemplates/hooks/useProgramTemplates"
@@ -48,6 +50,8 @@ function TrainingTemplatesContent() {
 
   return (
     <div className="space-y-6">
+      <PageTourInitializer page="training" startTour={startTrainingTour} />
+
       <PageHeader
         title="Programas de Treino"
         description="Crie e gerencie templates reutilizáveis de programas de treino"
@@ -59,13 +63,16 @@ function TrainingTemplatesContent() {
         }
       />
 
-      <TemplateFilters
-        search={search}
-        onSearchChange={(val) => updateParam("search", val || undefined)}
-        status={status}
-        onStatusChange={(val) => updateParam("status", val)}
-      />
+      <div data-tour="template-filters">
+        <TemplateFilters
+          search={search}
+          onSearchChange={(val) => updateParam("search", val || undefined)}
+          status={status}
+          onStatusChange={(val) => updateParam("status", val)}
+        />
+      </div>
 
+      <div data-tour="template-grid">
       <TemplateGrid
         templates={data?.content ?? []}
         isLoading={isLoading}
@@ -74,6 +81,7 @@ function TrainingTemplatesContent() {
         onDelete={(t) => setDeleteTemplate(t)}
         onDuplicate={(t) => duplicate.mutate(t.id)}
       />
+      </div>
 
       {data && data.totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 py-2">

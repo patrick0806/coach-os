@@ -7,6 +7,8 @@ import { Button } from "@/shared/ui/button"
 import { LoadingState } from "@/shared/components/loadingState"
 import { PageHeader } from "@/shared/components/pageHeader"
 import { EmptyState } from "@/shared/components/emptyState"
+import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
+import { startServicesTour } from "@/features/onboarding/tours/services.tour"
 import { ServicePlanCard } from "@/features/servicePlans/components/servicePlanCard"
 import { ServicePlanFormDialog } from "@/features/servicePlans/components/servicePlanFormDialog"
 import { DeleteServicePlanDialog } from "@/features/servicePlans/components/deleteServicePlanDialog"
@@ -26,6 +28,8 @@ function ServicesContent() {
 
   return (
     <div className="space-y-6">
+      <PageTourInitializer page="services" startTour={startServicesTour} />
+
       <PageHeader
         title="Planos de Serviço"
         description="Gerencie os planos que você oferece aos seus alunos"

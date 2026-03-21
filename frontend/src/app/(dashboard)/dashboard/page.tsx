@@ -6,6 +6,7 @@ import { StatsCard } from "@/shared/components/statsCard"
 import { PageHeader } from "@/shared/components/pageHeader"
 import { useDashboardStats } from "@/features/dashboard/hooks/useDashboardStats"
 import { authStore } from "@/stores/authStore"
+import { OnboardingChecklist } from "@/features/onboarding/components/onboardingChecklist"
 
 export default function DashboardPage() {
   const { data: stats, isLoading } = useDashboardStats()
@@ -17,6 +18,8 @@ export default function DashboardPage() {
         title={`Olá, ${user?.name?.split(" ")[0] ?? "Coach"} 👋`}
         description="Aqui está um resumo do seu trabalho."
       />
+
+      <OnboardingChecklist />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard

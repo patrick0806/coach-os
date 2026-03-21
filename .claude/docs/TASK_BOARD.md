@@ -71,93 +71,94 @@ Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo)
 
 ---
 
-### Fase 1 — Backend
+### Fase 1 — Backend ✅ CONCLUÍDA (2026-03-20)
 
 **Migração**
-- [ ] Adicionar coluna `tour_completed_pages jsonb default '[]'` em `personals` via nova migration Drizzle
+- [x] Adicionar coluna `tour_completed_pages jsonb default '[]'` em `personals` via nova migration Drizzle
 
 **Repository**
-- [ ] Adicionar `getTourProgress(tenantId): Promise<string[]>` em `personals.repository.ts`
-- [ ] Adicionar `markPageToured(tenantId, page): Promise<string[]>` em `personals.repository.ts` — retorna array atualizado e auto-seta `onboarding_completed = true` quando todas as 8 páginas estiverem presentes
+- [x] Adicionar `getTourProgress(tenantId): Promise<string[]>` em `personals.repository.ts`
+- [x] Adicionar `markPageToured(tenantId, page): Promise<string[]>` em `personals.repository.ts` — retorna array atualizado e auto-seta `onboarding_completed = true` quando todas as 8 páginas estiverem presentes
 
 **Contexts — getTourProgress**
-- [ ] Criar `getTourProgress.useCase.spec.ts` (TDD)
-- [ ] Criar `getTourProgress.useCase.ts`
-- [ ] Criar `getTourProgress.controller.ts` — `GET /profile/tour-progress`, role PERSONAL
+- [x] Criar `getTourProgress.useCase.spec.ts` (TDD)
+- [x] Criar `getTourProgress.useCase.ts`
+- [x] Criar `getTourProgress.controller.ts` — `GET /profile/tour-progress`, role PERSONAL
 
 **Contexts — markPageToured**
-- [ ] Criar `markPageToured.useCase.spec.ts` (TDD)
-- [ ] Criar `markPageToured.useCase.ts` — valida que `page` é uma das 8 chaves válidas, idempotente
-- [ ] Criar `markPageToured.controller.ts` — `POST /profile/tour-progress/:page`, role PERSONAL
+- [x] Criar `markPageToured.useCase.spec.ts` (TDD)
+- [x] Criar `markPageToured.useCase.ts` — valida que `page` é uma das 8 chaves válidas, idempotente
+- [x] Criar `markPageToured.controller.ts` — `POST /profile/tour-progress/:page`, role PERSONAL
 
 **Module registration**
-- [ ] Registrar os 2 novos controllers e useCases em `profile.module.ts`
+- [x] Registrar os 2 novos controllers e useCases em `profile.module.ts`
 
 **Expor onboardingCompleted no auth**
-- [ ] Adicionar `onboardingCompleted` ao DTO e useCase de login (`login/dtos/response.dto.ts` + `login.useCase.ts`)
-- [ ] Adicionar `onboardingCompleted` ao DTO e useCase de register (`register/dtos/response.dto.ts` + `register.useCase.ts`)
-- [ ] Atualizar testes de login e register para asserir campo presente
+- [x] Adicionar `onboardingCompleted` ao DTO e useCase de login (`login/dtos/response.dto.ts` + `login.useCase.ts`)
+- [x] Adicionar `onboardingCompleted` ao DTO e useCase de register (`register/dtos/response.dto.ts` + `register.useCase.ts`)
+- [x] Atualizar testes de login e register para asserir campo presente
 
 **Validação**
-- [ ] `npm run test` — todos os testes passando
+- [x] `npm run test` — 775 testes passando
 
 ---
 
-### Fase 2 — Frontend (dados e config)
+### Fase 2 — Frontend (dados e config) ✅ CONCLUÍDA (2026-03-20)
 
 **Feature flag**
-- [ ] Criar `frontend/src/features/onboarding/config.ts` — exporta `SHOW_TUTORIAL = process.env.NEXT_PUBLIC_SHOW_TUTORIAL === 'true'`
+- [x] Criar `frontend/src/features/onboarding/config.ts` — exporta `SHOW_TUTORIAL = process.env.NEXT_PUBLIC_SHOW_TUTORIAL === 'true'`
 
 **Tipos e store**
-- [ ] Adicionar `onboardingCompleted?: boolean` ao tipo `AuthUser` em `auth.types.ts`
-- [ ] Adicionar `setOnboardingCompleted()` no `authStore.ts` (seta campo + regravar cookie `coach_os_user`)
-- [ ] Mergear `onboardingCompleted` no `auth.service.ts` (login e register)
+- [x] Adicionar `onboardingCompleted?: boolean` ao tipo `AuthUser` em `auth.types.ts`
+- [x] Adicionar `setOnboardingCompleted()` no `authStore.ts` (seta campo + regravar cookie `coach_os_user`)
+- [x] Mergear `onboardingCompleted` no `auth.service.ts` (login e register)
 
 **Services e hooks**
-- [ ] Adicionar `getTourProgress()` e `markPageToured(page)` em `profile.service.ts`
-- [ ] Criar `frontend/src/features/onboarding/hooks/useTourProgress.ts` — React Query: busca `GET /profile/tour-progress`, mantém em cache + sincroniza localStorage
-- [ ] Criar `frontend/src/features/onboarding/hooks/usePageTour.ts` — recebe chave da página, verifica SHOW_TUTORIAL + localStorage, dispara driver.js, chama `markPageToured` ao concluir/pular
+- [x] Adicionar `getTourProgress()` e `markPageToured(page)` em `profile.service.ts`
+- [x] Criar `frontend/src/features/onboarding/hooks/useTourProgress.ts` — React Query: busca `GET /profile/tour-progress`, mantém em cache + sincroniza localStorage
+- [x] Criar `frontend/src/features/onboarding/hooks/usePageTour.ts` — recebe chave da página, verifica SHOW_TUTORIAL + localStorage, dispara driver.js, chama `markPageToured` ao concluir/pular
 
 ---
 
-### Fase 3 — Frontend (tours driver.js)
+### Fase 3 — Frontend (tours driver.js) ✅ CONCLUÍDA (2026-03-20)
 
-- [ ] Instalar `driver.js`
-- [ ] Criar `frontend/src/features/onboarding/tours/exercises.tour.ts` (3–4 passos)
-- [ ] Criar `frontend/src/features/onboarding/tours/students.tour.ts`
-- [ ] Criar `frontend/src/features/onboarding/tours/training.tour.ts`
-- [ ] Criar `frontend/src/features/onboarding/tours/schedule.tour.ts`
-- [ ] Criar `frontend/src/features/onboarding/tours/availability.tour.ts`
-- [ ] Criar `frontend/src/features/onboarding/tours/services.tour.ts`
-- [ ] Criar `frontend/src/features/onboarding/tours/landingPage.tour.ts`
-- [ ] Criar `frontend/src/features/onboarding/tours/profile.tour.ts`
-- [ ] Integrar `usePageTour` em cada uma das 8 páginas de módulo
+- [x] Instalar `driver.js`
+- [x] Criar `frontend/src/features/onboarding/tours/exercises.tour.ts` (3–4 passos)
+- [x] Criar `frontend/src/features/onboarding/tours/students.tour.ts`
+- [x] Criar `frontend/src/features/onboarding/tours/training.tour.ts`
+- [x] Criar `frontend/src/features/onboarding/tours/schedule.tour.ts`
+- [x] Criar `frontend/src/features/onboarding/tours/availability.tour.ts`
+- [x] Criar `frontend/src/features/onboarding/tours/services.tour.ts`
+- [x] Criar `frontend/src/features/onboarding/tours/landingPage.tour.ts`
+- [x] Criar `frontend/src/features/onboarding/tours/profile.tour.ts`
+- [x] Integrar `usePageTour` em cada uma das 8 páginas de módulo via `PageTourInitializer`
 
 ---
 
-### Fase 4 — Frontend (UI checklist + header)
+### Fase 4 — Frontend (UI checklist + header) ✅ CONCLUÍDA (2026-03-20)
 
 **Checklist no dashboard**
-- [ ] Criar `frontend/src/features/onboarding/components/onboardingChecklist.tsx` — widget com os 8 itens, progresso e links para cada página; some quando `onboardingCompleted = true`
-- [ ] Montar checklist em `frontend/src/app/(dashboard)/dashboard/page.tsx` (role PERSONAL + SHOW_TUTORIAL)
+- [x] Criar `frontend/src/features/onboarding/components/onboardingChecklist.tsx` — widget com os 8 itens, progresso e links para cada página; some quando `onboardingCompleted = true`
+- [x] Montar checklist em `frontend/src/app/(dashboard)/dashboard/page.tsx` (role PERSONAL + SHOW_TUTORIAL)
 
 **Botão no header**
-- [ ] Criar `frontend/src/features/onboarding/components/onboardingHeaderButton.tsx` — botão "Tutorial" que re-dispara `usePageTour` da página atual
-- [ ] Montar botão em `frontend/src/app/(dashboard)/layout.tsx` (role PERSONAL + SHOW_TUTORIAL)
+- [x] Criar `frontend/src/features/onboarding/components/onboardingHeaderButton.tsx` — botão "Tutorial" que re-dispara `usePageTour` da página atual
+- [x] Montar botão em `frontend/src/app/(dashboard)/layout.tsx` (role PERSONAL + SHOW_TUTORIAL)
 
 ---
 
-### Fase 5 — Testes E2E
+### Fase 5 — Testes E2E ✅ CONCLUÍDA (2026-03-20)
 
-- [ ] Criar `frontend/tests/e2e/fixtures/onboarding.fixtures.ts` (`MOCK_USER_NEW` com `onboardingCompleted: false`, `MOCK_USER_ONBOARDED`)
-- [ ] Adicionar `mockGetTourProgress(page, completedPages)` e `mockMarkPageToured(page)` em `apiMocks.ts`
-- [ ] Criar `frontend/tests/e2e/onboarding/onboarding.behavior.spec.ts`:
-  - [ ] Checklist aparece quando `onboardingCompleted === false` e SHOW_TUTORIAL ativo
-  - [ ] Checklist não aparece quando `onboardingCompleted === true`
-  - [ ] Botão "Tutorial" no header aparece para PERSONAL, não aparece para ADMIN/STUDENT
-  - [ ] Itens do checklist marcados refletem `completedPages` retornado pela API
-  - [ ] `SHOW_TUTORIAL=false` → nenhum elemento de onboarding renderiza
-- [ ] `npm run test:e2e` — behavioral tests passando
+- [x] Criar `frontend/tests/e2e/fixtures/onboarding.fixtures.ts` (`MOCK_USER_NEW` com `onboardingCompleted: false`, `MOCK_USER_ONBOARDED`)
+- [x] Adicionar `mockGetTourProgress(page, completedPages)` e `mockMarkPageToured(page)` em `apiMocks.ts`
+- [x] Adicionar `injectMockAuthAs(page, user)` em `apiMocks.ts` (helper genérico para variantes de usuário)
+- [x] Criar `frontend/tests/e2e/onboarding/onboarding.behavior.spec.ts`:
+  - [x] Checklist aparece quando `onboardingCompleted === false` e SHOW_TUTORIAL ativo
+  - [x] Checklist não aparece quando `onboardingCompleted === true`
+  - [x] Botão "Tutorial" no header aparece para PERSONAL, não aparece para ADMIN
+  - [x] Itens do checklist marcados refletem `completedPages` retornado pela API
+  - [x] `SHOW_TUTORIAL=false` → documentado como não testável por teste (constante compilada em build time)
+- [x] `npm run test:e2e` — 26/26 behavioral tests passando
 
 ---
 

@@ -129,14 +129,16 @@ test.describe("Students — Create", () => {
 // =============================================================================
 
 test.describe("Students — Invite Link", () => {
-  test("generates and displays an invite link", async ({ page }) => {
+  test("generates and displays an invite link via row actions", async ({ page }) => {
     await injectMockAuth(page)
     await mockStudentsList(page, studentsFixtures.active)
     await mockGenerateInviteLink(page)
     await page.goto("/students")
     await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
 
-    await page.getByRole("button", { name: "Convidar externo" }).click()
+    // Open invite dialog via row actions menu (3 dots)
+    await page.locator('[data-tour="student-row-actions"]').first().click()
+    await page.getByRole("menuitem", { name: "Enviar convite" }).click()
     await expect(page.getByRole("heading", { name: "Convidar aluno" })).toBeVisible()
 
     await page.locator("#invite-name").fill("Aluno Convidado")
@@ -159,7 +161,9 @@ test.describe("Students — Invite Link", () => {
     await page.goto("/students")
     await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
 
-    await page.getByRole("button", { name: "Convidar externo" }).click()
+    // Open invite dialog via row actions menu (3 dots)
+    await page.locator('[data-tour="student-row-actions"]').first().click()
+    await page.getByRole("menuitem", { name: "Enviar convite" }).click()
     await page.locator("#invite-name").fill("Aluno Convidado")
     await page.locator("#invite-email").fill("convidado@test.com")
     await page.getByRole("button", { name: "Gerar link" }).click()

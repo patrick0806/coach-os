@@ -9,6 +9,7 @@ import Link from "next/link";
 import { authStore } from "@/stores/authStore";
 import { LoadingState } from "@/shared/components/loadingState";
 import { Sidebar, MobileSidebarTrigger } from "@/features/dashboard/components/sidebar";
+import { OnboardingHeaderButton } from "@/features/onboarding/components/onboardingHeaderButton";
 
 function TrialBanner() {
   const user = authStore.getUser();
@@ -92,6 +93,9 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3 lg:hidden">
             <Image src="/logo_transparent.png" alt="Coach OS" width={32} height={32} />
             <span className="font-bold tracking-tight">Coach OS</span>
+          </div>
+          <div className="ml-auto">
+            <OnboardingHeaderButton />
           </div>
         </header>
 

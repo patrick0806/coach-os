@@ -8,6 +8,8 @@ import { Button } from "@/shared/ui/button"
 import { LoadingState } from "@/shared/components/loadingState"
 import { PageHeader } from "@/shared/components/pageHeader"
 import { ExerciseFilters } from "@/features/exercises/components/exerciseFilters"
+import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
+import { startExercisesTour } from "@/features/onboarding/tours/exercises.tour"
 import { ExerciseGrid } from "@/features/exercises/components/exerciseGrid"
 import { ExerciseFormDialog } from "@/features/exercises/components/exerciseFormDialog"
 import { ExerciseDetailDialog } from "@/features/exercises/components/exerciseDetailDialog"
@@ -45,23 +47,27 @@ function ExercisesContent() {
 
   return (
     <div className="space-y-6">
+      <PageTourInitializer page="exercises" startTour={startExercisesTour} />
+
       <PageHeader
         title="Exercícios"
         description="Biblioteca de exercícios da plataforma e seus exercícios personalizados"
         actions={
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => setCreateOpen(true)} data-tour="create-exercise-btn">
             <Plus className="mr-2 size-4" />
             Criar exercício
           </Button>
         }
       />
 
+      <div data-tour="exercise-filters">
       <ExerciseFilters
         search={search}
         onSearchChange={(val) => updateParam("search", val || undefined)}
         muscleGroup={muscleGroup}
         onMuscleGroupChange={(val) => updateParam("muscleGroup", val)}
       />
+      </div>
 
       <ExerciseGrid
         exercises={data?.content ?? []}

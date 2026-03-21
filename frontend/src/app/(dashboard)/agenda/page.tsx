@@ -6,6 +6,8 @@ import { Plus, Bell } from "lucide-react"
 import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/components/pageHeader"
 import { WeeklyCalendar } from "@/features/scheduling/components/weeklyCalendar"
+import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
+import { startScheduleTour } from "@/features/onboarding/tours/schedule.tour"
 import { CreateAppointmentDialog } from "@/features/scheduling/components/createAppointmentDialog"
 import { PendingRequestsSheet } from "@/features/scheduling/components/pendingRequestsSheet"
 import { useAppointmentRequests } from "@/features/scheduling/hooks/useAppointmentRequests"
@@ -39,12 +41,14 @@ export default function AgendaPage() {
 
   return (
     <div className="flex flex-col gap-4 p-4 sm:gap-6 sm:p-6">
+      <PageTourInitializer page="schedule" startTour={startScheduleTour} />
+
       <PageHeader
         title="Agenda"
         description="Visualize e gerencie seus agendamentos da semana."
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setRequestsOpen(true)}>
+            <Button variant="outline" onClick={() => setRequestsOpen(true)} data-tour="pending-requests-btn">
               <Bell className="size-4 mr-2" />
               Solicitações
               {pendingCount > 0 && (
@@ -61,11 +65,13 @@ export default function AgendaPage() {
         }
       />
 
-      <WeeklyCalendar
-        onSlotClick={handleSlotClick}
-        availabilityRules={availabilityRules}
-        exceptionDates={exceptionDates}
-      />
+      <div data-tour="weekly-calendar">
+        <WeeklyCalendar
+          onSlotClick={handleSlotClick}
+          availabilityRules={availabilityRules}
+          exceptionDates={exceptionDates}
+        />
+      </div>
 
       <CreateAppointmentDialog
         open={createOpen}

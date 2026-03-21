@@ -14,6 +14,7 @@ export interface AuthUser {
   role: string;
   tenantId: string;
   subscription?: AuthUserSubscription | null;
+  onboardingCompleted?: boolean;
 }
 
 export interface AuthTokensResponse {

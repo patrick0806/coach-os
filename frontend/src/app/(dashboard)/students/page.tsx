@@ -9,6 +9,8 @@ import { EmptyState } from "@/shared/components/emptyState"
 import { LoadingState } from "@/shared/components/loadingState"
 import { PageHeader } from "@/shared/components/pageHeader"
 import { StudentFilters } from "@/features/students/components/studentFilters"
+import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
+import { startStudentsTour } from "@/features/onboarding/tours/students.tour"
 import { StudentFormDialog } from "@/features/students/components/studentFormDialog"
 import { StudentTable } from "@/features/students/components/studentTable"
 import { InviteStudentDialog } from "@/features/students/components/inviteStudentDialog"
@@ -53,28 +55,27 @@ function StudentsContent() {
 
   return (
     <div className="space-y-6">
+      <PageTourInitializer page="students" startTour={startStudentsTour} />
+
       <PageHeader
         title="Alunos"
         description="Gerencie seus alunos"
         actions={
-          <>
-            <Button variant="outline" onClick={() => { setInviteStudent(null); setInviteOpen(true) }}>
-              Convidar externo
-            </Button>
-            <Button onClick={() => setCreateOpen(true)}>
-              <UserPlus className="mr-2 size-4" />
-              Novo aluno
-            </Button>
-          </>
+          <Button onClick={() => setCreateOpen(true)} data-tour="new-student-btn">
+            <UserPlus className="mr-2 size-4" />
+            Novo aluno
+          </Button>
         }
       />
 
+      <div data-tour="student-filters">
       <StudentFilters
         search={search}
         onSearchChange={(val) => updateParam("search", val || undefined)}
         status={status}
         onStatusChange={(val) => updateParam("status", val)}
       />
+      </div>
 
       {isLoading ? (
         <LoadingState variant="table" />

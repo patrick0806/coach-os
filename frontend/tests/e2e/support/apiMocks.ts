@@ -9,6 +9,30 @@ const STUDENT_USER_COOKIE = "student_user"
 const FAKE_ACCESS_TOKEN =
   "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb2NrLXVzZXIifQ.mock-sig"
 
+/**
+ * Injects fake auth cookies for a custom user object.
+ * Useful for testing role/onboarding variants without duplicating cookie logic.
+ */
+export async function injectMockAuthAs(page: Page, user: object): Promise<void> {
+  const now = Math.floor(Date.now() / 1000)
+  await page.context().addCookies([
+    {
+      name: "coach_os_at",
+      value: FAKE_ACCESS_TOKEN,
+      domain: "localhost",
+      path: "/",
+      expires: now + 900,
+    },
+    {
+      name: "coach_os_user",
+      value: JSON.stringify(user),
+      domain: "localhost",
+      path: "/",
+      expires: now + 30 * 24 * 3600,
+    },
+  ])
+}
+
 export const MOCK_USER = {
   id: "mock-user-id",
   name: "Coach Test",
@@ -1083,6 +1107,36 @@ export async function mockAdminTenants(page: Page, response: object): Promise<vo
     const isListGet = method === "GET" && !url.match(/\/admin\/tenants\/[^/?]+(?:\?|$)/)
     if (isListGet) {
       route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+// =============================================================================
+// Onboarding / Tour Progress
+// =============================================================================
+
+/**
+ * Mocks GET /profile/tour-progress returning the given completed pages array.
+ */
+export async function mockGetTourProgress(page: Page, completedPages: string[]): Promise<void> {
+  await page.route("**/api/v1/profile/tour-progress*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: completedPages })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+/**
+ * Mocks POST /profile/tour-progress/:page returning the updated completed pages array.
+ */
+export async function mockMarkPageToured(page: Page, updatedPages: string[]): Promise<void> {
+  await page.route("**/api/v1/profile/tour-progress/**", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 200, contentType: "application/json", json: updatedPages })
     } else {
       route.fallback()
     }

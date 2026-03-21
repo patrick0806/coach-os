@@ -1,12 +1,12 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-20 (CI/CD + Observabilidade + Brand logo + Onboarding Tutorial planejado)
+Last updated: 2026-03-20 (Onboarding Tutorial — Milestone 12 concluído, todas as 5 fases entregues)
 
 ---
 
 ## Backend Status
 
-All backend modules are **completed** (758 tests passing).
+All backend modules are **completed** (775 tests passing).
 
 | Module | Notes |
 |--------|-------|
@@ -30,7 +30,7 @@ All backend modules are **completed** (758 tests passing).
 | Area | Status | Notes |
 |------|--------|-------|
 | **Dashboard** | in progress | layout + placeholder done; real stats pending |
-| **Onboarding Tutorial** | not started | Milestone 12: checklist no dashboard + driver.js in-place por página + botão no header; feature flag SHOW_TUTORIAL |
+| **Onboarding Tutorial** | ✅ done | Milestone 12 completo: backend (tour progress endpoints) + frontend (config, store, driver.js tours, checklist, header button) + 26 testes E2E passando |
 | **Subdomain routing** | not started | Sprint 2+3: infra + Next.js proxy (proxy.ts) |
 | **Progress charts** | not started | Backlog: line graphs, comparisons |
 | **Notifications** | not started | Backlog: preferences page |

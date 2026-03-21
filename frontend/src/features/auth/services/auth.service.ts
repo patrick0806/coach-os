@@ -15,8 +15,8 @@ export const authService = {
       data
     );
     const payload = response.data;
-    // Merge subscription into user so it persists in the auth cookie
-    const userWithSubscription = { ...payload.user, subscription: payload.subscription ?? null };
+    // Merge subscription and onboardingCompleted into user so they persist in the auth cookie
+    const userWithSubscription = { ...payload.user, subscription: payload.subscription ?? null, onboardingCompleted: payload.user.onboardingCompleted ?? false };
     authStore.setAuth(payload.accessToken, userWithSubscription);
     return payload;
   },
@@ -27,8 +27,8 @@ export const authService = {
       data
     );
     const payload = response.data;
-    // Merge subscription into user so it persists in the auth cookie
-    const userWithSubscription = { ...payload.user, subscription: payload.subscription ?? null };
+    // Merge subscription and onboardingCompleted into user so they persist in the auth cookie
+    const userWithSubscription = { ...payload.user, subscription: payload.subscription ?? null, onboardingCompleted: payload.user.onboardingCompleted ?? false };
     authStore.setAuth(payload.accessToken, userWithSubscription);
     return payload;
   },

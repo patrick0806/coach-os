@@ -7,12 +7,16 @@ import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/components/pageHeader"
 import { AvailabilitySection } from "@/features/scheduling/components/availabilitySection"
 import { AvailabilityWizard } from "@/features/scheduling/components/availabilityWizard"
+import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
+import { startAvailabilityTour } from "@/features/onboarding/tours/availability.tour"
 
 export default function DisponibilidadePage() {
   const [wizardOpen, setWizardOpen] = useState(false)
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <PageTourInitializer page="availability" startTour={startAvailabilityTour} />
+
       <PageHeader
         title="Disponibilidade"
         description="Configure seus horários de atendimento e bloqueie datas indisponíveis."

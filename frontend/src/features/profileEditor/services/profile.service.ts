@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios"
+import type { TourPage } from "@/features/onboarding/config"
 
 export interface ProfileData {
   id: string
@@ -75,4 +76,10 @@ export const profileService = {
       headers: { "Content-Type": file.type },
     })
   },
+
+  getTourProgress: async (): Promise<TourPage[]> =>
+    (await api.get<TourPage[]>("/profile/tour-progress")).data,
+
+  markPageToured: async (page: TourPage): Promise<TourPage[]> =>
+    (await api.post<TourPage[]>(`/profile/tour-progress/${page}`)).data,
 }
