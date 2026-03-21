@@ -91,6 +91,7 @@ function PlanFormDialog({
   const [priceCents, setPriceCents] = useState(plan?.price ? priceToCents(plan.price) : 0);
   const [maxStudents, setMaxStudents] = useState(String(plan?.maxStudents ?? ""));
   const [order, setOrder] = useState(String(plan?.order ?? "0"));
+  const [stripePriceId, setStripePriceId] = useState(plan?.stripePriceId ?? "");
   const [error, setError] = useState("");
 
   const isEdit = !!plan;
@@ -108,6 +109,7 @@ function PlanFormDialog({
             price,
             maxStudents: parseInt(maxStudents),
             order: parseInt(order),
+            stripePriceId: stripePriceId || null,
           },
         });
       } else {
@@ -116,6 +118,7 @@ function PlanFormDialog({
           price,
           maxStudents: parseInt(maxStudents),
           order: parseInt(order),
+          stripePriceId: stripePriceId || undefined,
         });
       }
       onClose();
@@ -165,6 +168,15 @@ function PlanFormDialog({
               type="number"
               value={order}
               onChange={(e) => setOrder(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="stripePriceId">Stripe Price ID</Label>
+            <Input
+              id="stripePriceId"
+              value={stripePriceId}
+              onChange={(e) => setStripePriceId(e.target.value)}
+              placeholder="price_1Abc..."
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
@@ -231,6 +243,7 @@ export default function AdminPlanosPage() {
               <TableHead>Nome</TableHead>
               <TableHead>Preço</TableHead>
               <TableHead>Limite</TableHead>
+              <TableHead>Stripe Price ID</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -242,6 +255,9 @@ export default function AdminPlanosPage() {
                 <TableCell className="font-medium">{plan.name}</TableCell>
                 <TableCell>{formatCents(priceToCents(plan.price))}</TableCell>
                 <TableCell>{plan.maxStudents} alunos</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  {plan.stripePriceId ?? "—"}
+                </TableCell>
                 <TableCell>
                   <Badge variant={plan.isActive ? "default" : "secondary"}>
                     {plan.isActive ? "Ativo" : "Inativo"}

@@ -27,6 +27,7 @@ export const adminService = {
     highlighted?: boolean;
     order?: number;
     benefits?: string[];
+    stripePriceId?: string;
   }): Promise<AdminPlan> {
     const res = await api.post<AdminPlan>("/admin/plans", data);
     return res.data;
@@ -42,6 +43,7 @@ export const adminService = {
       highlighted: boolean;
       order: number;
       isActive: boolean;
+      stripePriceId: string | null;
     }>
   ): Promise<AdminPlan> {
     const res = await api.put<AdminPlan>(`/admin/plans/${id}`, data);
