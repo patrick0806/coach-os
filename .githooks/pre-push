@@ -42,6 +42,7 @@ BACKEND_PID=$!
   npm run lint --silent 2>&1 && \
   npm run typecheck --silent 2>&1 && \
   npm run build --silent 2>&1 && \
+  fuser -k 3099/tcp 2>/dev/null || true && \
   CI=true npx playwright test --project=chromium 2>&1
 ) > "$FRONTEND_LOG" 2>&1 &
 FRONTEND_PID=$!
