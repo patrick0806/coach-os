@@ -12,6 +12,8 @@ const FAKE_ACCESS_TOKEN =
 /**
  * Injects fake auth cookies for a custom user object.
  * Useful for testing role/onboarding variants without duplicating cookie logic.
+ * Also mocks tour-progress endpoints to prevent behavioral tests from hitting
+ * the real backend when NEXT_PUBLIC_SHOW_TUTORIAL=true.
  */
 export async function injectMockAuthAs(page: Page, user: object): Promise<void> {
   const now = Math.floor(Date.now() / 1000)
@@ -31,6 +33,15 @@ export async function injectMockAuthAs(page: Page, user: object): Promise<void> 
       expires: now + 30 * 24 * 3600,
     },
   ])
+  await page.route("**/api/v1/profile/tour-progress**", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: [] })
+    } else if (route.request().method() === "POST") {
+      route.fulfill({ status: 200, contentType: "application/json", json: [] })
+    } else {
+      route.fallback()
+    }
+  })
 }
 
 export const MOCK_USER = {
@@ -47,25 +58,12 @@ export const MOCK_USER = {
  *
  * Requires both cookies (coach_os_at + coach_os_user) — when both are present,
  * authStore.init() returns restored=true and skips the refresh call entirely.
+ *
+ * Also mocks tour-progress endpoints to prevent behavioral tests from hitting
+ * the real backend when NEXT_PUBLIC_SHOW_TUTORIAL=true.
  */
 export async function injectMockAuth(page: Page): Promise<void> {
-  const now = Math.floor(Date.now() / 1000)
-  await page.context().addCookies([
-    {
-      name: "coach_os_at",
-      value: FAKE_ACCESS_TOKEN,
-      domain: "localhost",
-      path: "/",
-      expires: now + 900, // 15 min
-    },
-    {
-      name: "coach_os_user",
-      value: JSON.stringify(MOCK_USER),
-      domain: "localhost",
-      path: "/",
-      expires: now + 30 * 24 * 3600, // 30 days
-    },
-  ])
+  await injectMockAuthAs(page, MOCK_USER)
 }
 
 /**
