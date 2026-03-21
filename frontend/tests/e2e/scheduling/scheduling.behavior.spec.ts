@@ -15,6 +15,7 @@ import {
   mockRejectAppointmentRequest,
   mockAvailabilityRules,
   mockCreateAvailabilityRule,
+  mockBulkCreateAvailabilityRules,
   mockDeleteAvailabilityRule,
   mockAvailabilityExceptions,
   mockCreateAvailabilityException,
@@ -572,7 +573,7 @@ test.describe("Disponibilidade — Availability Wizard", () => {
     await injectMockAuth(page)
     await mockAvailabilityRules(page, MOCK_AVAILABILITY_RULES)
     await mockAvailabilityExceptions(page, MOCK_AVAILABILITY_EXCEPTIONS)
-    await mockCreateAvailabilityRule(page, MOCK_NEW_RULE)
+    await mockBulkCreateAvailabilityRules(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await page.goto("/disponibilidade")
     await page.waitForSelector("[data-slot='page-header']", { timeout: 8000 })

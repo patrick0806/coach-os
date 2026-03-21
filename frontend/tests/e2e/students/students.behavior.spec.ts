@@ -11,6 +11,7 @@ import {
   mockStudentsListStateful,
   mockCreateStudent,
   mockGenerateInviteLink,
+  mockGenerateStudentAccessLink,
   mockServicePlansList,
 } from "../support/apiMocks"
 import {
@@ -132,17 +133,14 @@ test.describe("Students — Invite Link", () => {
   test("generates and displays an invite link via row actions", async ({ page }) => {
     await injectMockAuth(page)
     await mockStudentsList(page, studentsFixtures.active)
-    await mockGenerateInviteLink(page)
+    await mockGenerateStudentAccessLink(page)
     await page.goto("/students")
     await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
 
     // Open invite dialog via row actions menu (3 dots)
     await page.locator('[data-tour="student-row-actions"]').first().click()
     await page.getByRole("menuitem", { name: "Enviar convite" }).click()
-    await expect(page.getByRole("heading", { name: "Convidar aluno" })).toBeVisible()
-
-    await page.locator("#invite-name").fill("Aluno Convidado")
-    await page.locator("#invite-email").fill("convidado@test.com")
+    await expect(page.getByRole("heading", { name: /Convidar/i })).toBeVisible()
 
     await page.getByRole("button", { name: "Gerar link" }).click()
 
@@ -157,15 +155,13 @@ test.describe("Students — Invite Link", () => {
   test("copy link button shows 'Copiado!' feedback", async ({ page }) => {
     await injectMockAuth(page)
     await mockStudentsList(page, studentsFixtures.active)
-    await mockGenerateInviteLink(page)
+    await mockGenerateStudentAccessLink(page)
     await page.goto("/students")
     await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
 
     // Open invite dialog via row actions menu (3 dots)
     await page.locator('[data-tour="student-row-actions"]').first().click()
     await page.getByRole("menuitem", { name: "Enviar convite" }).click()
-    await page.locator("#invite-name").fill("Aluno Convidado")
-    await page.locator("#invite-email").fill("convidado@test.com")
     await page.getByRole("button", { name: "Gerar link" }).click()
 
     await expect(page.getByText("Compartilhe este link")).toBeVisible()

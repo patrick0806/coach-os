@@ -18,8 +18,21 @@ export default async function ConfigurarSenhaPage({ params }: PageProps) {
   const { slug } = await params
   const coach = await publicServerFetch<CoachPublicProfile>(`/public/${slug}`)
 
-  const coachName = coach?.coachName ?? "Personal Trainer"
-  const coachLogoUrl = coach?.profilePhoto ?? null
+  if (!coach) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold">Treinador não encontrado</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            O link que você acessou é inválido ou expirou.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const coachName = coach.coachName
+  const coachLogoUrl = coach.profilePhoto ?? null
 
   return (
     <PublicPageBranded coachName={coachName} coachLogoUrl={coachLogoUrl}>

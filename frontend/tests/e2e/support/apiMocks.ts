@@ -450,6 +450,23 @@ export async function mockGenerateInviteLink(
   })
 }
 
+export async function mockGenerateStudentAccessLink(
+  page: Page,
+  link = "http://localhost:3099/convite?token=mock-access-token-abc123"
+): Promise<void> {
+  await page.route("**/api/v1/students/*/send-access", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        json: { accessLink: link },
+      })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
 // =============================================================================
 // Program Templates
 // =============================================================================
@@ -670,6 +687,19 @@ export async function mockCreateAvailabilityRule(page: Page, created: object): P
   await page.route("**/api/v1/availability-rules", (route: Route) => {
     if (route.request().method() === "POST") {
       route.fulfill({ status: 201, contentType: "application/json", json: created })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockBulkCreateAvailabilityRules(
+  page: Page,
+  response = { created: [{ id: "rule-new", dayOfWeek: 5, startTime: "08:00", endTime: "09:00" }], conflicts: 0 }
+): Promise<void> {
+  await page.route("**/api/v1/availability-rules/bulk", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: response })
     } else {
       route.fallback()
     }

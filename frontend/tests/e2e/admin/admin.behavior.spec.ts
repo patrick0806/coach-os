@@ -21,9 +21,9 @@ test.describe("Admin — Redirect", () => {
   test("should redirect to /dashboard when not ADMIN", async ({ page }) => {
     await injectMockAuth(page) // role = PERSONAL
     await page.goto("/admin/dashboard")
-    await page.waitForURL(/\/dashboard/)
+    await page.waitForURL((url) => !url.pathname.startsWith("/admin"), { timeout: 8000 })
     expect(page.url()).toContain("/dashboard")
-    expect(page.url()).not.toContain("/admin/dashboard")
+    expect(page.url()).not.toContain("/admin")
   })
 })
 
@@ -43,11 +43,11 @@ test.describe("Admin — Dashboard", () => {
   })
 
   test("should display correct stat values", async ({ page }) => {
-    await expect(page.getByText("42")).toBeVisible()
-    await expect(page.getByText("30")).toBeVisible()
-    await expect(page.getByText("5")).toBeVisible()
-    await expect(page.getByText("310")).toBeVisible()
-    await expect(page.getByText("3")).toBeVisible()
+    await expect(page.getByText("42", { exact: true })).toBeVisible()
+    await expect(page.getByText("30", { exact: true })).toBeVisible()
+    await expect(page.getByText("5", { exact: true })).toBeVisible()
+    await expect(page.getByText("310", { exact: true })).toBeVisible()
+    await expect(page.getByText("3", { exact: true })).toBeVisible()
   })
 })
 
@@ -59,9 +59,9 @@ test.describe("Admin — Planos", () => {
   })
 
   test("should list plans", async ({ page }) => {
-    await expect(page.getByText("Básico")).toBeVisible()
-    await expect(page.getByText("Pro")).toBeVisible()
-    await expect(page.getByText("R$ 29.90")).toBeVisible()
+    await expect(page.getByRole("cell", { name: "Básico" })).toBeVisible()
+    await expect(page.getByRole("cell", { name: "Pro" })).toBeVisible()
+    await expect(page.getByText(/R\$.*29[,.]90/)).toBeVisible()
   })
 
   test("should open create plan dialog", async ({ page }) => {
