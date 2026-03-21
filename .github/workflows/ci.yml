@@ -91,10 +91,40 @@ jobs:
           retention-days: 7
 
   # ─────────────────────────────────────────
-  # Frontend — Lint · TypeCheck · Build · E2E
+  # Frontend — Lint + TypeCheck (no build needed)
+  # Runs in parallel with frontend-e2e
   # ─────────────────────────────────────────
-  frontend-quality:
-    name: Frontend Quality
+  frontend-static:
+    name: Frontend Static Analysis
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+  # ─────────────────────────────────────────
+  # Frontend — Build + E2E (runs in parallel with frontend-static)
+  # ─────────────────────────────────────────
+  frontend-e2e:
+    name: Frontend E2E
     runs-on: ubuntu-latest
 
     defaults:
@@ -129,19 +159,13 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Type check
-        run: npm run typecheck
-
       - name: Build
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NODE_TLS_REJECT_UNAUTHORIZED: 0
-          # Placeholder vars for build-time env resolution
           NEXT_PUBLIC_API_URL: http://localhost:30001
+          NEXT_PUBLIC_SHOW_TUTORIAL: "true"
 
       - name: Install Playwright (Chromium only)
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -152,7 +176,7 @@ jobs:
         run: npx playwright install-deps chromium
 
       - name: Behavioral E2E tests (no backend required)
-        run: npx playwright test --project=chromium
+        run: npx playwright test --project=chromium --workers=2
         env:
           E2E_BYPASS_AUTH: "true"
 
