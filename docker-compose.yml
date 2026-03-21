@@ -103,6 +103,7 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.120.0
     restart: unless-stopped
+    user: root
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     environment:
       BETTERSTACK_BACKEND_TOKEN: ${BETTERSTACK_BACKEND_TOKEN}
