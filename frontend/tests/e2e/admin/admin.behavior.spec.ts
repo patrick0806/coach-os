@@ -168,7 +168,7 @@ test.describe("Admin — Admins", () => {
   })
 
   test("should show conflict error on duplicate email", async ({ page }) => {
-    await page.route("**/api/v1/admin/admins", (route) => {
+    await page.route("**/api/v1/admin", (route) => {
       if (route.request().method() === "POST") {
         route.fulfill({
           status: 409,
@@ -188,7 +188,7 @@ test.describe("Admin — Admins", () => {
   })
 
   test("should show empty state", async ({ page }) => {
-    await page.route("**/api/v1/admin/admins*", (route) => {
+    await page.route("**/api/v1/admin", (route) => {
       if (route.request().method() === "GET") {
         route.fulfill({
           status: 200,

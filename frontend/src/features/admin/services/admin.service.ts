@@ -66,7 +66,7 @@ export const adminService = {
   },
 
   async getAdmins(): Promise<AdminAdmin[]> {
-    const res = await api.get<AdminAdmin[]>("/admin/admins");
+    const res = await api.get<AdminAdmin[]>("/admin");
     return res.data;
   },
 
@@ -75,12 +75,12 @@ export const adminService = {
     email: string;
     password: string;
   }): Promise<AdminAdmin> {
-    const res = await api.post<AdminAdmin>("/admin/admins", data);
+    const res = await api.post<AdminAdmin>("/admin", data);
     return res.data;
   },
 
   async deleteAdmin(id: string): Promise<void> {
-    await api.delete(`/admin/admins/${id}`);
+    await api.delete(`/admin/${id}`);
   },
 
   async getTenants(params: {

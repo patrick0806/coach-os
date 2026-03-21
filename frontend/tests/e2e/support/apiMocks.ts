@@ -1137,7 +1137,7 @@ export async function mockAdminWhitelist(page: Page, coaches: object[]): Promise
 }
 
 export async function mockAdminAdmins(page: Page, admins: object[]): Promise<void> {
-  await page.route("**/api/v1/admin/admins*", (route: Route) => {
+  await page.route("**/api/v1/admin", (route: Route) => {
     if (route.request().method() === "GET") {
       route.fulfill({ status: 200, contentType: "application/json", json: admins })
     } else {

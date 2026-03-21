@@ -126,3 +126,27 @@ jobs:
             docker image prune -f
 
             echo "✅ Deployment complete"
+
+  # ─────────────────────────────────────────
+  # Cleanup: keep only the 3 most recent versions per image in GHCR
+  # ─────────────────────────────────────────
+  cleanup-images:
+    name: Cleanup Old GHCR Images
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    permissions:
+      packages: write
+
+    strategy:
+      matrix:
+        image: [backend, frontend]
+
+    steps:
+      - name: Delete old image versions (keep latest 3)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: coach-os/${{ matrix.image }}
+          package-type: container
+          min-versions-to-keep: 3
+          delete-only-untagged-versions: false

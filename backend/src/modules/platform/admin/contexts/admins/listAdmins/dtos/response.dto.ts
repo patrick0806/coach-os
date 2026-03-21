@@ -1,7 +1,9 @@
-export interface AdminResponseDTO {
-  id: string;
-  userId: string;
-  name: string;
-  email: string;
-  createdAt: Date | null;
+import { ApiProperty } from "@nestjs/swagger";
+
+export class AdminResponseDTO {
+  @ApiProperty() id: string;
+  @ApiProperty() userId: string;
+  @ApiProperty() name: string;
+  @ApiProperty() email: string;
+  @ApiProperty({ nullable: true }) createdAt: Date | null;
 }

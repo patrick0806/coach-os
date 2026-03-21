@@ -18,7 +18,7 @@ export class DeleteAdminController {
 
   @ApiOperation({ summary: "Delete admin (cannot delete self)" })
   @ApiNoContentResponse()
-  @Delete("admins/:id")
+  @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async handle(
     @Param("id") id: string,

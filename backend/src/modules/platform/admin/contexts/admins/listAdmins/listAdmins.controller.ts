@@ -7,6 +7,7 @@ import { Roles } from "@shared/decorators/roles.decorator";
 import { ApplicationRoles } from "@shared/enums";
 
 import { ListAdminsUseCase } from "./listAdmins.useCase";
+import { AdminResponseDTO } from "./dtos/response.dto";
 
 @ApiBearerAuth()
 @ApiTags(API_TAGS.ADMIN)
@@ -17,8 +18,8 @@ export class ListAdminsController {
   constructor(private readonly listAdminsUseCase: ListAdminsUseCase) {}
 
   @ApiOperation({ summary: "List all admins" })
-  @ApiOkResponse()
-  @Get("admins")
+  @ApiOkResponse({ description: "List of all admin users", type: [AdminResponseDTO] })
+  @Get()
   async handle() {
     return this.listAdminsUseCase.execute();
   }

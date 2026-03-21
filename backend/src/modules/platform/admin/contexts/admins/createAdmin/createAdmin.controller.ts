@@ -17,8 +17,8 @@ export class CreateAdminController {
   constructor(private readonly createAdminUseCase: CreateAdminUseCase) {}
 
   @ApiOperation({ summary: "Create admin user" })
-  @ApiCreatedResponse()
-  @Post("admins")
+  @ApiCreatedResponse({ description: "Admin user created successfully" })
+  @Post()
   async handle(@Body() body: unknown) {
     return this.createAdminUseCase.execute(body);
   }
