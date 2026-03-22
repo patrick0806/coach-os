@@ -47,23 +47,38 @@ const makeStudentsRepository = () => ({
   findByUserId: vi.fn().mockResolvedValue(undefined),
 });
 
+const ADMIN_ID = "admin-id";
+
+const makeAdmin = (overrides = {}) => ({
+  id: ADMIN_ID,
+  userId: USER_ID,
+  ...overrides,
+});
+
+const makeAdminsRepository = () => ({
+  findByUserId: vi.fn().mockResolvedValue(makeAdmin()),
+});
+
 describe("RefreshTokenUseCase", () => {
   let useCase: RefreshTokenUseCase;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let studentsRepository: ReturnType<typeof makeStudentsRepository>;
+  let adminsRepository: ReturnType<typeof makeAdminsRepository>;
   let jwtService: ReturnType<typeof makeJwtService>;
 
   beforeEach(() => {
     usersRepository = makeUsersRepository();
     personalsRepository = makePersonalsRepository();
     studentsRepository = makeStudentsRepository();
+    adminsRepository = makeAdminsRepository();
     jwtService = makeJwtService();
 
     useCase = new RefreshTokenUseCase(
       usersRepository as any,
       personalsRepository as any,
       studentsRepository as any,
+      adminsRepository as any,
       jwtService as any,
     );
   });
@@ -153,5 +168,40 @@ describe("RefreshTokenUseCase", () => {
     usersRepository.findById.mockResolvedValue(makeUser({ refreshTokenHash: "some_stored_hash" }));
 
     await expect(useCase.execute(wrongCookie)).rejects.toThrow(UnauthorizedException);
+  });
+
+  // --- ADMIN role tests ---
+
+  it("should refresh token for ADMIN role successfully", async () => {
+    usersRepository.findById.mockResolvedValue(makeUser({ role: "ADMIN" }));
+
+    const result = await useCase.execute(COOKIE_VALUE);
+
+    expect(result.accessToken).toBe("new.access.token");
+    expect(result.refreshToken).toBeDefined();
+    expect(adminsRepository.findByUserId).toHaveBeenCalledWith(USER_ID);
+  });
+
+  it("should build correct JWT payload for ADMIN", async () => {
+    usersRepository.findById.mockResolvedValue(makeUser({ role: "ADMIN" }));
+
+    await useCase.execute(COOKIE_VALUE);
+
+    expect(jwtService.sign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sub: USER_ID,
+        role: ApplicationRoles.ADMIN,
+        profileId: ADMIN_ID,
+        personalId: null,
+        personalSlug: null,
+      }),
+    );
+  });
+
+  it("should throw UnauthorizedException when admin profile is not found", async () => {
+    usersRepository.findById.mockResolvedValue(makeUser({ role: "ADMIN" }));
+    adminsRepository.findByUserId.mockResolvedValue(undefined);
+
+    await expect(useCase.execute(COOKIE_VALUE)).rejects.toThrow(UnauthorizedException);
   });
 });

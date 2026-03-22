@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { WorkoutSessionsRepository, WorkoutSession } from "@shared/repositories/workoutSessions.repository";
 
@@ -13,6 +13,10 @@ export class PauseWorkoutSessionUseCase {
 
     if (!session) {
       throw new NotFoundException("Workout session not found");
+    }
+
+    if (session.status !== "started") {
+      throw new BadRequestException(`Cannot pause session with status "${session.status}"`);
     }
 
     const updated = await this.workoutSessionsRepository.update(id, tenantId, {

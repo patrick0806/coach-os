@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
 import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { FastifyReply } from "fastify";
 
 import { env } from "@config/env";
@@ -13,6 +14,7 @@ import { LoginUseCase } from "./login.useCase";
 const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
 @Public()
+@Throttle({ short: { ttl: 60_000, limit: 5 }, long: { ttl: 600_000, limit: 20 } })
 @ApiTags(API_TAGS.AUTH)
 @Controller({ version: "1", path: "login" })
 export class LoginController {

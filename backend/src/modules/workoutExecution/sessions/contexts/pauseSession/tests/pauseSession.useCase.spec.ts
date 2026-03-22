@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 import { PauseWorkoutSessionUseCase } from "../pauseSession.useCase";
 
@@ -61,5 +61,23 @@ describe("PauseWorkoutSessionUseCase", () => {
 
     expect(result.id).toBe("session-id-1");
     expect(result.status).toBe("paused");
+  });
+
+  it("should throw BadRequestException when session is already paused", async () => {
+    workoutSessionsRepository.findById.mockResolvedValue({ ...makeSession(), status: "paused" as const });
+
+    await expect(useCase.execute("session-id-1", tenantId)).rejects.toThrow(BadRequestException);
+  });
+
+  it("should throw BadRequestException when session is finished", async () => {
+    workoutSessionsRepository.findById.mockResolvedValue({ ...makeSession(), status: "finished" as const });
+
+    await expect(useCase.execute("session-id-1", tenantId)).rejects.toThrow(BadRequestException);
+  });
+
+  it("should throw BadRequestException when session is skipped", async () => {
+    workoutSessionsRepository.findById.mockResolvedValue({ ...makeSession(), status: "skipped" as const });
+
+    await expect(useCase.execute("session-id-1", tenantId)).rejects.toThrow(BadRequestException);
   });
 });

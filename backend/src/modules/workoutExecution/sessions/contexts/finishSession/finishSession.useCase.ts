@@ -1,6 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { WorkoutSessionsRepository, WorkoutSession } from "@shared/repositories/workoutSessions.repository";
+
+const FINISHABLE_STATUSES = ["started", "paused"];
 
 @Injectable()
 export class FinishWorkoutSessionUseCase {
@@ -13,6 +15,10 @@ export class FinishWorkoutSessionUseCase {
 
     if (!session) {
       throw new NotFoundException("Workout session not found");
+    }
+
+    if (!FINISHABLE_STATUSES.includes(session.status)) {
+      throw new BadRequestException(`Cannot finish session with status "${session.status}"`);
     }
 
     const updated = await this.workoutSessionsRepository.update(id, tenantId, {

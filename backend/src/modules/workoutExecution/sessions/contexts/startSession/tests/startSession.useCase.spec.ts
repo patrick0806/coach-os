@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 import { StartWorkoutSessionUseCase } from "../startSession.useCase";
 
@@ -61,6 +61,7 @@ const makeWorkoutDaysRepository = () => ({
 
 const makeWorkoutSessionsRepository = () => ({
   create: vi.fn().mockResolvedValue(makeSession()),
+  hasActiveSession: vi.fn().mockResolvedValue(false),
 });
 
 describe("StartWorkoutSessionUseCase", () => {
@@ -171,5 +172,16 @@ describe("StartWorkoutSessionUseCase", () => {
         tenantId,
       ),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it("should throw BadRequestException when student already has an active session", async () => {
+    workoutSessionsRepository.hasActiveSession.mockResolvedValue(true);
+
+    await expect(
+      useCase.execute(
+        { studentId: STUDENT_ID, workoutDayId: WORKOUT_DAY_ID },
+        tenantId,
+      ),
+    ).rejects.toThrow(BadRequestException);
   });
 });

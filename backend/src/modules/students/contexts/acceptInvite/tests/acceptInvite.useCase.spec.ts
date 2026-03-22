@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 
 import { AcceptInviteUseCase } from "../acceptInvite.useCase";
 
@@ -29,6 +29,7 @@ const makeUsersRepository = () => ({
     password: "hashed",
     role: "STUDENT",
   }),
+  findByEmail: vi.fn().mockResolvedValue(undefined),
 });
 
 const makeStudentsRepository = () => ({
@@ -39,6 +40,7 @@ const makeStudentsRepository = () => ({
     status: "active",
   }),
   countByTenantId: vi.fn().mockResolvedValue(0),
+  findByUserIdAndTenantId: vi.fn().mockResolvedValue(undefined),
 });
 
 const makePersonalsRepository = () => ({
@@ -186,5 +188,49 @@ describe("AcceptInviteUseCase", () => {
 
   it("should throw ValidationException on invalid input", async () => {
     await expect(useCase.execute({ token: "", name: "A", password: "short" })).rejects.toThrow();
+  });
+
+  // CHK-010: Multi-tenant student support
+  it("should reuse existing user when student is invited by second coach", async () => {
+    usersRepository.findByEmail.mockResolvedValue({
+      id: "existing-user-id",
+      name: "Maria Silva",
+      email: "maria@email.com",
+      role: "STUDENT",
+      isActive: true,
+    });
+
+    const result = await useCase.execute(validBody);
+
+    expect(result).toEqual({ message: "Account created successfully" });
+    expect(usersRepository.create).not.toHaveBeenCalled();
+    expect(studentsRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: "existing-user-id", tenantId: "tenant-id-1" }),
+    );
+  });
+
+  it("should throw BadRequestException when existing user has non-STUDENT role", async () => {
+    usersRepository.findByEmail.mockResolvedValue({
+      id: "existing-user-id",
+      email: "maria@email.com",
+      role: "PERSONAL",
+    });
+
+    await expect(useCase.execute(validBody)).rejects.toThrow(BadRequestException);
+  });
+
+  it("should throw BadRequestException when student already exists in this tenant", async () => {
+    usersRepository.findByEmail.mockResolvedValue({
+      id: "existing-user-id",
+      email: "maria@email.com",
+      role: "STUDENT",
+    });
+    studentsRepository.findByUserIdAndTenantId.mockResolvedValue({
+      id: "student-id-1",
+      userId: "existing-user-id",
+      tenantId: "tenant-id-1",
+    });
+
+    await expect(useCase.execute(validBody)).rejects.toThrow(BadRequestException);
   });
 });

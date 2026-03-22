@@ -185,6 +185,14 @@ export class PersonalsRepository {
     return Number(result[0]?.value ?? 0);
   }
 
+  async countBySubscriptionPlanId(planId: string): Promise<number> {
+    const result = await this.drizzle.db
+      .select({ value: sql<number>`count(*)` })
+      .from(personals)
+      .where(eq(personals.subscriptionPlanId, planId));
+    return Number(result[0]?.value ?? 0);
+  }
+
   async findByStripeCustomerId(customerId: string): Promise<Personal | undefined> {
     const result = await this.drizzle.db
       .select()

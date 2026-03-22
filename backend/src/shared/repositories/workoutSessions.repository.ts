@@ -144,6 +144,21 @@ export class WorkoutSessionsRepository {
     return { ...session, exerciseExecutions: executionsWithSets };
   }
 
+  async hasActiveSession(studentId: string, tenantId: string): Promise<boolean> {
+    const result = await this.drizzle.db
+      .select({ value: sql<number>`count(*)` })
+      .from(workoutSessions)
+      .where(
+        and(
+          eq(workoutSessions.studentId, studentId),
+          eq(workoutSessions.tenantId, tenantId),
+          inArray(workoutSessions.status, ["started", "paused"]),
+        ),
+      );
+
+    return Number(result[0]?.value ?? 0) > 0;
+  }
+
   async findAllByStudentId(
     studentId: string,
     tenantId: string,

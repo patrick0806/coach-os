@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-22
+Last updated: 2026-03-21
 
 ---
 
@@ -22,18 +22,18 @@ Last updated: 2026-03-22
 
 ---
 
-### Wave 2 — P1: Business-Critical Fixes
+### Wave 2 — P1: Business-Critical Fixes ✅ DONE (2026-03-21)
 
-- [ ] **CHK-007** Admin refresh token lockout — `refreshToken.useCase.ts:121` no branch for ADMIN role, throws "Unsupported role" after 15min
-- [ ] **CHK-008** Rate limiting — no `ThrottlerModule` configured; login, register, password-reset unprotected against brute force
-- [ ] **CHK-009** Downgrade without student limit check — `changePlan.useCase.ts:34` accepts downgrade even when current students exceed new plan limit
-- [ ] **CHK-010** acceptInvite multi-tenant failure — `acceptInvite.useCase.ts:66` crashes with 500 when student already exists in another tenant
-- [ ] **CHK-011** Student limit counts archived — `students.repository.ts:148` countByTenantId doesn't filter by status
-- [ ] **CHK-012** Stripe before DB atomicity — `changePlan.useCase.ts:55` Stripe updated before DB; if DB fails, coach pays new price but sees old plan
-- [ ] **CHK-013** Webhook rawBody fallback — `stripeWebhook.controller.ts:22` uses `Buffer.alloc(0)` instead of throwing when rawBody missing
-- [ ] **CHK-014** Soft-delete plan breaks coaches — `deletePlan.useCase.ts:9` no check for active coaches before deactivating plan
-- [ ] **CHK-015** Session state machine — `finishSession.useCase.ts` and `pauseSession.useCase.ts` have no status validation (finished can be re-finished, paused, etc.)
-- [ ] **CHK-016** Concurrent workout sessions — `startSession.useCase.ts` allows multiple simultaneous sessions per student
+- [x] **CHK-007** Admin refresh token lockout — added ADMIN role branch in `refreshToken.useCase.ts`
+- [x] **CHK-008** Rate limiting — installed `@nestjs/throttler`, global ThrottlerGuard + stricter limits on login/register/password-reset
+- [x] **CHK-009** Downgrade without student limit check — `changePlan.useCase.ts` now validates active students vs new plan limit
+- [x] **CHK-010** acceptInvite multi-tenant failure — reuses existing user when student invited by second coach
+- [x] **CHK-011** Student limit counts archived — `countByTenantId` now excludes archived students
+- [x] **CHK-012** Stripe before DB atomicity — DB updated first, Stripe second, with rollback on Stripe failure
+- [x] **CHK-013** Webhook rawBody fallback — throws BadRequestException when rawBody is missing
+- [x] **CHK-014** Soft-delete plan breaks coaches — checks for active coaches before deactivating plan
+- [x] **CHK-015** Session state machine — finishSession only from started/paused, pauseSession only from started
+- [x] **CHK-016** Concurrent workout sessions — checks for existing active session before starting new one
 
 ---
 

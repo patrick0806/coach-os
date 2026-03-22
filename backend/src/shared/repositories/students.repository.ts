@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, eq, ilike, ne, or, sql } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { students } from "@config/database/schema/students";
@@ -149,7 +149,7 @@ export class StudentsRepository {
     const result = await this.drizzle.db
       .select({ value: sql<number>`count(*)` })
       .from(students)
-      .where(eq(students.tenantId, tenantId));
+      .where(and(eq(students.tenantId, tenantId), ne(students.status, "archived")));
 
     return Number(result[0]?.value ?? 0);
   }

@@ -4,6 +4,7 @@ import { timingSafeEqual } from "crypto";
 
 import { ApplicationRoles } from "@shared/enums";
 import { IAccessToken } from "@shared/interfaces/accessToken.interface";
+import { AdminsRepository } from "@shared/repositories/admins.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
@@ -22,6 +23,7 @@ export class RefreshTokenUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly personalsRepository: PersonalsRepository,
     private readonly studentsRepository: StudentsRepository,
+    private readonly adminsRepository: AdminsRepository,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -109,6 +111,31 @@ export class RefreshTokenUseCase {
         profileId: student.id,
         personalId: student.tenantId,
         personalSlug: personal.slug,
+      };
+
+      const accessToken = this.jwtService.sign(tokenPayload);
+
+      // Rotate refresh token
+      const { raw: refreshToken, hash: refreshTokenHash } = generateSetupToken();
+      await this.usersRepository.updateRefreshTokenHash(user.id, refreshTokenHash);
+
+      return { accessToken, refreshToken };
+    }
+
+    // Admin refresh token flow
+    if (user.role === ApplicationRoles.ADMIN) {
+      const admin = await this.adminsRepository.findByUserId(user.id);
+
+      if (!admin) {
+        throw new UnauthorizedException("Profile not found");
+      }
+
+      const tokenPayload: IAccessToken = {
+        sub: user.id,
+        role: ApplicationRoles.ADMIN,
+        profileId: admin.id,
+        personalId: null,
+        personalSlug: null,
       };
 
       const accessToken = this.jwtService.sign(tokenPayload);

@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import * as argon2 from "argon2";
 import { z } from "zod";
 
@@ -57,6 +57,42 @@ export class AcceptInviteUseCase {
       if (count >= plan.maxStudents) {
         throw new ForbiddenException("Student limit reached for this coach");
       }
+    }
+
+    // CHK-010: Check if user already exists (multi-tenant student)
+    const existingUser = await this.usersRepository.findByEmail(email);
+
+    if (existingUser) {
+      // User exists — verify they are a STUDENT role
+      if (existingUser.role !== ApplicationRoles.STUDENT) {
+        throw new BadRequestException("Email is already registered with a different role");
+      }
+
+      // Check if student already exists in this tenant
+      const existingStudent = await this.studentsRepository.findByUserIdAndTenantId(existingUser.id, tenantId);
+      if (existingStudent) {
+        throw new BadRequestException("Student already exists in this tenant");
+      }
+
+      // Create student record in the new tenant (reuse existing user)
+      const student = await this.studentsRepository.create({
+        userId: existingUser.id,
+        tenantId,
+        status: "active",
+      });
+
+      // Create coach-student relation
+      await this.coachStudentRelationsRepository.create({
+        tenantId,
+        studentId: student.id,
+        status: "active",
+        startDate: new Date(),
+      });
+
+      // Mark invitation token as used
+      await this.studentInvitationTokensRepository.markAsUsed(tokenRecord.id);
+
+      return { message: "Account created successfully" };
     }
 
     // Hash password with pepper

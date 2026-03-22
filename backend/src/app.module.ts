@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { RouterModule } from "@nestjs/core";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 
 import { JWTAuthGuard, RolesGuard, TenantAccessGuard } from "@shared/guards";
 
@@ -40,6 +41,18 @@ import { DatabaseModule } from "@config/database/database.module";
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: "short",
+        ttl: 60_000,
+        limit: 10,
+      },
+      {
+        name: "long",
+        ttl: 600_000,
+        limit: 50,
+      },
+    ]),
     DatabaseModule,
     AuthModule,
     HealthModule,
@@ -185,6 +198,10 @@ import { DatabaseModule } from "@config/database/database.module";
     {
       provide: "APP_GUARD",
       useClass: TenantAccessGuard,
+    },
+    {
+      provide: "APP_GUARD",
+      useClass: ThrottlerGuard,
     },
   ],
 })

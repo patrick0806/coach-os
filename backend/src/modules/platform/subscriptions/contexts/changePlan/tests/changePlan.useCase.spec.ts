@@ -47,6 +47,10 @@ const makePlansRepository = (plan = makePlan()) => ({
   findById: vi.fn().mockResolvedValue(plan),
 });
 
+const makeStudentsRepository = () => ({
+  countByTenantId: vi.fn().mockResolvedValue(5),
+});
+
 const makeStripeProvider = (configured = true) => {
   const client = makeStripeClient();
   return {
@@ -59,6 +63,7 @@ describe("ChangePlanUseCase", () => {
   let useCase: ChangePlanUseCase;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let plansRepository: ReturnType<typeof makePlansRepository>;
+  let studentsRepository: ReturnType<typeof makeStudentsRepository>;
   let stripeProvider: ReturnType<typeof makeStripeProvider>;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
   let resendProvider: ReturnType<typeof makeResendProvider>;
@@ -66,12 +71,14 @@ describe("ChangePlanUseCase", () => {
   beforeEach(() => {
     personalsRepository = makePersonalsRepository();
     plansRepository = makePlansRepository();
+    studentsRepository = makeStudentsRepository();
     stripeProvider = makeStripeProvider();
     usersRepository = makeUsersRepository();
     resendProvider = makeResendProvider();
     useCase = new ChangePlanUseCase(
       personalsRepository as any,
       plansRepository as any,
+      studentsRepository as any,
       stripeProvider as any,
       usersRepository as any,
       resendProvider as any,
@@ -135,6 +142,7 @@ describe("ChangePlanUseCase", () => {
     useCase = new ChangePlanUseCase(
       personalsRepository as any,
       plansRepository as any,
+      studentsRepository as any,
       stripeProvider as any,
       usersRepository as any,
       resendProvider as any,
@@ -154,6 +162,7 @@ describe("ChangePlanUseCase", () => {
     useCase = new ChangePlanUseCase(
       personalsRepository as any,
       plansRepository as any,
+      studentsRepository as any,
       stripeProvider as any,
       usersRepository as any,
       resendProvider as any,
@@ -166,5 +175,51 @@ describe("ChangePlanUseCase", () => {
 
   it("should throw when planId is not a valid UUID", async () => {
     await expect(useCase.execute("personal-id-1", { planId: "not-a-uuid" })).rejects.toThrow();
+  });
+
+  // CHK-009: Downgrade student limit check
+  it("should throw BadRequestException when active students exceed new plan limit", async () => {
+    studentsRepository.countByTenantId.mockResolvedValue(15);
+    plansRepository.findById.mockResolvedValue(makePlan({ maxStudents: 10 }));
+
+    await expect(useCase.execute("personal-id-1", { planId: PLAN_UUID })).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it("should allow downgrade when active students are within new plan limit", async () => {
+    studentsRepository.countByTenantId.mockResolvedValue(5);
+    plansRepository.findById.mockResolvedValue(makePlan({ maxStudents: 10 }));
+
+    await expect(useCase.execute("personal-id-1", { planId: PLAN_UUID })).resolves.not.toThrow();
+  });
+
+  // CHK-012: DB updated before Stripe
+  it("should update DB before Stripe (atomicity order)", async () => {
+    const callOrder: string[] = [];
+    personalsRepository.updateSubscription.mockImplementation(async () => {
+      callOrder.push("db");
+    });
+    stripeProvider.client.subscriptions.update.mockImplementation(async () => {
+      callOrder.push("stripe");
+      return {};
+    });
+
+    await useCase.execute("personal-id-1", { planId: PLAN_UUID });
+
+    expect(callOrder).toEqual(["db", "stripe"]);
+  });
+
+  it("should rollback DB when Stripe update fails", async () => {
+    stripeProvider.client.subscriptions.update.mockRejectedValue(new Error("Stripe error"));
+
+    await expect(useCase.execute("personal-id-1", { planId: PLAN_UUID })).rejects.toThrow("Stripe error");
+
+    // Should have rolled back to original plan
+    expect(personalsRepository.updateSubscription).toHaveBeenCalledTimes(2);
+    expect(personalsRepository.updateSubscription).toHaveBeenLastCalledWith(
+      "personal-id-1",
+      { subscriptionPlanId: "11111111-1111-1111-1111-111111111111" },
+    );
   });
 });

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { z } from "zod";
 
 import { StudentsRepository } from "@shared/repositories/students.repository";
@@ -36,6 +36,12 @@ export class StartWorkoutSessionUseCase {
     }
     if (workoutDay.tenantId !== tenantId) {
       throw new NotFoundException("Workout day not found");
+    }
+
+    // CHK-016: Prevent concurrent sessions for the same student
+    const hasActive = await this.workoutSessionsRepository.hasActiveSession(data.studentId, tenantId);
+    if (hasActive) {
+      throw new BadRequestException("Student already has an active workout session");
     }
 
     return this.workoutSessionsRepository.create({

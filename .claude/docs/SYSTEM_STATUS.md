@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-22
+Last updated: 2026-03-21
 
 ---
 
@@ -12,16 +12,16 @@ Full system audit completed on 2026-03-22 — **73 findings** identified across 
 
 | Module | Status | Audit Findings |
 |--------|--------|----------------|
-| platform/auth | needs fixes | CRITICAL: register cookie uses wrong ID (personal.id vs user.id), admin refresh lockout, no rate limiting, register not transactional, CORS null origin bypass, URL regression in password reset email |
-| platform/admins | needs fixes | HIGH: soft-delete plan breaks coaches on that plan, deleteAdmin leaves orphan user with ADMIN role, no min password length for admin creation |
-| platform/subscriptions | needs fixes | CRITICAL: Stripe updated before DB (atomicity), downgrade accepts over-limit students. HIGH: checkout session.url non-null assertion |
-| platform/webhooks | needs fixes | CRITICAL: no webhook idempotency (duplicate events processed), no out-of-order protection. HIGH: rawBody fallback Buffer.alloc(0) |
+| platform/auth | needs fixes | Fixed: register cookie, CORS, URL regression, admin refresh, rate limiting. Remaining: register not transactional |
+| platform/admins | needs fixes | Fixed: soft-delete plan guard. Remaining: deleteAdmin orphan user, no min password length |
+| platform/subscriptions | needs fixes | Fixed: Stripe atomicity, downgrade validation. Remaining: checkout session.url non-null assertion |
+| platform/webhooks | needs fixes | Fixed: rawBody fallback. Remaining: no webhook idempotency, no out-of-order protection |
 | platform/tenants | ok | No findings |
 | training | needs fixes | HIGH: assignProgram fake transaction (_tx unused), reorder cross-entity no parent ID filter. MEDIUM: no status transition validation, duplicateProgramTemplate same pattern |
 | scheduling | needs fixes | CRITICAL: appointment state machine broken (cancelled can be completed, completed can be cancelled). HIGH: approveRequest not transactional, conflict detection ignores training schedule exceptions, student can cancel other student's appointment |
 | coaching | needs fixes | MEDIUM: createContract not transactional, deleteServicePlan with active contracts, contract for archived student |
-| students | needs fixes | CRITICAL: acceptInvite fails for multi-tenant students (500). HIGH: student limit counts archived, TOCTOU race condition, acceptInvite not transactional, URL regression in sendStudentAccess |
-| workoutExecution | needs fixes | HIGH: no status validation in finish/pause session, concurrent sessions allowed, exercise execution on finished session, recordSet on finished session |
+| students | needs fixes | Fixed: multi-tenant invite, student limit, URL regression. Remaining: TOCTOU race condition, acceptInvite not transactional |
+| workoutExecution | needs fixes | Fixed: session state machine, concurrent sessions. Remaining: exercise execution on finished session, recordSet on finished session |
 | progress | minor issues | MEDIUM: savePhoto accepts any URL, metricType free-text vs enum mismatch |
 | public | ok | No findings |
 | enums | ok | No findings |
@@ -51,7 +51,7 @@ Full system audit completed on 2026-03-22 — **73 findings** identified across 
 | **Monitoring** | ok | OTel Collector + Beyla + Better Stack |
 | **Wildcard DNS/SSL** | ok | `*.coachos.com.br` |
 | **Nginx wildcard** | ok | `*.coachos.com.br` -> frontend |
-| **Rate Limiting** | missing | No ThrottlerModule configured — all public endpoints unprotected |
+| **Rate Limiting** | ok | ThrottlerModule global (10/min, 50/10min) + stricter on auth endpoints |
 
 ---
 
@@ -61,8 +61,8 @@ Full system validation performed by QA, Security, and Code Review agents.
 
 | Severity | Count | Status |
 |----------|-------|--------|
-| CRITICAL | 8 | 3 fixed (Wave 1), 5 pending |
-| HIGH | 19 | 3 fixed (Wave 1), 16 pending |
+| CRITICAL | 8 | 3 fixed (Wave 1), 5 fixed (Wave 2) |
+| HIGH | 19 | 3 fixed (Wave 1), 11 fixed (Wave 2), 5 pending |
 | MEDIUM | 31 | pending fix |
 | LOW | 15 | backlog |
 
@@ -75,24 +75,28 @@ Full system validation performed by QA, Security, and Code Review agents.
 - **CHK-005**: `completeAppointment.useCase.ts` — only `scheduled` status can be completed
 - **CHK-006**: `cancelAppointment.useCase.ts` — only `scheduled` status can be cancelled
 
-All 820 backend tests passing after fixes.
+All 820 backend tests passing after Wave 1 fixes.
 
-### Confirmed Bugs
+### Wave 2 — P1 Fixes Applied (2026-03-21)
 
-1. `register.controller.ts:31` — uses `personal.id` instead of `user.id` in refresh cookie (breaks ALL new coaches)
-2. `requestPasswordReset.useCase.ts:48` — URL uses `/personais/` (migrated to `/coach/`)
-3. `sendStudentAccess.useCase.ts:44` — URL uses `/personais/` (migrated to `/coach/`)
-4. `completeAppointment.useCase.ts` — cancelled appointments can be completed
-5. `cancelAppointment.useCase.ts` — completed appointments can be cancelled
-6. `acceptInvite.useCase.ts` — 500 error when student invited by 2 coaches (multi-tenant)
-7. `students.repository.ts` — student limit counts archived students
+- **CHK-007**: `refreshToken.useCase.ts` — added ADMIN role branch (was throwing "Unsupported role" after 15min)
+- **CHK-008**: `app.module.ts` — ThrottlerModule configured globally + stricter limits on login (5/min), register (3/min), password-reset (3/min)
+- **CHK-009**: `changePlan.useCase.ts` — validates active student count against new plan limit before downgrade
+- **CHK-010**: `acceptInvite.useCase.ts` — reuses existing user when student is invited by second coach (multi-tenant)
+- **CHK-011**: `students.repository.ts` — `countByTenantId` now excludes archived students
+- **CHK-012**: `changePlan.useCase.ts` — DB updated first, then Stripe, with rollback on Stripe failure
+- **CHK-013**: `stripeWebhook.controller.ts` — throws BadRequestException when rawBody missing (was silently using empty buffer)
+- **CHK-014**: `deletePlan.useCase.ts` — checks for active coaches before deactivating plan
+- **CHK-015**: `finishSession.useCase.ts` + `pauseSession.useCase.ts` — status validation added (only valid transitions allowed)
+- **CHK-016**: `startSession.useCase.ts` — prevents concurrent workout sessions per student
 
-### Systemic Patterns Detected
+All 838 backend tests passing after Wave 2 fixes.
+
+### Systemic Patterns Remaining
 
 1. **Fake transactions**: `assignProgram` and `duplicateProgramTemplate` use `_tx` (unused) — operations run outside transaction
-2. **Missing state machines**: No status transition validation in appointments, sessions, programs, contracts, relations
-3. **Shallow ownership validation**: Queries filter by tenantId but not by parent entity (student can access other student's data within same tenant)
-4. **No duplicate protection**: No idempotency in webhooks, no concurrent session prevention, no double-submit guards
+2. **Shallow ownership validation**: Queries filter by tenantId but not by parent entity (student can access other student's data within same tenant)
+3. **No webhook idempotency**: No event.id dedup in webhook processing
 
 ---
 
