@@ -16,7 +16,7 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
-const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "coachos.com.br"
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || "coachos.com.br"
 
 function getCanonicalUrl(slug: string): string {
   return `https://${slug}.${BASE_DOMAIN}`
@@ -24,7 +24,7 @@ function getCanonicalUrl(slug: string): string {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const profile = await publicServerFetch<PublicProfile>(`/public/${slug}`)
+  const profile = await publicServerFetch<PublicProfile>(`/public/${slug}`, { revalidate: 60 })
 
   if (!profile) return { title: "Personal não encontrado" }
 
@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CoachPublicPage({ params }: PageProps) {
   const { slug } = await params
-  const profile = await publicServerFetch<PublicProfile>(`/public/${slug}`)
+  const profile = await publicServerFetch<PublicProfile>(`/public/${slug}`, { revalidate: 60 })
 
   if (!profile) notFound()
 
