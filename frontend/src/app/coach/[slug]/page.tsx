@@ -5,7 +5,7 @@ import { headers } from "next/headers"
 
 import { publicServerFetch } from "@/lib/serverFetch"
 import { getContrastColor } from "@/lib/colorContrast"
-import { getCoachHrefPrefix } from "@/lib/useCoachHref"
+import { getCoachHrefPrefix } from "@/lib/coachHrefPrefix"
 import type { PublicProfile } from "@/features/publicPage/types/publicPage.types"
 import { Layout1 } from "@/features/publicPage/layouts/layout1"
 import { Layout2 } from "@/features/publicPage/layouts/layout2"

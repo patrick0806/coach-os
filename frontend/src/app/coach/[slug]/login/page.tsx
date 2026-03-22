@@ -1,7 +1,7 @@
 import { headers } from "next/headers"
 
 import { publicServerFetch } from "@/lib/serverFetch"
-import { getCoachHrefPrefix } from "@/lib/useCoachHref"
+import { getCoachHrefPrefix } from "@/lib/coachHrefPrefix"
 import { StudentLoginForm } from "@/features/studentAuth/components/studentLoginForm"
 
 interface CoachPublicProfile {
