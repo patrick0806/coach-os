@@ -13,13 +13,14 @@ export default defineConfig({
     // Port 3099 is dedicated to E2E tests — avoids reusing the dev server
     // on 3001 which may not have E2E_BYPASS_AUTH set.
     command: process.env.CI
-      ? "npm start -- --port 3099"
+      ? "npx next start --port 3099"
       : "npm run dev -- --port 3099",
     url: "http://localhost:3099",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
       PORT: "3099",
+      E2E_BUILD: "true",
       E2E_BYPASS_AUTH: "true",
       NEXT_PUBLIC_SHOW_TUTORIAL: "true",
       ...(process.env.CI && {

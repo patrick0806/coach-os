@@ -109,6 +109,30 @@ export async function injectStudentMockAuth(page: Page): Promise<void> {
       expires: now + 30 * 24 * 3600, // 30 days
     },
   ])
+
+  // Mock student layout dependencies to prevent 401 → auth clear → redirect
+  // These requests happen on every student portal page load.
+  await page.route("**/api/v1/auth/refresh", (route: Route) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      json: { data: { accessToken: "mock-refreshed-token" } },
+    })
+  })
+  await page.route("**/api/v1/public/**", (route: Route) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      json: { data: { coachName: "João Silva", logoUrl: null } },
+    })
+  })
+  await page.route("**/api/v1/me/progress-records/chart*", (route: Route) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      json: [],
+    })
+  })
 }
 
 // =============================================================================

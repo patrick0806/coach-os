@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  output: process.env.E2E_BUILD ? undefined : 'standalone',
   images: {
     remotePatterns: [
       {
