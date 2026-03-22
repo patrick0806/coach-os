@@ -23,20 +23,34 @@ const makeProgressPhotosRepository = () => ({
   delete: vi.fn().mockResolvedValue(true),
 });
 
+const makeS3Provider = () => ({
+  deleteObject: vi.fn().mockResolvedValue(undefined),
+});
+
 describe("DeleteProgressPhotoUseCase", () => {
   let useCase: DeleteProgressPhotoUseCase;
   let progressPhotosRepository: ReturnType<typeof makeProgressPhotosRepository>;
+  let s3Provider: ReturnType<typeof makeS3Provider>;
 
   const tenantId = TENANT_ID;
 
   beforeEach(() => {
     progressPhotosRepository = makeProgressPhotosRepository();
-    useCase = new DeleteProgressPhotoUseCase(progressPhotosRepository as any);
+    s3Provider = makeS3Provider();
+    useCase = new DeleteProgressPhotoUseCase(progressPhotosRepository as any, s3Provider as any);
   });
 
   it("should delete a progress photo successfully", async () => {
     await expect(useCase.execute(PHOTO_ID, tenantId)).resolves.toBeUndefined();
 
+    expect(progressPhotosRepository.delete).toHaveBeenCalledWith(PHOTO_ID, tenantId);
+    expect(s3Provider.deleteObject).toHaveBeenCalledWith(MEDIA_URL);
+  });
+
+  it("should not fail when S3 cleanup fails", async () => {
+    s3Provider.deleteObject.mockRejectedValue(new Error("S3 error"));
+
+    await expect(useCase.execute(PHOTO_ID, tenantId)).resolves.toBeUndefined();
     expect(progressPhotosRepository.delete).toHaveBeenCalledWith(PHOTO_ID, tenantId);
   });
 
