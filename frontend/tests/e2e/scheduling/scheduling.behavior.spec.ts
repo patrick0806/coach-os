@@ -101,6 +101,7 @@ test.describe("Agenda — Calendar Display", () => {
 
   test("shows pending requests button", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_PENDING)
@@ -114,6 +115,7 @@ test.describe("Agenda — Calendar Display", () => {
 
   test("shows pending count badge when there are pending requests", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_PENDING)
@@ -273,6 +275,7 @@ test.describe("Agenda — Create Appointment", () => {
 test.describe("Agenda — Pending Requests", () => {
   test("opens pending requests sheet", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_PENDING)
@@ -287,6 +290,7 @@ test.describe("Agenda — Pending Requests", () => {
 
   test("shows pending request item with student name and time", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_PENDING)
@@ -305,6 +309,7 @@ test.describe("Agenda — Pending Requests", () => {
 
   test("shows empty state when no pending requests", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_EMPTY)
@@ -321,6 +326,7 @@ test.describe("Agenda — Pending Requests", () => {
 
   test("approves appointment request and shows success toast", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_PENDING)
@@ -343,6 +349,7 @@ test.describe("Agenda — Pending Requests", () => {
 
   test("rejects appointment request and shows success toast", async ({ page }) => {
     await injectMockAuth(page)
+    await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_EMPTY)
     await mockAppointmentsList(page, { content: [], page: 0, size: 100, totalElements: 0, totalPages: 0 })
     await mockAppointmentRequests(page, MOCK_APPOINTMENT_REQUESTS_PENDING)

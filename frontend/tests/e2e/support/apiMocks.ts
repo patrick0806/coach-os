@@ -33,6 +33,23 @@ export async function injectMockAuthAs(page: Page, user: object): Promise<void> 
       expires: now + 30 * 24 * 3600,
     },
   ])
+  // Mock auth/refresh to prevent 401 → refresh fail → auth clear → redirect to /login
+  // In CI/production mode, unmocked API calls may trigger the refresh flow.
+  await page.route("**/api/v1/auth/refresh", (route: Route) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      json: { data: { accessToken: FAKE_ACCESS_TOKEN } },
+    })
+  })
+  // Mock service-plans to prevent unmocked fetch in StudentFormDialog causing DOM instability
+  await page.route("**/api/v1/service-plans*", (route: Route) => {
+    if (route.request().method() === "GET") {
+      route.fulfill({ status: 200, contentType: "application/json", json: [] })
+    } else {
+      route.fallback()
+    }
+  })
   // Populate localStorage before any React script runs so useTourProgress
   // sees all pages as completed via placeholderData. This prevents driver.js
   // from firing in behavioral tests (the tour fires when localStorage is empty

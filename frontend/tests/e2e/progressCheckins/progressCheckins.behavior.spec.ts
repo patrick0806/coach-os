@@ -54,6 +54,8 @@ async function setupCheckinPage(
     totalElements: 0,
     totalPages: 0,
   })
+  await mockGet(page, `**/api/v1/students/${MOCK_STUDENT_ID}/progress-records/chart*`, [])
+  await mockGet(page, `**/api/v1/students/${MOCK_STUDENT_ID}/contracts*`, [])
   await page.goto(STUDENT_URL)
 }
 
@@ -76,7 +78,7 @@ test.describe("Progress Checkins — Empty State", () => {
     await setupCheckinPage(page, progressCheckinsFixtures.empty)
     await navigateToEvolution(page)
 
-    await expect(page.getByText("Nenhum registro de evolução")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Nenhum registro de evolução" })).toBeVisible()
     await expect(page.getByTestId("register-evolution-button")).toBeVisible()
   })
 })
@@ -238,6 +240,8 @@ test.describe("Progress Checkins — Delete", () => {
       totalElements: 0,
       totalPages: 0,
     })
+    await mockGet(page, `**/api/v1/students/${MOCK_STUDENT_ID}/progress-records/chart*`, [])
+    await mockGet(page, `**/api/v1/students/${MOCK_STUDENT_ID}/contracts*`, [])
     await page.route(API_DELETE, (route) => {
       if (route.request().method() === "DELETE") {
         route.fulfill({ status: 204 })
