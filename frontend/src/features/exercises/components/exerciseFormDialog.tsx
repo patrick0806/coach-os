@@ -69,6 +69,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
   })
 
   useEffect(() => {
+    if (!open) return
     if (exercise) {
       form.reset({
         name: exercise.name,
@@ -88,7 +89,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
       })
       setMediaPreview(null)
     }
-  }, [exercise, form])
+  }, [exercise, form, open])
 
   const { data: muscleGroups } = useEnumMuscleGroups()
   const createExercise = useCreateExercise({ onOpenChange })

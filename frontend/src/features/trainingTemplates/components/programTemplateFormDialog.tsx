@@ -49,6 +49,7 @@ export function ProgramTemplateFormDialog({
   })
 
   useEffect(() => {
+    if (!open) return
     if (template) {
       form.reset({
         name: template.name,
@@ -57,7 +58,7 @@ export function ProgramTemplateFormDialog({
     } else {
       form.reset({ name: "", description: "" })
     }
-  }, [template, form])
+  }, [template, form, open])
 
   const createTemplate = useCreateProgramTemplate({ onOpenChange })
   const updateTemplate = useUpdateProgramTemplate(template?.id ?? "", { onOpenChange })

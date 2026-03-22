@@ -56,6 +56,7 @@ export function ExerciseTemplateFormDialog({
   })
 
   useEffect(() => {
+    if (!open) return
     if (exerciseTemplate) {
       form.reset({
         sets: String(exerciseTemplate.sets),
@@ -64,8 +65,10 @@ export function ExerciseTemplateFormDialog({
         duration: exerciseTemplate.duration ?? "",
         notes: exerciseTemplate.notes ?? "",
       })
+    } else {
+      form.reset({ sets: "", repetitions: "", restSeconds: "", duration: "", notes: "" })
     }
-  }, [exerciseTemplate, form])
+  }, [exerciseTemplate, form, open])
 
   const updateExerciseTemplate = useUpdateExerciseTemplate(exerciseTemplate?.id ?? "", {
     templateId,

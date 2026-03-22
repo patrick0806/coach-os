@@ -81,6 +81,7 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
   const activePlans = (servicePlansResponse ?? []).filter((p) => p.isActive)
 
   useEffect(() => {
+    if (!open) return
     if (student) {
       form.reset({
         name: student.name,
@@ -102,7 +103,7 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
         servicePlanId: "",
       })
     }
-  }, [student, form])
+  }, [student, form, open])
 
   const createStudent = useCreateStudent({ onOpenChange })
   const updateStudent = useUpdateStudent(student?.id ?? "", { onOpenChange })

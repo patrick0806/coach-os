@@ -111,6 +111,7 @@ export function ServicePlanFormDialog({ open, onOpenChange, plan }: ServicePlanF
   })
 
   useEffect(() => {
+    if (!open) return
     if (plan) {
       form.reset({
         name: plan.name,
@@ -131,7 +132,7 @@ export function ServicePlanFormDialog({ open, onOpenChange, plan }: ServicePlanF
       setPriceCents(0)
     }
     setPriceError(null)
-  }, [plan, form])
+  }, [plan, form, open])
 
   const { data: attendanceTypes } = useEnumAttendanceTypes()
   const createPlan = useCreateServicePlan({ onOpenChange })

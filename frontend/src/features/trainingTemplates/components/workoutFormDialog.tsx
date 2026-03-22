@@ -46,12 +46,13 @@ export function WorkoutFormDialog({
   })
 
   useEffect(() => {
+    if (!open) return
     if (workout) {
       form.reset({ name: workout.name })
     } else {
       form.reset({ name: "" })
     }
-  }, [workout, form])
+  }, [workout, form, open])
 
   const addWorkout = useAddWorkoutTemplate({ templateId, onOpenChange })
   const updateWorkout = useUpdateWorkoutTemplate(workout?.id ?? "", { templateId, onOpenChange })
