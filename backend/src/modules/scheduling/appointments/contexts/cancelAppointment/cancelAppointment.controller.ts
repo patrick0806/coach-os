@@ -26,6 +26,7 @@ export class CancelAppointmentController {
     @Body() body: Record<string, unknown>,
     @CurrentUser() user: IAccessToken,
   ) {
-    return this.cancelAppointmentUseCase.execute(id, body, user.personalId!);
+    const studentId = user.role === ApplicationRoles.STUDENT ? user.profileId : undefined;
+    return this.cancelAppointmentUseCase.execute(id, body, user.personalId!, studentId);
   }
 }

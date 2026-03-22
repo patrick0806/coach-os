@@ -36,8 +36,8 @@ export class UsersRepository {
     email: string;
     password: string;
     role: "ADMIN" | "PERSONAL" | "STUDENT";
-  }): Promise<User> {
-    const result = await this.drizzle.db
+  }, tx?: DbTransaction): Promise<User> {
+    const result = await (tx ?? this.drizzle.db)
       .insert(users)
       .values(data)
       .returning();
@@ -56,6 +56,10 @@ export class UsersRepository {
       .update(users)
       .set({ refreshTokenHash } as any)
       .where(eq(users.id, id));
+  }
+
+  async deleteById(id: string): Promise<void> {
+    await this.drizzle.db.delete(users).where(eq(users.id, id));
   }
 
   async updatePassword(id: string, hashedPassword: string, tx?: DbTransaction): Promise<void> {

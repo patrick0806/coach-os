@@ -63,6 +63,16 @@ const makeTrainingSchedulesRepository = () => ({
   findByTenantId: vi.fn().mockResolvedValue([]),
 });
 
+const makeTrainingScheduleExceptionsRepository = () => ({
+  findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([]),
+});
+
+const makeDrizzleProvider = () => ({
+  db: {
+    transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<void>) => fn({})),
+  },
+});
+
 describe("ApproveAppointmentRequestUseCase", () => {
   let useCase: ApproveAppointmentRequestUseCase;
   let appointmentRequestsRepository: ReturnType<typeof makeAppointmentRequestsRepository>;
@@ -77,6 +87,8 @@ describe("ApproveAppointmentRequestUseCase", () => {
       makeAvailabilityRulesRepository() as any,
       makeAvailabilityExceptionsRepository() as any,
       makeTrainingSchedulesRepository() as any,
+      makeTrainingScheduleExceptionsRepository() as any,
+      makeDrizzleProvider() as any,
     );
   });
 
@@ -92,6 +104,7 @@ describe("ApproveAppointmentRequestUseCase", () => {
       REQUEST_ID,
       TENANT_ID,
       expect.objectContaining({ status: "approved" }),
+      expect.anything(),
     );
     expect(appointmentsRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -100,6 +113,7 @@ describe("ApproveAppointmentRequestUseCase", () => {
         appointmentRequestId: REQUEST_ID,
         status: "scheduled",
       }),
+      expect.anything(),
     );
   });
 

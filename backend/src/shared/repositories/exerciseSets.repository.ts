@@ -34,6 +34,21 @@ export class ExerciseSetsRepository {
     return result[0];
   }
 
+  async existsByExecutionIdAndSetNumber(executionId: string, setNumber: number): Promise<boolean> {
+    const result = await this.drizzle.db
+      .select({ id: exerciseSets.id })
+      .from(exerciseSets)
+      .where(
+        and(
+          eq(exerciseSets.exerciseExecutionId, executionId),
+          eq(exerciseSets.setNumber, setNumber),
+        ),
+      )
+      .limit(1);
+
+    return result.length > 0;
+  }
+
   async findByExecutionId(executionId: string, tenantId: string): Promise<ExerciseSet[]> {
     // Validate via join chain: exerciseSets → exerciseExecutions → workoutSessions (tenantId)
     const rows = await this.drizzle.db

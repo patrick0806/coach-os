@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { coachStudentRelations } from "@config/database/schema/coaching";
 import { students } from "@config/database/schema/students";
 import { users } from "@config/database/schema/users";
@@ -24,8 +24,8 @@ export class CoachStudentRelationsRepository {
     status: "active" | "paused" | "archived";
     startDate: Date;
     endDate?: Date;
-  }): Promise<CoachStudentRelation> {
-    const result = await this.drizzle.db
+  }, tx?: DbTransaction): Promise<CoachStudentRelation> {
+    const result = await (tx ?? this.drizzle.db)
       .insert(coachStudentRelations)
       .values(data)
       .returning();

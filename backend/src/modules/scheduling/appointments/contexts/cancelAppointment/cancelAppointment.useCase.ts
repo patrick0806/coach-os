@@ -21,11 +21,17 @@ export class CancelAppointmentUseCase {
     id: string,
     body: unknown,
     tenantId: string,
+    studentId?: string,
   ): Promise<Appointment> {
     const data = validate(cancelAppointmentSchema, body);
 
     const existing = await this.appointmentsRepository.findById(id, tenantId);
     if (!existing) {
+      throw new NotFoundException("Appointment not found");
+    }
+
+    // CHK-024: When a student cancels, ensure they own the appointment
+    if (studentId && existing.studentId !== studentId) {
       throw new NotFoundException("Appointment not found");
     }
 

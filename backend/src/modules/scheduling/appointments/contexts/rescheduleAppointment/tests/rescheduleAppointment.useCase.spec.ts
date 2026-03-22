@@ -47,6 +47,10 @@ const makeTrainingSchedulesRepository = () => ({
   findByTenantId: vi.fn().mockResolvedValue([]),
 });
 
+const makeTrainingScheduleExceptionsRepository = () => ({
+  findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([]),
+});
+
 describe("RescheduleAppointmentUseCase", () => {
   let useCase: RescheduleAppointmentUseCase;
   let appointmentsRepository: ReturnType<typeof makeAppointmentsRepository>;
@@ -64,6 +68,7 @@ describe("RescheduleAppointmentUseCase", () => {
       availabilityRulesRepository as any,
       availabilityExceptionsRepository as any,
       trainingSchedulesRepository as any,
+      makeTrainingScheduleExceptionsRepository() as any,
     );
   });
 

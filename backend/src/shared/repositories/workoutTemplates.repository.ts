@@ -88,13 +88,18 @@ export class WorkoutTemplatesRepository {
       .where(eq(workoutTemplates.id, id));
   }
 
-  async reorder(items: { id: string; order: number }[]): Promise<void> {
+  async reorder(programTemplateId: string, items: { id: string; order: number }[]): Promise<void> {
     await this.drizzle.db.transaction(async (tx) => {
       for (const item of items) {
         await tx
           .update(workoutTemplates)
           .set({ order: item.order })
-          .where(and(eq(workoutTemplates.id, item.id)));
+          .where(
+            and(
+              eq(workoutTemplates.id, item.id),
+              eq(workoutTemplates.programTemplateId, programTemplateId),
+            ),
+          );
       }
     });
   }

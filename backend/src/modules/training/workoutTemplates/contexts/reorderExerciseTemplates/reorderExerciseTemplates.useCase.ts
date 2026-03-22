@@ -42,6 +42,6 @@ export class ReorderExerciseTemplatesUseCase {
       throw new NotFoundException("Workout template not found");
     }
 
-    await this.exerciseTemplatesRepository.reorder(data.items);
+    await this.exerciseTemplatesRepository.reorder(workoutTemplateId, data.items);
   }
 }

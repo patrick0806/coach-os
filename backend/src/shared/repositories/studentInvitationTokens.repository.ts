@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { and, eq, gt, isNull } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { studentInvitationTokens } from "@config/database/schema/studentInvitationTokens";
 import type { InferSelectModel } from "drizzle-orm";
 
@@ -71,10 +71,10 @@ export class StudentInvitationTokensRepository {
       );
   }
 
-  async markAsUsed(id: string): Promise<void> {
+  async markAsUsed(id: string, tx?: DbTransaction): Promise<void> {
     // Drizzle ORM type inference limitation: usedAt is not inferred in the SET type
-     
-    await this.drizzle.db
+
+    await (tx ?? this.drizzle.db)
       .update(studentInvitationTokens)
       .set({ usedAt: new Date() } as any)
       .where(eq(studentInvitationTokens.id, id));

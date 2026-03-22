@@ -39,6 +39,6 @@ export class ReorderWorkoutTemplatesUseCase {
       throw new NotFoundException("Program template not found");
     }
 
-    await this.workoutTemplatesRepository.reorder(data.items);
+    await this.workoutTemplatesRepository.reorder(programTemplateId, data.items);
   }
 }

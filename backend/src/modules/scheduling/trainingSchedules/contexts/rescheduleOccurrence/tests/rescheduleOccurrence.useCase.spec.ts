@@ -29,6 +29,7 @@ const makeTrainingSchedulesRepository = () => ({
 
 const makeExceptionsRepository = () => ({
   findByScheduleAndOriginalDate: vi.fn().mockResolvedValue(undefined),
+  findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([]),
   create: vi.fn().mockImplementation((data) => Promise.resolve({ id: "exc-001", ...data })),
 });
 

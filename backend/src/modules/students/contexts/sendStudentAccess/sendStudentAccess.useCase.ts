@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { z } from "zod";
 
 import { env } from "@config/env";
 import { ResendProvider } from "@shared/providers/resend.provider";
@@ -7,8 +8,11 @@ import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { generateSetupToken, expiresInHours } from "@shared/utils/token.util";
+import { validate } from "@shared/utils/validation.util";
 
 const SETUP_TOKEN_EXPIRY_HOURS = 48;
+
+const sendModeSchema = z.enum(["email", "link"]);
 
 type SendMode = "email" | "link";
 type SendResult = { message: string } | { accessLink: string };
@@ -23,7 +27,9 @@ export class SendStudentAccessUseCase {
     private readonly resendProvider: ResendProvider,
   ) { }
 
-  async execute(studentId: string, tenantId: string, mode: SendMode): Promise<SendResult> {
+  async execute(studentId: string, tenantId: string, mode: unknown): Promise<SendResult> {
+    const validatedMode = validate(sendModeSchema, mode);
+
     const student = await this.studentsRepository.findById(studentId, tenantId);
     if (!student) throw new NotFoundException("Aluno não encontrado");
 
@@ -43,7 +49,7 @@ export class SendStudentAccessUseCase {
     // Branded student URL using the coach's slug
     const accessLink = `${env.APP_URL}/coach/${personal.slug}/configurar-senha?token=${raw}`;
 
-    if (mode === "link") {
+    if (validatedMode === "link") {
       return { accessLink };
     }
 

@@ -13,9 +13,11 @@ import {
   AppointmentsRepository,
   Appointment,
 } from "@shared/repositories/appointments.repository";
+import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { AvailabilityRulesRepository } from "@shared/repositories/availabilityRules.repository";
 import { AvailabilityExceptionsRepository } from "@shared/repositories/availabilityExceptions.repository";
 import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
+import { TrainingScheduleExceptionsRepository } from "@shared/repositories/trainingScheduleExceptions.repository";
 import { validate } from "@shared/utils/validation.util";
 import { detectConflicts } from "../../../shared/conflictDetection.util";
 
@@ -34,6 +36,8 @@ export class ApproveAppointmentRequestUseCase {
     private readonly availabilityRulesRepository: AvailabilityRulesRepository,
     private readonly availabilityExceptionsRepository: AvailabilityExceptionsRepository,
     private readonly trainingSchedulesRepository: TrainingSchedulesRepository,
+    private readonly trainingScheduleExceptionsRepository: TrainingScheduleExceptionsRepository,
+    private readonly drizzle: DrizzleProvider,
   ) {}
 
   async execute(
@@ -74,6 +78,11 @@ export class ApproveAppointmentRequestUseCase {
         this.trainingSchedulesRepository.findByTenantId(tenantId),
       ]);
 
+    const scheduleIds = trainingSchedules.map((s) => s.id);
+    const trainingScheduleExceptions = scheduleIds.length > 0
+      ? await this.trainingScheduleExceptionsRepository.findByScheduleIdsAndDateRange(scheduleIds, dateStr, dateStr, tenantId)
+      : [];
+
     const conflicts = detectConflicts({
       date: requestedDate,
       startTime: request.requestedStartTime,
@@ -82,6 +91,7 @@ export class ApproveAppointmentRequestUseCase {
       availabilityExceptions,
       existingAppointments,
       trainingSchedules,
+      trainingScheduleExceptions,
     });
 
     if (conflicts.length > 0 && !data.forceCreate) {
@@ -91,20 +101,26 @@ export class ApproveAppointmentRequestUseCase {
       });
     }
 
-    await this.appointmentRequestsRepository.update(id, tenantId, {
-      status: "approved",
+    // CHK-021: Wrap in transaction to prevent orphaned approved request without appointment
+    let appointment: Appointment | undefined;
+    await this.drizzle.db.transaction(async (tx) => {
+      await this.appointmentRequestsRepository.update(id, tenantId, {
+        status: "approved",
+      }, tx);
+
+      appointment = await this.appointmentsRepository.create({
+        tenantId,
+        studentId: request.studentId,
+        appointmentRequestId: id,
+        startAt,
+        endAt,
+        appointmentType: data.appointmentType,
+        status: "scheduled",
+        meetingUrl: data.meetingUrl,
+        location: data.location,
+      }, tx);
     });
 
-    return this.appointmentsRepository.create({
-      tenantId,
-      studentId: request.studentId,
-      appointmentRequestId: id,
-      startAt,
-      endAt,
-      appointmentType: data.appointmentType,
-      status: "scheduled",
-      meetingUrl: data.meetingUrl,
-      location: data.location,
-    });
+    return appointment!;
   }
 }

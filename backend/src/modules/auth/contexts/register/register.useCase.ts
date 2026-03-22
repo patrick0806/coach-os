@@ -10,6 +10,7 @@ import { IAccessToken } from "@shared/interfaces/accessToken.interface";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
+import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { StripeProvider } from "@shared/providers/stripe.provider";
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { generateUniqueSlug } from "@shared/utils/generateUniqueSlug.util";
@@ -49,6 +50,7 @@ export class RegisterUseCase {
     private readonly personalsRepository: PersonalsRepository,
     private readonly plansRepository: PlansRepository,
     private readonly jwtService: JwtService,
+    private readonly drizzle: DrizzleProvider,
     private readonly stripeProvider: StripeProvider,
     private readonly resendProvider: ResendProvider,
   ) { }
@@ -74,15 +76,7 @@ export class RegisterUseCase {
     // Hash password with pepper
     const hashedPassword = await argon2.hash(data.password + env.HASH_PEPPER);
 
-    // Create user
-    const user = await this.usersRepository.create({
-      name: data.name,
-      email: data.email,
-      password: hashedPassword,
-      role: ApplicationRoles.PERSONAL,
-    });
-
-    // Generate unique slug
+    // Generate unique slug (before transaction — read-only)
     const slug = await generateUniqueSlug(data.name, this.personalsRepository);
 
     // Stripe integration (when plan has a price and Stripe is configured)
@@ -93,74 +87,109 @@ export class RegisterUseCase {
     const trialStartedAt = now;
     const trialEndsAt = addDays(now, TRIAL_DAYS);
 
-    if (plan.stripePriceId && this.stripeProvider.isConfigured()) {
-      const customer = await this.stripeProvider.client!.customers.create({
-        email: data.email,
+    // CHK-020: Wrap all DB writes in a single transaction
+    let user: { id: string; name: string; email: string; role: string };
+    let personal: { id: string; slug: string; onboardingCompleted: boolean; accessStatus: string; subscriptionStatus: string | null; subscriptionPlanId: string | null; trialEndsAt: Date | null; subscriptionExpiresAt: Date | null };
+    let accessToken: string;
+    let refreshToken: string;
+
+    await this.drizzle.db.transaction(async (tx) => {
+      // Create user inside transaction
+      const createdUser = await this.usersRepository.create({
         name: data.name,
-        metadata: { userId: user.id },
-      });
-      stripeCustomerId = customer.id;
+        email: data.email,
+        password: hashedPassword,
+        role: ApplicationRoles.PERSONAL,
+      }, tx);
 
-      const subscription = await this.stripeProvider.client!.subscriptions.create({
-        customer: customer.id,
-        items: [{ price: plan.stripePriceId }],
-        trial_period_days: TRIAL_DAYS,
-      });
-      stripeSubscriptionId = subscription.id;
-      subscriptionStatus = subscription.status;
-    }
+      // Stripe calls (external — cannot be rolled back, but user + personal are atomic)
+      if (plan.stripePriceId && this.stripeProvider.isConfigured()) {
+        try {
+          const customer = await this.stripeProvider.client!.customers.create({
+            email: data.email,
+            name: data.name,
+            metadata: { userId: createdUser.id },
+          });
+          stripeCustomerId = customer.id;
 
-    // Create personal
-    const personal = await this.personalsRepository.create({
-      userId: user.id,
-      slug,
-      accessStatus: "trialing",
-      subscriptionPlanId: plan.id,
-      trialStartedAt,
-      trialEndsAt,
-      stripeCustomerId,
-      stripeSubscriptionId,
-      subscriptionStatus,
+          const subscription = await this.stripeProvider.client!.subscriptions.create({
+            customer: customer.id,
+            items: [{ price: plan.stripePriceId }],
+            trial_period_days: TRIAL_DAYS,
+          });
+          stripeSubscriptionId = subscription.id;
+          subscriptionStatus = subscription.status;
+        } catch (stripeError) {
+          // Stripe failed — transaction will roll back user, cleaning up the orphan
+          throw stripeError;
+        }
+      }
+
+      // Create personal inside same transaction
+      const createdPersonal = await this.personalsRepository.create({
+        userId: createdUser.id,
+        slug,
+        accessStatus: "trialing",
+        subscriptionPlanId: plan.id,
+        trialStartedAt,
+        trialEndsAt,
+        stripeCustomerId,
+        stripeSubscriptionId,
+        subscriptionStatus,
+      }, tx);
+
+      // Generate refresh token inside transaction
+      const { raw, hash: refreshTokenHash } = generateSetupToken();
+      await this.usersRepository.updateRefreshTokenHash(createdUser.id, refreshTokenHash, tx);
+
+      // Generate access token
+      const tokenPayload: IAccessToken = {
+        sub: createdUser.id,
+        role: ApplicationRoles.PERSONAL,
+        profileId: createdPersonal.id,
+        personalId: createdPersonal.id,
+        personalSlug: createdPersonal.slug,
+      };
+      accessToken = this.jwtService.sign(tokenPayload);
+      refreshToken = raw;
+
+      user = {
+        id: createdUser.id,
+        name: createdUser.name,
+        email: createdUser.email,
+        role: createdUser.role,
+      };
+      personal = {
+        id: createdPersonal.id,
+        slug: createdPersonal.slug,
+        onboardingCompleted: createdPersonal.onboardingCompleted,
+        accessStatus: createdPersonal.accessStatus,
+        subscriptionStatus: createdPersonal.subscriptionStatus ?? null,
+        subscriptionPlanId: createdPersonal.subscriptionPlanId ?? null,
+        trialEndsAt: createdPersonal.trialEndsAt ?? null,
+        subscriptionExpiresAt: createdPersonal.subscriptionExpiresAt ?? null,
+      };
     });
 
-    // Generate access token
-    const tokenPayload: IAccessToken = {
-      sub: user.id,
-      role: ApplicationRoles.PERSONAL,
-      profileId: personal.id,
-      personalId: personal.id,
-      personalSlug: personal.slug,
-    };
-    const accessToken = this.jwtService.sign(tokenPayload);
-
-    // Generate refresh token (opaque, stored as hash)
-    const { raw: refreshToken, hash: refreshTokenHash } = generateSetupToken();
-    await this.usersRepository.updateRefreshTokenHash(user.id, refreshTokenHash);
-
     // Fire-and-forget welcome email — failure must not block registration
-    this.resendProvider.sendWelcome({ to: user.email, userName: user.name });
+    this.resendProvider.sendWelcome({ to: user!.email, userName: user!.name });
 
     return {
-      accessToken,
-      refreshToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      accessToken: accessToken!,
+      refreshToken: refreshToken!,
+      user: user!,
       personal: {
-        id: personal.id,
-        slug: personal.slug,
-        onboardingCompleted: personal.onboardingCompleted,
+        id: personal!.id,
+        slug: personal!.slug,
+        onboardingCompleted: personal!.onboardingCompleted,
       },
       subscription: {
-        accessStatus: personal.accessStatus,
-        subscriptionStatus: personal.subscriptionStatus ?? null,
-        planId: personal.subscriptionPlanId ?? null,
+        accessStatus: personal!.accessStatus,
+        subscriptionStatus: personal!.subscriptionStatus,
+        planId: personal!.subscriptionPlanId,
         planName: plan.name,
-        trialEndsAt: personal.trialEndsAt?.toISOString() ?? null,
-        subscriptionExpiresAt: personal.subscriptionExpiresAt?.toISOString() ?? null,
+        trialEndsAt: personal!.trialEndsAt?.toISOString() ?? null,
+        subscriptionExpiresAt: personal!.subscriptionExpiresAt?.toISOString() ?? null,
       },
     };
   }

@@ -6,6 +6,7 @@ import { StudentsRepository } from "@shared/repositories/students.repository";
 import { AvailabilityRulesRepository } from "@shared/repositories/availabilityRules.repository";
 import { AvailabilityExceptionsRepository } from "@shared/repositories/availabilityExceptions.repository";
 import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
+import { TrainingScheduleExceptionsRepository } from "@shared/repositories/trainingScheduleExceptions.repository";
 
 import { CreateAppointmentController } from "./contexts/createAppointment/createAppointment.controller";
 import { CreateAppointmentUseCase } from "./contexts/createAppointment/createAppointment.useCase";
@@ -51,6 +52,7 @@ import { RescheduleAppointmentUseCase } from "./contexts/rescheduleAppointment/r
     AvailabilityRulesRepository,
     AvailabilityExceptionsRepository,
     TrainingSchedulesRepository,
+    TrainingScheduleExceptionsRepository,
     CreateAppointmentUseCase,
     ListAppointmentsUseCase,
     GetAppointmentUseCase,

@@ -99,6 +99,11 @@ export class RescheduleOccurrenceUseCase {
     // Exclude the schedule being rescheduled from conflict check
     const filteredSchedules = trainingSchedules.filter((s) => s.id !== scheduleId);
 
+    const scheduleIds = filteredSchedules.map((s) => s.id);
+    const trainingScheduleExceptions = scheduleIds.length > 0
+      ? await this.exceptionsRepository.findByScheduleIdsAndDateRange(scheduleIds, data.newDate, data.newDate, tenantId)
+      : [];
+
     const conflicts = detectConflicts({
       date: newDateForConflict,
       startTime: data.newStartTime,
@@ -107,6 +112,7 @@ export class RescheduleOccurrenceUseCase {
       availabilityExceptions,
       existingAppointments,
       trainingSchedules: filteredSchedules,
+      trainingScheduleExceptions,
     });
 
     if (conflicts.length > 0 && !data.forceCreate) {

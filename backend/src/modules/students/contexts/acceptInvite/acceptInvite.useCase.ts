@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { env } from "@config/env";
 import { ApplicationRoles } from "@shared/enums";
+import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { CoachStudentRelationsRepository } from "@shared/repositories/coachStudentRelations.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
@@ -30,6 +31,7 @@ export class AcceptInviteUseCase {
     private readonly personalsRepository: PersonalsRepository,
     private readonly plansRepository: PlansRepository,
     private readonly coachStudentRelationsRepository: CoachStudentRelationsRepository,
+    private readonly drizzle: DrizzleProvider,
   ) { }
 
   async execute(body: unknown): Promise<{ message: string }> {
@@ -74,23 +76,23 @@ export class AcceptInviteUseCase {
         throw new BadRequestException("Student already exists in this tenant");
       }
 
-      // Create student record in the new tenant (reuse existing user)
-      const student = await this.studentsRepository.create({
-        userId: existingUser.id,
-        tenantId,
-        status: "active",
-      });
+      // CHK-019: Wrap in transaction to prevent orphan records
+      await this.drizzle.db.transaction(async (tx) => {
+        const student = await this.studentsRepository.create({
+          userId: existingUser.id,
+          tenantId,
+          status: "active",
+        }, tx);
 
-      // Create coach-student relation
-      await this.coachStudentRelationsRepository.create({
-        tenantId,
-        studentId: student.id,
-        status: "active",
-        startDate: new Date(),
-      });
+        await this.coachStudentRelationsRepository.create({
+          tenantId,
+          studentId: student.id,
+          status: "active",
+          startDate: new Date(),
+        }, tx);
 
-      // Mark invitation token as used
-      await this.studentInvitationTokensRepository.markAsUsed(tokenRecord.id);
+        await this.studentInvitationTokensRepository.markAsUsed(tokenRecord.id, tx);
+      });
 
       return { message: "Account created successfully" };
     }
@@ -98,31 +100,30 @@ export class AcceptInviteUseCase {
     // Hash password with pepper
     const hashedPassword = await argon2.hash(data.password + env.HASH_PEPPER);
 
-    // Create user with STUDENT role
-    const user = await this.usersRepository.create({
-      name: data.name,
-      email,
-      password: hashedPassword,
-      role: ApplicationRoles.STUDENT,
-    });
+    // CHK-019: Wrap in transaction to prevent orphan records
+    await this.drizzle.db.transaction(async (tx) => {
+      const user = await this.usersRepository.create({
+        name: data.name,
+        email,
+        password: hashedPassword,
+        role: ApplicationRoles.STUDENT,
+      }, tx);
 
-    // Create student record
-    const student = await this.studentsRepository.create({
-      userId: user.id,
-      tenantId,
-      status: "active",
-    });
+      const student = await this.studentsRepository.create({
+        userId: user.id,
+        tenantId,
+        status: "active",
+      }, tx);
 
-    // Create coach-student relation
-    await this.coachStudentRelationsRepository.create({
-      tenantId,
-      studentId: student.id,
-      status: "active",
-      startDate: new Date(),
-    });
+      await this.coachStudentRelationsRepository.create({
+        tenantId,
+        studentId: student.id,
+        status: "active",
+        startDate: new Date(),
+      }, tx);
 
-    // Mark invitation token as used
-    await this.studentInvitationTokensRepository.markAsUsed(tokenRecord.id);
+      await this.studentInvitationTokensRepository.markAsUsed(tokenRecord.id, tx);
+    });
 
     return { message: "Account created successfully" };
   }

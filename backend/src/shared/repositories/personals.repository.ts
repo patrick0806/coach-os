@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { asc, eq, gte, ilike, or, sql } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { personals, Personal, LpFields } from "@config/database/schema/personals";
 import { users } from "@config/database/schema/users";
 
@@ -51,8 +51,8 @@ export class PersonalsRepository {
     stripeCustomerId?: string;
     stripeSubscriptionId?: string;
     subscriptionStatus?: string;
-  }): Promise<Personal> {
-    const result = await this.drizzle.db
+  }, tx?: DbTransaction): Promise<Personal> {
+    const result = await (tx ?? this.drizzle.db)
       .insert(personals)
       .values(data)
       .returning();

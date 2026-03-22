@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 import { CreateExerciseExecutionUseCase } from "../createExecution.useCase";
 
@@ -148,6 +148,36 @@ describe("CreateExerciseExecutionUseCase", () => {
         "8af884ac-ee2e-4075-9e51-40a5a8b48cd1",
       ),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it("should throw BadRequestException when session is finished", async () => {
+    workoutSessionsRepository.findById.mockResolvedValue({ ...makeSession(), status: "finished" });
+
+    await expect(
+      useCase.execute(
+        {
+          workoutSessionId: SESSION_ID,
+          studentExerciseId: STUDENT_EXERCISE_ID,
+          exerciseId: EXERCISE_ID,
+        },
+        tenantId,
+      ),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it("should throw BadRequestException when session is paused", async () => {
+    workoutSessionsRepository.findById.mockResolvedValue({ ...makeSession(), status: "paused" });
+
+    await expect(
+      useCase.execute(
+        {
+          workoutSessionId: SESSION_ID,
+          studentExerciseId: STUDENT_EXERCISE_ID,
+          exerciseId: EXERCISE_ID,
+        },
+        tenantId,
+      ),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it("should not call findMaxOrder when order is provided", async () => {

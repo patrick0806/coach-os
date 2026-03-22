@@ -2,6 +2,7 @@ import type { AvailabilityRule } from "@shared/repositories/availabilityRules.re
 import type { AvailabilityException } from "@shared/repositories/availabilityExceptions.repository";
 import type { Appointment } from "@shared/repositories/appointments.repository";
 import type { TrainingSchedule } from "@shared/repositories/trainingSchedules.repository";
+import type { TrainingScheduleException } from "@shared/repositories/trainingScheduleExceptions.repository";
 function toUtcTimeStr(date: Date): string {
   const h = date.getUTCHours().toString().padStart(2, "0");
   const m = date.getUTCMinutes().toString().padStart(2, "0");
@@ -29,6 +30,7 @@ export interface ConflictDetectionInput {
   availabilityExceptions: AvailabilityException[];
   existingAppointments: Appointment[];
   trainingSchedules: TrainingSchedule[];
+  trainingScheduleExceptions?: TrainingScheduleException[];
 }
 
 export function detectConflicts(input: ConflictDetectionInput): Conflict[] {
@@ -88,11 +90,20 @@ export function detectConflicts(input: ConflictDetectionInput): Conflict[] {
   }
 
   // 4. Check for training schedule conflicts on that day of week
+  const tsExceptions = input.trainingScheduleExceptions ?? [];
   const schedulesForDay = input.trainingSchedules.filter(
     (s) => s.dayOfWeek === dayOfWeek && s.isActive,
   );
 
   for (const schedule of schedulesForDay) {
+    // CHK-025: Check if this schedule has a skip/reschedule exception for this date
+    const exceptionForDate = tsExceptions.find(
+      (e) => e.trainingScheduleId === schedule.id && e.originalDate === dateStr,
+    );
+
+    // If skipped or rescheduled away from this date, no conflict on original slot
+    if (exceptionForDate) continue;
+
     if (input.startTime < schedule.endTime && input.endTime > schedule.startTime) {
       conflicts.push({
         type: "training_schedule",
@@ -100,6 +111,27 @@ export function detectConflicts(input: ConflictDetectionInput): Conflict[] {
         details: {
           trainingScheduleId: schedule.id,
           studentId: schedule.studentId,
+        },
+      });
+    }
+  }
+
+  // CHK-025: Also check rescheduled training occurrences that land on this date
+  const rescheduledToDate = tsExceptions.filter(
+    (e) => e.action === "reschedule" && e.newDate === dateStr,
+  );
+
+  for (const exception of rescheduledToDate) {
+    const newStart = exception.newStartTime!;
+    const newEnd = exception.newEndTime!;
+
+    if (input.startTime < newEnd && input.endTime > newStart) {
+      conflicts.push({
+        type: "training_schedule",
+        message: `Conflicts with rescheduled training from ${newStart} to ${newEnd}`,
+        details: {
+          trainingScheduleId: exception.trainingScheduleId,
+          trainingScheduleExceptionId: exception.id,
         },
       });
     }

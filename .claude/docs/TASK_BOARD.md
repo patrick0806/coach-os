@@ -37,22 +37,22 @@ Last updated: 2026-03-21
 
 ---
 
-### Wave 3 — P2: Data Integrity + Security Hardening
+### Wave 3 — P2: Data Integrity + Security Hardening ✅ DONE (2026-03-21)
 
-- [ ] **CHK-017** Webhook idempotency — `processStripeEvent.useCase.ts` no event.id dedup; duplicate events processed fully
-- [ ] **CHK-018** Webhook out-of-order — `processStripeEvent.useCase.ts` stale events can overwrite newer state
-- [ ] **CHK-019** acceptInvite not transactional — `acceptInvite.useCase.ts:66-89` 4 sequential operations without DB transaction; partial failure leaves orphan records
-- [ ] **CHK-020** Register not transactional — `register.useCase.ts:78-124` user created before Stripe call; failure leaves orphan user blocking re-registration
-- [ ] **CHK-021** approveRequest not transactional — `approveRequest.useCase.ts:94` request set to "approved" but appointment creation can fail, leaving orphaned state
-- [ ] **CHK-022** assignProgram fake transaction — `assignProgram.useCase.ts:55` uses `_tx` (unused); snapshot operations run outside transaction, partial program possible
-- [ ] **CHK-023** Reorder cross-entity — `workoutTemplates.repository.ts:97` UPDATE has no parent ID filter; IDs from other programs/tenants could be reordered
-- [ ] **CHK-024** Student cross-access — `cancelAppointment.controller.ts:29` student can cancel/view other student's appointments within same tenant
-- [ ] **CHK-025** Conflict detection ignores exceptions — `conflictDetection.util.ts:90` skipped training schedules still generate false conflicts
-- [ ] **CHK-026** Exercise execution on finished session — `createExecution.useCase.ts` no session status check
-- [ ] **CHK-027** Record set on finished session — `recordSet.useCase.ts` no session status check, no setNumber uniqueness
-- [ ] **CHK-028** deleteAdmin orphan user — `deleteAdmin.useCase.ts` deletes admin record but leaves user with ADMIN role and valid credentials
-- [ ] **CHK-029** JWT algorithm restriction — `jwt.strategy.ts:11` doesn't specify `algorithms: ['HS256']`
-- [ ] **CHK-030** sendStudentAccess no Zod validation — `sendStudentAccess.useCase.ts` mode parameter has no Zod validation (only TypeScript typing)
+- [x] **CHK-017** Webhook idempotency — `webhook_events` table + dedup check in `processStripeEvent.useCase.ts`
+- [x] **CHK-018** Webhook out-of-order — event.id stored before processing; duplicates skipped
+- [x] **CHK-019** acceptInvite transactional — both branches (new/existing user) wrapped in `db.transaction()`
+- [x] **CHK-020** Register transactional — user + Stripe + personal creation wrapped in `db.transaction()` with rollback
+- [x] **CHK-021** approveRequest transactional — request update + appointment creation wrapped in `db.transaction()`
+- [x] **CHK-022** assignProgram real transaction — `_tx` → `tx`, passed to all `.create()` calls inside transaction
+- [x] **CHK-023** Reorder cross-entity — `reorder()` now takes `parentId` filter (programTemplateId / workoutTemplateId)
+- [x] **CHK-024** Student cross-access — controllers pass `studentId` when role is STUDENT; use cases validate ownership
+- [x] **CHK-025** Conflict detection respects exceptions — `detectConflicts()` now receives `trainingScheduleExceptions`, skips/reschedules applied
+- [x] **CHK-026** Exercise execution on finished session — `createExecution.useCase.ts` checks `session.status === "started"`
+- [x] **CHK-027** Record set on finished session — session status check + `setNumber` uniqueness via `existsByExecutionIdAndSetNumber`
+- [x] **CHK-028** deleteAdmin orphan user — `deleteAdmin.useCase.ts` now also deletes the associated user record
+- [x] **CHK-029** JWT algorithm restriction — `jwt.strategy.ts` now specifies `algorithms: ["HS256"]`
+- [x] **CHK-030** sendStudentAccess Zod validation — `mode` parameter validated with `z.enum(["email", "link"])`
 
 ---
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from "@nestjs/common";
 import { z } from "zod";
 
 import {
@@ -38,6 +38,20 @@ export class RecordExerciseSetUseCase {
     }
     if (execution.tenantId !== tenantId) {
       throw new NotFoundException("Exercise execution not found");
+    }
+
+    // CHK-027: Block recording sets on non-started sessions
+    if (execution.sessionStatus !== "started") {
+      throw new BadRequestException("Can only record sets on a started session");
+    }
+
+    // CHK-027: Prevent duplicate setNumber per execution
+    const duplicateSet = await this.exerciseSetsRepository.existsByExecutionIdAndSetNumber(
+      data.exerciseExecutionId,
+      data.setNumber,
+    );
+    if (duplicateSet) {
+      throw new ConflictException(`Set number ${data.setNumber} already exists for this execution`);
     }
 
     return this.exerciseSetsRepository.create({

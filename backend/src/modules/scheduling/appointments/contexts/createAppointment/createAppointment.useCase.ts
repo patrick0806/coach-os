@@ -13,6 +13,7 @@ import { StudentsRepository } from "@shared/repositories/students.repository";
 import { AvailabilityRulesRepository } from "@shared/repositories/availabilityRules.repository";
 import { AvailabilityExceptionsRepository } from "@shared/repositories/availabilityExceptions.repository";
 import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
+import { TrainingScheduleExceptionsRepository } from "@shared/repositories/trainingScheduleExceptions.repository";
 import { validate } from "@shared/utils/validation.util";
 import { detectConflicts } from "../../../shared/conflictDetection.util";
 
@@ -54,6 +55,7 @@ export class CreateAppointmentUseCase {
     private readonly availabilityRulesRepository: AvailabilityRulesRepository,
     private readonly availabilityExceptionsRepository: AvailabilityExceptionsRepository,
     private readonly trainingSchedulesRepository: TrainingSchedulesRepository,
+    private readonly trainingScheduleExceptionsRepository: TrainingScheduleExceptionsRepository,
   ) {}
 
   async execute(
@@ -87,6 +89,12 @@ export class CreateAppointmentUseCase {
         this.trainingSchedulesRepository.findByTenantId(tenantId),
       ]);
 
+    // CHK-025: Fetch training schedule exceptions for conflict-aware detection
+    const scheduleIds = trainingSchedules.map((s) => s.id);
+    const trainingScheduleExceptions = scheduleIds.length > 0
+      ? await this.trainingScheduleExceptionsRepository.findByScheduleIdsAndDateRange(scheduleIds, dateStr, dateStr, tenantId)
+      : [];
+
     const conflicts = detectConflicts({
       date: data.startAt,
       startTime,
@@ -95,6 +103,7 @@ export class CreateAppointmentUseCase {
       availabilityExceptions,
       existingAppointments,
       trainingSchedules,
+      trainingScheduleExceptions,
     });
 
     if (conflicts.length > 0 && !data.forceCreate) {

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { and, desc, eq, gte, lte, ne, or, sql } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { appointments } from "@config/database/schema/scheduling";
 import { students } from "@config/database/schema/students";
 import { users } from "@config/database/schema/users";
@@ -29,8 +29,8 @@ export class AppointmentsRepository {
     meetingUrl?: string;
     location?: string;
     notes?: string;
-  }): Promise<Appointment> {
-    const result = await this.drizzle.db
+  }, tx?: DbTransaction): Promise<Appointment> {
+    const result = await (tx ?? this.drizzle.db)
       .insert(appointments)
       .values(data)
       .returning();

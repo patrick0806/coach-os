@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 
 import {
@@ -32,6 +32,10 @@ export class CreateExerciseExecutionUseCase {
     );
     if (!session) {
       throw new NotFoundException("Workout session not found");
+    }
+
+    if (session.status !== "started") {
+      throw new BadRequestException("Can only add exercises to a started session");
     }
 
     // Auto-compute order if not provided

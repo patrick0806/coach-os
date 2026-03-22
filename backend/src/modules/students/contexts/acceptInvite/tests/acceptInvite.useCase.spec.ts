@@ -59,6 +59,12 @@ const makeCoachStudentRelationsRepository = () => ({
   create: vi.fn().mockResolvedValue({ id: "relation-id-1" }),
 });
 
+const makeDrizzleProvider = () => ({
+  db: {
+    transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<void>) => fn({})),
+  },
+});
+
 describe("AcceptInviteUseCase", () => {
   let useCase: AcceptInviteUseCase;
   let studentInvitationTokensRepository: ReturnType<typeof makeStudentInvitationTokensRepository>;
@@ -89,6 +95,7 @@ describe("AcceptInviteUseCase", () => {
       personalsRepository as any,
       plansRepository as any,
       coachStudentRelationsRepository as any,
+      makeDrizzleProvider() as any,
     );
   });
 
@@ -106,6 +113,7 @@ describe("AcceptInviteUseCase", () => {
         role: "STUDENT",
         email: "maria@email.com",
       }),
+      expect.anything(),
     );
   });
 
@@ -114,6 +122,7 @@ describe("AcceptInviteUseCase", () => {
 
     expect(studentsRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({ status: "active" }),
+      expect.anything(),
     );
   });
 
@@ -122,13 +131,14 @@ describe("AcceptInviteUseCase", () => {
 
     expect(coachStudentRelationsRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({ status: "active" }),
+      expect.anything(),
     );
   });
 
   it("should mark invitation token as used", async () => {
     await useCase.execute(validBody);
 
-    expect(studentInvitationTokensRepository.markAsUsed).toHaveBeenCalledWith("token-id-1");
+    expect(studentInvitationTokensRepository.markAsUsed).toHaveBeenCalledWith("token-id-1", expect.anything());
   });
 
   it("should not store plaintext password", async () => {
@@ -206,6 +216,7 @@ describe("AcceptInviteUseCase", () => {
     expect(usersRepository.create).not.toHaveBeenCalled();
     expect(studentsRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: "existing-user-id", tenantId: "tenant-id-1" }),
+      expect.anything(),
     );
   });
 

@@ -25,6 +25,7 @@ export class GetAppointmentController {
     @Param("id") id: string,
     @CurrentUser() user: IAccessToken,
   ) {
-    return this.getAppointmentUseCase.execute(id, user.personalId!);
+    const studentId = user.role === ApplicationRoles.STUDENT ? user.profileId : undefined;
+    return this.getAppointmentUseCase.execute(id, user.personalId!, studentId);
   }
 }

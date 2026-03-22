@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 
 import { RecordExerciseSetUseCase } from "../recordSet.useCase";
 
@@ -21,6 +21,7 @@ const makeExecutionWithTenant = () => ({
   createdAt: new Date(),
   updatedAt: new Date(),
   tenantId: TENANT_ID,
+  sessionStatus: "started",
 });
 
 const makeExerciseSet = () => ({
@@ -42,6 +43,7 @@ const makeExerciseExecutionsRepository = () => ({
 
 const makeExerciseSetsRepository = () => ({
   create: vi.fn().mockResolvedValue(makeExerciseSet()),
+  existsByExecutionIdAndSetNumber: vi.fn().mockResolvedValue(false),
 });
 
 describe("RecordExerciseSetUseCase", () => {
@@ -154,6 +156,39 @@ describe("RecordExerciseSetUseCase", () => {
         tenantId,
       ),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it("should throw BadRequestException when session is finished", async () => {
+    exerciseExecutionsRepository.findByIdWithTenant.mockResolvedValue({
+      ...makeExecutionWithTenant(),
+      sessionStatus: "finished",
+    });
+
+    await expect(
+      useCase.execute(
+        {
+          exerciseExecutionId: EXECUTION_ID,
+          setNumber: 1,
+          completionStatus: "completed",
+        },
+        tenantId,
+      ),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it("should throw ConflictException when setNumber already exists", async () => {
+    exerciseSetsRepository.existsByExecutionIdAndSetNumber.mockResolvedValue(true);
+
+    await expect(
+      useCase.execute(
+        {
+          exerciseExecutionId: EXECUTION_ID,
+          setNumber: 1,
+          completionStatus: "completed",
+        },
+        tenantId,
+      ),
+    ).rejects.toThrow(ConflictException);
   });
 
   it("should record a partial set", async () => {

@@ -169,6 +169,7 @@ describe("AssignProgramUseCase", () => {
         programTemplateId: "template-id-1",
         name: "Programa de Força",
       }),
+      expect.anything(),
     );
     expect(workoutDaysRepository.create).toHaveBeenCalledTimes(1);
     expect(studentExercisesRepository.create).toHaveBeenCalledTimes(1);
@@ -192,6 +193,7 @@ describe("AssignProgramUseCase", () => {
         programTemplateId: undefined,
         name: "Programa Personalizado",
       }),
+      expect.anything(),
     );
     expect(workoutDaysRepository.create).not.toHaveBeenCalled();
     expect(result.programTemplateId).toBeNull();

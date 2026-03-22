@@ -66,11 +66,18 @@ const makePlansRepository = () => ({
   findById: vi.fn().mockResolvedValue(makePlan()),
 });
 
+const makeWebhookEventsRepository = () => ({
+  existsByEventId: vi.fn().mockResolvedValue(false),
+  create: vi.fn().mockResolvedValue(undefined),
+});
+
+let eventIdCounter = 0;
 const makeStripeProvider = (eventType: string, eventData: object) => ({
   isConfigured: vi.fn().mockReturnValue(true),
   client: {
     webhooks: {
       constructEvent: vi.fn().mockReturnValue({
+        id: `evt_test_${++eventIdCounter}`,
         type: eventType,
         data: { object: eventData },
       }),
@@ -83,6 +90,7 @@ describe("ProcessStripeEventUseCase", () => {
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let plansRepository: ReturnType<typeof makePlansRepository>;
   let usersRepository: ReturnType<typeof makeUsersRepository>;
+  let webhookEventsRepository: ReturnType<typeof makeWebhookEventsRepository>;
   let resendProvider: ReturnType<typeof makeResendProvider>;
 
   const rawBody = Buffer.from("{}");
@@ -95,6 +103,7 @@ describe("ProcessStripeEventUseCase", () => {
       personalsRepository as any,
       plansRepository as any,
       usersRepository as any,
+      webhookEventsRepository as any,
       resendProvider as any,
     );
   }
@@ -103,6 +112,7 @@ describe("ProcessStripeEventUseCase", () => {
     personalsRepository = makePersonalsRepository();
     plansRepository = makePlansRepository();
     usersRepository = makeUsersRepository();
+    webhookEventsRepository = makeWebhookEventsRepository();
     resendProvider = makeResendProvider();
   });
 
@@ -117,6 +127,7 @@ describe("ProcessStripeEventUseCase", () => {
         personalsRepository as any,
         plansRepository as any,
         usersRepository as any,
+        webhookEventsRepository as any,
         resendProvider as any,
       );
 
@@ -141,6 +152,7 @@ describe("ProcessStripeEventUseCase", () => {
         personalsRepository as any,
         plansRepository as any,
         usersRepository as any,
+        webhookEventsRepository as any,
         resendProvider as any,
       );
 

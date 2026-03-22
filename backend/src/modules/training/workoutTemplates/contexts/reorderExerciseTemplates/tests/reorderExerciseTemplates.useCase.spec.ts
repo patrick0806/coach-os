@@ -49,7 +49,7 @@ describe("ReorderExerciseTemplatesUseCase", () => {
       useCase.execute("workout-id-1", validBody, tenantId),
     ).resolves.toBeUndefined();
 
-    expect(exerciseTemplatesRepository.reorder).toHaveBeenCalledWith(validBody.items);
+    expect(exerciseTemplatesRepository.reorder).toHaveBeenCalledWith("workout-id-1", validBody.items);
   });
 
   it("should throw NotFoundException when workout not found", async () => {

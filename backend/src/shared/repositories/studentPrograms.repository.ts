@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import {
   studentPrograms,
   workoutDays,
@@ -40,10 +40,10 @@ export class StudentProgramsRepository {
     studentId: string;
     programTemplateId?: string;
     name: string;
-  }): Promise<StudentProgram> {
+  }, tx?: DbTransaction): Promise<StudentProgram> {
     // Drizzle ORM type inference limitation: optional/nullable columns not fully inferred in insert type
-     
-    const result = await this.drizzle.db
+
+    const result = await (tx ?? this.drizzle.db)
       .insert(studentPrograms)
       .values({
         tenantId: data.tenantId,

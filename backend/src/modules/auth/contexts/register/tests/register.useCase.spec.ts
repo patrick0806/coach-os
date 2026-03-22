@@ -61,6 +61,12 @@ const makePersonalsRepository = () => ({
   create: vi.fn().mockResolvedValue(makePersonal()),
 });
 
+const makeDrizzleProvider = () => ({
+  db: {
+    transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<void>) => fn({})),
+  },
+});
+
 const makeStripeProvider = () => ({
   isConfigured: vi.fn().mockReturnValue(false),
   client: null,
@@ -76,6 +82,7 @@ describe("RegisterUseCase", () => {
   let plansRepository: ReturnType<typeof makePlansRepository>;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let jwtService: ReturnType<typeof makeJwtService>;
+  let drizzleProvider: ReturnType<typeof makeDrizzleProvider>;
   let stripeProvider: ReturnType<typeof makeStripeProvider>;
   let resendProvider: ReturnType<typeof makeResendProvider>;
 
@@ -84,6 +91,7 @@ describe("RegisterUseCase", () => {
     plansRepository = makePlansRepository();
     personalsRepository = makePersonalsRepository();
     jwtService = makeJwtService();
+    drizzleProvider = makeDrizzleProvider();
     stripeProvider = makeStripeProvider();
     resendProvider = makeResendProvider();
 
@@ -92,6 +100,7 @@ describe("RegisterUseCase", () => {
       personalsRepository as any,
       plansRepository as any,
       jwtService as any,
+      drizzleProvider as any,
       stripeProvider as any,
       resendProvider as any,
     );

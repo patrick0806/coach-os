@@ -12,6 +12,7 @@ export type ExerciseExecution = InferSelectModel<typeof exerciseExecutions>;
 
 export interface ExerciseExecutionWithTenant extends ExerciseExecution {
   tenantId: string;
+  sessionStatus: string;
 }
 
 @Injectable()
@@ -45,6 +46,7 @@ export class ExerciseExecutionsRepository {
         createdAt: exerciseExecutions.createdAt,
         updatedAt: exerciseExecutions.updatedAt,
         tenantId: workoutSessions.tenantId,
+        sessionStatus: workoutSessions.status,
       })
       .from(exerciseExecutions)
       .innerJoin(

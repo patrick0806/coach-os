@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { NotFoundException } from "@nestjs/common";
+import { ValidationException } from "@shared/exceptions";
 
 import { SendStudentAccessUseCase } from "../sendStudentAccess.useCase";
 
@@ -109,5 +110,9 @@ describe("SendStudentAccessUseCase", () => {
     personalsRepository.findById.mockResolvedValue(undefined);
 
     await expect(useCase.execute("student-id-1", tenantId, "email")).rejects.toThrow(NotFoundException);
+  });
+
+  it("should throw ValidationException when mode is invalid", async () => {
+    await expect(useCase.execute("student-id-1", tenantId, "invalid")).rejects.toThrow(ValidationException);
   });
 });

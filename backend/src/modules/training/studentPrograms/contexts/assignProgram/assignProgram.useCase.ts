@@ -52,14 +52,14 @@ export class AssignProgramUseCase {
 
     let newProgram: StudentProgram | undefined;
 
-    await this.drizzle.db.transaction(async (_tx) => {
+    await this.drizzle.db.transaction(async (tx) => {
       // Create the student program
       newProgram = await this.studentProgramsRepository.create({
         tenantId,
         studentId,
         programTemplateId: data.programTemplateId,
         name: data.name,
-      });
+      }, tx);
 
       // If a template was provided, snapshot its structure
       if (template) {
@@ -68,7 +68,7 @@ export class AssignProgramUseCase {
             studentProgramId: newProgram!.id,
             name: workout.name,
             order: workout.order,
-          });
+          }, tx);
 
           for (const exercise of workout.exerciseTemplates) {
             await this.studentExercisesRepository.create({
@@ -80,7 +80,7 @@ export class AssignProgramUseCase {
               duration: exercise.duration ?? undefined,
               order: exercise.order,
               notes: exercise.notes ?? undefined,
-            });
+            }, tx);
           }
         }
       }

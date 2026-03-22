@@ -9,6 +9,7 @@ import { logger } from "@config/pino.config";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
+import { WebhookEventsRepository } from "@shared/repositories/webhookEvents.repository";
 import { StripeProvider } from "@shared/providers/stripe.provider";
 import { ResendProvider } from "@shared/providers/resend.provider";
 
@@ -38,6 +39,7 @@ export class ProcessStripeEventUseCase {
     private readonly personalsRepository: PersonalsRepository,
     private readonly plansRepository: PlansRepository,
     private readonly usersRepository: UsersRepository,
+    private readonly webhookEventsRepository: WebhookEventsRepository,
     private readonly resendProvider: ResendProvider,
   ) {}
 
@@ -65,6 +67,19 @@ export class ProcessStripeEventUseCase {
     }
 
     logger.info({ type: event.type }, "Stripe webhook received");
+
+    // CHK-017: Idempotency — skip already-processed events
+    const alreadyProcessed = await this.webhookEventsRepository.existsByEventId(event.id);
+    if (alreadyProcessed) {
+      logger.info({ eventId: event.id, type: event.type }, "Duplicate webhook event — skipping");
+      return;
+    }
+
+    // Record event before processing to prevent concurrent duplicates
+    await this.webhookEventsRepository.create({
+      eventId: event.id,
+      eventType: event.type,
+    });
 
     switch (event.type) {
       case "customer.subscription.created":
