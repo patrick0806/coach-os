@@ -81,6 +81,7 @@ services:
     env_file: ./frontend/.env.local
     environment:
       NODE_ENV: production
+      API_INTERNAL_URL: http://backend:30001/api/v1
       OTEL_SERVICE_NAME: coach-os-frontend
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
       NEXT_PUBLIC_BETTERSTACK_DSN: ${BETTERSTACK_FRONTEND_DSN}

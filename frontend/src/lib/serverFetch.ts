@@ -3,7 +3,13 @@ import { cookies } from "next/headers";
 
 import { AUTH_TOKEN_COOKIE } from "@/lib/authCookies";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333";
+// Server-side fetches run inside the Next.js container, so they need the
+// internal Docker network URL to reach the backend (e.g. http://backend:30001/api/v1).
+// Falls back to NEXT_PUBLIC_API_URL for local development.
+const BASE_URL =
+  process.env.API_INTERNAL_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:3333";
 
 type FetchOptions = RequestInit & {
   revalidate?: number | false;
