@@ -70,6 +70,10 @@ const makeStudentsRepository = () => ({
   }),
 });
 
+const makeTrainingScheduleExceptionsRepository = () => ({
+  findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([]),
+});
+
 describe("GetCalendarUseCase", () => {
   let useCase: GetCalendarUseCase;
 
@@ -78,6 +82,7 @@ describe("GetCalendarUseCase", () => {
       makeAppointmentsRepository() as any,
       makeAvailabilityExceptionsRepository() as any,
       makeTrainingSchedulesRepository() as any,
+      makeTrainingScheduleExceptionsRepository() as any,
       makeStudentsRepository() as any,
     );
   });
@@ -121,6 +126,7 @@ describe("GetCalendarUseCase", () => {
       { findAllByTenantId: vi.fn().mockResolvedValue({ rows: [], total: 0 }) } as any,
       { findByDateRange: vi.fn().mockResolvedValue([]) } as any,
       { findByTenantId: vi.fn().mockResolvedValue([]) } as any,
+      { findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([]) } as any,
       { findById: vi.fn().mockResolvedValue(null) } as any,
     );
 
@@ -136,12 +142,14 @@ describe("GetCalendarUseCase", () => {
     const appointmentsRepo = makeAppointmentsRepository();
     const exceptionsRepo = makeAvailabilityExceptionsRepository();
     const schedulesRepo = makeTrainingSchedulesRepository();
+    const trainingExcRepo = makeTrainingScheduleExceptionsRepository();
     const studentsRepo = makeStudentsRepository();
 
     const tenantUseCase = new GetCalendarUseCase(
       appointmentsRepo as any,
       exceptionsRepo as any,
       schedulesRepo as any,
+      trainingExcRepo as any,
       studentsRepo as any,
     );
 
@@ -160,5 +168,82 @@ describe("GetCalendarUseCase", () => {
       "2026-04-07",
     );
     expect(schedulesRepo.findByTenantId).toHaveBeenCalledWith(TENANT_ID, true);
+  });
+
+  it("should skip training schedule when exception action is skip", async () => {
+    const skipExcRepo = {
+      findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([
+        {
+          id: "texc-1",
+          tenantId: TENANT_ID,
+          trainingScheduleId: "ts-1",
+          originalDate: "2026-04-06",
+          action: "skip",
+          newDate: null,
+          newStartTime: null,
+          newEndTime: null,
+          newLocation: null,
+          reason: "Feriado",
+        },
+      ]),
+    };
+
+    const skipUseCase = new GetCalendarUseCase(
+      { findAllByTenantId: vi.fn().mockResolvedValue({ rows: [], total: 0 }) } as any,
+      { findByDateRange: vi.fn().mockResolvedValue([]) } as any,
+      makeTrainingSchedulesRepository() as any,
+      skipExcRepo as any,
+      makeStudentsRepository() as any,
+    );
+
+    const result = await skipUseCase.execute(
+      { startDate: "2026-04-06", endDate: "2026-04-06" },
+      TENANT_ID,
+    );
+
+    const trainingEntries = result.filter((e) => e.type === "training_schedule");
+    expect(trainingEntries).toHaveLength(0);
+  });
+
+  it("should move training schedule to new date when exception action is reschedule", async () => {
+    const rescheduleExcRepo = {
+      findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([
+        {
+          id: "texc-2",
+          tenantId: TENANT_ID,
+          trainingScheduleId: "ts-1",
+          originalDate: "2026-04-06",
+          action: "reschedule",
+          newDate: "2026-04-08",
+          newStartTime: "14:00",
+          newEndTime: "15:00",
+          newLocation: "Gym B",
+          reason: null,
+        },
+      ]),
+    };
+
+    const rescheduleUseCase = new GetCalendarUseCase(
+      { findAllByTenantId: vi.fn().mockResolvedValue({ rows: [], total: 0 }) } as any,
+      { findByDateRange: vi.fn().mockResolvedValue([]) } as any,
+      makeTrainingSchedulesRepository() as any,
+      rescheduleExcRepo as any,
+      makeStudentsRepository() as any,
+    );
+
+    const result = await rescheduleUseCase.execute(
+      { startDate: "2026-04-06", endDate: "2026-04-08" },
+      TENANT_ID,
+    );
+
+    const trainingEntries = result.filter((e) => e.type === "training_schedule");
+    // Original Monday entry should be gone, rescheduled entry on Wednesday should appear
+    expect(trainingEntries).toHaveLength(1);
+    expect(trainingEntries[0].date).toBe("2026-04-08");
+    expect(trainingEntries[0].startTime).toBe("14:00");
+    expect(trainingEntries[0].endTime).toBe("15:00");
+    expect(trainingEntries[0].location).toBe("Gym B");
+    expect(trainingEntries[0].isRescheduled).toBe(true);
+    expect(trainingEntries[0].exceptionId).toBe("texc-2");
   });
 });

@@ -95,6 +95,19 @@ export interface ListProgressPhotosParams {
   size?: number
 }
 
+export interface ProgressChartDataPoint {
+  recordedAt: string
+  value: string
+  unit: string
+  metricType?: string
+}
+
+export interface GetChartDataParams {
+  metricType?: MetricType
+  startDate?: string
+  endDate?: string
+}
+
 export interface RequestPhotoUploadUrlResponse {
   uploadUrl: string
   fileUrl: string

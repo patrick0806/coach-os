@@ -33,29 +33,36 @@
     {
       "idx": 4,
       "version": "7",
-      "when": 1774000000000,
+      "when": 1773711664898,
       "tag": "0004_progress_checkins",
       "breakpoints": true
     },
     {
       "idx": 5,
       "version": "7",
-      "when": 1774100000000,
+      "when": 1773711664899,
       "tag": "0005_whitelist",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "7",
-      "when": 1774200000000,
+      "when": 1773711664900,
       "tag": "0006_chunky_thunderbird",
       "breakpoints": true
     },
     {
       "idx": 7,
       "version": "7",
-      "when": 1774045231163,
+      "when": 1773711664901,
       "tag": "0007_omniscient_thing",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1773711664902,
+      "tag": "0008_unknown_chameleon",
       "breakpoints": true
     }
   ]

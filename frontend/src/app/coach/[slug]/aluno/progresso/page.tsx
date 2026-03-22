@@ -4,15 +4,26 @@ import { useState } from "react"
 import { Plus, TrendingUp } from "lucide-react"
 
 import { useStudentMyCheckins } from "@/features/studentPortal/hooks/useStudentMyCheckins"
+import { useStudentMyChartData } from "@/features/studentPortal/hooks/useStudentMyChartData"
 import { CheckinCard } from "@/features/studentPortal/components/checkinCard"
 import { CreateStudentCheckinDialog } from "@/features/studentPortal/components/createStudentCheckinDialog"
+import { ProgressChart } from "@/features/progress/components/progressChart"
+import { CombinedProgressChart } from "@/features/progress/components/combinedProgressChart"
 import { EmptyState } from "@/shared/components/emptyState"
 import { LoadingState } from "@/shared/components/loadingState"
 import { Button } from "@/shared/ui/button"
+import {
+  METRIC_TYPES,
+  METRIC_TYPE_LABELS,
+  METRIC_TYPE_UNITS,
+  type MetricType,
+} from "@/features/progress/types/progress.types"
 
 export default function StudentProgressoPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedMetric, setSelectedMetric] = useState<MetricType | undefined>(undefined)
   const { data, isLoading } = useStudentMyCheckins({ page: 0, size: 20 })
+  const chartQuery = useStudentMyChartData(selectedMetric)
 
   const checkins = data?.content ?? []
 
@@ -30,6 +41,40 @@ export default function StudentProgressoPage() {
             Registrar
           </Button>
         </div>
+
+        <div className="flex items-center gap-1 flex-wrap" data-testid="metric-selector">
+          <Button
+            size="sm"
+            variant={selectedMetric === undefined ? "default" : "outline"}
+            onClick={() => setSelectedMetric(undefined)}
+          >
+            Todos
+          </Button>
+          {METRIC_TYPES.map((type) => (
+            <Button
+              key={type}
+              size="sm"
+              variant={selectedMetric === type ? "default" : "outline"}
+              onClick={() => setSelectedMetric(type)}
+            >
+              {METRIC_TYPE_LABELS[type]}
+            </Button>
+          ))}
+        </div>
+
+        {selectedMetric ? (
+          <ProgressChart
+            data={chartQuery.data ?? []}
+            label={METRIC_TYPE_LABELS[selectedMetric]}
+            unit={METRIC_TYPE_UNITS[selectedMetric]}
+            isLoading={chartQuery.isLoading}
+          />
+        ) : (
+          <CombinedProgressChart
+            data={chartQuery.data ?? []}
+            isLoading={chartQuery.isLoading}
+          />
+        )}
 
         {isLoading ? (
           <LoadingState variant="list" />

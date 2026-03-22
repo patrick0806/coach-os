@@ -467,6 +467,36 @@ to block coach availability without manual appointment creation.
 
 ------------------------------------------------------------------------
 
+## TrainingScheduleException
+
+Represents a one-time override for a specific occurrence of a recurring training schedule.
+
+Allows coaches to reschedule or skip individual training occurrences without modifying the recurring rule.
+
+**Attributes:**
+
+-   tenantId
+-   trainingScheduleId
+-   originalDate (the date being overridden)
+-   action (`skip` | `reschedule`)
+-   newDate (when action = reschedule)
+-   newStartTime (when action = reschedule)
+-   newEndTime (when action = reschedule)
+-   newLocation (optional)
+-   reason (optional)
+-   createdAt
+
+**Business rules:**
+
+-   `skip` — training occurrence on originalDate does not happen
+-   `reschedule` — training occurrence moved to newDate/newStartTime/newEndTime
+-   newDate must be in the same week (Monday–Sunday) as originalDate
+-   no duplicate exceptions for same trainingScheduleId + originalDate
+-   conflict detection runs for rescheduled occurrences (same soft model as appointments)
+-   exceptions are applied during calendar expansion
+
+------------------------------------------------------------------------
+
 ## AppointmentRequest
 
 Represents a request created by a student for an appointment.
@@ -590,6 +620,7 @@ Notes are ordered chronologically.
      ├ AvailabilityExceptions
      ├ Appointments
      ├ TrainingSchedules
+     │    └ TrainingScheduleExceptions
      ├ ServicePlans
      └ StudentInvitationTokens
 

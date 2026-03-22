@@ -4,6 +4,7 @@ import type {
   StudentCheckin,
 } from "@/features/studentPortal/types/studentPortalCheckins.types"
 import type { CreateCheckinRequest } from "@/features/progress/types/progressCheckins.types"
+import type { ProgressChartDataPoint, GetChartDataParams } from "@/features/progress/types/progress.types"
 
 export const studentPortalCheckinsService = {
   listMyCheckins: async (params?: {
@@ -41,5 +42,15 @@ export const studentPortalCheckinsService = {
       body: file,
       headers: { "Content-Type": file.type },
     })
+  },
+
+  getMyChartData: async (
+    params?: GetChartDataParams,
+  ): Promise<ProgressChartDataPoint[]> => {
+    const response = await studentApi.get<ProgressChartDataPoint[]>(
+      "/me/progress-records/chart",
+      { params },
+    )
+    return response.data
   },
 }

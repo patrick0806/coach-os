@@ -1188,3 +1188,102 @@ export async function mockMarkPageToured(page: Page, updatedPages: string[]): Pr
     }
   })
 }
+
+// =============================================================================
+// Reschedule Appointment
+// =============================================================================
+
+export async function mockRescheduleAppointment(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/appointments/*/reschedule*", (route: Route) => {
+    if (route.request().method() === "PATCH") {
+      route.fulfill({ status: 200, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockRescheduleAppointmentConflict(
+  page: Page,
+  conflicts: object[],
+): Promise<void> {
+  await page.route("**/api/v1/appointments/*/reschedule*", (route: Route) => {
+    if (route.request().method() === "PATCH") {
+      route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        json: {
+          message: "Appointment has conflicts",
+          conflicts,
+        },
+      })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+// =============================================================================
+// Training Schedule Reschedule / Skip / Delete Exception
+// =============================================================================
+
+export async function mockRescheduleTraining(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/training-schedules/*/reschedule*", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockRescheduleTrainingConflict(
+  page: Page,
+  conflicts: object[],
+): Promise<void> {
+  await page.route("**/api/v1/training-schedules/*/reschedule*", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        json: {
+          message: "Training reschedule has conflicts",
+          conflicts,
+        },
+      })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockSkipTraining(page: Page, response: object): Promise<void> {
+  await page.route("**/api/v1/training-schedules/*/skip*", (route: Route) => {
+    if (route.request().method() === "POST") {
+      route.fulfill({ status: 201, contentType: "application/json", json: response })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockDeleteTrainingException(page: Page): Promise<void> {
+  await page.route("**/api/v1/training-schedule-exceptions/*", (route: Route) => {
+    if (route.request().method() === "DELETE") {
+      route.fulfill({ status: 204 })
+    } else {
+      route.fallback()
+    }
+  })
+}
+
+export async function mockGetAppointment(page: Page, appointment: object): Promise<void> {
+  await page.route("**/api/v1/appointments/*", (route: Route) => {
+    const url = route.request().url()
+    if (route.request().method() === "GET" && !url.includes("reschedule")) {
+      route.fulfill({ status: 200, contentType: "application/json", json: appointment })
+    } else {
+      route.fallback()
+    }
+  })
+}

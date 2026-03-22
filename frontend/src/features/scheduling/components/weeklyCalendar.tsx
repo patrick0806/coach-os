@@ -19,6 +19,7 @@ import { Button } from "@/shared/ui/button"
 import { cn } from "@/lib/utils"
 import { CalendarDayColumn, HOUR_START, HOUR_END, HOUR_HEIGHT_PX } from "./calendarDayColumn"
 import { AppointmentDetailDialog } from "./appointmentDetailDialog"
+import { TrainingScheduleDetailDialog } from "./trainingScheduleDetailDialog"
 import { useCalendar } from "@/features/scheduling/hooks/useCalendar"
 import { useAppointments } from "@/features/scheduling/hooks/useAppointments"
 import type { AvailabilityRuleItem, CalendarEntry, AppointmentItem } from "@/features/scheduling/types/scheduling.types"
@@ -38,6 +39,8 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
   const [mobileDay, setMobileDay] = useState(() => new Date())
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentItem | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedTraining, setSelectedTraining] = useState<CalendarEntry | null>(null)
+  const [trainingDetailOpen, setTrainingDetailOpen] = useState(false)
 
   const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 1 })
   const days = eachDayOfInterval({ start: currentWeekStart, end: weekEnd })
@@ -73,6 +76,9 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
         setSelectedAppointment(appointment)
         setDetailOpen(true)
       }
+    } else if (entry.type === "training_schedule") {
+      setSelectedTraining(entry)
+      setTrainingDetailOpen(true)
     }
   }
 
@@ -293,6 +299,12 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
         open={detailOpen}
         onOpenChange={setDetailOpen}
         appointment={selectedAppointment}
+      />
+
+      <TrainingScheduleDetailDialog
+        open={trainingDetailOpen}
+        onOpenChange={setTrainingDetailOpen}
+        entry={selectedTraining}
       />
     </>
   )

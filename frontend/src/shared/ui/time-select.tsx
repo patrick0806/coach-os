@@ -33,7 +33,7 @@ export function TimeSelect({ value, onChange, disabled, id }: TimeSelectProps) {
   return (
     <div className="flex items-center gap-1" id={id}>
       <Select value={hour} onValueChange={handleHourChange} disabled={disabled}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="flex-1 min-w-0">
           <SelectValue placeholder="HH" />
         </SelectTrigger>
         <SelectContent>
@@ -48,7 +48,7 @@ export function TimeSelect({ value, onChange, disabled, id }: TimeSelectProps) {
       <span className="shrink-0 text-sm font-medium text-muted-foreground">:</span>
 
       <Select value={minute} onValueChange={handleMinuteChange} disabled={disabled}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="flex-1 min-w-0">
           <SelectValue placeholder="MM" />
         </SelectTrigger>
         <SelectContent>

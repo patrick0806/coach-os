@@ -165,3 +165,89 @@ export const MOCK_NEW_EXCEPTION = {
   reason: "Férias",
   createdAt: "2026-03-17T00:00:00.000Z",
 }
+
+export const MOCK_RESCHEDULED_APPOINTMENT = {
+  id: "appt-1",
+  studentId: "student-1",
+  studentName: "Ana Lima",
+  startAt: "2026-03-20T14:00:00.000Z",
+  endAt: "2026-03-20T15:00:00.000Z",
+  type: "presential",
+  status: "scheduled",
+  location: "Academia Central",
+  meetingUrl: null,
+  notes: null,
+  tenantId: "tenant-1",
+  createdAt: "2026-03-01T00:00:00.000Z",
+}
+
+export const MOCK_RESCHEDULED_TRAINING_ENTRY = {
+  type: "training_schedule",
+  date: "2026-03-19",
+  startTime: "14:00",
+  endTime: "15:00",
+  studentId: "student-2",
+  studentName: "Bruno Souza",
+  sourceId: "train-2",
+  location: "Academia Central",
+  isRescheduled: true,
+  exceptionId: "exc-train-1",
+}
+
+export const MOCK_TRAINING_EXCEPTION = {
+  id: "exc-train-1",
+  tenantId: "tenant-1",
+  trainingScheduleId: "train-2",
+  originalDate: "2026-03-16",
+  action: "reschedule",
+  newDate: "2026-03-19",
+  newStartTime: "14:00",
+  newEndTime: "15:00",
+  newLocation: "Academia Central",
+  reason: null,
+  createdAt: "2026-03-15T00:00:00.000Z",
+}
+
+export const MOCK_SKIP_EXCEPTION = {
+  id: "exc-train-skip",
+  tenantId: "tenant-1",
+  trainingScheduleId: "train-2",
+  originalDate: "2026-03-16",
+  action: "skip",
+  newDate: null,
+  newStartTime: null,
+  newEndTime: null,
+  newLocation: null,
+  reason: "Aluno viajou",
+  createdAt: "2026-03-15T00:00:00.000Z",
+}
+
+export const MOCK_CANCELLED_APPOINTMENT = {
+  id: "appt-cancelled",
+  studentId: "student-1",
+  studentName: "Ana Lima",
+  startAt: "2026-03-16T09:00:00.000Z",
+  endAt: "2026-03-16T10:00:00.000Z",
+  type: "presential",
+  status: "cancelled",
+  location: "Academia Central",
+  meetingUrl: null,
+  notes: null,
+  tenantId: "tenant-1",
+  createdAt: "2026-03-01T00:00:00.000Z",
+}
+
+export const MOCK_COMPLETED_APPOINTMENT = {
+  id: "appt-completed",
+  studentId: "student-1",
+  studentName: "Ana Lima",
+  startAt: "2026-03-16T09:00:00.000Z",
+  endAt: "2026-03-16T10:00:00.000Z",
+  type: "presential",
+  status: "completed",
+  location: "Academia Central",
+  meetingUrl: null,
+  notes: null,
+  tenantId: "tenant-1",
+  createdAt: "2026-03-01T00:00:00.000Z",
+}

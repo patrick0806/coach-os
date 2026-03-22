@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -34,6 +34,32 @@ export class ProgressRecordsRepository {
       .returning();
 
     return result[0];
+  }
+
+  async findAllForChart(
+    studentId: string,
+    tenantId: string,
+    metricType?: string,
+    opts?: { startDate?: Date; endDate?: Date },
+  ): Promise<Array<{ recordedAt: Date; value: string; unit: string; metricType: string }>> {
+    const conditions = and(
+      eq(progressRecords.studentId, studentId),
+      eq(progressRecords.tenantId, tenantId),
+      metricType ? eq(progressRecords.metricType, metricType) : undefined,
+      opts?.startDate ? gte(progressRecords.recordedAt, opts.startDate) : undefined,
+      opts?.endDate ? lte(progressRecords.recordedAt, opts.endDate) : undefined,
+    );
+
+    return this.drizzle.db
+      .select({
+        recordedAt: progressRecords.recordedAt,
+        value: progressRecords.value,
+        unit: progressRecords.unit,
+        metricType: progressRecords.metricType,
+      })
+      .from(progressRecords)
+      .where(conditions)
+      .orderBy(asc(progressRecords.recordedAt));
   }
 
   async findAllByStudentId(

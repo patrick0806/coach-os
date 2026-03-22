@@ -24,6 +24,9 @@ import { LoadingState } from "@/shared/components/loadingState"
 import { useProgressRecords } from "@/features/progress/hooks/useProgressRecords"
 import { useDeleteProgressRecord } from "@/features/progress/hooks/useDeleteProgressRecord"
 import { ProgressRecordFormDialog } from "@/features/progress/components/progressRecordFormDialog"
+import { useProgressChartData } from "@/features/progress/hooks/useProgressChartData"
+import { ProgressChart } from "@/features/progress/components/progressChart"
+import { CombinedProgressChart } from "@/features/progress/components/combinedProgressChart"
 import {
   METRIC_TYPES,
   METRIC_TYPE_LABELS,
@@ -48,6 +51,7 @@ export function ProgressRecordsTab({ studentId }: ProgressRecordsTabProps) {
     size: 10,
   })
 
+  const chartQuery = useProgressChartData(studentId, selectedMetric)
   const deleteRecord = useDeleteProgressRecord(studentId)
 
   function handleEdit(record: ProgressRecord) {
@@ -96,6 +100,20 @@ export function ProgressRecordsTab({ studentId }: ProgressRecordsTabProps) {
           Adicionar
         </Button>
       </div>
+
+      {selectedMetric ? (
+        <ProgressChart
+          data={chartQuery.data ?? []}
+          label={METRIC_TYPE_LABELS[selectedMetric]}
+          unit={METRIC_TYPE_UNITS[selectedMetric]}
+          isLoading={chartQuery.isLoading}
+        />
+      ) : (
+        <CombinedProgressChart
+          data={chartQuery.data ?? []}
+          isLoading={chartQuery.isLoading}
+        />
+      )}
 
       {isLoading ? (
         <LoadingState variant="list" />

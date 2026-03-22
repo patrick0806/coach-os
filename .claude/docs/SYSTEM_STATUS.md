@@ -1,12 +1,12 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-22
+Last updated: 2026-03-21
 
 ---
 
 ## Backend Status
 
-All backend modules are **completed** (775 tests passing).
+All backend modules are **completed** (795 tests passing).
 
 | Module | Notes |
 |--------|-------|
@@ -16,10 +16,10 @@ All backend modules are **completed** (775 tests passing).
 | platform/webhooks | subscription.updated/deleted, invoice.paid/payment_failed, trial_will_end |
 | platform/tenants | list, get, update status (admin only) |
 | training | exercises, templates, student programs, execution |
-| scheduling | availability rules/exceptions, appointments, training schedules, calendar |
+| scheduling | availability rules/exceptions, appointments (create, cancel, complete, reschedule), training schedules (+ reschedule/skip occurrence exceptions), calendar |
 | coaching | relations, service plans, contracts, notes, progress photos |
 | students | invite, accept-invite, shareable link |
-| progress | checkins (POST+GET /me), photos upload-url |
+| progress | checkins (POST+GET /me), photos upload-url, chart data (GET /students/:id/progress-records/chart + GET /me/progress-records/chart) |
 | public | GET /public/:slug (inclui availabilityRules) |
 | enums | GET /enums/muscle-groups + /enums/attendance-types |
 
@@ -32,7 +32,9 @@ All backend modules are **completed** (775 tests passing).
 | **Dashboard** | ✅ done | layout + real stats integrated |
 | **Onboarding Tutorial** | ✅ done | Milestone 12 completo: backend (tour progress endpoints) + frontend (config, store, driver.js tours, checklist, header button) + 26 testes E2E passando |
 | **Subdomain routing** | ✅ done | Sprint 2 (cookies+CORS) + Sprint 3 (proxy+routes `/coach/[slug]`) completo; 661 testes E2E passando |
-| **Progress charts** | not started | Backlog: line graphs, comparisons |
+| **Progress charts** | ✅ done | Backend: chart data endpoints (coach + student), metricType optional for combined view. Frontend: Recharts LineChart + CombinedProgressChart (mini-charts stacked). 14 E2E behavioral tests passing |
+| **Reschedule appointments** | ✅ done | Backend: PATCH /appointments/:id/reschedule with conflict detection + forceCreate. Frontend: RescheduleAppointmentDialog integrated in appointment detail. 6 E2E behavioral tests passing |
+| **Reschedule training** | ✅ done | Backend: TrainingScheduleException entity + reschedule/skip/delete endpoints + calendar integration. Frontend: TrainingScheduleDetailDialog + RescheduleTrainingDialog with conflict support. 7 E2E behavioral tests passing |
 | **Notifications** | not started | Backlog: preferences page |
 
 ---
@@ -68,7 +70,8 @@ Cookies + CORS + Next.js proxy + migração de rotas.
 - **Validates:** Coach novo se orienta sem suporte; tour pode ser desligado globalmente via env var
 
 ### Milestone 11 — Polish
-- Dashboard real stats
-- Progress charts (line graphs, comparisons)
+- ~~Dashboard real stats~~ ✅ done
+- ~~Progress charts (line graphs, comparisons)~~ ✅ done
+- ~~Reschedule appointments~~ ✅ done
 - Notification preferences
-- Error SDK (Sentry no NestJS + Next.js)
+- ~~Error SDK (Sentry no NestJS + Next.js)~~ — descartado (Better Stack cobre)

@@ -27,6 +27,8 @@ import { RejectAppointmentRequestController } from "./contexts/rejectRequest/rej
 import { RejectAppointmentRequestUseCase } from "./contexts/rejectRequest/rejectRequest.useCase";
 import { ListMyAppointmentsController } from "./contexts/listMyAppointments/listMyAppointmentsController";
 import { ListMyAppointmentsUseCase } from "./contexts/listMyAppointments/listMyAppointmentsUseCase";
+import { RescheduleAppointmentController } from "./contexts/rescheduleAppointment/rescheduleAppointment.controller";
+import { RescheduleAppointmentUseCase } from "./contexts/rescheduleAppointment/rescheduleAppointment.useCase";
 
 @Module({
   controllers: [
@@ -40,6 +42,7 @@ import { ListMyAppointmentsUseCase } from "./contexts/listMyAppointments/listMyA
     ApproveAppointmentRequestController,
     RejectAppointmentRequestController,
     ListMyAppointmentsController,
+    RescheduleAppointmentController,
   ],
   providers: [
     AppointmentsRepository,
@@ -58,6 +61,7 @@ import { ListMyAppointmentsUseCase } from "./contexts/listMyAppointments/listMyA
     ApproveAppointmentRequestUseCase,
     RejectAppointmentRequestUseCase,
     ListMyAppointmentsUseCase,
+    RescheduleAppointmentUseCase,
   ],
   exports: [AppointmentsRepository, AppointmentRequestsRepository],
 })

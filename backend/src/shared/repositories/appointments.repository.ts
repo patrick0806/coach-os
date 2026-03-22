@@ -150,6 +150,11 @@ export class AppointmentsRepository {
       cancelledAt: Date;
       cancellationReason: string;
       notes: string;
+      startAt: Date;
+      endAt: Date;
+      appointmentType: "online" | "presential";
+      meetingUrl: string | null;
+      location: string | null;
     }>,
   ): Promise<Appointment | undefined> {
      

@@ -15,6 +15,10 @@ import type {
   ListAvailabilityExceptionsParams,
   PaginatedAppointmentRequests,
   PaginatedAppointments,
+  RescheduleAppointmentRequest,
+  RescheduleTrainingRequest,
+  SkipTrainingRequest,
+  TrainingScheduleExceptionItem,
   UpdateAvailabilityRuleRequest,
 } from "@/features/scheduling/types/scheduling.types"
 
@@ -40,6 +44,12 @@ export const schedulingService = {
   completeAppointment: async (id: string): Promise<void> => {
     await api.patch(`/appointments/${id}/complete`)
   },
+
+  rescheduleAppointment: async (
+    id: string,
+    data: RescheduleAppointmentRequest,
+  ): Promise<AppointmentItem> =>
+    (await api.patch<AppointmentItem>(`/appointments/${id}/reschedule`, data)).data,
 
   // Appointment Requests
   listAppointmentRequests: async (
@@ -94,5 +104,28 @@ export const schedulingService = {
 
   deleteAvailabilityException: async (id: string): Promise<void> => {
     await api.delete(`/availability-exceptions/${id}`)
+  },
+
+  // Training Schedule Exceptions
+  rescheduleTrainingOccurrence: async (
+    scheduleId: string,
+    data: RescheduleTrainingRequest,
+  ): Promise<TrainingScheduleExceptionItem> =>
+    (await api.post<TrainingScheduleExceptionItem>(
+      `/training-schedules/${scheduleId}/reschedule`,
+      data,
+    )).data,
+
+  skipTrainingOccurrence: async (
+    scheduleId: string,
+    data: SkipTrainingRequest,
+  ): Promise<TrainingScheduleExceptionItem> =>
+    (await api.post<TrainingScheduleExceptionItem>(
+      `/training-schedules/${scheduleId}/skip`,
+      data,
+    )).data,
+
+  deleteTrainingException: async (id: string): Promise<void> => {
+    await api.delete(`/training-schedule-exceptions/${id}`)
   },
 }

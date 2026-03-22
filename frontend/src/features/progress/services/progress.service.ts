@@ -1,8 +1,10 @@
 import { api } from "@/lib/axios"
 import type {
   CreateProgressRecordRequest,
+  GetChartDataParams,
   ListProgressPhotosParams,
   ListProgressRecordsParams,
+  ProgressChartDataPoint,
   ProgressPhoto,
   ProgressPhotosResponse,
   ProgressRecord,
@@ -74,4 +76,13 @@ export const progressService = {
   deletePhoto: async (id: string): Promise<void> => {
     await api.delete(`/progress-photos/${id}`)
   },
+
+  getChartData: async (
+    studentId: string,
+    params?: GetChartDataParams,
+  ): Promise<ProgressChartDataPoint[]> =>
+    (await api.get<ProgressChartDataPoint[]>(
+      `/students/${studentId}/progress-records/chart`,
+      { params },
+    )).data,
 }

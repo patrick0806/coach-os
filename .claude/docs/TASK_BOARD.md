@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-22
+Last updated: 2026-03-21
 
 ---
 
@@ -171,8 +171,43 @@ Last updated: 2026-03-22
 ### Frontend: Dashboard stats reais
 - [x] Integrar dados reais na página `/dashboard` ✅
 
-### Frontend: Progress charts
-- [ ] Implementar gráficos de linha e comparativo de métricas do aluno
+### Frontend: Progress charts ✅ CONCLUÍDA (2026-03-21)
+- [x] Backend: `GET /students/:id/progress-records/chart` (coach, role PERSONAL) + `GET /me/progress-records/chart` (student, role STUDENT) ✅
+- [x] Backend: `findAllForChart()` no repository — unpaginated, ASC by recordedAt ✅
+- [x] Backend: 10 testes unitários (getChartData + getMyChartData) ✅
+- [x] Frontend: `ProgressChart` component com Recharts LineChart + tooltip PT-BR ✅
+- [x] Frontend: Seletor de métrica integrado em `studentProgressSection.tsx` (coach side) ✅
+- [x] Frontend: Seletor de métrica integrado em `/coach/[slug]/aluno/progresso` (student portal) ✅
+- [x] Frontend: 10 testes E2E behavioral passando ✅
+
+### Frontend: Reschedule appointments ✅ CONCLUÍDA (2026-03-21)
+- [x] Backend: `PATCH /appointments/:id/reschedule` com Zod validation, conflict detection (excludes self), forceCreate ✅
+- [x] Backend: 10 testes unitários (rescheduleAppointment.useCase) ✅
+- [x] Frontend: `RescheduleAppointmentDialog` com form pre-preenchido, tipo/local/meetingUrl condicional ✅
+- [x] Frontend: Botão "Reagendar" integrado em `AppointmentDetailDialog` (status === "scheduled") ✅
+- [x] Frontend: `ConflictWarningDialog` integrado para conflitos no reagendamento ✅
+- [x] Frontend: 6 testes E2E behavioral passando (desktop; mobile skipped — single-day calendar layout) ✅
+
+### Frontend: Combined progress chart ✅ CONCLUÍDA (2026-03-21)
+- [x] Backend: `metricType` tornada opcional nos endpoints de chart (coach + student) ✅
+- [x] Backend: retorna `metricType` no response quando omitido ✅
+- [x] Backend: 5 novos testes unitários ✅
+- [x] Frontend: `CombinedProgressChart` com mini-charts empilhados por métrica ✅
+- [x] Frontend: Integrado em `studentProgressSection.tsx`, `progressRecordsTab.tsx`, e student portal ✅
+- [x] Frontend: 14 testes E2E behavioral passando ✅
+
+### Frontend: Reschedule training occurrences ✅ CONCLUÍDA (2026-03-21)
+- [x] Backend: `TrainingScheduleException` entity + migration (Drizzle) ✅
+- [x] Backend: `POST /training-schedules/:id/reschedule` com conflict detection + forceCreate ✅
+- [x] Backend: `POST /training-schedules/:id/skip` ✅
+- [x] Backend: `DELETE /training-schedule-exceptions/:id` ✅
+- [x] Backend: Calendar integration — skip removes entry, reschedule moves entry with `isRescheduled` flag ✅
+- [x] Backend: 16 novos testes unitários ✅
+- [x] Frontend: `TrainingScheduleDetailDialog` (detalhes + reagendar/pular/desfazer) ✅
+- [x] Frontend: `RescheduleTrainingDialog` com date picker limitado à mesma semana + ConflictWarningDialog ✅
+- [x] Frontend: Hooks `useRescheduleTraining`, `useSkipTraining`, `useDeleteTrainingException` ✅
+- [x] Frontend: Click handler no calendário para eventos `training_schedule` ✅
+- [x] Frontend: 7 testes E2E behavioral passando (688 total) ✅
 
 ### Frontend: Notifications
 - [ ] Implementar página de preferências de notificação

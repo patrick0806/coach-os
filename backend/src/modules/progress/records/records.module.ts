@@ -11,6 +11,10 @@ import { UpdateProgressRecordController } from "./contexts/updateRecord/updateRe
 import { UpdateProgressRecordUseCase } from "./contexts/updateRecord/updateRecord.useCase";
 import { DeleteProgressRecordController } from "./contexts/deleteRecord/deleteRecord.controller";
 import { DeleteProgressRecordUseCase } from "./contexts/deleteRecord/deleteRecord.useCase";
+import { GetChartDataController } from "./contexts/getChartData/getChartData.controller";
+import { GetChartDataUseCase } from "./contexts/getChartData/getChartData.useCase";
+import { GetMyChartDataController } from "./contexts/getMyChartData/getMyChartData.controller";
+import { GetMyChartDataUseCase } from "./contexts/getMyChartData/getMyChartData.useCase";
 
 @Module({
   controllers: [
@@ -18,6 +22,8 @@ import { DeleteProgressRecordUseCase } from "./contexts/deleteRecord/deleteRecor
     ListProgressRecordsController,
     UpdateProgressRecordController,
     DeleteProgressRecordController,
+    GetChartDataController,
+    GetMyChartDataController,
   ],
   providers: [
     ProgressRecordsRepository,
@@ -26,6 +32,8 @@ import { DeleteProgressRecordUseCase } from "./contexts/deleteRecord/deleteRecor
     ListProgressRecordsUseCase,
     UpdateProgressRecordUseCase,
     DeleteProgressRecordUseCase,
+    GetChartDataUseCase,
+    GetMyChartDataUseCase,
   ],
   exports: [ProgressRecordsRepository],
 })

@@ -73,6 +73,7 @@ Entities:
 - AvailabilityRule
 - AvailabilityException
 - TrainingSchedule
+- TrainingScheduleException
 - Appointment
 - AppointmentRequest
 
@@ -488,6 +489,46 @@ DELETE /training-schedules/{id}
 
 ---
 
+## Reschedule Training Occurrence
+
+Coach moves a specific occurrence of a recurring training to another day/time
+↓
+POST /training-schedules/{id}/reschedule
+↓
+Validates: schedule exists, originalDate matches dayOfWeek, newDate in same week, no duplicate exception
+↓
+Conflict detection runs (same soft model as appointments)
+↓
+If conflicts found → returns conflict list (unless forceCreate: true)
+↓
+TrainingScheduleException created with action "reschedule"
+
+Rule: newDate must be in the same Monday–Sunday week as originalDate.
+
+---
+
+## Skip Training Occurrence
+
+Coach skips a specific occurrence of a recurring training
+↓
+POST /training-schedules/{id}/skip
+↓
+Validates: schedule exists, originalDate matches dayOfWeek, no duplicate exception
+↓
+TrainingScheduleException created with action "skip"
+
+---
+
+## Delete Training Exception
+
+Coach undoes a reschedule or skip
+↓
+DELETE /training-schedule-exceptions/{id}
+↓
+Exception removed, original training occurrence restored in calendar
+
+---
+
 ## Auto-Deactivate Training Schedules
 
 Student program status changes to finished or cancelled
@@ -550,6 +591,24 @@ PATCH /appointments/{id}/complete
 
 ---
 
+## Reschedule Appointment
+
+Coach reschedules an existing appointment
+↓
+PATCH /appointments/{id}/reschedule
+↓
+Validates: appointment exists, status === "scheduled", startAt < endAt
+↓
+Conflict detection runs (excludes self from overlap check)
+↓
+If conflicts found → returns conflict list (unless forceCreate: true)
+↓
+Appointment updated with new date/time/type/location
+
+Rule: only scheduled appointments can be rescheduled.
+
+---
+
 ## Request Appointment
 
 Student requests appointment
@@ -592,7 +651,9 @@ Coach views unified calendar
 ↓
 GET /calendar?startDate&endDate
 ↓
-Merges: appointments + training schedules (expanded by dayOfWeek) + availability exceptions
+Merges: appointments + training schedules (expanded by dayOfWeek, with exceptions applied) + availability exceptions
+↓
+Training schedule exceptions: skip → entry removed, reschedule → entry moved to new date/time with isRescheduled flag
 ↓
 Sorted by date and startTime
 
@@ -644,6 +705,34 @@ Frontend uploads file directly to S3
 Frontend sends final file URL to backend
 ↓
 Backend stores metadata
+
+---
+
+## Get Progress Chart Data (Coach)
+
+Coach selects metric type on student progress page
+↓
+GET /students/{studentId}/progress-records/chart?metricType=weight&startDate=&endDate=
+↓
+metricType is optional — when omitted, returns all metrics with metricType field
+↓
+Returns unpaginated array sorted by recordedAt ASC: [{ recordedAt, value, unit, metricType? }]
+↓
+Frontend renders: single metric → LineChart, all metrics → CombinedProgressChart (mini-charts stacked)
+
+---
+
+## Get Progress Chart Data (Student)
+
+Student selects metric type on their progress page
+↓
+GET /me/progress-records/chart?metricType=weight
+↓
+metricType is optional — when omitted, returns all metrics
+↓
+Uses profileId from JWT as studentId
+↓
+Returns same format as coach endpoint
 
 ---
 

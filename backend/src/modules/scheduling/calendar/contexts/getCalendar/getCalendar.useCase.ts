@@ -3,6 +3,7 @@ import { z } from "zod";
 import { AppointmentsRepository } from "@shared/repositories/appointments.repository";
 import { AvailabilityExceptionsRepository } from "@shared/repositories/availabilityExceptions.repository";
 import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
+import { TrainingScheduleExceptionsRepository } from "@shared/repositories/trainingScheduleExceptions.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { validate } from "@shared/utils/validation.util";
 
@@ -19,6 +20,8 @@ export interface CalendarEntry {
   meetingUrl?: string;
   reason?: string;
   sourceId: string;
+  isRescheduled?: boolean;
+  exceptionId?: string;
 }
 
 const getCalendarSchema = z.object({
@@ -32,6 +35,7 @@ export class GetCalendarUseCase {
     private readonly appointmentsRepository: AppointmentsRepository,
     private readonly availabilityExceptionsRepository: AvailabilityExceptionsRepository,
     private readonly trainingSchedulesRepository: TrainingSchedulesRepository,
+    private readonly trainingScheduleExceptionsRepository: TrainingScheduleExceptionsRepository,
     private readonly studentsRepository: StudentsRepository,
   ) {}
 
@@ -94,6 +98,26 @@ export class GetCalendarUseCase {
       }
     }
 
+    // Fetch training schedule exceptions for the date range
+    const scheduleIds = trainingSchedules.map((s) => s.id);
+    const trainingExceptions = scheduleIds.length > 0
+      ? await this.trainingScheduleExceptionsRepository.findByScheduleIdsAndDateRange(
+          scheduleIds,
+          params.startDate,
+          params.endDate,
+          tenantId,
+        )
+      : [];
+
+    // Build a lookup: scheduleId+date -> exception
+    const exceptionMap = new Map<string, typeof trainingExceptions[0]>();
+    for (const exc of trainingExceptions) {
+      exceptionMap.set(`${exc.trainingScheduleId}:${exc.originalDate}`, exc);
+    }
+
+    // Also collect rescheduled entries to add at their new dates
+    const rescheduledEntries: CalendarEntry[] = [];
+
     for (const day of days) {
       const dayOfWeek = day.getUTCDay();
       const pad = (n: number) => n.toString().padStart(2, "0");
@@ -101,6 +125,31 @@ export class GetCalendarUseCase {
 
       for (const schedule of trainingSchedules) {
         if (schedule.dayOfWeek === dayOfWeek) {
+          const exception = exceptionMap.get(`${schedule.id}:${dateStr}`);
+
+          if (exception?.action === "skip") {
+            // Skipped — do not add entry for this date
+            continue;
+          }
+
+          if (exception?.action === "reschedule") {
+            // Add rescheduled entry at the new date instead
+            rescheduledEntries.push({
+              type: "training_schedule",
+              date: exception.newDate!,
+              startTime: exception.newStartTime ?? schedule.startTime,
+              endTime: exception.newEndTime ?? schedule.endTime,
+              studentId: schedule.studentId,
+              studentName: studentMap.get(schedule.studentId),
+              location: exception.newLocation ?? schedule.location ?? undefined,
+              sourceId: schedule.id,
+              isRescheduled: true,
+              exceptionId: exception.id,
+            });
+            continue;
+          }
+
+          // Normal entry — no exception
           entries.push({
             type: "training_schedule",
             date: dateStr,
@@ -112,6 +161,13 @@ export class GetCalendarUseCase {
             sourceId: schedule.id,
           });
         }
+      }
+    }
+
+    // Add rescheduled entries (only those whose newDate falls within the range)
+    for (const entry of rescheduledEntries) {
+      if (entry.date >= params.startDate && entry.date <= params.endDate) {
+        entries.push(entry);
       }
     }
 

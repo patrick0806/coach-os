@@ -220,7 +220,7 @@ export const trainingSchedules = pgTable(
 
 export const trainingSchedulesRelations = relations(
   trainingSchedules,
-  ({ one }) => ({
+  ({ one, many }) => ({
     tenant: one(personals, {
       fields: [trainingSchedules.tenantId],
       references: [personals.id],
@@ -232,6 +232,52 @@ export const trainingSchedulesRelations = relations(
     studentProgram: one(studentPrograms, {
       fields: [trainingSchedules.studentProgramId],
       references: [studentPrograms.id],
+    }),
+    exceptions: many(trainingScheduleExceptions),
+  }),
+);
+
+// Training Schedule Exceptions
+export const trainingScheduleExceptions = pgTable(
+  "training_schedule_exceptions",
+  {
+    id: varchar("id", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => randomUUID()),
+    tenantId: varchar("tenant_id", { length: 36 })
+      .notNull()
+      .references(() => personals.id),
+    trainingScheduleId: varchar("training_schedule_id", { length: 36 })
+      .notNull()
+      .references(() => trainingSchedules.id),
+    originalDate: date("original_date").notNull(),
+    action: varchar("action", { length: 20 })
+      .notNull()
+      .$type<"skip" | "reschedule">(),
+    newDate: date("new_date"),
+    newStartTime: varchar("new_start_time", { length: 5 }),
+    newEndTime: varchar("new_end_time", { length: 5 }),
+    newLocation: varchar("new_location", { length: 300 }),
+    reason: text("reason"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => [
+    index("training_schedule_exceptions_tenant_id_idx").on(table.tenantId),
+    index("training_schedule_exceptions_schedule_id_idx").on(table.trainingScheduleId),
+    index("training_schedule_exceptions_original_date_idx").on(table.originalDate),
+  ],
+);
+
+export const trainingScheduleExceptionsRelations = relations(
+  trainingScheduleExceptions,
+  ({ one }) => ({
+    tenant: one(personals, {
+      fields: [trainingScheduleExceptions.tenantId],
+      references: [personals.id],
+    }),
+    trainingSchedule: one(trainingSchedules, {
+      fields: [trainingScheduleExceptions.trainingScheduleId],
+      references: [trainingSchedules.id],
     }),
   }),
 );

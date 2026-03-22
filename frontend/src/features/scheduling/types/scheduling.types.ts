@@ -11,6 +11,8 @@ export interface CalendarEntry {
   meetingUrl?: string
   reason?: string
   sourceId: string
+  isRescheduled?: boolean
+  exceptionId?: string
 }
 
 export interface AppointmentItem {
@@ -94,6 +96,16 @@ export interface ListAppointmentRequestsParams {
   status?: string
 }
 
+export interface RescheduleAppointmentRequest {
+  startAt: string
+  endAt: string
+  appointmentType?: "online" | "presential"
+  meetingUrl?: string | null
+  location?: string | null
+  notes?: string | null
+  forceCreate?: boolean
+}
+
 export interface ApproveAppointmentRequestRequest {
   forceCreate?: boolean
 }
@@ -159,3 +171,32 @@ export const DAY_OF_WEEK_LABELS = [
 ] as const
 
 export const DAY_OF_WEEK_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const
+
+export interface RescheduleTrainingRequest {
+  originalDate: string
+  newDate: string
+  newStartTime: string
+  newEndTime: string
+  newLocation?: string
+  reason?: string
+  forceCreate?: boolean
+}
+
+export interface SkipTrainingRequest {
+  originalDate: string
+  reason?: string
+}
+
+export interface TrainingScheduleExceptionItem {
+  id: string
+  tenantId: string
+  trainingScheduleId: string
+  originalDate: string
+  action: "skip" | "reschedule"
+  newDate?: string | null
+  newStartTime?: string | null
+  newEndTime?: string | null
+  newLocation?: string | null
+  reason?: string | null
+  createdAt: string
+}
