@@ -17,6 +17,8 @@ import { Footer } from "@/features/marketing/components/footer";
 import { FeatureBlock } from "@/features/marketing/components/featureBlock";
 import { PlanCard } from "@/features/marketing/components/planCard";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Coach OS — Plataforma para personal trainers online e presencial",
   description:

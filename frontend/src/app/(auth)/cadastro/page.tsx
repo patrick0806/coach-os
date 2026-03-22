@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import { listPlans } from "@/features/marketing/services/plans.service";
 import { RegisterStepper } from "@/features/auth/components/registerStepper";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Cadastro | Coach OS",
   description: "Crie sua conta no Coach OS",
