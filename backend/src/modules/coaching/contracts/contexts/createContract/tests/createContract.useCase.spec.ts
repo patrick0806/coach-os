@@ -53,6 +53,12 @@ const makeServicePlansRepository = () => ({
   findById: vi.fn().mockResolvedValue(makePlan()),
 });
 
+const makeDrizzleProvider = () => ({
+  db: {
+    transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<void>) => fn({})),
+  },
+});
+
 describe("CreateContractUseCase", () => {
   let useCase: CreateContractUseCase;
   let contractsRepository: ReturnType<typeof makeContractsRepository>;
@@ -71,6 +77,7 @@ describe("CreateContractUseCase", () => {
       contractsRepository as any,
       studentsRepository as any,
       servicePlansRepository as any,
+      makeDrizzleProvider() as any,
     );
     // After creating, findActiveByStudentId returns the new contract
     contractsRepository.findActiveByStudentId.mockResolvedValue(makeContract());
@@ -93,7 +100,7 @@ describe("CreateContractUseCase", () => {
       servicePlanId: "plan-id-1",
       status: "active",
       startDate: expect.any(Date),
-    });
+    }, expect.anything());
   });
 
   it("should auto-cancel existing active contract before creating new one", async () => {
@@ -107,7 +114,7 @@ describe("CreateContractUseCase", () => {
     expect(contractsRepository.update).toHaveBeenCalledWith("old-contract-id", tenantId, {
       status: "cancelled",
       endDate: expect.any(Date),
-    });
+    }, expect.anything());
     expect(contractsRepository.create).toHaveBeenCalled();
   });
 

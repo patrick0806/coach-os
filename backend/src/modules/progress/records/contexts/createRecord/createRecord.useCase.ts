@@ -3,10 +3,11 @@ import { z } from "zod";
 
 import { ProgressRecordsRepository, ProgressRecord } from "@shared/repositories/progressRecords.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
+import { VALID_METRIC_TYPES } from "@shared/enums";
 import { validate } from "@shared/utils/validation.util";
 
 const createRecordSchema = z.object({
-  metricType: z.string().min(1).max(50),
+  metricType: z.enum(VALID_METRIC_TYPES),
   value: z.number().positive(),
   unit: z.string().min(1).max(20),
   recordedAt: z.coerce.date(),

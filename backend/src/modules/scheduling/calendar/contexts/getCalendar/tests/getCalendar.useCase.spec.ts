@@ -5,30 +5,27 @@ import { GetCalendarUseCase } from "../getCalendar.useCase";
 const TENANT_ID = "tenant-id-1";
 
 const makeAppointmentsRepository = () => ({
-  findAllByTenantId: vi.fn().mockResolvedValue({
-    rows: [
-      {
-        id: "apt-1",
-        tenantId: TENANT_ID,
-        studentId: "student-1",
-        startAt: new Date("2026-04-06T10:00:00Z"),
-        endAt: new Date("2026-04-06T11:00:00Z"),
-        appointmentType: "presential",
-        status: "scheduled",
-        meetingUrl: null,
-        location: "Academia",
-        notes: null,
-        cancelledAt: null,
-        cancellationReason: null,
-        appointmentRequestId: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        studentName: "John Doe",
-        studentEmail: "john@test.com",
-      },
-    ],
-    total: 1,
-  }),
+  findAllInDateRange: vi.fn().mockResolvedValue([
+    {
+      id: "apt-1",
+      tenantId: TENANT_ID,
+      studentId: "student-1",
+      startAt: new Date("2026-04-06T10:00:00Z"),
+      endAt: new Date("2026-04-06T11:00:00Z"),
+      appointmentType: "presential",
+      status: "scheduled",
+      meetingUrl: null,
+      location: "Academia",
+      notes: null,
+      cancelledAt: null,
+      cancellationReason: null,
+      appointmentRequestId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      studentName: "John Doe",
+      studentEmail: "john@test.com",
+    },
+  ]),
 });
 
 const makeAvailabilityExceptionsRepository = () => ({
@@ -63,11 +60,11 @@ const makeTrainingSchedulesRepository = () => ({
 });
 
 const makeStudentsRepository = () => ({
-  findById: vi.fn().mockResolvedValue({
+  findByIds: vi.fn().mockResolvedValue([{
     id: "student-1",
     tenantId: TENANT_ID,
     name: "John Doe",
-  }),
+  }]),
 });
 
 const makeTrainingScheduleExceptionsRepository = () => ({
@@ -123,11 +120,11 @@ describe("GetCalendarUseCase", () => {
 
   it("should return empty array for range with no events", async () => {
     const emptyUseCase = new GetCalendarUseCase(
-      { findAllByTenantId: vi.fn().mockResolvedValue({ rows: [], total: 0 }) } as any,
+      { findAllInDateRange: vi.fn().mockResolvedValue([]) } as any,
       { findByDateRange: vi.fn().mockResolvedValue([]) } as any,
       { findByTenantId: vi.fn().mockResolvedValue([]) } as any,
       { findByScheduleIdsAndDateRange: vi.fn().mockResolvedValue([]) } as any,
-      { findById: vi.fn().mockResolvedValue(null) } as any,
+      { findByIds: vi.fn().mockResolvedValue([]) } as any,
     );
 
     const result = await emptyUseCase.execute(
@@ -158,9 +155,10 @@ describe("GetCalendarUseCase", () => {
       TENANT_ID,
     );
 
-    expect(appointmentsRepo.findAllByTenantId).toHaveBeenCalledWith(
+    expect(appointmentsRepo.findAllInDateRange).toHaveBeenCalledWith(
       TENANT_ID,
-      expect.any(Object),
+      expect.any(Date),
+      expect.any(Date),
     );
     expect(exceptionsRepo.findByDateRange).toHaveBeenCalledWith(
       TENANT_ID,
@@ -189,7 +187,7 @@ describe("GetCalendarUseCase", () => {
     };
 
     const skipUseCase = new GetCalendarUseCase(
-      { findAllByTenantId: vi.fn().mockResolvedValue({ rows: [], total: 0 }) } as any,
+      { findAllInDateRange: vi.fn().mockResolvedValue([]) } as any,
       { findByDateRange: vi.fn().mockResolvedValue([]) } as any,
       makeTrainingSchedulesRepository() as any,
       skipExcRepo as any,
@@ -224,7 +222,7 @@ describe("GetCalendarUseCase", () => {
     };
 
     const rescheduleUseCase = new GetCalendarUseCase(
-      { findAllByTenantId: vi.fn().mockResolvedValue({ rows: [], total: 0 }) } as any,
+      { findAllInDateRange: vi.fn().mockResolvedValue([]) } as any,
       { findByDateRange: vi.fn().mockResolvedValue([]) } as any,
       makeTrainingSchedulesRepository() as any,
       rescheduleExcRepo as any,

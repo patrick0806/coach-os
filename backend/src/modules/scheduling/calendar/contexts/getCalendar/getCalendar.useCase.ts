@@ -45,14 +45,9 @@ export class GetCalendarUseCase {
     const startDate = new Date(`${params.startDate}T00:00:00Z`);
     const endDate = new Date(`${params.endDate}T23:59:59Z`);
 
-    const [appointmentsResult, exceptions, trainingSchedules] =
+    const [appointmentsList, exceptions, trainingSchedules] =
       await Promise.all([
-        this.appointmentsRepository.findAllByTenantId(tenantId, {
-          page: 0,
-          size: 1000,
-          startDate,
-          endDate,
-        }),
+        this.appointmentsRepository.findAllInDateRange(tenantId, startDate, endDate),
         this.availabilityExceptionsRepository.findByDateRange(
           tenantId,
           params.startDate,
@@ -64,7 +59,7 @@ export class GetCalendarUseCase {
     const entries: CalendarEntry[] = [];
 
     // Add appointments
-    for (const apt of appointmentsResult.rows) {
+    for (const apt of appointmentsList) {
       const pad = (n: number) => n.toString().padStart(2, "0");
       entries.push({
         type: "appointment",
@@ -88,13 +83,13 @@ export class GetCalendarUseCase {
       days.push(new Date(d));
     }
 
-    // Build a map of studentId -> studentName for schedules
+    // Build a map of studentId -> studentName for schedules (single batch query)
     const studentIds = [...new Set(trainingSchedules.map((s) => s.studentId))];
     const studentMap = new Map<string, string>();
-    for (const sid of studentIds) {
-      const student = await this.studentsRepository.findById(sid, tenantId);
-      if (student) {
-        studentMap.set(sid, (student as any).name ?? (student as any).userName ?? sid);
+    if (studentIds.length > 0) {
+      const studentsList = await this.studentsRepository.findByIds(studentIds, tenantId);
+      for (const student of studentsList) {
+        studentMap.set(student.id, student.name ?? student.id);
       }
     }
 

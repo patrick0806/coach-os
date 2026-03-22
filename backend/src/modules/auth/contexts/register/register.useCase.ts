@@ -59,6 +59,9 @@ export class RegisterUseCase {
     const data = validate(registerSchema, body);
 
     // Check duplicate email
+    // CHK-038: This reveals email existence (409 vs 201). Accepted risk — rate limiting
+    // (3 req/min on register) makes enumeration impractical. A full fix would require
+    // switching to a "check your email" flow, which changes the registration UX significantly.
     const existingUser = await this.usersRepository.findByEmail(data.email);
     if (existingUser) {
       throw new ConflictException("Email already registered");

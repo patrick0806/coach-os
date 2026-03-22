@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { z } from "zod";
-import { startOfWeek, endOfWeek, parseISO } from "date-fns";
+// startOfWeek/endOfWeek/parseISO removed — using explicit UTC logic to avoid timezone issues
 
 import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
 import {
@@ -51,18 +51,20 @@ export class RescheduleOccurrenceUseCase {
       throw new NotFoundException("Training schedule not found");
     }
 
-    // 2. Validate originalDate falls on the correct dayOfWeek
-    const originalDateObj = parseISO(data.originalDate);
+    // 2. Validate originalDate falls on the correct dayOfWeek (UTC-safe)
+    const originalDateObj = new Date(`${data.originalDate}T00:00:00Z`);
     if (originalDateObj.getUTCDay() !== schedule.dayOfWeek) {
       throw new BadRequestException(
         "originalDate does not match the training schedule day of week",
       );
     }
 
-    // 3. Validate newDate is in the same week as originalDate (Monday–Sunday)
-    const weekStart = startOfWeek(originalDateObj, { weekStartsOn: 1 });
-    const weekEnd = endOfWeek(originalDateObj, { weekStartsOn: 1 });
-    const newDateObj = parseISO(data.newDate);
+    // 3. Validate newDate is in the same week as originalDate (Monday–Sunday, UTC)
+    const utcDay = originalDateObj.getUTCDay();
+    const mondayOffset = utcDay === 0 ? -6 : 1 - utcDay; // Monday = start of week
+    const weekStart = new Date(originalDateObj.getTime() + mondayOffset * 86400000);
+    const weekEnd = new Date(weekStart.getTime() + 6 * 86400000); // Sunday
+    const newDateObj = new Date(`${data.newDate}T00:00:00Z`);
     if (newDateObj < weekStart || newDateObj > weekEnd) {
       throw new BadRequestException(
         "newDate must be within the same week as originalDate",

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { and, desc, eq } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { coachingContracts } from "@config/database/schema/coaching";
 import { servicePlans } from "@config/database/schema/coaching";
 
@@ -30,8 +30,8 @@ export class CoachingContractsRepository {
     status: "active" | "cancelled" | "expired";
     startDate: Date;
     endDate?: Date | null;
-  }): Promise<CoachingContract> {
-    const result = await this.drizzle.db
+  }, tx?: DbTransaction): Promise<CoachingContract> {
+    const result = await (tx ?? this.drizzle.db)
       .insert(coachingContracts)
       .values(data)
       .returning();
@@ -195,8 +195,9 @@ export class CoachingContractsRepository {
     id: string,
     tenantId: string,
     data: Partial<Pick<CoachingContract, "status" | "endDate">>,
+    tx?: DbTransaction,
   ): Promise<CoachingContract | undefined> {
-    const result = await this.drizzle.db
+    const result = await (tx ?? this.drizzle.db)
       .update(coachingContracts)
       .set(data)
       .where(and(eq(coachingContracts.id, id), eq(coachingContracts.tenantId, tenantId)))

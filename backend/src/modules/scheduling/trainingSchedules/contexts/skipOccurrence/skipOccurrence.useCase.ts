@@ -5,7 +5,7 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { z } from "zod";
-import { parseISO } from "date-fns";
+// parseISO removed — using explicit UTC constructor to avoid timezone issues
 
 import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
 import {
@@ -38,7 +38,7 @@ export class SkipOccurrenceUseCase {
       throw new NotFoundException("Training schedule not found");
     }
 
-    const originalDateObj = parseISO(data.originalDate);
+    const originalDateObj = new Date(`${data.originalDate}T00:00:00Z`);
     if (originalDateObj.getUTCDay() !== schedule.dayOfWeek) {
       throw new BadRequestException(
         "originalDate does not match the training schedule day of week",

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, asc, eq, ilike, ne, or, sql } from "drizzle-orm";
+import { and, asc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 
 import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { students } from "@config/database/schema/students";
@@ -59,6 +59,34 @@ export class StudentsRepository {
       .limit(1);
 
     return result[0] as StudentWithUser | undefined;
+  }
+
+  async findByIds(ids: string[], tenantId: string): Promise<StudentWithUser[]> {
+    if (ids.length === 0) return [];
+
+    const result = await this.drizzle.db
+      .select({
+        id: students.id,
+        userId: students.userId,
+        tenantId: students.tenantId,
+        status: students.status,
+        phoneNumber: students.phoneNumber,
+        goal: students.goal,
+        observations: students.observations,
+        physicalRestrictions: students.physicalRestrictions,
+        currentStreak: students.currentStreak,
+        lastWorkoutDate: students.lastWorkoutDate,
+        totalWorkouts: students.totalWorkouts,
+        createdAt: students.createdAt,
+        updatedAt: students.updatedAt,
+        name: users.name,
+        email: users.email,
+      })
+      .from(students)
+      .leftJoin(users, eq(students.userId, users.id))
+      .where(and(inArray(students.id, ids), eq(students.tenantId, tenantId)));
+
+    return result as StudentWithUser[];
   }
 
   async findByUserId(userId: string): Promise<Student | undefined> {

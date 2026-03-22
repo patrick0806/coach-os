@@ -119,6 +119,44 @@ export class AppointmentsRepository {
     };
   }
 
+  async findAllInDateRange(
+    tenantId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<AppointmentWithStudent[]> {
+    const conditions = and(
+      eq(appointments.tenantId, tenantId),
+      gte(appointments.startAt, startDate),
+      lte(appointments.startAt, endDate),
+    );
+
+    return this.drizzle.db
+      .select({
+        id: appointments.id,
+        tenantId: appointments.tenantId,
+        studentId: appointments.studentId,
+        appointmentRequestId: appointments.appointmentRequestId,
+        startAt: appointments.startAt,
+        endAt: appointments.endAt,
+        appointmentType: appointments.appointmentType,
+        status: appointments.status,
+        meetingUrl: appointments.meetingUrl,
+        location: appointments.location,
+        notes: appointments.notes,
+        cancelledAt: appointments.cancelledAt,
+        cancellationReason: appointments.cancellationReason,
+        createdAt: appointments.createdAt,
+        updatedAt: appointments.updatedAt,
+        studentName: users.name,
+        studentEmail: users.email,
+      })
+      .from(appointments)
+      .leftJoin(students, eq(appointments.studentId, students.id))
+      .leftJoin(users, eq(students.userId, users.id))
+      .where(conditions)
+      .orderBy(desc(appointments.startAt)) as Promise<AppointmentWithStudent[]>;
+  }
+
   async findOverlapping(
     tenantId: string,
     startAt: Date,

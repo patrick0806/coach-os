@@ -56,16 +56,16 @@ Last updated: 2026-03-21
 
 ---
 
-### Wave 4 — P3: Backlog / Accepted Risks
+### Wave 4 — P3: Backlog / Accepted Risks ✅ DONE (2026-03-22)
 
-- [ ] **CHK-031** TOCTOU race condition on student limit — affects createStudent, inviteStudent, generateInviteLink, acceptInvite; requires pessimistic lock (accepted risk for now)
-- [ ] **CHK-032** Calendar N+1 queries — `getCalendar.useCase.ts` loops through studentIds with individual queries
-- [ ] **CHK-033** Calendar hardcoded limit — `getCalendar.useCase.ts` uses `size: 1000`; events beyond silently dropped
-- [ ] **CHK-034** parseISO timezone issue — `rescheduleOccurrence.useCase.ts` and `skipOccurrence.useCase.ts` may misinterpret dates on UTC+N servers
-- [ ] **CHK-035** metricType free-text vs enum — `createCheckin` accepts any string but chart endpoint validates against fixed enum
-- [ ] **CHK-036** createContract not transactional — auto-cancel + create without DB transaction; race condition possible
-- [ ] **CHK-037** S3 photos never cleaned — `deletePhoto` removes DB record but photo stays in S3 indefinitely
-- [ ] **CHK-038** Email enumeration via register — `/register` returns 409 for existing email (vs 201 for new), enabling enumeration
+- [ ] **CHK-031** TOCTOU race condition on student limit — accepted risk; requires pessimistic lock
+- [x] **CHK-032** Calendar N+1 queries — `findByIds` batch method replaces N individual `findById` calls
+- [x] **CHK-033** Calendar hardcoded limit — `findAllInDateRange` replaces paginated `findAllByTenantId` (no limit)
+- [x] **CHK-034** parseISO timezone issue — explicit UTC constructor (`new Date("...T00:00:00Z")`) + manual UTC week boundaries
+- [x] **CHK-035** metricType free-text vs enum — shared `VALID_METRIC_TYPES` enum used in createCheckin, createRecord, getChartData, getMyChartData
+- [x] **CHK-036** createContract transactional — auto-cancel + create wrapped in `db.transaction()`
+- [x] **CHK-037** S3 photos cleaned — `deleteProgressPhoto` now calls `s3Provider.deleteObject()` (best-effort with error logging)
+- [x] **CHK-038** Email enumeration via register — documented as accepted risk; rate limiting (3 req/min) mitigates
 
 ---
 

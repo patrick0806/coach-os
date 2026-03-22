@@ -4,6 +4,7 @@ import { z } from "zod";
 import { CoachingContractsRepository, ContractWithPlan } from "@shared/repositories/coachingContracts.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { ServicePlansRepository } from "@shared/repositories/servicePlans.repository";
+import { DrizzleProvider } from "@shared/providers/drizzle.service";
 import { validate } from "@shared/utils/validation.util";
 
 const createContractSchema = z.object({
@@ -16,6 +17,7 @@ export class CreateContractUseCase {
     private readonly contractsRepository: CoachingContractsRepository,
     private readonly studentsRepository: StudentsRepository,
     private readonly servicePlansRepository: ServicePlansRepository,
+    private readonly drizzle: DrizzleProvider,
   ) {}
 
   async execute(studentId: string, body: unknown, tenantId: string): Promise<ContractWithPlan> {
@@ -36,22 +38,23 @@ export class CreateContractUseCase {
       throw new NotFoundException("Service plan is not active");
     }
 
-    // Auto-cancel existing active contract if any
-    const existingActive = await this.contractsRepository.findActiveByStudentId(studentId, tenantId);
-    if (existingActive) {
-      await this.contractsRepository.update(existingActive.id, tenantId, {
-        status: "cancelled",
-        endDate: new Date(),
-      });
-    }
+    // Auto-cancel existing active contract + create new one in a transaction
+    await this.drizzle.db.transaction(async (tx) => {
+      const existingActive = await this.contractsRepository.findActiveByStudentId(studentId, tenantId);
+      if (existingActive) {
+        await this.contractsRepository.update(existingActive.id, tenantId, {
+          status: "cancelled",
+          endDate: new Date(),
+        }, tx);
+      }
 
-    // Create new active contract
-    await this.contractsRepository.create({
-      tenantId,
-      studentId,
-      servicePlanId: data.servicePlanId,
-      status: "active",
-      startDate: new Date(),
+      await this.contractsRepository.create({
+        tenantId,
+        studentId,
+        servicePlanId: data.servicePlanId,
+        status: "active",
+        startDate: new Date(),
+      }, tx);
     });
 
     // Return the contract with servicePlan joined

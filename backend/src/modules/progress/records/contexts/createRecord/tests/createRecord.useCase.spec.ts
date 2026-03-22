@@ -72,7 +72,7 @@ describe("CreateProgressRecordUseCase", () => {
   it("should convert numeric value to string when creating", async () => {
     await useCase.execute(
       STUDENT_ID,
-      { metricType: "bodyFat", value: 15.75, unit: "%", recordedAt: new Date() },
+      { metricType: "body_fat", value: 15.75, unit: "%", recordedAt: new Date() },
       tenantId,
     );
 

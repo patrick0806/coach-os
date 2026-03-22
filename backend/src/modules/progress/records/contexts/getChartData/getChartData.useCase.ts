@@ -3,11 +3,8 @@ import { z } from "zod";
 
 import { ProgressRecordsRepository } from "@shared/repositories/progressRecords.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
+import { VALID_METRIC_TYPES } from "@shared/enums";
 import { validate } from "@shared/utils/validation.util";
-
-const VALID_METRIC_TYPES = [
-  "weight", "body_fat", "waist", "chest", "hip", "bicep", "thigh",
-] as const;
 
 const getChartDataSchema = z.object({
   metricType: z.enum(VALID_METRIC_TYPES).optional(),

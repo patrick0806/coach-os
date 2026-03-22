@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { ProgressCheckinsRepository, ProgressCheckinWithData } from "@shared/repositories/progressCheckins.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
+import { VALID_METRIC_TYPES } from "@shared/enums";
 import { validate } from "@shared/utils/validation.util";
 
 const createCheckinSchema = z
@@ -12,7 +13,7 @@ const createCheckinSchema = z
     records: z
       .array(
         z.object({
-          metricType: z.string().min(1).max(50),
+          metricType: z.enum(VALID_METRIC_TYPES),
           value: z.number().positive(),
           unit: z.string().min(1).max(20),
           notes: z.string().optional(),
