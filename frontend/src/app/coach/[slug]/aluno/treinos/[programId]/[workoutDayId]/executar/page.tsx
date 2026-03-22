@@ -13,6 +13,7 @@ import { useCreateExecution } from "@/features/workoutExecution/hooks/useCreateE
 import { useRecordSet } from "@/features/workoutExecution/hooks/useRecordSet"
 import { WorkoutStepper } from "@/features/workoutExecution/components/workoutStepper"
 import { WorkoutCompletionScreen } from "@/features/workoutExecution/components/workoutCompletionScreen"
+import type { ExerciseExecutionData } from "@/features/workoutExecution/types/workoutExecution.types"
 import { useCoachHref } from "@/lib/useCoachHref"
 import { LoadingState } from "@/shared/components/loadingState"
 import { Button } from "@/shared/ui/button"
@@ -39,6 +40,7 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
 
   const [executionState, setExecutionState] = useState<ExecutionState>("idle")
   const [sessionId, setSessionId] = useState<string | null>(null)
+  const [initialExecutions, setInitialExecutions] = useState<ExerciseExecutionData[]>([])
   const [isStarting, setIsStarting] = useState(false)
   const [isFinishing, setIsFinishing] = useState(false)
 
@@ -67,6 +69,10 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
     try {
       const session = await startSession({ studentId, workoutDayId })
       setSessionId(session.id)
+      // If session has existing executions, pass them for hydration (resume flow)
+      if (session.exerciseExecutions?.length > 0) {
+        setInitialExecutions(session.exerciseExecutions)
+      }
       setExecutionState("started")
     } catch {
       // Error handled by mutation
@@ -163,6 +169,7 @@ export default function ExecutarTreinoPage({ params }: PageProps) {
           <WorkoutStepper
             exercises={sortedExercises}
             sessionId={sessionId}
+            initialExecutions={initialExecutions}
             onCreateExecution={async (studentExerciseId, exerciseId) =>
               createExecution({ workoutSessionId: sessionId, studentExerciseId, exerciseId })
             }

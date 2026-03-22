@@ -3,7 +3,11 @@ import { z } from "zod";
 
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { WorkoutDaysRepository } from "@shared/repositories/workoutDays.repository";
-import { WorkoutSessionsRepository, WorkoutSession } from "@shared/repositories/workoutSessions.repository";
+import {
+  WorkoutSessionsRepository,
+  WorkoutSession,
+  WorkoutSessionWithExecutions,
+} from "@shared/repositories/workoutSessions.repository";
 import { validate } from "@shared/utils/validation.util";
 
 const startSessionSchema = z.object({
@@ -20,7 +24,7 @@ export class StartWorkoutSessionUseCase {
     private readonly workoutSessionsRepository: WorkoutSessionsRepository,
   ) {}
 
-  async execute(body: unknown, tenantId: string): Promise<WorkoutSession> {
+  async execute(body: unknown, tenantId: string): Promise<WorkoutSessionWithExecutions> {
     const data = validate(startSessionSchema, body);
 
     // Validate student belongs to tenant
@@ -38,17 +42,39 @@ export class StartWorkoutSessionUseCase {
       throw new NotFoundException("Workout day not found");
     }
 
-    // CHK-016: Prevent concurrent sessions for the same student
-    const hasActive = await this.workoutSessionsRepository.hasActiveSession(data.studentId, tenantId);
-    if (hasActive) {
-      throw new BadRequestException("Student already has an active workout session");
+    // Idempotent: return existing active session for the same workoutDayId
+    const existingSession = await this.workoutSessionsRepository.findActiveByStudentAndWorkoutDay(
+      data.studentId,
+      data.workoutDayId,
+      tenantId,
+    );
+
+    if (existingSession) {
+      // Return session with its executions so frontend can resume
+      const sessionWithExecutions = await this.workoutSessionsRepository.findByIdWithExecutions(
+        existingSession.id,
+        tenantId,
+      );
+      if (!sessionWithExecutions) {
+        throw new NotFoundException("Session not found");
+      }
+      return sessionWithExecutions;
     }
 
-    return this.workoutSessionsRepository.create({
+    // CHK-016: Prevent concurrent sessions for a DIFFERENT workoutDay
+    const hasActive = await this.workoutSessionsRepository.hasActiveSession(data.studentId, tenantId);
+    if (hasActive) {
+      throw new BadRequestException("Student already has an active workout session for a different workout");
+    }
+
+    const newSession = await this.workoutSessionsRepository.create({
       tenantId,
       studentId: data.studentId,
       workoutDayId: data.workoutDayId,
       startedAt: data.startedAt ?? new Date(),
     });
+
+    // Return new session with empty executions array for consistent response shape
+    return { ...newSession, exerciseExecutions: [] };
   }
 }

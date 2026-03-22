@@ -10,6 +10,7 @@ import type { StudentExerciseItem } from "@/features/studentPrograms/types/stude
 import type {
   CompletedSetData,
   CreateExecutionResponse,
+  ExerciseExecutionData,
   RecordSetResponse,
 } from "@/features/workoutExecution/types/workoutExecution.types"
 
@@ -26,6 +27,7 @@ interface ExerciseState {
 interface WorkoutStepperProps {
   exercises: StudentExerciseItem[]
   sessionId: string
+  initialExecutions?: ExerciseExecutionData[]
   onCreateExecution: (studentExerciseId: string, exerciseId: string) => Promise<CreateExecutionResponse>
   onRecordSet: (data: {
     executionId: string
@@ -43,6 +45,7 @@ interface WorkoutStepperProps {
 export function WorkoutStepper({
   exercises,
   sessionId: _sessionId,
+  initialExecutions = [],
   onCreateExecution,
   onRecordSet,
   onAllComplete,
@@ -52,21 +55,56 @@ export function WorkoutStepper({
   const [phase, setPhase] = useState<StepperPhase>("set")
   const [isCreatingExecution, setIsCreatingExecution] = useState(false)
 
-  // Per-exercise state, keyed by exercise.id
+  // Build a lookup from studentExerciseId to execution data for hydration
+  const executionsByStudentExerciseId = useRef(
+    new Map(initialExecutions.map((exec) => [exec.studentExerciseId, exec])),
+  )
+
+  // Per-exercise state, keyed by exercise.id (studentExercise.id)
   const [exerciseStates, setExerciseStates] = useState<Record<string, ExerciseState>>(() => {
     const initial: Record<string, ExerciseState> = {}
     for (const ex of exercises) {
-      initial[ex.id] = {
-        executionId: null,
-        completedSets: [],
-        currentSetNumber: 1,
-        isComplete: false,
+      const existingExec = executionsByStudentExerciseId.current.get(ex.id)
+      if (existingExec && existingExec.exerciseSets.length > 0) {
+        // Hydrate from existing execution data
+        const completedSets: CompletedSetData[] = existingExec.exerciseSets.map((s) => ({
+          setNumber: s.setNumber,
+          performedReps: s.performedReps ?? 0,
+          usedWeight: s.usedWeight ?? "0",
+          status: s.completionStatus === "skipped" ? "skipped" : "completed",
+        }))
+        const maxSetNumber = Math.max(...existingExec.exerciseSets.map((s) => s.setNumber))
+        const isComplete = maxSetNumber >= ex.sets
+        initial[ex.id] = {
+          executionId: existingExec.id,
+          completedSets,
+          currentSetNumber: isComplete ? maxSetNumber : maxSetNumber + 1,
+          isComplete,
+        }
+      } else if (existingExec) {
+        // Execution exists but no sets recorded yet
+        initial[ex.id] = {
+          executionId: existingExec.id,
+          completedSets: [],
+          currentSetNumber: 1,
+          isComplete: false,
+        }
+      } else {
+        initial[ex.id] = {
+          executionId: null,
+          completedSets: [],
+          currentSetNumber: 1,
+          isComplete: false,
+        }
       }
     }
     return initial
   })
 
-  const createdExecutionFor = useRef<Set<string>>(new Set())
+  // Track which exercises already have backend executions
+  const createdExecutionFor = useRef<Set<string>>(
+    new Set(initialExecutions.map((exec) => exec.studentExerciseId)),
+  )
 
   const activeExercise = exercises.find((e) => e.id === activeExerciseId)
   const activeState = activeExerciseId ? exerciseStates[activeExerciseId] : null

@@ -10,6 +10,30 @@ export interface StartSessionResponse {
   status: string
   startedAt: string
   finishedAt: string | null
+  exerciseExecutions: ExerciseExecutionData[]
+}
+
+export interface ExerciseSetData {
+  id: string
+  exerciseExecutionId: string
+  setNumber: number
+  plannedReps: number | null
+  performedReps: number | null
+  plannedWeight: string | null
+  usedWeight: string | null
+  restSeconds: number | null
+  completionStatus: "completed" | "partial" | "skipped"
+}
+
+export interface ExerciseExecutionData {
+  id: string
+  workoutSessionId: string
+  studentExerciseId: string
+  exerciseId: string
+  order: number
+  startedAt: string | null
+  finishedAt: string | null
+  exerciseSets: ExerciseSetData[]
 }
 
 export interface CreateExecutionRequest {

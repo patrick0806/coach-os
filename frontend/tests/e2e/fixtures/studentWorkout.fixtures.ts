@@ -101,6 +101,42 @@ export const createdSession = {
   status: "started",
   startedAt: new Date().toISOString(),
   finishedAt: null,
+  exerciseExecutions: [],
+}
+
+// Resumed session with 1 exercise partially completed (1 of 3 sets done)
+export const resumedSession = {
+  id: MOCK_SESSION_ID,
+  studentId: MOCK_STUDENT_ID,
+  workoutDayId: MOCK_WORKOUT_DAY_ID,
+  status: "started",
+  startedAt: new Date().toISOString(),
+  finishedAt: null,
+  exerciseExecutions: [
+    {
+      id: MOCK_EXECUTION_ID,
+      workoutSessionId: MOCK_SESSION_ID,
+      studentExerciseId: "se-portal-1",
+      exerciseId: "ex-portal-1",
+      order: 1,
+      startedAt: null,
+      finishedAt: null,
+      exerciseSets: [
+        {
+          id: "set-resumed-1",
+          exerciseExecutionId: MOCK_EXECUTION_ID,
+          setNumber: 1,
+          plannedReps: 10,
+          performedReps: 10,
+          plannedWeight: "50.00",
+          usedWeight: "50.00",
+          restSeconds: 60,
+          completionStatus: "completed",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    },
+  ],
 }
 
 export const createdExecution = {
@@ -120,6 +156,65 @@ export const recordedSet = {
   usedWeight: "50.00",
   restSeconds: 60,
   completionStatus: "completed",
+}
+
+// Resumed session with first exercise fully completed (3/3 sets)
+export const resumedSessionFullExercise = {
+  id: MOCK_SESSION_ID,
+  studentId: MOCK_STUDENT_ID,
+  workoutDayId: MOCK_WORKOUT_DAY_ID,
+  status: "started",
+  startedAt: new Date().toISOString(),
+  finishedAt: null,
+  exerciseExecutions: [
+    {
+      id: MOCK_EXECUTION_ID,
+      workoutSessionId: MOCK_SESSION_ID,
+      studentExerciseId: "se-portal-1",
+      exerciseId: "ex-portal-1",
+      order: 1,
+      startedAt: null,
+      finishedAt: null,
+      exerciseSets: [
+        {
+          id: "set-full-1",
+          exerciseExecutionId: MOCK_EXECUTION_ID,
+          setNumber: 1,
+          plannedReps: 10,
+          performedReps: 10,
+          plannedWeight: "50.00",
+          usedWeight: "50.00",
+          restSeconds: 60,
+          completionStatus: "completed",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "set-full-2",
+          exerciseExecutionId: MOCK_EXECUTION_ID,
+          setNumber: 2,
+          plannedReps: 10,
+          performedReps: 10,
+          plannedWeight: "50.00",
+          usedWeight: "50.00",
+          restSeconds: 60,
+          completionStatus: "completed",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "set-full-3",
+          exerciseExecutionId: MOCK_EXECUTION_ID,
+          setNumber: 3,
+          plannedReps: 10,
+          performedReps: 10,
+          plannedWeight: "50.00",
+          usedWeight: "50.00",
+          restSeconds: 60,
+          completionStatus: "completed",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    },
+  ],
 }
 
 export const MOCK_COACH_PUBLIC = {
