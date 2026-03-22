@@ -145,9 +145,9 @@ connectors:
     default_pipelines: [logs/infra]
     error_mode: ignore
     table:
-      - statement: route() where attributes["service.name"] == "coach-os-backend"
+      - statement: route() where resource.attributes["service.name"] == "coach-os-backend"
         pipelines: [logs/backend]
-      - statement: route() where attributes["service.name"] == "coach-os-frontend"
+      - statement: route() where resource.attributes["service.name"] == "coach-os-frontend"
         pipelines: [logs/frontend]
 
 exporters:

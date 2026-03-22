@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Input } from "@/shared/ui/input"
 import { Textarea } from "@/shared/ui/textarea"
 import { Field, FieldLabel } from "@/shared/ui/field"
@@ -22,6 +23,14 @@ interface ProfileTabProps {
 }
 
 export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
+  const [specialtiesText, setSpecialtiesText] = useState(
+    (data.specialties ?? []).join(", ")
+  )
+
+  useEffect(() => {
+    setSpecialtiesText((data.specialties ?? []).join(", "))
+  }, [data.specialties])
+
   return (
     <div className="space-y-5">
       <div className="flex w-full flex-col gap-5">
@@ -63,10 +72,11 @@ export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
           <Input
             id="specialties"
             placeholder="Ex: musculação, emagrecimento, funcional"
-            value={(data.specialties ?? []).join(", ")}
-            onChange={(e) =>
+            value={specialtiesText}
+            onChange={(e) => setSpecialtiesText(e.target.value)}
+            onBlur={() =>
               onChange({
-                specialties: e.target.value
+                specialties: specialtiesText
                   .split(",")
                   .map((s) => s.trim())
                   .filter(Boolean),
