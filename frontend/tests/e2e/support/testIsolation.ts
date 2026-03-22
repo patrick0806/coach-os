@@ -121,6 +121,23 @@ export async function injectCoachSession(
       expires: now + 30 * 24 * 3600,
     },
   ])
+
+  // Populate localStorage with tour progress to prevent driver.js overlay
+  // from blocking interactions in smoke tests (same pattern as injectMockAuth)
+  const ALL_TOUR_PAGES = [
+    "students",
+    "exercises",
+    "training",
+    "schedule",
+    "availability",
+    "services",
+    "landingPage",
+    "profile",
+  ]
+  await page.addInitScript((pages) => {
+    localStorage.setItem("coach_os_tour_progress", JSON.stringify(pages))
+    localStorage.setItem("coach_os_toured_pages", JSON.stringify(pages))
+  }, ALL_TOUR_PAGES)
 }
 
 export { DEFAULT_PLAN_ID_PLACEHOLDER }

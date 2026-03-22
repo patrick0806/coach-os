@@ -14,7 +14,10 @@ import { LoginUseCase } from "./login.useCase";
 const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
 @Public()
-@Throttle({ short: { ttl: 60_000, limit: 5 }, long: { ttl: 600_000, limit: 20 } })
+@Throttle({
+  short: { ttl: 60_000, limit: process.env.NODE_ENV !== "production" ? 50 : 5 },
+  long: { ttl: 600_000, limit: process.env.NODE_ENV !== "production" ? 200 : 20 },
+})
 @ApiTags(API_TAGS.AUTH)
 @Controller({ version: "1", path: "login" })
 export class LoginController {

@@ -46,10 +46,12 @@ export default defineConfig({
 
     // --- Smoke tests (real backend required) ---
     // Run with: npx playwright test --project=smoke
+    // Workers limited to 2 to avoid hitting rate limits on auth endpoints (3 req/min)
     {
       name: "smoke",
       use: { ...devices["Desktop Chrome"] },
       testMatch: ["**/*.smoke.spec.ts"],
+      fullyParallel: false,
     },
 
     // webkit (Safari) requires a separate installation: npx playwright install webkit

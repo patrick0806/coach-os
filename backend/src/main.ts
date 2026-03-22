@@ -82,12 +82,12 @@ async function bootstrap() {
 
   app.enableCors({
     origin: isDev
-      ? ["http://localhost:3000", "http://localhost:3001"]
+      ? ["http://localhost:3000", "http://localhost:3001", "http://localhost:3099"]
       : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-          if (!origin) return callback(new Error("CORS not allowed"), false);
-          const allowed = /^https:\/\/([\w-]+\.)?coachos\.com\.br$/.test(origin);
-          callback(allowed ? null : new Error("CORS not allowed"), allowed);
-        },
+        if (!origin) return callback(new Error("CORS not allowed"), false);
+        const allowed = /^https:\/\/([\w-]+\.)?coachos\.com\.br$/.test(origin);
+        callback(allowed ? null : new Error("CORS not allowed"), allowed);
+      },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     exposedHeaders: ["Access-Token", "Refresh-Token"],

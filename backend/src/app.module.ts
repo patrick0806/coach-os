@@ -45,12 +45,12 @@ import { DatabaseModule } from "@config/database/database.module";
       {
         name: "short",
         ttl: 60_000,
-        limit: 10,
+        limit: process.env.NODE_ENV !== "production" ? 100 : 10,
       },
       {
         name: "long",
         ttl: 600_000,
-        limit: 50,
+        limit: process.env.NODE_ENV !== "production" ? 500 : 50,
       },
     ]),
     DatabaseModule,

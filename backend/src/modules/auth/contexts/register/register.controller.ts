@@ -14,7 +14,10 @@ import { RegisterUseCase } from "./register.useCase";
 const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
 @Public()
-@Throttle({ short: { ttl: 60_000, limit: 3 }, long: { ttl: 600_000, limit: 10 } })
+@Throttle({
+  short: { ttl: 60_000, limit: process.env.NODE_ENV !== "production" ? 30 : 3 },
+  long: { ttl: 600_000, limit: process.env.NODE_ENV !== "production" ? 100 : 10 },
+})
 @ApiTags(API_TAGS.AUTH)
 @Controller({ version: "1", path: "register" })
 export class RegisterController {
