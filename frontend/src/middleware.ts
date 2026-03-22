@@ -40,7 +40,7 @@ function getStudentSlugFromCookie(request: NextRequest): string | null {
   }
 }
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const host = request.headers.get("host") ?? ""
   const subdomain = extractSubdomain(host)
