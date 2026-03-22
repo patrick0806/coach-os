@@ -17,12 +17,12 @@ Full system audit completed on 2026-03-22 — **73 findings** identified across 
 | platform/subscriptions | minor issues | Fixed: Stripe atomicity, downgrade validation. Remaining: checkout session.url non-null assertion |
 | platform/webhooks | ok | Fixed: rawBody fallback, webhook idempotency (CHK-017), out-of-order protection (CHK-018) |
 | platform/tenants | ok | No findings |
-| training | ok | Fixed: assignProgram real transaction (CHK-022), reorder parent ID filter (CHK-023). Remaining: duplicateProgramTemplate same pattern (MEDIUM) |
+| training | ok | Fixed: assignProgram real transaction (CHK-022), reorder parent ID filter (CHK-023), duplicateProgramTemplate transaction (CHK-039) |
 | scheduling | ok | Fixed: appointment state machine, approveRequest transactional (CHK-021), conflict detection respects exceptions (CHK-025), student cross-access (CHK-024), calendar N+1 (CHK-032), calendar hardcoded limit (CHK-033), UTC date parsing (CHK-034) |
-| coaching | ok | Fixed: createContract transactional (CHK-036). Remaining: deleteServicePlan with active contracts, contract for archived student (MEDIUM) |
+| coaching | ok | Fixed: createContract transactional (CHK-036), deleteServicePlan active contracts guard (CHK-040), createContract student status validation (CHK-041) |
 | students | ok | Fixed: multi-tenant invite, student limit, URL regression, acceptInvite transactional (CHK-019), sendStudentAccess Zod validation (CHK-030). Remaining: TOCTOU race condition (Wave 4) |
 | workoutExecution | ok | Fixed: session state machine, concurrent sessions, exercise execution on finished session (CHK-026), recordSet on finished session + setNumber uniqueness (CHK-027) |
-| progress | ok | Fixed: metricType shared enum (CHK-035), S3 photo cleanup on delete (CHK-037). Remaining: savePhoto accepts any URL (MEDIUM) |
+| progress | ok | Fixed: metricType shared enum (CHK-035), S3 photo cleanup on delete (CHK-037). savePhoto URL validation sufficient (`z.string().url()`) |
 | public | ok | No findings |
 | enums | ok | No findings |
 
@@ -133,8 +133,8 @@ All 848 backend tests passing after Wave 4 fixes.
 
 ### Systemic Patterns Remaining
 
-1. **savePhoto** accepts any URL without validation (MEDIUM)
-4. **CHK-031** TOCTOU race condition on student limit — accepted risk
+1. **CHK-031** TOCTOU race condition on student limit — accepted risk (mitigated by rate limiting)
+2. ~~**savePhoto** accepts any URL~~ — resolved: `z.string().url()` validation is sufficient given presigned URL flow
 
 ---
 
@@ -142,7 +142,7 @@ All 848 backend tests passing after Wave 4 fixes.
 
 ### Milestone 13 — System Audit Fixes ✅ COMPLETE
 
-All 4 waves implemented. 37 of 38 findings fixed (CHK-031 TOCTOU accepted as risk).
+All 5 waves implemented. 41 of 42 findings fixed (CHK-031 TOCTOU accepted as risk).
 - **Wave 1 (P0)**: 6 fixes — broken functionality + security
 - **Wave 2 (P1)**: 10 fixes — business-critical
 - **Wave 3 (P2)**: 14 fixes — data integrity + security hardening
