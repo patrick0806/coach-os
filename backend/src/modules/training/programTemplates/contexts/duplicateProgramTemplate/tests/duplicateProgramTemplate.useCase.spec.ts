@@ -84,10 +84,12 @@ const makeExerciseTemplatesRepository = () => ({
   }),
 });
 
+const mockTx = { isTx: true };
+
 const makeDrizzle = () => ({
   db: {
     transaction: vi.fn().mockImplementation(async (fn: (tx: any) => Promise<void>) => {
-      await fn({});
+      await fn(mockTx);
     }),
   },
 });
@@ -123,6 +125,7 @@ describe("DuplicateProgramTemplateUseCase", () => {
         name: "Programa de Força (cópia)",
         tenantId,
       }),
+      mockTx,
     );
     expect(result.name).toBe("Programa de Força (cópia)");
   });
@@ -155,6 +158,24 @@ describe("DuplicateProgramTemplateUseCase", () => {
         sets: 3,
         repetitions: 10,
       }),
+      mockTx,
+    );
+  });
+
+  it("should pass tx to all repository calls inside transaction", async () => {
+    await useCase.execute("template-id-1", tenantId);
+
+    expect(programTemplatesRepository.create).toHaveBeenCalledWith(
+      expect.any(Object),
+      mockTx,
+    );
+    expect(workoutTemplatesRepository.create).toHaveBeenCalledWith(
+      expect.any(Object),
+      mockTx,
+    );
+    expect(exerciseTemplatesRepository.create).toHaveBeenCalledWith(
+      expect.any(Object),
+      mockTx,
     );
   });
 });

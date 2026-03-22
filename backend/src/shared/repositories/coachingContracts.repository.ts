@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
 import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -189,6 +189,21 @@ export class CoachingContractsRepository {
         durationMinutes: row.servicePlanDurationMinutes,
       },
     };
+  }
+
+  async countActiveByServicePlanId(servicePlanId: string, tenantId: string): Promise<number> {
+    const result = await this.drizzle.db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(coachingContracts)
+      .where(
+        and(
+          eq(coachingContracts.servicePlanId, servicePlanId),
+          eq(coachingContracts.tenantId, tenantId),
+          eq(coachingContracts.status, "active"),
+        ),
+      );
+
+    return result[0]?.count ?? 0;
   }
 
   async update(

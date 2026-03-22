@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { and, eq, max } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import {
   exerciseTemplates,
   workoutTemplates,
@@ -28,8 +28,8 @@ export class ExerciseTemplatesRepository {
     duration?: string;
     order: number;
     notes?: string;
-  }): Promise<ExerciseTemplate> {
-    const result = await this.drizzle.db
+  }, tx?: DbTransaction): Promise<ExerciseTemplate> {
+    const result = await (tx ?? this.drizzle.db)
       .insert(exerciseTemplates)
       .values(data)
       .returning();

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 import { DeleteServicePlanUseCase } from "../deleteServicePlan.useCase";
 
@@ -23,15 +23,21 @@ const makeRepository = () => ({
   delete: vi.fn().mockResolvedValue(undefined),
 });
 
+const makeContractsRepository = () => ({
+  countActiveByServicePlanId: vi.fn().mockResolvedValue(0),
+});
+
 describe("DeleteServicePlanUseCase", () => {
   let useCase: DeleteServicePlanUseCase;
   let repository: ReturnType<typeof makeRepository>;
+  let contractsRepository: ReturnType<typeof makeContractsRepository>;
 
   const tenantId = "tenant-id-1";
 
   beforeEach(() => {
     repository = makeRepository();
-    useCase = new DeleteServicePlanUseCase(repository as any);
+    contractsRepository = makeContractsRepository();
+    useCase = new DeleteServicePlanUseCase(repository as any, contractsRepository as any);
   });
 
   it("should delete a service plan successfully", async () => {
@@ -50,5 +56,12 @@ describe("DeleteServicePlanUseCase", () => {
     repository.findById.mockResolvedValue(undefined);
 
     await expect(useCase.execute("plan-id-1", "other-tenant")).rejects.toThrow(NotFoundException);
+  });
+
+  it("should throw BadRequestException when plan has active contracts", async () => {
+    contractsRepository.countActiveByServicePlanId.mockResolvedValue(2);
+
+    await expect(useCase.execute("plan-id-1", tenantId)).rejects.toThrow(BadRequestException);
+    expect(repository.delete).not.toHaveBeenCalled();
   });
 });

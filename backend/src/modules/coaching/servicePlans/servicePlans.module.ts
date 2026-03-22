@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { ServicePlansRepository } from "@shared/repositories/servicePlans.repository";
+import { CoachingContractsRepository } from "@shared/repositories/coachingContracts.repository";
 
 import { CreateServicePlanController } from "./contexts/createServicePlan/createServicePlan.controller";
 import { CreateServicePlanUseCase } from "./contexts/createServicePlan/createServicePlan.useCase";
@@ -23,6 +24,7 @@ import { DeleteServicePlanUseCase } from "./contexts/deleteServicePlan/deleteSer
   ],
   providers: [
     ServicePlansRepository,
+    CoachingContractsRepository,
     CreateServicePlanUseCase,
     ListServicePlansUseCase,
     GetServicePlanUseCase,

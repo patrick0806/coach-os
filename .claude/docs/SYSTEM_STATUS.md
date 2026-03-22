@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-22 (post Wave 4)
+Last updated: 2026-03-22 (post Wave 5)
 
 ---
 
@@ -38,6 +38,7 @@ Full system audit completed on 2026-03-22 — **73 findings** identified across 
 | **Progress charts** | ok | LineChart + CombinedProgressChart |
 | **Reschedule appointments** | ok | RescheduleAppointmentDialog + conflict detection |
 | **Reschedule training** | ok | TrainingScheduleDetailDialog + RescheduleTrainingDialog |
+| **Student Portal** | ok | Login, training, progress, calendar |
 | **Notifications** | not started | Backlog |
 
 ---
@@ -63,7 +64,7 @@ Full system validation performed by QA, Security, and Code Review agents.
 |----------|-------|--------|
 | CRITICAL | 8 | all fixed (Wave 1 + Wave 2) |
 | HIGH | 19 | all fixed (Wave 1 + Wave 2 + Wave 3) |
-| MEDIUM | 31 | 9 fixed (Wave 3), 7 fixed (Wave 4), 15 remaining (backlog) |
+| MEDIUM | 31 | 9 fixed (Wave 3), 7 fixed (Wave 4), 3 fixed (Wave 5), 12 remaining (backlog) |
 | LOW | 15 | backlog |
 
 ### Wave 1 — P0 Fixes Applied (2026-03-22)
@@ -124,11 +125,15 @@ All 848 backend tests passing after Wave 3 fixes.
 
 All 848 backend tests passing after Wave 4 fixes.
 
+### Wave 5 — P4 Fixes Applied (2026-03-22)
+
+- **CHK-039**: `duplicateProgramTemplate.useCase.ts` — `_tx` → `tx`, passed to all `.create()` calls inside transaction (same fix as CHK-022)
+- **CHK-040**: `deleteServicePlan.useCase.ts` — validates no active contracts exist before deletion via `countActiveByServicePlanId`
+- **CHK-041**: `createContract.useCase.ts` — validates `student.status === "active"` before creating contract
+
 ### Systemic Patterns Remaining
 
-1. **duplicateProgramTemplate** uses same fake transaction pattern as assignProgram did (MEDIUM)
-2. **deleteServicePlan** with active contracts, contract for archived student (MEDIUM)
-3. **savePhoto** accepts any URL without validation (MEDIUM)
+1. **savePhoto** accepts any URL without validation (MEDIUM)
 4. **CHK-031** TOCTOU race condition on student limit — accepted risk
 
 ---

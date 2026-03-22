@@ -27,13 +27,13 @@ export class DuplicateProgramTemplateUseCase {
     // Deep copy in a transaction
     let newTemplate: ProgramTemplate | undefined;
 
-    await this.drizzle.db.transaction(async (_tx) => {
+    await this.drizzle.db.transaction(async (tx) => {
       // Create new program template with "(cópia)" suffix
       newTemplate = await this.programTemplatesRepository.create({
         tenantId,
         name: `${original.name} (cópia)`,
         description: original.description ?? undefined,
-      });
+      }, tx);
 
       // Deep copy workouts and exercises
       for (const workout of original.workoutTemplates) {
@@ -41,7 +41,7 @@ export class DuplicateProgramTemplateUseCase {
           programTemplateId: newTemplate!.id,
           name: workout.name,
           order: workout.order,
-        });
+        }, tx);
 
         for (const exercise of workout.exerciseTemplates) {
           await this.exerciseTemplatesRepository.create({
@@ -53,7 +53,7 @@ export class DuplicateProgramTemplateUseCase {
             duration: exercise.duration ?? undefined,
             order: exercise.order,
             notes: exercise.notes ?? undefined,
-          });
+          }, tx);
         }
       }
     });

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NotFoundException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 
 import { CreateContractUseCase } from "../createContract.useCase";
 
@@ -46,7 +46,7 @@ const makeContractsRepository = () => ({
 });
 
 const makeStudentsRepository = () => ({
-  findById: vi.fn().mockResolvedValue({ id: "student-id-1", tenantId: "tenant-id-1" }),
+  findById: vi.fn().mockResolvedValue({ id: "student-id-1", tenantId: "tenant-id-1", status: "active" }),
 });
 
 const makeServicePlansRepository = () => ({
@@ -122,6 +122,20 @@ describe("CreateContractUseCase", () => {
     studentsRepository.findById.mockResolvedValue(undefined);
 
     await expect(useCase.execute(studentId, validBody, tenantId)).rejects.toThrow(NotFoundException);
+    expect(contractsRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should throw BadRequestException when student is archived", async () => {
+    studentsRepository.findById.mockResolvedValue({ id: "student-id-1", tenantId: "tenant-id-1", status: "archived" });
+
+    await expect(useCase.execute(studentId, validBody, tenantId)).rejects.toThrow(BadRequestException);
+    expect(contractsRepository.create).not.toHaveBeenCalled();
+  });
+
+  it("should throw BadRequestException when student is paused", async () => {
+    studentsRepository.findById.mockResolvedValue({ id: "student-id-1", tenantId: "tenant-id-1", status: "paused" });
+
+    await expect(useCase.execute(studentId, validBody, tenantId)).rejects.toThrow(BadRequestException);
     expect(contractsRepository.create).not.toHaveBeenCalled();
   });
 

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { and, eq, max } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
-import { DrizzleProvider } from "@shared/providers/drizzle.service";
+import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { workoutTemplates, programTemplates } from "@config/database/schema/training";
 
 export type WorkoutTemplate = InferSelectModel<typeof workoutTemplates>;
@@ -19,8 +19,8 @@ export class WorkoutTemplatesRepository {
     programTemplateId: string;
     name: string;
     order: number;
-  }): Promise<WorkoutTemplate> {
-    const result = await this.drizzle.db
+  }, tx?: DbTransaction): Promise<WorkoutTemplate> {
+    const result = await (tx ?? this.drizzle.db)
       .insert(workoutTemplates)
       .values(data)
       .returning();

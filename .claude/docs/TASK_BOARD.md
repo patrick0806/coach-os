@@ -69,6 +69,14 @@ Last updated: 2026-03-21
 
 ---
 
+## Wave 5 — P4: Domain Integrity Fixes ✅ DONE (2026-03-22)
+
+- [x] **CHK-039** duplicateProgramTemplate real transaction — `_tx` → `tx`, passed to all `.create()` calls (same pattern as CHK-022)
+- [x] **CHK-040** deleteServicePlan active contracts guard — validates no active contracts before deletion
+- [x] **CHK-041** createContract student status validation — only allows contracts for students with status `active`
+
+---
+
 ## Backlog — Notifications (Milestone 14)
 
 - [ ] Implementar notificacoes por email (Resend): lembretes de treino, sessao, treino nao realizado

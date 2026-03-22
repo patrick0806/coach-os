@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { z } from "zod";
 
 import { CoachingContractsRepository, ContractWithPlan } from "@shared/repositories/coachingContracts.repository";
@@ -18,24 +18,27 @@ export class CreateContractUseCase {
     private readonly studentsRepository: StudentsRepository,
     private readonly servicePlansRepository: ServicePlansRepository,
     private readonly drizzle: DrizzleProvider,
-  ) {}
+  ) { }
 
   async execute(studentId: string, body: unknown, tenantId: string): Promise<ContractWithPlan> {
     const data = validate(createContractSchema, body);
 
-    // Validate student belongs to tenant
+    // Validate student belongs to tenant and is active
     const student = await this.studentsRepository.findById(studentId, tenantId);
     if (!student) {
-      throw new NotFoundException("Student not found");
+      throw new NotFoundException("Aluno não encontrado");
+    }
+    if (student.status !== "active") {
+      throw new BadRequestException("Não é possível criar um contrato para um aluno inativo");
     }
 
     // Validate service plan belongs to tenant and is active
     const servicePlan = await this.servicePlansRepository.findById(data.servicePlanId, tenantId);
     if (!servicePlan) {
-      throw new NotFoundException("Service plan not found");
+      throw new NotFoundException("Plano de serviço não encontrado");
     }
     if (!servicePlan.isActive) {
-      throw new NotFoundException("Service plan is not active");
+      throw new NotFoundException("Plano de serviço inativo");
     }
 
     // Auto-cancel existing active contract + create new one in a transaction
