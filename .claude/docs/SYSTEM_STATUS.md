@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-21
+Last updated: 2026-03-22
 
 ---
 
@@ -35,6 +35,7 @@ All backend modules are **completed** (795 tests passing).
 | **Progress charts** | ✅ done | Backend: chart data endpoints (coach + student), metricType optional for combined view. Frontend: Recharts LineChart + CombinedProgressChart (mini-charts stacked). 14 E2E behavioral tests passing |
 | **Reschedule appointments** | ✅ done | Backend: PATCH /appointments/:id/reschedule with conflict detection + forceCreate. Frontend: RescheduleAppointmentDialog integrated in appointment detail. 6 E2E behavioral tests passing |
 | **Reschedule training** | ✅ done | Backend: TrainingScheduleException entity + reschedule/skip/delete endpoints + calendar integration. Frontend: TrainingScheduleDetailDialog + RescheduleTrainingDialog with conflict support. 7 E2E behavioral tests passing |
+| **Dialog sizing** | ✅ done | Base DialogContent widened from sm:max-w-sm (384px) to sm:max-w-lg (512px) — fixes content overflow on desktop for scheduling dialogs |
 | **Notifications** | not started | Backlog: preferences page |
 
 ---
@@ -69,9 +70,14 @@ Cookies + CORS + Next.js proxy + migração de rotas.
 - Estado sincronizado entre dispositivos via banco (localStorage apenas como cache)
 - **Validates:** Coach novo se orienta sem suporte; tour pode ser desligado globalmente via env var
 
-### Milestone 11 — Polish
+### Milestone 11 — Polish ✅ DONE (except notifications)
 - ~~Dashboard real stats~~ ✅ done
 - ~~Progress charts (line graphs, comparisons)~~ ✅ done
 - ~~Reschedule appointments~~ ✅ done
-- Notification preferences
+- ~~Reschedule training occurrences~~ ✅ done
+- ~~Combined progress chart~~ ✅ done
+- ~~Migration journal fix (0008 training_schedule_exceptions)~~ ✅ done
+- ~~Dialog sizing fix (sm:max-w-sm → sm:max-w-lg)~~ ✅ done
+- ~~Duplicate program template~~ ✅ done (backend + frontend already implemented)
 - ~~Error SDK (Sentry no NestJS + Next.js)~~ — descartado (Better Stack cobre)
+- Notification preferences (email via Resend) — único item pendente

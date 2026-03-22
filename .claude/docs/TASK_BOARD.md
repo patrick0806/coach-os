@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-21
+Last updated: 2026-03-22
 
 ---
 
@@ -209,7 +209,16 @@ Last updated: 2026-03-21
 - [x] Frontend: Click handler no calendário para eventos `training_schedule` ✅
 - [x] Frontend: 7 testes E2E behavioral passando (688 total) ✅
 
+### Infra: Migration journal fix ✅ CONCLUÍDA (2026-03-22)
+- [x] Fix: timestamps fora de ordem no `_journal.json` causavam migration 0008 (training_schedule_exceptions) não ser aplicada ✅
+- [x] Tabela criada manualmente no banco local e timestamps normalizados em ordem sequencial ✅
+
+### Frontend: Dialog sizing fix ✅ CONCLUÍDA (2026-03-22)
+- [x] Base DialogContent widened: `sm:max-w-sm` (384px) → `sm:max-w-lg` (512px) ✅
+- [x] Corrige overflow de conteúdo nos dialogs de reschedule (appointment + training) no desktop ✅
+
 ### Frontend: Notifications
+- [ ] Implementar notificações por email (Resend): lembretes de treino, sessão, treino não realizado
 - [ ] Implementar página de preferências de notificação
 
 ---
