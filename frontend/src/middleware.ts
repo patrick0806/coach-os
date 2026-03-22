@@ -5,7 +5,7 @@ import { AUTH_TOKEN_COOKIE, AUTH_USER_COOKIE } from "@/lib/authCookies"
 import { STUDENT_TOKEN_COOKIE, STUDENT_USER_COOKIE } from "@/lib/studentAuthCookies"
 
 const RESERVED_SUBDOMAINS = new Set(["www", "app", "admin", "api"])
-const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "coachos.com.br"
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || "coachos.com.br"
 
 /**
  * Extract coach subdomain from hostname.
