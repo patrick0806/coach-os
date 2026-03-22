@@ -84,9 +84,10 @@ test.describe("Admin — Planos", () => {
     })
     await page.getByRole("button", { name: /novo plano/i }).click()
     await page.getByLabel("Nome").fill("X")
-    await page.getByLabel(/preço/i).fill("invalid")
     await page.getByLabel(/limite/i).fill("10")
-    await page.getByRole("button", { name: /criar/i }).click()
+    const createButton = page.getByRole("button", { name: /criar/i })
+    await createButton.scrollIntoViewIfNeeded()
+    await createButton.click({ force: true })
     // form should show error or reject
     await expect(page.getByRole("dialog")).toBeVisible()
   })

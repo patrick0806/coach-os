@@ -43,6 +43,7 @@ export const adminService = {
       highlighted: boolean;
       order: number;
       isActive: boolean;
+      benefits: string[];
       stripePriceId: string | null;
     }>
   ): Promise<AdminPlan> {
