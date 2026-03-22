@@ -28,7 +28,7 @@ export class RegisterController {
   ) {
     const result = await this.registerUseCase.execute(body);
 
-    reply.setCookie("refreshToken", `${result.personal.id}.${result.refreshToken}`, {
+    reply.setCookie("refreshToken", `${result.user.id}.${result.refreshToken}`, {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
       sameSite: env.COOKIE_DOMAIN ? "lax" : "strict",

@@ -17,8 +17,8 @@ export class CompleteAppointmentUseCase {
       throw new NotFoundException("Appointment not found");
     }
 
-    if (existing.status === "completed") {
-      throw new BadRequestException("Appointment is already completed");
+    if (existing.status !== "scheduled") {
+      throw new BadRequestException("Only scheduled appointments can be completed");
     }
 
     const updated = await this.appointmentsRepository.update(id, tenantId, {

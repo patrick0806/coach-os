@@ -41,7 +41,7 @@ export class SendStudentAccessUseCase {
     });
 
     // Branded student URL using the coach's slug
-    const accessLink = `${env.APP_URL}/personais/${personal.slug}/configurar-senha?token=${raw}`;
+    const accessLink = `${env.APP_URL}/coach/${personal.slug}/configurar-senha?token=${raw}`;
 
     if (mode === "link") {
       return { accessLink };

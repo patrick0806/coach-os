@@ -73,4 +73,12 @@ describe("CompleteAppointmentUseCase", () => {
       BadRequestException,
     );
   });
+
+  it("should throw BadRequestException when appointment is cancelled", async () => {
+    repository.findById.mockResolvedValue(makeAppointment({ status: "cancelled" }));
+
+    await expect(useCase.execute(APT_ID, TENANT_ID)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
 });

@@ -45,8 +45,8 @@ export class RequestPasswordResetUseCase {
 
     // Branded student URL when slug is provided; global URL for coach/admin
     const resetPasswordUrl = data.slug
-      ? `${env.APP_URL}/personais/${data.slug}/redefinir-senha?token=${raw}`
-      : `${env.APP_URL}/reset-password?token=${raw}`;
+      ? `${env.APP_URL}/coach/${data.slug}/redefinir-senha?token=${raw}`
+      : `${env.APP_URL}/redefinir-senha?token=${raw}`;
 
     await this.resendProvider.sendPasswordReset({
       to: user.email,

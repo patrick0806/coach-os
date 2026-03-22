@@ -84,7 +84,7 @@ async function bootstrap() {
     origin: isDev
       ? ["http://localhost:3000", "http://localhost:3001"]
       : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-          if (!origin) return callback(null, true);
+          if (!origin) return callback(new Error("CORS not allowed"), false);
           const allowed = /^https:\/\/([\w-]+\.)?coachos\.com\.br$/.test(origin);
           callback(allowed ? null : new Error("CORS not allowed"), allowed);
         },

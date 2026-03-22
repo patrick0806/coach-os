@@ -129,7 +129,7 @@ describe("RequestPasswordResetUseCase", () => {
     await useCase.execute({ email: "joao@email.com" });
 
     const [sendArgs] = resendProvider.sendPasswordReset.mock.calls[0];
-    expect(sendArgs.resetPasswordUrl).toMatch(new RegExp(`^${env.APP_URL}/reset-password\\?token=`));
+    expect(sendArgs.resetPasswordUrl).toMatch(new RegExp(`^${env.APP_URL}/redefinir-senha\\?token=`));
   });
 
   it("should include the raw token (not hash) in the reset URL", async () => {
@@ -151,7 +151,7 @@ describe("RequestPasswordResetUseCase", () => {
 
     const [sendArgs] = resendProvider.sendPasswordReset.mock.calls[0];
     expect(sendArgs.resetPasswordUrl).toMatch(
-      new RegExp(`^${env.APP_URL}/personais/joao-silva/redefinir-senha\\?token=`),
+      new RegExp(`^${env.APP_URL}/coach/joao-silva/redefinir-senha\\?token=`),
     );
   });
 
@@ -159,7 +159,7 @@ describe("RequestPasswordResetUseCase", () => {
     await useCase.execute({ email: "joao@email.com" });
 
     const [sendArgs] = resendProvider.sendPasswordReset.mock.calls[0];
-    expect(sendArgs.resetPasswordUrl).not.toContain("/personais/");
-    expect(sendArgs.resetPasswordUrl).toMatch(new RegExp(`^${env.APP_URL}/reset-password\\?token=`));
+    expect(sendArgs.resetPasswordUrl).not.toContain("/coach/");
+    expect(sendArgs.resetPasswordUrl).toMatch(new RegExp(`^${env.APP_URL}/redefinir-senha\\?token=`));
   });
 });

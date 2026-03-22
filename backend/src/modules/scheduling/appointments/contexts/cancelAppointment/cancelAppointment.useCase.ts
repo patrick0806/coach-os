@@ -29,8 +29,8 @@ export class CancelAppointmentUseCase {
       throw new NotFoundException("Appointment not found");
     }
 
-    if (existing.status === "cancelled") {
-      throw new BadRequestException("Appointment is already cancelled");
+    if (existing.status !== "scheduled") {
+      throw new BadRequestException("Only scheduled appointments can be cancelled");
     }
 
     const updated = await this.appointmentsRepository.update(id, tenantId, {

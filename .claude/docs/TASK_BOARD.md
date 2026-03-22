@@ -4,227 +4,80 @@ Last updated: 2026-03-22
 
 ---
 
-## Backlog — Subdomínios (Milestone 10)
+## Milestone 13 — System Audit Fixes
 
-### Sprint 2 — Fundação de Subdomínios (infra + backend)
-
-> Pré-requisito: DNS wildcard e Cloudflare configurados (ver docs/SERVER_SETUP.md)
-
-**Infraestrutura**
-- [x] Configurar wildcard DNS `*.coachos.com.br → IP da VM` ✅
-- [x] Obter wildcard SSL via Certbot + Cloudflare DNS (`*.coachos.com.br`) ✅
-- [x] Nginx: adicionar `server_name *.coachos.com.br` apontando para frontend ✅
-
-**Backend — cookies**
-- [x] Adicionar `COOKIE_DOMAIN` em `backend/src/config/env/index.ts` ✅
-- [x] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `login.controller.ts` ✅
-- [x] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `register.controller.ts` ✅
-- [x] Aplicar `domain: COOKIE_DOMAIN` no cookie `refreshToken` em `refreshToken.controller.ts` ✅
-- [x] Aplicar `domain: COOKIE_DOMAIN` no cookie do student auth (login do aluno) ✅
-
-**Backend — CORS**
-- [x] Substituir lista hardcoded de origens em `main.ts` por função regex: `*.coachos.com.br` ✅
-- [x] Manter `localhost` permitido para desenvolvimento local ✅
-
-**Frontend — cookies**
-- [x] Adicionar `domain` nos cookies escritos em `authStore.ts` ✅
-- [x] Adicionar `domain` nos cookies escritos em `studentAuthStore.ts` ✅
-
-**Testes**
-- [ ] Verificar manualmente: cookie de refresh enviado de `joao.coachos.com.br` para `api.coachos.com.br`
-- [ ] Verificar CORS não bloqueia subdomínios novos
+> Full system audit performed on 2026-03-22.
+> 73 findings across 12 modules. Organized in 4 waves by priority.
 
 ---
 
-### Sprint 3 — Proxy Next.js + Migração de Rotas
+### Wave 1 — P0: Broken Functionality + Security (trivial fixes) ✅ DONE (2026-03-22)
 
-> Pré-requisito: Sprint 2 concluído
-> Next.js renomeou `middleware.ts` para `proxy.ts` (deprecation warning se usar o nome antigo)
-
-**Proxy**
-- [x] Atualizar `frontend/src/proxy.ts` com detecção de subdomínio via `host` header ✅
-- [x] Proxy reescreve `joao.coachos.com.br/*` → `/coach/joao/*` (transparente para o Next.js) ✅
-- [x] Excluir `www`, `app`, `admin` da regra de rewrite (subdomínios reservados) ✅
-- [x] Fallback `/aluno/*` sem subdomínio → lê `personalSlug` do cookie → rewrite ✅
-
-**Estrutura de rotas**
-- [x] Criar `src/app/coach/[slug]/page.tsx` (LP do coach — migrada de `/personais/[slug]`) ✅
-- [x] Criar `src/app/coach/[slug]/aluno/layout.tsx` (layout com branding do coach) ✅
-- [x] Migrar `src/app/(student)/aluno/*` → `src/app/coach/[slug]/aluno/*` ✅
-- [x] Criar `src/app/coach/[slug]/login/page.tsx` (login do aluno brandado) ✅
-- [x] Criar `src/app/coach/[slug]/{esqueci-senha,configurar-senha,redefinir-senha}/page.tsx` ✅
-- [x] `/personais/[slug]` com redirect 301 → `[slug].coachos.com.br` (prod) ou `/coach/[slug]` (dev) ✅
-- [x] Deletar rotas antigas `/personais/[slug]/*` e `(student)/aluno/*` ✅
-
-**Autenticação do aluno**
-- [x] Redirect pós-login do aluno: funciona via proxy rewrite em ambos os modos ✅
-- [x] Links de retorno no portal apontam para contexto correto via `useCoachHref` ✅
-
-**Testes**
-- [x] Atualizar behavior tests: URLs `/personais/` → `/coach/` em todos os testes ✅
-- [x] 661 behavioral tests passando ✅
-- [ ] Smoke test: fluxo completo aluno em `joao.coachos.com.br/aluno/treinos`
-- [ ] Verificar: `/personais/joao` redireciona 301 para `joao.coachos.com.br`
+- [x] **CHK-001** Register cookie identity mismatch — `register.controller.ts:31` changed `personal.id` to `user.id`
+- [x] **CHK-002** URL regression in password reset email — `requestPasswordReset.useCase.ts:48` changed `/personais/` to `/coach/`
+- [x] **CHK-003** URL regression in student access email — `sendStudentAccess.useCase.ts:44` changed `/personais/` to `/coach/`
+- [x] **CHK-004** CORS null origin bypass — `main.ts:87` now rejects null origin
+- [x] **CHK-005** Appointment state machine: only `scheduled` can be completed — guard `status !== "scheduled"`
+- [x] **CHK-006** Appointment state machine: only `scheduled` can be cancelled — guard `status !== "scheduled"`
 
 ---
 
-## Backlog — Onboarding Tutorial (Milestone 12)
+### Wave 2 — P1: Business-Critical Fixes
 
-> Feature flag: `SHOW_TUTORIAL=true` (backend) + `NEXT_PUBLIC_SHOW_TUTORIAL=true` (frontend).
-> Se `false`, nenhum código de tutorial executa. Todo o módulo de onboarding deve checar essa flag antes de qualquer operação.
-
----
-
-### Fase 1 — Backend ✅ CONCLUÍDA (2026-03-20)
-
-**Migração**
-- [x] Adicionar coluna `tour_completed_pages jsonb default '[]'` em `personals` via nova migration Drizzle
-
-**Repository**
-- [x] Adicionar `getTourProgress(tenantId): Promise<string[]>` em `personals.repository.ts`
-- [x] Adicionar `markPageToured(tenantId, page): Promise<string[]>` em `personals.repository.ts` — retorna array atualizado e auto-seta `onboarding_completed = true` quando todas as 8 páginas estiverem presentes
-
-**Contexts — getTourProgress**
-- [x] Criar `getTourProgress.useCase.spec.ts` (TDD)
-- [x] Criar `getTourProgress.useCase.ts`
-- [x] Criar `getTourProgress.controller.ts` — `GET /profile/tour-progress`, role PERSONAL
-
-**Contexts — markPageToured**
-- [x] Criar `markPageToured.useCase.spec.ts` (TDD)
-- [x] Criar `markPageToured.useCase.ts` — valida que `page` é uma das 8 chaves válidas, idempotente
-- [x] Criar `markPageToured.controller.ts` — `POST /profile/tour-progress/:page`, role PERSONAL
-
-**Module registration**
-- [x] Registrar os 2 novos controllers e useCases em `profile.module.ts`
-
-**Expor onboardingCompleted no auth**
-- [x] Adicionar `onboardingCompleted` ao DTO e useCase de login (`login/dtos/response.dto.ts` + `login.useCase.ts`)
-- [x] Adicionar `onboardingCompleted` ao DTO e useCase de register (`register/dtos/response.dto.ts` + `register.useCase.ts`)
-- [x] Atualizar testes de login e register para asserir campo presente
-
-**Validação**
-- [x] `npm run test` — 775 testes passando
+- [ ] **CHK-007** Admin refresh token lockout — `refreshToken.useCase.ts:121` no branch for ADMIN role, throws "Unsupported role" after 15min
+- [ ] **CHK-008** Rate limiting — no `ThrottlerModule` configured; login, register, password-reset unprotected against brute force
+- [ ] **CHK-009** Downgrade without student limit check — `changePlan.useCase.ts:34` accepts downgrade even when current students exceed new plan limit
+- [ ] **CHK-010** acceptInvite multi-tenant failure — `acceptInvite.useCase.ts:66` crashes with 500 when student already exists in another tenant
+- [ ] **CHK-011** Student limit counts archived — `students.repository.ts:148` countByTenantId doesn't filter by status
+- [ ] **CHK-012** Stripe before DB atomicity — `changePlan.useCase.ts:55` Stripe updated before DB; if DB fails, coach pays new price but sees old plan
+- [ ] **CHK-013** Webhook rawBody fallback — `stripeWebhook.controller.ts:22` uses `Buffer.alloc(0)` instead of throwing when rawBody missing
+- [ ] **CHK-014** Soft-delete plan breaks coaches — `deletePlan.useCase.ts:9` no check for active coaches before deactivating plan
+- [ ] **CHK-015** Session state machine — `finishSession.useCase.ts` and `pauseSession.useCase.ts` have no status validation (finished can be re-finished, paused, etc.)
+- [ ] **CHK-016** Concurrent workout sessions — `startSession.useCase.ts` allows multiple simultaneous sessions per student
 
 ---
 
-### Fase 2 — Frontend (dados e config) ✅ CONCLUÍDA (2026-03-20)
+### Wave 3 — P2: Data Integrity + Security Hardening
 
-**Feature flag**
-- [x] Criar `frontend/src/features/onboarding/config.ts` — exporta `SHOW_TUTORIAL = process.env.NEXT_PUBLIC_SHOW_TUTORIAL === 'true'`
-
-**Tipos e store**
-- [x] Adicionar `onboardingCompleted?: boolean` ao tipo `AuthUser` em `auth.types.ts`
-- [x] Adicionar `setOnboardingCompleted()` no `authStore.ts` (seta campo + regravar cookie `coach_os_user`)
-- [x] Mergear `onboardingCompleted` no `auth.service.ts` (login e register)
-
-**Services e hooks**
-- [x] Adicionar `getTourProgress()` e `markPageToured(page)` em `profile.service.ts`
-- [x] Criar `frontend/src/features/onboarding/hooks/useTourProgress.ts` — React Query: busca `GET /profile/tour-progress`, mantém em cache + sincroniza localStorage
-- [x] Criar `frontend/src/features/onboarding/hooks/usePageTour.ts` — recebe chave da página, verifica SHOW_TUTORIAL + localStorage, dispara driver.js, chama `markPageToured` ao concluir/pular
-
----
-
-### Fase 3 — Frontend (tours driver.js) ✅ CONCLUÍDA (2026-03-20)
-
-- [x] Instalar `driver.js`
-- [x] Criar `frontend/src/features/onboarding/tours/exercises.tour.ts` (3–4 passos)
-- [x] Criar `frontend/src/features/onboarding/tours/students.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/training.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/schedule.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/availability.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/services.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/landingPage.tour.ts`
-- [x] Criar `frontend/src/features/onboarding/tours/profile.tour.ts`
-- [x] Integrar `usePageTour` em cada uma das 8 páginas de módulo via `PageTourInitializer`
+- [ ] **CHK-017** Webhook idempotency — `processStripeEvent.useCase.ts` no event.id dedup; duplicate events processed fully
+- [ ] **CHK-018** Webhook out-of-order — `processStripeEvent.useCase.ts` stale events can overwrite newer state
+- [ ] **CHK-019** acceptInvite not transactional — `acceptInvite.useCase.ts:66-89` 4 sequential operations without DB transaction; partial failure leaves orphan records
+- [ ] **CHK-020** Register not transactional — `register.useCase.ts:78-124` user created before Stripe call; failure leaves orphan user blocking re-registration
+- [ ] **CHK-021** approveRequest not transactional — `approveRequest.useCase.ts:94` request set to "approved" but appointment creation can fail, leaving orphaned state
+- [ ] **CHK-022** assignProgram fake transaction — `assignProgram.useCase.ts:55` uses `_tx` (unused); snapshot operations run outside transaction, partial program possible
+- [ ] **CHK-023** Reorder cross-entity — `workoutTemplates.repository.ts:97` UPDATE has no parent ID filter; IDs from other programs/tenants could be reordered
+- [ ] **CHK-024** Student cross-access — `cancelAppointment.controller.ts:29` student can cancel/view other student's appointments within same tenant
+- [ ] **CHK-025** Conflict detection ignores exceptions — `conflictDetection.util.ts:90` skipped training schedules still generate false conflicts
+- [ ] **CHK-026** Exercise execution on finished session — `createExecution.useCase.ts` no session status check
+- [ ] **CHK-027** Record set on finished session — `recordSet.useCase.ts` no session status check, no setNumber uniqueness
+- [ ] **CHK-028** deleteAdmin orphan user — `deleteAdmin.useCase.ts` deletes admin record but leaves user with ADMIN role and valid credentials
+- [ ] **CHK-029** JWT algorithm restriction — `jwt.strategy.ts:11` doesn't specify `algorithms: ['HS256']`
+- [ ] **CHK-030** sendStudentAccess no Zod validation — `sendStudentAccess.useCase.ts` mode parameter has no Zod validation (only TypeScript typing)
 
 ---
 
-### Fase 4 — Frontend (UI checklist + header) ✅ CONCLUÍDA (2026-03-20)
+### Wave 4 — P3: Backlog / Accepted Risks
 
-**Checklist no dashboard**
-- [x] Criar `frontend/src/features/onboarding/components/onboardingChecklist.tsx` — widget com os 8 itens, progresso e links para cada página; some quando `onboardingCompleted = true`
-- [x] Montar checklist em `frontend/src/app/(dashboard)/dashboard/page.tsx` (role PERSONAL + SHOW_TUTORIAL)
-
-**Botão no header**
-- [x] Criar `frontend/src/features/onboarding/components/onboardingHeaderButton.tsx` — botão "Tutorial" que re-dispara `usePageTour` da página atual
-- [x] Montar botão em `frontend/src/app/(dashboard)/layout.tsx` (role PERSONAL + SHOW_TUTORIAL)
-
----
-
-### Fase 5 — Testes E2E ✅ CONCLUÍDA (2026-03-20)
-
-- [x] Criar `frontend/tests/e2e/fixtures/onboarding.fixtures.ts` (`MOCK_USER_NEW` com `onboardingCompleted: false`, `MOCK_USER_ONBOARDED`)
-- [x] Adicionar `mockGetTourProgress(page, completedPages)` e `mockMarkPageToured(page)` em `apiMocks.ts`
-- [x] Adicionar `injectMockAuthAs(page, user)` em `apiMocks.ts` (helper genérico para variantes de usuário)
-- [x] Criar `frontend/tests/e2e/onboarding/onboarding.behavior.spec.ts`:
-  - [x] Checklist aparece quando `onboardingCompleted === false` e SHOW_TUTORIAL ativo
-  - [x] Checklist não aparece quando `onboardingCompleted === true`
-  - [x] Botão "Tutorial" no header aparece para PERSONAL, não aparece para ADMIN
-  - [x] Itens do checklist marcados refletem `completedPages` retornado pela API
-  - [x] `SHOW_TUTORIAL=false` → documentado como não testável por teste (constante compilada em build time)
-- [x] `npm run test:e2e` — 26/26 behavioral tests passando
+- [ ] **CHK-031** TOCTOU race condition on student limit — affects createStudent, inviteStudent, generateInviteLink, acceptInvite; requires pessimistic lock (accepted risk for now)
+- [ ] **CHK-032** Calendar N+1 queries — `getCalendar.useCase.ts` loops through studentIds with individual queries
+- [ ] **CHK-033** Calendar hardcoded limit — `getCalendar.useCase.ts` uses `size: 1000`; events beyond silently dropped
+- [ ] **CHK-034** parseISO timezone issue — `rescheduleOccurrence.useCase.ts` and `skipOccurrence.useCase.ts` may misinterpret dates on UTC+N servers
+- [ ] **CHK-035** metricType free-text vs enum — `createCheckin` accepts any string but chart endpoint validates against fixed enum
+- [ ] **CHK-036** createContract not transactional — auto-cancel + create without DB transaction; race condition possible
+- [ ] **CHK-037** S3 photos never cleaned — `deletePhoto` removes DB record but photo stays in S3 indefinitely
+- [ ] **CHK-038** Email enumeration via register — `/register` returns 409 for existing email (vs 201 for new), enabling enumeration
 
 ---
 
-## Backlog — Outros
+## Backlog — Notifications (Milestone 14)
 
-### Frontend: Dashboard stats reais
-- [x] Integrar dados reais na página `/dashboard` ✅
-
-### Frontend: Progress charts ✅ CONCLUÍDA (2026-03-21)
-- [x] Backend: `GET /students/:id/progress-records/chart` (coach, role PERSONAL) + `GET /me/progress-records/chart` (student, role STUDENT) ✅
-- [x] Backend: `findAllForChart()` no repository — unpaginated, ASC by recordedAt ✅
-- [x] Backend: 10 testes unitários (getChartData + getMyChartData) ✅
-- [x] Frontend: `ProgressChart` component com Recharts LineChart + tooltip PT-BR ✅
-- [x] Frontend: Seletor de métrica integrado em `studentProgressSection.tsx` (coach side) ✅
-- [x] Frontend: Seletor de métrica integrado em `/coach/[slug]/aluno/progresso` (student portal) ✅
-- [x] Frontend: 10 testes E2E behavioral passando ✅
-
-### Frontend: Reschedule appointments ✅ CONCLUÍDA (2026-03-21)
-- [x] Backend: `PATCH /appointments/:id/reschedule` com Zod validation, conflict detection (excludes self), forceCreate ✅
-- [x] Backend: 10 testes unitários (rescheduleAppointment.useCase) ✅
-- [x] Frontend: `RescheduleAppointmentDialog` com form pre-preenchido, tipo/local/meetingUrl condicional ✅
-- [x] Frontend: Botão "Reagendar" integrado em `AppointmentDetailDialog` (status === "scheduled") ✅
-- [x] Frontend: `ConflictWarningDialog` integrado para conflitos no reagendamento ✅
-- [x] Frontend: 6 testes E2E behavioral passando (desktop; mobile skipped — single-day calendar layout) ✅
-
-### Frontend: Combined progress chart ✅ CONCLUÍDA (2026-03-21)
-- [x] Backend: `metricType` tornada opcional nos endpoints de chart (coach + student) ✅
-- [x] Backend: retorna `metricType` no response quando omitido ✅
-- [x] Backend: 5 novos testes unitários ✅
-- [x] Frontend: `CombinedProgressChart` com mini-charts empilhados por métrica ✅
-- [x] Frontend: Integrado em `studentProgressSection.tsx`, `progressRecordsTab.tsx`, e student portal ✅
-- [x] Frontend: 14 testes E2E behavioral passando ✅
-
-### Frontend: Reschedule training occurrences ✅ CONCLUÍDA (2026-03-21)
-- [x] Backend: `TrainingScheduleException` entity + migration (Drizzle) ✅
-- [x] Backend: `POST /training-schedules/:id/reschedule` com conflict detection + forceCreate ✅
-- [x] Backend: `POST /training-schedules/:id/skip` ✅
-- [x] Backend: `DELETE /training-schedule-exceptions/:id` ✅
-- [x] Backend: Calendar integration — skip removes entry, reschedule moves entry with `isRescheduled` flag ✅
-- [x] Backend: 16 novos testes unitários ✅
-- [x] Frontend: `TrainingScheduleDetailDialog` (detalhes + reagendar/pular/desfazer) ✅
-- [x] Frontend: `RescheduleTrainingDialog` com date picker limitado à mesma semana + ConflictWarningDialog ✅
-- [x] Frontend: Hooks `useRescheduleTraining`, `useSkipTraining`, `useDeleteTrainingException` ✅
-- [x] Frontend: Click handler no calendário para eventos `training_schedule` ✅
-- [x] Frontend: 7 testes E2E behavioral passando (688 total) ✅
-
-### Infra: Migration journal fix ✅ CONCLUÍDA (2026-03-22)
-- [x] Fix: timestamps fora de ordem no `_journal.json` causavam migration 0008 (training_schedule_exceptions) não ser aplicada ✅
-- [x] Tabela criada manualmente no banco local e timestamps normalizados em ordem sequencial ✅
-
-### Frontend: Dialog sizing fix ✅ CONCLUÍDA (2026-03-22)
-- [x] Base DialogContent widened: `sm:max-w-sm` (384px) → `sm:max-w-lg` (512px) ✅
-- [x] Corrige overflow de conteúdo nos dialogs de reschedule (appointment + training) no desktop ✅
-
-### Frontend: Notifications
-- [ ] Implementar notificações por email (Resend): lembretes de treino, sessão, treino não realizado
-- [ ] Implementar página de preferências de notificação
+- [ ] Implementar notificacoes por email (Resend): lembretes de treino, sessao, treino nao realizado
+- [ ] Implementar pagina de preferencias de notificacao
 
 ---
 
 ## Descartado
 
-- **Tina CMS para editor de página** — não adequado: é Git-backed, dados estão no PostgreSQL, cria segunda fonte de verdade. Editor atual (form-based) é suficiente.
-- **Custom domains (Sprint 5)** — complexidade muito alta. Avaliar somente após validação com coaches Elite.
-- **Sentry Error SDK** — descartado; Better Stack já cobre logs, uptime e telemetria. Redundante.
+- **Tina CMS para editor de pagina** — nao adequado; dados estao no PostgreSQL, cria segunda fonte de verdade
+- **Custom domains (Sprint 5)** — complexidade muito alta; avaliar apos validacao com coaches Elite
+- **Sentry Error SDK** — descartado; Better Stack ja cobre logs, uptime e telemetria
