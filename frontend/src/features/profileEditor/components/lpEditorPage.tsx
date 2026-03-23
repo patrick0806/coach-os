@@ -8,7 +8,9 @@ import { toast } from "sonner"
 
 import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
+import { Input } from "@/shared/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { Field, FieldLabel } from "@/shared/ui/field"
 import { useGetMyProfile } from "@/features/profileEditor/hooks/useGetMyProfile"
 import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
 import { startLandingPageTour } from "@/features/onboarding/tours/landingPage.tour"
@@ -18,11 +20,23 @@ import { usePublishLpDraft } from "@/features/profileEditor/hooks/usePublishLpDr
 import { ProfileTab } from "@/features/profileEditor/components/profileTab"
 import { PageTab } from "@/features/profileEditor/components/pageTab"
 import { ImageUploadField } from "@/features/profileEditor/components/imageUploadField"
+import { formatPhone } from "@/shared/utils/formatPhone"
 import type {
   ProfileData,
   UpdateProfileData,
   LpDraftData,
 } from "@/features/profileEditor/services/profile.service"
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+}
 
 export function LpEditorPage() {
   const { data: profile, isLoading } = useGetMyProfile()
@@ -33,6 +47,9 @@ export function LpEditorPage() {
   const [profileDraft, setProfileDraft] = useState<ProfileData | null>(null)
   const [lpDraft, setLpDraft] = useState<LpDraftData | null>(null)
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [slug, setSlug] = useState("")
 
   useEffect(() => {
     if (profile && !profileDraft) {
@@ -51,6 +68,9 @@ export function LpEditorPage() {
         setProfileDraft(profile)
         setLpDraft(initialLpDraft)
         setLogoUrl(profile.logoUrl ?? null)
+        setProfilePhoto(profile.profilePhoto ?? null)
+        setPhoneNumber(profile.phoneNumber ?? "")
+        setSlug(profile.slug)
       })
     }
   }, [profile, profileDraft])
@@ -71,6 +91,9 @@ export function LpEditorPage() {
       themeColor: profileDraft.themeColor ?? undefined,
       themeColorSecondary: profileDraft.themeColorSecondary ?? undefined,
       logoUrl: logoUrl ?? undefined,
+      profilePhoto: profilePhoto ?? undefined,
+      phoneNumber: phoneNumber || undefined,
+      slug: slug || undefined,
     }
 
     try {
@@ -133,7 +156,7 @@ export function LpEditorPage() {
           </p>
         </div>
         <a
-          href={`/coach/${profileDraft.slug}`}
+          href={`/coach/${slug || profileDraft.slug}`}
           target="_blank"
           rel="noopener noreferrer"
           data-tour="view-page-link"
@@ -150,10 +173,13 @@ export function LpEditorPage() {
           <CardTitle>Aparência</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <ProfileTab
-            data={profileDraft}
-            onChange={handleProfileChange}
+          <ImageUploadField
+            label="Foto de perfil"
+            hint="Recomendado: 400x400px (quadrado). Exibida na página pública."
+            currentUrl={profilePhoto}
+            onUpload={(fileUrl) => setProfilePhoto(fileUrl)}
             disabled={updateProfile.isPending}
+            shape="circle"
           />
 
           <ImageUploadField
@@ -164,6 +190,46 @@ export function LpEditorPage() {
             disabled={updateProfile.isPending}
             shape="banner"
           />
+
+          <Field>
+            <FieldLabel htmlFor="lp-phone">Telefone (WhatsApp)</FieldLabel>
+            <Input
+              id="lp-phone"
+              type="tel"
+              placeholder="(11) 99999-9999"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(formatPhone(e.target.value))}
+              disabled={updateProfile.isPending}
+              data-testid="lp-phone-input"
+            />
+          </Field>
+
+          <ProfileTab
+            data={profileDraft}
+            onChange={handleProfileChange}
+            disabled={updateProfile.isPending}
+          />
+
+          <Field>
+            <FieldLabel htmlFor="slug">Endereço da página</FieldLabel>
+            <div className="flex items-center gap-0">
+              <Input
+                id="slug"
+                placeholder="meu-nome"
+                value={slug}
+                onChange={(e) => setSlug(slugify(e.target.value))}
+                disabled={updateProfile.isPending}
+                className="rounded-r-none"
+                data-testid="slug-input"
+              />
+              <span className="inline-flex h-9 items-center rounded-r-md border border-l-0 bg-muted px-3 text-sm text-muted-foreground whitespace-nowrap">
+                .coachos.com.br
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Apenas letras minúsculas, números e hífens. Mínimo 3 caracteres.
+            </p>
+          </Field>
 
           <Button
             onClick={handleSaveProfile}

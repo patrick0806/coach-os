@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { NotFoundException } from "@nestjs/common";
+import { ConflictException, NotFoundException } from "@nestjs/common";
 
 import { UpdateProfileUseCase } from "../updateProfile.useCase";
 
@@ -37,6 +37,7 @@ const makeProfile = (overrides = {}) => ({
 
 const makeRepository = () => ({
   findById: vi.fn().mockResolvedValue(makeProfile()),
+  findBySlug: vi.fn().mockResolvedValue(null),
   updateProfile: vi.fn().mockResolvedValue(makeProfile({ bio: "Updated bio" })),
 });
 
@@ -80,5 +81,59 @@ describe("UpdateProfileUseCase", () => {
     await expect(useCase.execute("nonexistent-tenant", { bio: "Bio" })).rejects.toThrow(
       NotFoundException,
     );
+  });
+
+  // Slug update tests
+
+  it("should update slug successfully when it is available", async () => {
+    repository.findBySlug.mockResolvedValue(null);
+    repository.updateProfile.mockResolvedValue(makeProfile({ slug: "new-slug" }));
+
+    const result = await useCase.execute(tenantId, { slug: "new-slug" });
+
+    expect(repository.findBySlug).toHaveBeenCalledWith("new-slug");
+    expect(repository.updateProfile).toHaveBeenCalledWith(tenantId, { slug: "new-slug" });
+    expect(result.slug).toBe("new-slug");
+  });
+
+  it("should throw ConflictException when slug is taken by another coach", async () => {
+    repository.findBySlug.mockResolvedValue({
+      ...makeProfile({ id: "other-tenant-id" }),
+      coachName: "Other Coach",
+    });
+
+    await expect(useCase.execute(tenantId, { slug: "taken-slug" })).rejects.toThrow(
+      ConflictException,
+    );
+  });
+
+  it("should allow keeping the same slug (no conflict with self)", async () => {
+    repository.findBySlug.mockResolvedValue({
+      ...makeProfile(),
+      coachName: "João Silva",
+    });
+    repository.updateProfile.mockResolvedValue(makeProfile());
+
+    await expect(useCase.execute(tenantId, { slug: "coach-joao" })).resolves.toBeDefined();
+  });
+
+  it("should skip slug uniqueness check when slug is not being changed", async () => {
+    await useCase.execute(tenantId, { bio: "Just bio" });
+
+    expect(repository.findBySlug).not.toHaveBeenCalled();
+  });
+
+  it("should throw ValidationException for invalid slug format", async () => {
+    await expect(useCase.execute(tenantId, { slug: "UPPERCASE" })).rejects.toThrow();
+    await expect(useCase.execute(tenantId, { slug: "has spaces" })).rejects.toThrow();
+    await expect(useCase.execute(tenantId, { slug: "special@chars" })).rejects.toThrow();
+    await expect(useCase.execute(tenantId, { slug: "ab" })).rejects.toThrow(); // too short
+  });
+
+  it("should accept valid slug formats", async () => {
+    repository.updateProfile.mockResolvedValue(makeProfile({ slug: "my-coach-123" }));
+
+    await expect(useCase.execute(tenantId, { slug: "my-coach-123" })).resolves.toBeDefined();
+    expect(repository.updateProfile).toHaveBeenCalledWith(tenantId, { slug: "my-coach-123" });
   });
 });

@@ -208,6 +208,7 @@ export class PersonalsRepository {
     data: Partial<
       Pick<
         Personal,
+        | "slug"
         | "bio"
         | "phoneNumber"
         | "specialties"

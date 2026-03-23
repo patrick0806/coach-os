@@ -25,6 +25,7 @@ export interface ProfileData {
 }
 
 export interface UpdateProfileData {
+  slug?: string
   bio?: string
   phoneNumber?: string
   specialties?: string[]

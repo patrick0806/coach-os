@@ -1,11 +1,19 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { z } from "zod";
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { Personal } from "@config/database/schema/personals";
 import { validate } from "@shared/utils/validation.util";
 
+const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 const updateProfileSchema = z.object({
+  slug: z
+    .string()
+    .min(3)
+    .max(100)
+    .regex(slugRegex, "Slug must contain only lowercase letters, numbers and hyphens")
+    .optional(),
   bio: z.string().max(2000).optional(),
   phoneNumber: z.string().max(20).optional(),
   specialties: z.array(z.string()).optional(),
@@ -25,6 +33,13 @@ export class UpdateProfileUseCase {
     const existing = await this.personalsRepository.findById(tenantId);
     if (!existing) {
       throw new NotFoundException("Profile not found");
+    }
+
+    if (data.slug && data.slug !== existing.slug) {
+      const taken = await this.personalsRepository.findBySlug(data.slug);
+      if (taken && taken.id !== tenantId) {
+        throw new ConflictException("This slug is already in use");
+      }
     }
 
     const updated = await this.personalsRepository.updateProfile(tenantId, data);

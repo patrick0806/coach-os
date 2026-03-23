@@ -103,6 +103,33 @@ test.describe("Profile Editor — Aparência Section", () => {
     await setupPage(page, profileEditorFixtures.withLogo)
     await expect(page.getByAltText("Logo")).toBeVisible()
   })
+
+  test("shows phone field with existing value", async ({ page }) => {
+    await setupPage(page)
+    const phone = page.locator("[data-testid='lp-phone-input']")
+    await expect(phone).toBeVisible()
+    await expect(phone).toHaveValue(profileEditorFixtures.complete.phoneNumber!)
+  })
+
+  test("shows slug field with existing value", async ({ page }) => {
+    await setupPage(page)
+    const slugInput = page.locator("[data-testid='slug-input']")
+    await expect(slugInput).toBeVisible()
+    await expect(slugInput).toHaveValue(profileEditorFixtures.complete.slug)
+  })
+
+  test("shows profile photo upload field", async ({ page }) => {
+    await setupPage(page)
+    await expect(page.getByText("Foto de perfil")).toBeVisible()
+  })
+
+  test("slug input auto-formats to valid slug", async ({ page }) => {
+    await setupPage(page)
+    const slugInput = page.locator("[data-testid='slug-input']")
+    await slugInput.clear()
+    await slugInput.fill("My Coach Name")
+    await expect(slugInput).toHaveValue("my-coach-name")
+  })
 })
 
 // =============================================================================

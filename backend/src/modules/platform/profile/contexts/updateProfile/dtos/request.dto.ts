@@ -1,6 +1,9 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class UpdateProfileRequestDTO {
+  @ApiPropertyOptional({ example: "coach-joao" })
+  slug?: string;
+
   @ApiPropertyOptional({ example: "Personal trainer especializado em emagrecimento" })
   bio?: string;
 
