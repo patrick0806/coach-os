@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Input } from "@/shared/ui/input"
 import { Field, FieldLabel } from "@/shared/ui/field"
 import type { ProfileData, UpdateProfileData } from "@/features/profileEditor/services/profile.service"
@@ -13,12 +13,8 @@ interface ProfileTabProps {
 
 export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
   const [specialtiesText, setSpecialtiesText] = useState(
-    (data.specialties ?? []).join(", ")
+    () => (data.specialties ?? []).join(", ")
   )
-
-  useEffect(() => {
-    setSpecialtiesText((data.specialties ?? []).join(", "))
-  }, [data.specialties])
 
   return (
     <div className="space-y-5">

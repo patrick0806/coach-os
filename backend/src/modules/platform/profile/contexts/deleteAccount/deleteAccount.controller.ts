@@ -10,7 +10,7 @@ import { IAccessToken } from "@shared/interfaces/accessToken.interface";
 import { DeleteAccountUseCase } from "./deleteAccount.useCase";
 
 @ApiBearerAuth()
-@ApiTags(API_TAGS.PROFILE)
+@ApiTags(API_TAGS.PERSONALS)
 @Roles(ApplicationRoles.PERSONAL)
 @Controller({ version: "1" })
 export class DeleteAccountController {

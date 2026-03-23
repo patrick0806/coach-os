@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 
 import { PageHeader } from "@/shared/components/pageHeader";
@@ -107,15 +107,6 @@ function PlanFormDialog({
   const [error, setError] = useState("");
 
   const isEdit = !!plan;
-
-  // Reset form when dialog opens or plan changes
-  useEffect(() => {
-    if (open) {
-      setForm(getDefaultFormState(plan));
-      setNewBenefit("");
-      setError("");
-    }
-  }, [open, plan]);
 
   function updateField<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -424,7 +415,7 @@ export default function AdminPlanosPage() {
         </Table>
       )}
 
-      <PlanFormDialog open={dialogOpen} onClose={handleClose} plan={editingPlan} />
+      <PlanFormDialog key={`${dialogOpen}-${editingPlan?.id ?? "new"}`} open={dialogOpen} onClose={handleClose} plan={editingPlan} />
     </div>
   );
 }
