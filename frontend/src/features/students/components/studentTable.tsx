@@ -94,49 +94,84 @@ function RowActions({ student, onEdit, onInvite }: RowActionsProps) {
   )
 }
 
+function StudentCard({ student, onEdit, onInvite }: { student: StudentItem; onEdit: (s: StudentItem) => void; onInvite: (s: StudentItem) => void }) {
+  const router = useRouter()
+
+  return (
+    <div
+      className="flex items-center gap-3 rounded-lg border bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
+      onClick={() => router.push(`/students/${student.id}`)}
+    >
+      <Avatar className="size-10 shrink-0">
+        <AvatarFallback className="text-sm">{getInitials(student.name)}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0 flex-1">
+        <p className="font-medium truncate">{student.name}</p>
+        <p className="text-sm text-muted-foreground truncate">{student.email}</p>
+        <div className="mt-1">
+          <StudentStatusBadge status={student.status} />
+        </div>
+      </div>
+      <div onClick={(e) => e.stopPropagation()}>
+        <RowActions student={student} onEdit={onEdit} onInvite={onInvite} />
+      </div>
+    </div>
+  )
+}
+
 export function StudentTable({ students, onEdit, onInvite }: StudentTableProps) {
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Aluno</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="hidden sm:table-cell">Cadastrado em</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {students.map((student) => (
-            <TableRow key={student.id}>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-9">
-                    <AvatarFallback className="text-xs">
-                      {getInitials(student.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{student.name}</p>
-                    <p className="text-sm text-muted-foreground">{student.email}</p>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <StudentStatusBadge status={student.status} />
-              </TableCell>
-              <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                {student.createdAt
-                  ? format(new Date(student.createdAt), "dd/MM/yyyy", { locale: ptBR })
-                  : "—"}
-              </TableCell>
-              <TableCell>
-                <RowActions student={student} onEdit={onEdit} onInvite={onInvite} />
-              </TableCell>
+      {/* Mobile: vertical cards */}
+      <div className="sm:hidden space-y-2">
+        {students.map((student) => (
+          <StudentCard key={student.id} student={student} onEdit={onEdit} onInvite={onInvite} />
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden sm:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Aluno</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="hidden sm:table-cell">Cadastrado em</TableHead>
+              <TableHead className="w-10" />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {students.map((student) => (
+              <TableRow key={student.id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="size-9">
+                      <AvatarFallback className="text-xs">
+                        {getInitials(student.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{student.name}</p>
+                      <p className="text-sm text-muted-foreground">{student.email}</p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <StudentStatusBadge status={student.status} />
+                </TableCell>
+                <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                  {student.createdAt
+                    ? format(new Date(student.createdAt), "dd/MM/yyyy", { locale: ptBR })
+                    : "—"}
+                </TableCell>
+                <TableCell>
+                  <RowActions student={student} onEdit={onEdit} onInvite={onInvite} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </motion.div>
   )
 }
