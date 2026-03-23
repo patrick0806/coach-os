@@ -99,6 +99,7 @@ function StudentCard({ student, onEdit, onInvite }: { student: StudentItem; onEd
 
   return (
     <div
+      data-testid="student-card"
       className="flex items-center gap-3 rounded-lg border bg-card p-4 cursor-pointer hover:border-primary/50 transition-colors"
       onClick={() => router.push(`/students/${student.id}`)}
     >

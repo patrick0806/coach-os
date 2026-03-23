@@ -381,4 +381,12 @@ test.describe("Exercise Library — Mobile", () => {
     await searchInput.fill("Supino")
     await page.waitForURL(/search=Supino/, { timeout: 5000 })
   })
+
+  test("exercise actions button is visible on mobile without hover", async ({ page }) => {
+    await setupPage(page, exercisesFixtures.globalsOnly)
+
+    // On touch devices the actions button must be always visible (no hover needed)
+    const actionsBtn = page.locator("[data-testid='exercise-actions']").first()
+    await expect(actionsBtn).toBeVisible()
+  })
 })

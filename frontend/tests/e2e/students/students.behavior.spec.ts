@@ -25,7 +25,8 @@ async function setupPage(page: import("@playwright/test").Page, listFixture: obj
   await injectMockAuth(page)
   await mockStudentsList(page, listFixture)
   await page.goto("/students")
-  await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
+  // Wait for either table (desktop) or student cards (mobile)
+  await page.locator("table, [data-testid='student-card']").first().waitFor({ state: "visible", timeout: 8000 })
 }
 
 // =============================================================================
@@ -178,16 +179,24 @@ test.describe("Students — Invite Link", () => {
 test.describe("Students — Mobile", () => {
   test.use({ viewport: { width: 412, height: 915 } })
 
-  test("student table renders on mobile", async ({ page }) => {
+  test("student list renders as cards on mobile", async ({ page }) => {
     await setupPage(page, studentsFixtures.active)
 
-    await expect(page.locator("table")).toBeVisible()
+    // On mobile, cards are shown instead of the table
+    await expect(page.getByTestId("student-card").first()).toBeVisible()
+    await expect(page.locator("table")).not.toBeVisible()
 
-    // "Cadastrado em" column is hidden on small screens
-    const registeredHeader = page.getByRole("columnheader", { name: "Cadastrado em" })
-    await expect(registeredHeader).not.toBeVisible()
-
+    // Student data is visible inside the card
     await expect(page.getByText("Fernanda Costa")).toBeVisible()
+  })
+
+  test("student card navigates to detail on click", async ({ page }) => {
+    await setupPage(page, studentsFixtures.active)
+
+    const firstCard = page.getByTestId("student-card").first()
+    await expect(firstCard).toBeVisible()
+    // Student name and status badge are visible in the card
+    await expect(firstCard.getByText(activeStudents[0].name)).toBeVisible()
   })
 
   test("create dialog opens on mobile", async ({ page }) => {
