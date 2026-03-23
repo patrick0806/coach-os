@@ -38,7 +38,7 @@ export default function PrivacidadePage() {
         description="Sua privacidade é levada a sério. Veja como coletamos, usamos e protegemos seus dados."
       />
 
-      <LegalDocument sections={sections} updatedAt="20 de março de 2026">
+      <LegalDocument sections={sections} updatedAt="23 de março de 2026">
         <div className="space-y-12 text-sm leading-relaxed text-foreground">
 
           <section id="controlador" className="scroll-mt-24 space-y-3">
@@ -70,6 +70,10 @@ export default function PrivacidadePage() {
                 <p className="font-medium">Dados de alunos</p>
                 <p className="mt-1 text-muted-foreground">Inseridos pelo Coach (Personal Trainer) no contexto da prestação de serviços ao aluno — nome, e-mail, objetivo, progresso e fotos de evolução.</p>
               </div>
+              <div className="rounded-xl border border-border/60 bg-card/40 p-4">
+                <p className="font-medium">Dados sensiveis de saude</p>
+                <p className="mt-1 text-muted-foreground">Fotos de progresso e imagens corporais enviadas pelo coach ou pelo aluno para acompanhamento de evolucao fisica. Esses dados sao tratados com base no consentimento explicito do titular e armazenados com as mesmas medidas de seguranca aplicadas aos demais dados pessoais.</p>
+              </div>
             </div>
           </section>
 
@@ -81,6 +85,7 @@ export default function PrivacidadePage() {
               <li>Prestação dos serviços contratados (gestão de treinos, agenda, portal do aluno).</li>
               <li>Processamento de pagamentos e gestão de assinaturas.</li>
               <li>Comunicações transacionais (confirmações, alertas de segurança, notas fiscais).</li>
+              <li>Acompanhamento de evolucao fisica do aluno por meio de fotos de progresso e registros de medidas corporais.</li>
               <li>Melhoria contínua da plataforma por meio de análise de uso agregado e anonimizado.</li>
               <li>Cumprimento de obrigações legais e regulatórias.</li>
             </ul>
@@ -117,7 +122,7 @@ export default function PrivacidadePage() {
           <section id="retencao" className="scroll-mt-24 space-y-3">
             <h2 className="text-xl font-bold">6. Retenção de Dados</h2>
             <p className="text-muted-foreground">
-              Mantemos seus dados pelo tempo necessário para a prestação dos serviços e cumprimento de obrigações legais. Após o encerramento da conta, os dados são excluídos em até 30 dias, exceto quando a retenção for obrigatória por lei (ex.: dados fiscais por 5 anos).
+              Mantemos seus dados pelo tempo necessário para a prestação dos serviços e cumprimento de obrigações legais. Imagens e fotos de progresso sao removidas do armazenamento quando substituidas ou quando o titular solicita a exclusao. Após o encerramento da conta, todos os dados pessoais — incluindo imagens armazenadas — sao excluidos em até 30 dias, exceto quando a retenção for obrigatória por lei (ex.: dados fiscais por 5 anos).
             </p>
           </section>
 
@@ -146,6 +151,7 @@ export default function PrivacidadePage() {
               <li>Corrigir dados incompletos, inexatos ou desatualizados.</li>
               <li>Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários.</li>
               <li>Solicitar a portabilidade dos seus dados.</li>
+              <li>Solicitar a exclusao de fotos de progresso e imagens corporais a qualquer momento.</li>
               <li>Revogar o consentimento a qualquer momento.</li>
             </ul>
             <p className="text-muted-foreground">

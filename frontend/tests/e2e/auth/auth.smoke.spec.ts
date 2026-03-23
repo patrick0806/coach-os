@@ -26,6 +26,7 @@ test.describe("Auth Flow @smoke", () => {
     await page.locator("#email").fill(registeredEmail)
     await page.locator("#password").fill(TEST_PASSWORD)
     await page.locator("#confirmPassword").fill(TEST_PASSWORD)
+    await page.locator("#acceptTerms").click()
 
     await page.getByRole("button", { name: "Criar conta" }).click()
 
@@ -65,6 +66,7 @@ test.describe("Auth Flow @smoke", () => {
     await page.locator("#email").fill(registeredEmail)
     await page.locator("#password").fill(TEST_PASSWORD)
     await page.locator("#confirmPassword").fill(TEST_PASSWORD)
+    await page.locator("#acceptTerms").click()
 
     await page.getByRole("button", { name: "Criar conta" }).click()
 

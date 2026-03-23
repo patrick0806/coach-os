@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRegister } from "@/features/auth/hooks/useRegister";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { Checkbox } from "@/shared/ui/checkbox";
 import {
   Field,
   FieldLabel,
@@ -28,6 +29,9 @@ const registerSchema = z
       .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
       .regex(/[0-9]/, "Deve conter ao menos um número"),
     confirmPassword: z.string().min(1, "Confirme sua senha"),
+    acceptTerms: z.literal(true, {
+      message: "Aceite os termos para continuar",
+    }),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: "As senhas não coincidem",
@@ -213,6 +217,35 @@ export function RegisterForm({ planId, selectedPlan, onBack }: RegisterFormProps
               </button>
             </div>
             <FieldError errors={[errors.confirmPassword]} />
+          </Field>
+
+          <Field>
+            <div className="flex items-start gap-2">
+              <Controller
+                control={control}
+                name="acceptTerms"
+                render={({ field }) => (
+                  <Checkbox
+                    id="acceptTerms"
+                    checked={field.value === true}
+                    onCheckedChange={(checked) => field.onChange(checked === true)}
+                    aria-invalid={!!errors.acceptTerms}
+                    className="mt-0.5"
+                  />
+                )}
+              />
+              <label htmlFor="acceptTerms" className="text-sm text-muted-foreground leading-tight">
+                Li e aceito a{" "}
+                <Link href="/privacidade" target="_blank" className="text-primary underline-offset-4 hover:underline">
+                  Politica de Privacidade
+                </Link>{" "}
+                e os{" "}
+                <Link href="/termos" target="_blank" className="text-primary underline-offset-4 hover:underline">
+                  Termos de Servico
+                </Link>
+              </label>
+            </div>
+            <FieldError errors={[errors.acceptTerms]} />
           </Field>
 
           <Button
