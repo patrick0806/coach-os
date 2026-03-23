@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useState } from "react"
 import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
@@ -180,8 +181,10 @@ export function Sidebar() {
 }
 
 export function MobileSidebarTrigger() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="size-8 lg:hidden">
           <Menu className="size-5" />
@@ -189,7 +192,7 @@ export function MobileSidebarTrigger() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0">
-        <SidebarContent />
+        <SidebarContent onNavigate={() => setOpen(false)} />
       </SheetContent>
     </Sheet>
   )
