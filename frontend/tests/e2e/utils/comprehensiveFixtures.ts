@@ -317,7 +317,7 @@ export const STUDENT_PROGRAM = {
           duration: null,
           order: 1,
           notes: null,
-          exercise: { name: "Agachamento", muscleGroup: "Pernas", mediaUrl: null },
+          exercise: { name: "Agachamento", muscleGroup: "Pernas", mediaUrl: null, youtubeUrl: null },
         },
       ],
     },

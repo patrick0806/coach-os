@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Dumbbell, SkipForward } from "lucide-react"
+import Image from "next/image"
+import { Check, Dumbbell, ExternalLink, SkipForward } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
 import { Input } from "@/shared/ui/input"
@@ -58,6 +59,35 @@ export function ActiveExerciseView({
           </span>
         </div>
       </div>
+
+      {/* Exercise media */}
+      {(exercise.exercise.mediaUrl || exercise.exercise.youtubeUrl) && (
+        <div className="space-y-2" data-testid="exercise-media">
+          {exercise.exercise.mediaUrl && (
+            <div className="relative h-48 w-full overflow-hidden rounded-lg bg-muted">
+              <Image
+                src={exercise.exercise.mediaUrl}
+                alt={exercise.exercise.name}
+                fill
+                unoptimized
+                className="object-contain"
+              />
+            </div>
+          )}
+          {exercise.exercise.youtubeUrl && (
+            <a
+              href={exercise.exercise.youtubeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+              data-testid="youtube-link"
+            >
+              <ExternalLink className="size-3.5" />
+              Ver demonstração no YouTube
+            </a>
+          )}
+        </div>
+      )}
 
       {/* Sets list */}
       <div className="space-y-2">

@@ -17,6 +17,7 @@ import {
   activePrograms,
   emptyPrograms,
   programDetail,
+  programDetailNoMedia,
   createdSession,
   resumedSession,
   resumedSessionFullExercise,
@@ -517,6 +518,64 @@ test.describe("Workout Execution — Resume Fully Completed Exercise", () => {
     await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
     await expect(page.getByText("Leg Press")).toBeVisible()
     await expect(page.getByText("Série 1/3")).toBeVisible()
+  })
+})
+
+// =============================================================================
+// Exercise media display
+// =============================================================================
+
+test.describe("Workout Execution — Exercise Media", () => {
+  test.beforeEach(async ({ page }) => {
+    await injectStudentMockAuth(page)
+    await mockProgramDetail(page)
+    await mockStartSession(page)
+    await mockCreateExecution(page)
+  })
+
+  test("shows exercise image when mediaUrl is present", async ({ page }) => {
+    await startWorkout(page)
+    // Click first exercise (Agachamento) which has mediaUrl
+    await page.getByTestId("exercise-list-item").first().click()
+    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
+
+    await expect(page.getByTestId("exercise-media")).toBeVisible()
+    const img = page.getByTestId("exercise-media").locator("img")
+    await expect(img).toBeVisible()
+    await expect(img).toHaveAttribute("src", /agachamento\.gif/)
+  })
+
+  test("shows YouTube link when youtubeUrl is present", async ({ page }) => {
+    await startWorkout(page)
+    // Click second exercise (Leg Press) which has youtubeUrl
+    await page.getByTestId("exercise-list-item").nth(1).click()
+    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
+
+    const link = page.getByTestId("youtube-link")
+    await expect(link).toBeVisible()
+    await expect(link).toHaveAttribute("href", /youtube\.com/)
+    await expect(link).toHaveText("Ver demonstração no YouTube")
+  })
+
+  test("does not show media section when exercise has no media", async ({ page }) => {
+    // Override with no-media fixtures
+    await page.route(`**/api/v1/student-programs/${MOCK_PROGRAM_ID}*`, (route) => {
+      if (route.request().method() === "GET") {
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: programDetailNoMedia,
+        })
+      } else {
+        route.continue()
+      }
+    })
+
+    await startWorkout(page)
+    await page.getByTestId("exercise-list-item").first().click()
+    await page.waitForSelector("[data-testid='active-exercise-view']", { timeout: 8000 })
+
+    await expect(page.getByTestId("exercise-media")).not.toBeVisible()
   })
 })
 

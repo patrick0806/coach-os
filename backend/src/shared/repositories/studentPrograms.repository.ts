@@ -20,6 +20,7 @@ export interface StudentExerciseWithExercise extends StudentExercise {
     name: string;
     muscleGroup: string;
     mediaUrl: string | null;
+    youtubeUrl: string | null;
   };
 }
 
@@ -151,6 +152,7 @@ export class StudentProgramsRepository {
         exerciseName: exercises.name,
         exerciseMuscleGroup: exercises.muscleGroup,
         exerciseMediaUrl: exercises.mediaUrl,
+        exerciseYoutubeUrl: exercises.youtubeUrl,
       })
       .from(studentExercises)
       .innerJoin(exercises, eq(studentExercises.exerciseId, exercises.id))
@@ -178,6 +180,7 @@ export class StudentProgramsRepository {
           name: row.exerciseName,
           muscleGroup: row.exerciseMuscleGroup,
           mediaUrl: row.exerciseMediaUrl ?? null,
+          youtubeUrl: row.exerciseYoutubeUrl ?? null,
         },
       };
 

@@ -42,6 +42,7 @@ const makeStudentProgramWithTree = () => ({
             name: "Supino Reto",
             muscleGroup: "peitoral",
             mediaUrl: null,
+            youtubeUrl: null,
           },
         },
       ],

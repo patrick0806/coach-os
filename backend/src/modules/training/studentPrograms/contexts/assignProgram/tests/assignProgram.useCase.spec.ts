@@ -38,6 +38,7 @@ const makeExerciseTemplate = () => ({
     name: "Supino Reto",
     muscleGroup: "peitoral",
     mediaUrl: null,
+    youtubeUrl: null,
   },
 });
 

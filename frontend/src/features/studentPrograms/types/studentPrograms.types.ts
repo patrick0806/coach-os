@@ -15,6 +15,7 @@ export interface StudentExerciseItem {
     name: string
     muscleGroup: string | null
     mediaUrl: string | null
+    youtubeUrl: string | null
   }
 }
 

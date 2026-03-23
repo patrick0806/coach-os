@@ -27,7 +27,12 @@ const MOCK_EXERCISES = [
     duration: null,
     order: 1,
     notes: null,
-    exercise: { name: "Agachamento", muscleGroup: "Pernas", mediaUrl: null },
+    exercise: {
+      name: "Agachamento",
+      muscleGroup: "Pernas",
+      mediaUrl: "https://cdn.example.com/exercises/agachamento.gif",
+      youtubeUrl: null,
+    },
   },
   {
     id: "se-portal-2",
@@ -40,7 +45,42 @@ const MOCK_EXERCISES = [
     duration: null,
     order: 2,
     notes: null,
-    exercise: { name: "Leg Press", muscleGroup: "Pernas", mediaUrl: null },
+    exercise: {
+      name: "Leg Press",
+      muscleGroup: "Pernas",
+      mediaUrl: null,
+      youtubeUrl: "https://www.youtube.com/watch?v=example123",
+    },
+  },
+]
+
+// Exercises without any media (for testing no-media state)
+const MOCK_EXERCISES_NO_MEDIA = [
+  {
+    id: "se-portal-1",
+    workoutDayId: MOCK_WORKOUT_DAY_ID,
+    exerciseId: "ex-portal-1",
+    sets: 3,
+    repetitions: 10,
+    plannedWeight: "50.00",
+    restSeconds: 60,
+    duration: null,
+    order: 1,
+    notes: null,
+    exercise: { name: "Agachamento", muscleGroup: "Pernas", mediaUrl: null, youtubeUrl: null },
+  },
+  {
+    id: "se-portal-2",
+    workoutDayId: MOCK_WORKOUT_DAY_ID,
+    exerciseId: "ex-portal-2",
+    sets: 3,
+    repetitions: 12,
+    plannedWeight: "30.00",
+    restSeconds: 45,
+    duration: null,
+    order: 2,
+    notes: null,
+    exercise: { name: "Leg Press", muscleGroup: "Pernas", mediaUrl: null, youtubeUrl: null },
   },
 ]
 
@@ -51,6 +91,11 @@ export const MOCK_WORKOUT_DAY = {
   description: "Foco em membros inferiores",
   order: 1,
   studentExercises: MOCK_EXERCISES,
+}
+
+export const MOCK_WORKOUT_DAY_NO_MEDIA = {
+  ...MOCK_WORKOUT_DAY,
+  studentExercises: MOCK_EXERCISES_NO_MEDIA,
 }
 
 export const programDetail = {
@@ -75,6 +120,11 @@ function paginated(content: object[], page = 0, size = 50) {
     totalElements: content.length,
     totalPages: Math.max(1, Math.ceil(content.length / size)),
   }
+}
+
+export const programDetailNoMedia = {
+  ...programDetail,
+  workoutDays: [MOCK_WORKOUT_DAY_NO_MEDIA],
 }
 
 export const activePrograms = paginated([
