@@ -212,7 +212,7 @@ test.describe("Happy Path — Step 6: Profile & Landing Page", () => {
     await mockUpdateProfile(page, { ...PROFILE_COMPLETE, bio: "Bio atualizada." })
 
     await page.goto("/pagina-publica")
-    await page.waitForSelector("#bio, [data-slot='page-header']", { timeout: 10000 })
+    await page.waitForSelector("#bio, h1", { timeout: 10000 })
 
     // Edit bio field
     const bioField = page.locator("#bio")

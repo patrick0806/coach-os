@@ -66,6 +66,8 @@ async function mockAvailabilityEndpoints(page: import("@playwright/test").Page) 
 }
 
 async function setupAgendaPage(page: import("@playwright/test").Page) {
+  // Freeze time to the week of the fixture data (2026-03-16 Mon–Sun) so calendar events are visible
+  await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
   await injectMockAuth(page)
   await mockEnumAttendanceTypes(page)
   await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
@@ -145,10 +147,10 @@ test.describe("Agenda — Calendar Display", () => {
       return
     }
 
-    // Desktop: should show abbreviated day names (Portuguese)
-    await expect(page.getByText("Seg").first()).toBeVisible({ timeout: 5000 })
-    await expect(page.getByText("Ter").first()).toBeVisible()
-    await expect(page.getByText("Qui").first()).toBeVisible()
+    // Desktop: should show abbreviated day names (Portuguese, lowercase via date-fns ptBR locale)
+    await expect(page.getByText(/^seg$/i).first()).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText(/^ter$/i).first()).toBeVisible()
+    await expect(page.getByText(/^qui$/i).first()).toBeVisible()
   })
 })
 

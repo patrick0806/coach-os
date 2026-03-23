@@ -212,7 +212,7 @@ test.describe("Critical — API Failures", () => {
     })
 
     await page.goto("/pagina-publica")
-    await page.waitForSelector("#bio, [data-slot='page-header']", { timeout: 10000 })
+    await page.waitForSelector("#bio, h1", { timeout: 10000 })
 
     const bioField = page.locator("#bio")
     if (await bioField.isVisible()) {

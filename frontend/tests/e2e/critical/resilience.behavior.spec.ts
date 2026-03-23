@@ -74,7 +74,7 @@ test.describe("Critical — Resilience", () => {
     await mockGetMyProfile(page, PROFILE_COMPLETE)
 
     await page.goto("/pagina-publica")
-    await page.waitForSelector("#bio, [data-slot='page-header']", { timeout: 10000 })
+    await page.waitForSelector("#bio, h1", { timeout: 10000 })
 
     const bioField = page.locator("#bio")
     if (await bioField.isVisible()) {
@@ -82,7 +82,7 @@ test.describe("Critical — Resilience", () => {
 
       // Reload
       await page.reload()
-      await page.waitForSelector("#bio, [data-slot='page-header']", { timeout: 10000 })
+      await page.waitForSelector("#bio, h1", { timeout: 10000 })
 
       if (await bioField.isVisible()) {
         const bioAfterReload = await bioField.inputValue()
