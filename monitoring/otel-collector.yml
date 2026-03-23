@@ -78,7 +78,7 @@ receivers:
         rule: type == "container" && labels["service"] == "coach-os-backend"
         config:
           include:
-            - "/var/lib/docker/containers/`endpoint.ID`/*-json.log"
+            - "/var/lib/docker/containers/`endpoint.container_id`/*-json.log"
           include_file_path: true
           start_at: end
           operators:
@@ -104,7 +104,7 @@ receivers:
         rule: type == "container" && labels["service"] == "coach-os-frontend"
         config:
           include:
-            - "/var/lib/docker/containers/`endpoint.ID`/*-json.log"
+            - "/var/lib/docker/containers/`endpoint.container_id`/*-json.log"
           include_file_path: true
           start_at: end
           operators:
