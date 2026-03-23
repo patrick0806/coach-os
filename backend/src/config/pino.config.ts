@@ -3,33 +3,27 @@ import { pino } from 'pino';
 const isDev = process.env.NODE_ENV !== 'production';
 
 export const pinoConfig = {
-  level: 'info',//isDev ? 'info' : 'info',/*'error',*/
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: false,
-      ignore: 'pid,hostname',
-      singleLine: false,
-    },
-  } /*isDev
+  level: 'info',
+  ...(isDev
     ? {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: false,
-        ignore: 'pid,hostname',
-        singleLine: false,
-      },
-    }
-    : undefined*/,
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: false,
+            ignore: 'pid,hostname',
+            singleLine: false,
+          },
+        },
+      }
+    : {}),
   formatters: {
     level: (label: string) => {
       return { level: label };
     },
   },
-  timestamp: false,
-  base: undefined, // Remove pid e hostname
+  timestamp: pino.stdTimeFunctions.isoTime,
+  base: undefined, // Remove pid and hostname
 };
 
 export const logger = pino(pinoConfig);
