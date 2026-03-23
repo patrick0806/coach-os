@@ -41,15 +41,21 @@ const makeRepository = () => ({
   updateProfile: vi.fn().mockResolvedValue(makeProfile({ bio: "Updated bio" })),
 });
 
+const makeS3Provider = () => ({
+  deleteObject: vi.fn().mockResolvedValue(undefined),
+});
+
 describe("UpdateProfileUseCase", () => {
   let useCase: UpdateProfileUseCase;
   let repository: ReturnType<typeof makeRepository>;
+  let s3Provider: ReturnType<typeof makeS3Provider>;
 
   const tenantId = "tenant-id-1";
 
   beforeEach(() => {
     repository = makeRepository();
-    useCase = new UpdateProfileUseCase(repository as any);
+    s3Provider = makeS3Provider();
+    useCase = new UpdateProfileUseCase(repository as any, s3Provider as any);
   });
 
   it("should update the profile successfully", async () => {
@@ -135,5 +141,57 @@ describe("UpdateProfileUseCase", () => {
 
     await expect(useCase.execute(tenantId, { slug: "my-coach-123" })).resolves.toBeDefined();
     expect(repository.updateProfile).toHaveBeenCalledWith(tenantId, { slug: "my-coach-123" });
+  });
+
+  // S3 cleanup tests
+
+  it("should delete old S3 object when profilePhoto is replaced", async () => {
+    const oldUrl = "https://bucket.s3.region.amazonaws.com/profiles/old.jpg";
+    const newUrl = "https://bucket.s3.region.amazonaws.com/profiles/new.jpg";
+    repository.findById.mockResolvedValue(makeProfile({ profilePhoto: oldUrl }));
+    repository.updateProfile.mockResolvedValue(makeProfile({ profilePhoto: newUrl }));
+
+    await useCase.execute(tenantId, { profilePhoto: newUrl });
+
+    expect(s3Provider.deleteObject).toHaveBeenCalledWith(oldUrl);
+  });
+
+  it("should delete old S3 object when logoUrl is replaced", async () => {
+    const oldUrl = "https://bucket.s3.region.amazonaws.com/logos/old.png";
+    const newUrl = "https://bucket.s3.region.amazonaws.com/logos/new.png";
+    repository.findById.mockResolvedValue(makeProfile({ logoUrl: oldUrl }));
+    repository.updateProfile.mockResolvedValue(makeProfile({ logoUrl: newUrl }));
+
+    await useCase.execute(tenantId, { logoUrl: newUrl });
+
+    expect(s3Provider.deleteObject).toHaveBeenCalledWith(oldUrl);
+  });
+
+  it("should not delete S3 when image field is not in payload", async () => {
+    repository.findById.mockResolvedValue(
+      makeProfile({ profilePhoto: "https://bucket.s3.region.amazonaws.com/old.jpg" }),
+    );
+
+    await useCase.execute(tenantId, { bio: "Just bio" });
+
+    expect(s3Provider.deleteObject).not.toHaveBeenCalled();
+  });
+
+  it("should not delete S3 when existing image is null", async () => {
+    repository.findById.mockResolvedValue(makeProfile({ profilePhoto: null }));
+
+    await useCase.execute(tenantId, { profilePhoto: "https://bucket.s3.region.amazonaws.com/new.jpg" });
+
+    expect(s3Provider.deleteObject).not.toHaveBeenCalled();
+  });
+
+  it("should not fail when S3 deletion throws", async () => {
+    const oldUrl = "https://bucket.s3.region.amazonaws.com/profiles/old.jpg";
+    const newUrl = "https://bucket.s3.region.amazonaws.com/profiles/new.jpg";
+    repository.findById.mockResolvedValue(makeProfile({ profilePhoto: oldUrl }));
+    repository.updateProfile.mockResolvedValue(makeProfile({ profilePhoto: newUrl }));
+    s3Provider.deleteObject.mockRejectedValue(new Error("S3 error"));
+
+    await expect(useCase.execute(tenantId, { profilePhoto: newUrl })).resolves.toBeDefined();
   });
 });

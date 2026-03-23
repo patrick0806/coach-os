@@ -44,15 +44,21 @@ const makeRepository = () => ({
   saveLpDraft: vi.fn().mockResolvedValue(undefined),
 });
 
+const makeS3Provider = () => ({
+  deleteObject: vi.fn().mockResolvedValue(undefined),
+});
+
 describe("SaveLpDraftUseCase", () => {
   let useCase: SaveLpDraftUseCase;
   let repository: ReturnType<typeof makeRepository>;
+  let s3Provider: ReturnType<typeof makeS3Provider>;
 
   const tenantId = "tenant-id-1";
 
   beforeEach(() => {
     repository = makeRepository();
-    useCase = new SaveLpDraftUseCase(repository as any);
+    s3Provider = makeS3Provider();
+    useCase = new SaveLpDraftUseCase(repository as any, s3Provider as any);
   });
 
   it("should save the LP draft successfully", async () => {
@@ -96,5 +102,48 @@ describe("SaveLpDraftUseCase", () => {
     await expect(useCase.execute("nonexistent-tenant", { lpTitle: "Title" })).rejects.toThrow(
       NotFoundException,
     );
+  });
+
+  // S3 cleanup tests
+
+  it("should delete old draft image when lpHeroImage is replaced", async () => {
+    const oldUrl = "https://bucket.s3.region.amazonaws.com/lp/old-hero.jpg";
+    const newUrl = "https://bucket.s3.region.amazonaws.com/lp/new-hero.jpg";
+    repository.findById.mockResolvedValue(
+      makeProfile({ lpDraftData: { lpHeroImage: oldUrl } }),
+    );
+
+    await useCase.execute(tenantId, { lpHeroImage: newUrl });
+
+    expect(s3Provider.deleteObject).toHaveBeenCalledWith(oldUrl);
+  });
+
+  it("should not delete when no previous draft exists", async () => {
+    repository.findById.mockResolvedValue(makeProfile({ lpDraftData: null }));
+
+    await useCase.execute(tenantId, { lpHeroImage: "https://bucket.s3.region.amazonaws.com/new.jpg" });
+
+    expect(s3Provider.deleteObject).not.toHaveBeenCalled();
+  });
+
+  it("should not delete when image field is not in payload", async () => {
+    repository.findById.mockResolvedValue(
+      makeProfile({ lpDraftData: { lpHeroImage: "https://bucket.s3.region.amazonaws.com/old.jpg" } }),
+    );
+
+    await useCase.execute(tenantId, { lpTitle: "New title" });
+
+    expect(s3Provider.deleteObject).not.toHaveBeenCalled();
+  });
+
+  it("should not fail if S3 deletion throws", async () => {
+    const oldUrl = "https://bucket.s3.region.amazonaws.com/lp/old-hero.jpg";
+    const newUrl = "https://bucket.s3.region.amazonaws.com/lp/new-hero.jpg";
+    repository.findById.mockResolvedValue(
+      makeProfile({ lpDraftData: { lpHeroImage: oldUrl } }),
+    );
+    s3Provider.deleteObject.mockRejectedValue(new Error("S3 error"));
+
+    await expect(useCase.execute(tenantId, { lpHeroImage: newUrl })).resolves.toBeUndefined();
   });
 });

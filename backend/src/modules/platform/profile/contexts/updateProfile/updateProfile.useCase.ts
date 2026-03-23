@@ -2,8 +2,10 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { z } from "zod";
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
+import { S3Provider } from "@shared/providers/s3.provider";
 import { Personal } from "@config/database/schema/personals";
 import { validate } from "@shared/utils/validation.util";
+import { logger } from "@config/pino.config";
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -25,7 +27,10 @@ const updateProfileSchema = z.object({
 
 @Injectable()
 export class UpdateProfileUseCase {
-  constructor(private readonly personalsRepository: PersonalsRepository) {}
+  constructor(
+    private readonly personalsRepository: PersonalsRepository,
+    private readonly s3Provider: S3Provider,
+  ) {}
 
   async execute(tenantId: string, body: unknown): Promise<Personal> {
     const data = validate(updateProfileSchema, body);
@@ -43,6 +48,20 @@ export class UpdateProfileUseCase {
     }
 
     const updated = await this.personalsRepository.updateProfile(tenantId, data);
+
+    // Best-effort S3 cleanup for replaced images
+    const imageFields = ["profilePhoto", "logoUrl"] as const;
+    for (const field of imageFields) {
+      const oldUrl = existing[field];
+      if (field in data && oldUrl && data[field] !== oldUrl) {
+        try {
+          await this.s3Provider.deleteObject(oldUrl);
+        } catch (error) {
+          logger.error({ error, field, oldUrl }, "Failed to delete old S3 object on profile update");
+        }
+      }
+    }
+
     return updated!;
   }
 }
