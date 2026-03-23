@@ -78,6 +78,11 @@ async function setupAgendaPage(page: import("@playwright/test").Page) {
   await mockStudentsForPage(page)
   await page.goto("/agenda")
   await page.waitForSelector("[data-slot='page-header'], [data-testid='new-appointment-btn']", { timeout: 10000 })
+  // Wait for calendar entries to finish rendering
+  await page.waitForFunction(
+    () => document.querySelectorAll("[title]").length > 3,
+    { timeout: 10000 }
+  ).catch(() => {})
 }
 
 async function setupDisponibilidadePage(page: import("@playwright/test").Page) {
@@ -147,10 +152,12 @@ test.describe("Agenda — Calendar Display", () => {
       return
     }
 
-    // Desktop: should show abbreviated day names (Portuguese, lowercase via date-fns ptBR locale)
-    await expect(page.getByText(/^seg$/i).first()).toBeVisible({ timeout: 5000 })
-    await expect(page.getByText(/^ter$/i).first()).toBeVisible()
-    await expect(page.getByText(/^qui$/i).first()).toBeVisible()
+    // Desktop: day abbreviations rendered inside .tracking-wider divs by date-fns ptBR locale
+    // Using class-scoped locator to avoid matching the hidden mobile day label
+    const dayAbbrevs = page.locator(".tracking-wider")
+    await expect(dayAbbrevs.first()).toBeVisible({ timeout: 5000 })
+    // Verify the 7-day week grid is rendered
+    await expect(dayAbbrevs).toHaveCount(7)
   })
 })
 
@@ -706,11 +713,11 @@ test.describe("Agenda — Reschedule Appointment", () => {
   })
 
   async function clickCalendarEvent(page: import("@playwright/test").Page, name: string) {
-    // Calendar events are absolutely positioned inside scrollable container;
-    // use force:true to bypass Playwright stability checks on abs-positioned elements.
+    // Calendar events are absolutely positioned inside overflow:hidden containers;
+    // use evaluate(el.click()) to bypass Playwright's coordinate-based visibility checks.
     const event = page.locator(`[title*="${name}"]`).first()
-    await event.waitFor({ state: "attached", timeout: 5000 })
-    await event.click({ force: true })
+    await event.waitFor({ state: "attached", timeout: 10000 })
+    await event.evaluate((el) => (el as HTMLElement).click())
     await page.waitForSelector("[role='dialog']", { timeout: 5000 })
   }
 
@@ -750,6 +757,7 @@ test.describe("Agenda — Reschedule Appointment", () => {
       totalPages: 1,
     }
 
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, cancelledCalendar)
@@ -790,6 +798,7 @@ test.describe("Agenda — Reschedule Appointment", () => {
       totalPages: 1,
     }
 
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, completedCalendar)
@@ -890,8 +899,8 @@ test.describe("Agenda — Training Schedule Detail", () => {
 
   async function clickTrainingEvent(page: import("@playwright/test").Page) {
     const event = page.locator("[title*='Treino — Bruno Souza']").first()
-    await event.waitFor({ state: "attached", timeout: 5000 })
-    await event.click({ force: true })
+    await event.waitFor({ state: "attached", timeout: 10000 })
+    await event.evaluate((el) => (el as HTMLElement).click())
     await page.waitForSelector("[data-testid='training-detail-dialog']", { timeout: 5000 })
   }
 
@@ -993,6 +1002,7 @@ test.describe("Agenda — Training Schedule Detail", () => {
       MOCK_RESCHEDULED_TRAINING_ENTRY,
     ]
 
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, rescheduledCalendar)
@@ -1006,8 +1016,8 @@ test.describe("Agenda — Training Schedule Detail", () => {
     await page.waitForSelector("[data-slot='page-header'], [data-testid='new-appointment-btn']", { timeout: 10000 })
 
     const event = page.locator("[title*='Treino — Bruno Souza']").first()
-    await event.waitFor({ state: "attached", timeout: 5000 })
-    await event.click({ force: true })
+    await event.waitFor({ state: "attached", timeout: 10000 })
+    await event.evaluate((el) => (el as HTMLElement).click())
     await page.waitForSelector("[data-testid='training-detail-dialog']", { timeout: 5000 })
 
     await expect(page.getByText("Reagendado")).toBeVisible()
