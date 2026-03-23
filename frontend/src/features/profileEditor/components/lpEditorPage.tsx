@@ -6,9 +6,9 @@ import { ExternalLink, Eye, Loader2 } from "lucide-react"
 import axios from "axios"
 import { toast } from "sonner"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
 import { Button } from "@/shared/ui/button"
 import { Badge } from "@/shared/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
 import { useGetMyProfile } from "@/features/profileEditor/hooks/useGetMyProfile"
 import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
 import { startLandingPageTour } from "@/features/onboarding/tours/landingPage.tour"
@@ -17,6 +17,7 @@ import { useSaveLpDraft } from "@/features/profileEditor/hooks/useSaveLpDraft"
 import { usePublishLpDraft } from "@/features/profileEditor/hooks/usePublishLpDraft"
 import { ProfileTab } from "@/features/profileEditor/components/profileTab"
 import { PageTab } from "@/features/profileEditor/components/pageTab"
+import { ImageUploadField } from "@/features/profileEditor/components/imageUploadField"
 import type {
   ProfileData,
   UpdateProfileData,
@@ -29,13 +30,12 @@ export function LpEditorPage() {
   const saveLpDraft = useSaveLpDraft()
   const publishLpDraft = usePublishLpDraft()
 
-  const [activeTab, setActiveTab] = useState<"aparencia" | "pagina">("aparencia")
   const [profileDraft, setProfileDraft] = useState<ProfileData | null>(null)
   const [lpDraft, setLpDraft] = useState<LpDraftData | null>(null)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (profile && !profileDraft) {
-      // Initialize LP draft from lpDraftData if it exists, otherwise from live lp* fields
       const initialLpDraft: LpDraftData = profile.lpDraftData ?? {
         lpLayout: profile.lpLayout,
         lpTitle: profile.lpTitle ?? undefined,
@@ -50,6 +50,7 @@ export function LpEditorPage() {
       startTransition(() => {
         setProfileDraft(profile)
         setLpDraft(initialLpDraft)
+        setLogoUrl(profile.logoUrl ?? null)
       })
     }
   }, [profile, profileDraft])
@@ -69,15 +70,16 @@ export function LpEditorPage() {
       specialties: profileDraft.specialties ?? undefined,
       themeColor: profileDraft.themeColor ?? undefined,
       themeColorSecondary: profileDraft.themeColorSecondary ?? undefined,
+      logoUrl: logoUrl ?? undefined,
     }
 
     try {
       await updateProfile.mutateAsync(payload)
-      toast.success("Perfil atualizado com sucesso!")
+      toast.success("Aparência atualizada com sucesso!")
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? (err.response?.data?.message ?? "Erro ao salvar perfil")
-        : "Erro ao salvar perfil"
+        ? (err.response?.data?.message ?? "Erro ao salvar aparência")
+        : "Erro ao salvar aparência"
       toast.error(message)
     }
   }
@@ -127,7 +129,7 @@ export function LpEditorPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Página Pública</h1>
           <p className="text-sm text-muted-foreground">
-            Configure a aparencia e conteudo da sua pagina publica.
+            Configure a aparência e conteúdo da sua página pública.
           </p>
         </div>
         <a
@@ -142,103 +144,105 @@ export function LpEditorPage() {
         </a>
       </div>
 
-      <Tabs
-        value={activeTab}
-        onValueChange={(v) => setActiveTab(v as "aparencia" | "pagina")}
-      >
-        {/* Tabs row + context-aware action buttons */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList data-tour="lp-tabs">
-            <TabsTrigger value="aparencia">Aparencia</TabsTrigger>
-            <TabsTrigger value="pagina">Pagina</TabsTrigger>
-          </TabsList>
-
-          {/* Actions — change based on active tab */}
-          <div className="flex flex-wrap items-center gap-2">
-            {activeTab === "aparencia" && (
-              <Button
-                size="sm"
-                onClick={handleSaveProfile}
-                disabled={updateProfile.isPending}
-              >
-                {updateProfile.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 size-3.5 animate-spin" />
-                    Salvando...
-                  </>
-                ) : (
-                  "Salvar"
-                )}
-              </Button>
-            )}
-
-            {activeTab === "pagina" && (
-              <>
-                {hasDraft && (
-                  <>
-                    <Badge variant="outline" className="text-xs">
-                      Rascunho pendente
-                    </Badge>
-                    <Link
-                      href="/pagina-publica/rascunho"
-                      className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                    >
-                      <Eye className="size-3" />
-                      Visualizar rascunho
-                    </Link>
-                  </>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleSaveDraft}
-                  disabled={saveLpDraft.isPending}
-                  data-tour="save-draft-btn"
-                >
-                  {saveLpDraft.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 size-3.5 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    "Salvar rascunho"
-                  )}
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handlePublish}
-                  disabled={!hasDraft || publishLpDraft.isPending}
-                  data-tour="publish-btn"
-                >
-                  {publishLpDraft.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 size-3.5 animate-spin" />
-                      Publicando...
-                    </>
-                  ) : (
-                    "Publicar"
-                  )}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-
-        <TabsContent value="aparencia" className="mt-6">
+      {/* Section 1: Aparência */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Aparência</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
           <ProfileTab
             data={profileDraft}
             onChange={handleProfileChange}
             disabled={updateProfile.isPending}
           />
-        </TabsContent>
-        <TabsContent value="pagina" className="mt-6">
+
+          <ImageUploadField
+            label="Logo"
+            hint="Exibido no portal do aluno e como favicon da sua página pública."
+            currentUrl={logoUrl}
+            onUpload={(fileUrl) => setLogoUrl(fileUrl)}
+            disabled={updateProfile.isPending}
+            shape="banner"
+          />
+
+          <Button
+            onClick={handleSaveProfile}
+            disabled={updateProfile.isPending}
+          >
+            {updateProfile.isPending ? (
+              <>
+                <Loader2 className="mr-2 size-3.5 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              "Salvar aparência"
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Section 2: Conteúdo da Página */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle>Conteúdo da Página</CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
+              {hasDraft && (
+                <>
+                  <Badge variant="outline" className="text-xs">
+                    Rascunho pendente
+                  </Badge>
+                  <Link
+                    href="/pagina-publica/rascunho"
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    <Eye className="size-3" />
+                    Visualizar rascunho
+                  </Link>
+                </>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSaveDraft}
+                disabled={saveLpDraft.isPending}
+                data-tour="save-draft-btn"
+              >
+                {saveLpDraft.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 size-3.5 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  "Salvar rascunho"
+                )}
+              </Button>
+              <Button
+                size="sm"
+                onClick={handlePublish}
+                disabled={!hasDraft || publishLpDraft.isPending}
+                data-tour="publish-btn"
+              >
+                {publishLpDraft.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 size-3.5 animate-spin" />
+                    Publicando...
+                  </>
+                ) : (
+                  "Publicar"
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
           <PageTab
             data={lpDraft}
             onChange={handleLpChange}
             disabled={saveLpDraft.isPending || publishLpDraft.isPending}
           />
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   )
 }

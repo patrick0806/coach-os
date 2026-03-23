@@ -17,15 +17,6 @@ export function startLandingPageTour() {
         },
       },
       {
-        element: '[data-tour="lp-tabs"]',
-        popover: {
-          title: '📑 Abas de Configuração',
-          description:
-            'A aba "Aparência" controla especialidades e cores da sua marca. A aba "Página" permite montar sua landing page com textos e imagens.',
-          side: 'bottom',
-        },
-      },
-      {
         element: '[data-tour="save-draft-btn"]',
         popover: {
           title: '💾 Salvar Rascunho',

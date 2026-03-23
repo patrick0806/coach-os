@@ -51,4 +51,8 @@ export const profileEditorFixtures = {
       lpSubtitle: "Subtítulo do rascunho",
     },
   },
+  withLogo: {
+    ...baseProfile,
+    logoUrl: "https://s3.example.com/logos/test-logo.png",
+  },
 }
