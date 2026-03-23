@@ -45,7 +45,7 @@ import {
 test.describe("Agenda — Reschedule Appointment", () => {
   // Reschedule tests rely on desktop weekly calendar layout; mobile uses a different single-day view
   test.beforeEach(async ({}, testInfo) => {
-    if (testInfo.project.name === "mobile-android") {
+    if (testInfo.project.name.includes("mobile")) {
       testInfo.skip(true, "Desktop only — mobile calendar uses single-day layout")
     }
   })
@@ -232,7 +232,7 @@ test.describe("Agenda — Reschedule Appointment", () => {
 test.describe("Agenda — Training Schedule Detail", () => {
   // Training detail tests rely on desktop weekly calendar layout
   test.beforeEach(async ({}, testInfo) => {
-    if (testInfo.project.name === "mobile-android") {
+    if (testInfo.project.name.includes("mobile")) {
       testInfo.skip(true, "Desktop only — mobile calendar uses single-day layout")
     }
   })

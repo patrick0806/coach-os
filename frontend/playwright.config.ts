@@ -59,6 +59,21 @@ export default defineConfig({
       testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
     },
 
+    // --- Legacy aliases kept for compatibility with older commands ---
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
+    },
+    {
+      name: "mobile-android",
+      use: {
+        ...devices["Pixel 7"],
+        browserName: "chromium",
+      },
+      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
+    },
+
     // --- Smoke tests (real backend required) ---
     // Run with: npm run test:e2e:smoke (uses --workers=1 to avoid 429 on /auth/register)
     {
