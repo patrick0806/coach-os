@@ -1,79 +1,63 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-21
+Last updated: 2026-03-23
 
 ---
 
-## Milestone 13 — System Audit Fixes
+## Milestone 13 — System Audit Fixes ✅ COMPLETE (2026-03-22)
 
-> Full system audit performed on 2026-03-22.
-> 73 findings across 12 modules. Organized in 4 waves by priority.
-
----
-
-### Wave 1 — P0: Broken Functionality + Security (trivial fixes) ✅ DONE (2026-03-22)
-
-- [x] **CHK-001** Register cookie identity mismatch — `register.controller.ts:31` changed `personal.id` to `user.id`
-- [x] **CHK-002** URL regression in password reset email — `requestPasswordReset.useCase.ts:48` changed `/personais/` to `/coach/`
-- [x] **CHK-003** URL regression in student access email — `sendStudentAccess.useCase.ts:44` changed `/personais/` to `/coach/`
-- [x] **CHK-004** CORS null origin bypass — `main.ts:87` now rejects null origin
-- [x] **CHK-005** Appointment state machine: only `scheduled` can be completed — guard `status !== "scheduled"`
-- [x] **CHK-006** Appointment state machine: only `scheduled` can be cancelled — guard `status !== "scheduled"`
+> 73 findings across 12 modules. 41 fixed, 1 accepted risk (CHK-031 TOCTOU).
+> Waves 1-5 all done. See SYSTEM_STATUS.md for details.
 
 ---
 
-### Wave 2 — P1: Business-Critical Fixes ✅ DONE (2026-03-21)
+## Milestone 15 — UX Fixes + Training Schedule UI ✅ COMPLETE (2026-03-23)
 
-- [x] **CHK-007** Admin refresh token lockout — added ADMIN role branch in `refreshToken.useCase.ts`
-- [x] **CHK-008** Rate limiting — installed `@nestjs/throttler`, global ThrottlerGuard + stricter limits on login/register/password-reset
-- [x] **CHK-009** Downgrade without student limit check — `changePlan.useCase.ts` now validates active students vs new plan limit
-- [x] **CHK-010** acceptInvite multi-tenant failure — reuses existing user when student invited by second coach
-- [x] **CHK-011** Student limit counts archived — `countByTenantId` now excludes archived students
-- [x] **CHK-012** Stripe before DB atomicity — DB updated first, Stripe second, with rollback on Stripe failure
-- [x] **CHK-013** Webhook rawBody fallback — throws BadRequestException when rawBody is missing
-- [x] **CHK-014** Soft-delete plan breaks coaches — checks for active coaches before deactivating plan
-- [x] **CHK-015** Session state machine — finishSession only from started/paused, pauseSession only from started
-- [x] **CHK-016** Concurrent workout sessions — checks for existing active session before starting new one
+> 3 features/fixes implemented.
 
 ---
 
-### Wave 3 — P2: Data Integrity + Security Hardening ✅ DONE (2026-03-21)
+### Feature 1 — Midia do exercicio na execucao do treino (aluno) ✅
 
-- [x] **CHK-017** Webhook idempotency — `webhook_events` table + dedup check in `processStripeEvent.useCase.ts`
-- [x] **CHK-018** Webhook out-of-order — event.id stored before processing; duplicates skipped
-- [x] **CHK-019** acceptInvite transactional — both branches (new/existing user) wrapped in `db.transaction()`
-- [x] **CHK-020** Register transactional — user + Stripe + personal creation wrapped in `db.transaction()` with rollback
-- [x] **CHK-021** approveRequest transactional — request update + appointment creation wrapped in `db.transaction()`
-- [x] **CHK-022** assignProgram real transaction — `_tx` → `tx`, passed to all `.create()` calls inside transaction
-- [x] **CHK-023** Reorder cross-entity — `reorder()` now takes `parentId` filter (programTemplateId / workoutTemplateId)
-- [x] **CHK-024** Student cross-access — controllers pass `studentId` when role is STUDENT; use cases validate ownership
-- [x] **CHK-025** Conflict detection respects exceptions — `detectConflicts()` now receives `trainingScheduleExceptions`, skips/reschedules applied
-- [x] **CHK-026** Exercise execution on finished session — `createExecution.useCase.ts` checks `session.status === "started"`
-- [x] **CHK-027** Record set on finished session — session status check + `setNumber` uniqueness via `existsByExecutionIdAndSetNumber`
-- [x] **CHK-028** deleteAdmin orphan user — `deleteAdmin.useCase.ts` now also deletes the associated user record
-- [x] **CHK-029** JWT algorithm restriction — `jwt.strategy.ts` now specifies `algorithms: ["HS256"]`
-- [x] **CHK-030** sendStudentAccess Zod validation — `mode` parameter validated with `z.enum(["email", "link"])`
+- [x] Backend: adicionar `youtubeUrl` ao join em `studentPrograms.repository.ts`
+- [x] Backend: atualizar interface `StudentExerciseWithExercise` com `youtubeUrl`
+- [x] Backend: atualizar testes de `getStudentProgram.useCase.spec.ts` e `assignProgram.useCase.spec.ts`
+- [x] Frontend: adicionar `youtubeUrl` ao tipo `StudentExerciseItem`
+- [x] Frontend: renderizar midia (imagem/GIF + link YouTube) em `activeExerciseView.tsx`
+- [x] Frontend: criar testes comportamentais `workoutExecution.behavior.spec.ts`
 
 ---
 
-### Wave 4 — P3: Backlog / Accepted Risks ✅ DONE (2026-03-22)
+### Feature 2 — Reorganizar Perfil para Configuracoes ✅
 
-- [ ] **CHK-031** TOCTOU race condition on student limit — accepted risk; requires pessimistic lock
-- [x] **CHK-032** Calendar N+1 queries — `findByIds` batch method replaces N individual `findById` calls
-- [x] **CHK-033** Calendar hardcoded limit — `findAllInDateRange` replaces paginated `findAllByTenantId` (no limit)
-- [x] **CHK-034** parseISO timezone issue — explicit UTC constructor (`new Date("...T00:00:00Z")`) + manual UTC week boundaries
-- [x] **CHK-035** metricType free-text vs enum — shared `VALID_METRIC_TYPES` enum used in createCheckin, createRecord, getChartData, getMyChartData
-- [x] **CHK-036** createContract transactional — auto-cancel + create wrapped in `db.transaction()`
-- [x] **CHK-037** S3 photos cleaned — `deleteProgressPhoto` now calls `s3Provider.deleteObject()` (best-effort with error logging)
-- [x] **CHK-038** Email enumeration via register — documented as accepted risk; rate limiting (3 req/min) mitigates
+- [x] Frontend: extrair `formatPhone` para `shared/utils/formatPhone.ts`
+- [x] Frontend: criar `profileSettingsSection.tsx` em `features/settings/components/`
+- [x] Frontend: refatorar `settings/page.tsx` com secoes (Perfil + Seguranca)
+- [x] Frontend: refatorar `profileTab.tsx` — remover foto, bio, telefone (manter especialidades + cores)
+- [x] Frontend: refatorar `lpEditorPage.tsx` — renomear aba "Perfil" para "Aparencia"
+- [x] Frontend: atualizar tour `landingPage.tour.ts` referencia "Perfil" → "Aparencia"
+- [x] Frontend: atualizar `profileEditor.behavior.spec.ts` para novas abas
+- [x] Frontend: criar testes comportamentais `settings.behavior.spec.ts`
 
 ---
 
-## Wave 5 — P4: Domain Integrity Fixes ✅ DONE (2026-03-22)
+### Feature 3 — UI para horarios de treino do aluno ✅
 
-- [x] **CHK-039** duplicateProgramTemplate real transaction — `_tx` → `tx`, passed to all `.create()` calls (same pattern as CHK-022)
-- [x] **CHK-040** deleteServicePlan active contracts guard — validates no active contracts before deletion
-- [x] **CHK-041** createContract student status validation — only allows contracts for students with status `active`
+- [x] Frontend: adicionar tipos `TrainingScheduleItem`, `CreateTrainingScheduleRequest`, `UpdateTrainingScheduleRequest` em `scheduling.types.ts`
+- [x] Frontend: adicionar metodos CRUD ao `scheduling.service.ts`
+- [x] Frontend: criar hooks `useTrainingSchedules.ts` (list, create, update, delete)
+- [x] Frontend: criar `trainingScheduleFormDialog.tsx` (create/edit dialog)
+- [x] Frontend: criar `studentScheduleSection.tsx` (conteudo da aba Agenda)
+- [x] Frontend: habilitar aba "Agenda" em `studentDetail.tsx` + overflow-x-auto para mobile
+- [x] Frontend: criar fixtures `trainingSchedules.fixtures.ts`
+- [x] Frontend: criar testes comportamentais `trainingSchedules.behavior.spec.ts`
+
+---
+
+### Bug fix — Onboarding checklist visivel com 8/8 ✅
+
+- [x] Frontend: `onboardingChecklist.tsx` — esconder quando `completedPages.length >= TOUR_PAGES.length`
+- [x] Frontend: `useTourProgress.ts` — sincronizar auth store quando todas as paginas estao completas
 
 ---
 
