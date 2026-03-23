@@ -224,7 +224,7 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="w-full">
         <DialogHeader>
           <DialogTitle>Configurar disponibilidade em lote</DialogTitle>
         </DialogHeader>
