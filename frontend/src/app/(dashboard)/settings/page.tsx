@@ -2,6 +2,7 @@
 
 import { PageHeader } from "@/shared/components/pageHeader"
 import { ChangePasswordForm } from "@/features/settings/components/changePasswordForm"
+import { ProfileSettingsSection } from "@/features/settings/components/profileSettingsSection"
 import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
 import { startProfileTour } from "@/features/onboarding/tours/profile.tour"
 
@@ -11,9 +12,13 @@ export default function SettingsPage() {
       <PageTourInitializer page="profile" startTour={startProfileTour} />
 
       <PageHeader
-        title="Configurações"
-        description="Gerencie as configurações da sua conta."
+        title="Configuracoes"
+        description="Gerencie as configuracoes da sua conta."
       />
+
+      <div data-tour="profile-settings">
+        <ProfileSettingsSection />
+      </div>
 
       <div data-tour="change-password-form">
         <ChangePasswordForm />

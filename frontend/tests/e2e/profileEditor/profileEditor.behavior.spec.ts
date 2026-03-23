@@ -40,13 +40,13 @@ test.describe("Profile Editor — Load & Display", () => {
     await expect(page.getByRole("heading", { name: "Página Pública" })).toBeVisible()
   })
 
-  test("renders two tabs: Perfil and Página", async ({ page }) => {
+  test("renders two tabs: Aparencia and Pagina", async ({ page }) => {
     await setupPage(page)
-    await expect(page.getByRole("tab", { name: "Perfil" })).toBeVisible()
-    await expect(page.getByRole("tab", { name: "Página" })).toBeVisible()
+    await expect(page.getByRole("tab", { name: "Aparencia" })).toBeVisible()
+    await expect(page.getByRole("tab", { name: "Pagina" })).toBeVisible()
   })
 
-  test("renders Salvar button inside Perfil tab (default)", async ({ page }) => {
+  test("renders Salvar button inside Aparencia tab (default)", async ({ page }) => {
     await setupPage(page)
     await expect(page.getByRole("button", { name: "Salvar" })).toBeVisible()
   })
@@ -65,24 +65,10 @@ test.describe("Profile Editor — Load & Display", () => {
 })
 
 // =============================================================================
-// Perfil Tab
+// Aparencia Tab
 // =============================================================================
 
-test.describe("Profile Editor — Perfil Tab", () => {
-  test("shows bio field with existing value", async ({ page }) => {
-    await setupPage(page)
-    const bio = page.locator("#bio")
-    await expect(bio).toBeVisible()
-    await expect(bio).toHaveValue(profileEditorFixtures.complete.bio!)
-  })
-
-  test("shows phone number field with existing value", async ({ page }) => {
-    await setupPage(page)
-    const phone = page.locator("#phoneNumber")
-    await expect(phone).toBeVisible()
-    await expect(phone).toHaveValue(profileEditorFixtures.complete.phoneNumber!)
-  })
-
+test.describe("Profile Editor — Aparencia Tab", () => {
   test("shows specialties field with existing value", async ({ page }) => {
     await setupPage(page)
     const specialties = page.locator("#specialties")
@@ -95,24 +81,6 @@ test.describe("Profile Editor — Perfil Tab", () => {
     await expect(page.locator("#themeColor").last()).toBeVisible()
   })
 
-  test("can edit bio field", async ({ page }) => {
-    await setupPage(page)
-    const bio = page.locator("#bio")
-    await bio.clear()
-    await bio.fill("Nova bio do treinador")
-    await expect(bio).toHaveValue("Nova bio do treinador")
-  })
-
-  test("can edit phone number field", async ({ page }) => {
-    await setupPage(page)
-    const phone = page.locator("#phoneNumber")
-    await phone.clear()
-    await phone.fill("11999990000")
-    // Formatted by mask
-    const value = await phone.inputValue()
-    expect(value).toContain("11")
-  })
-
   test("can edit specialties field", async ({ page }) => {
     await setupPage(page)
     const specialties = page.locator("#specialties")
@@ -121,116 +89,98 @@ test.describe("Profile Editor — Perfil Tab", () => {
     await expect(specialties).toHaveValue("Musculação, Pilates")
   })
 
-  test("shows empty fields for minimal profile", async ({ page }) => {
+  test("shows empty specialties for minimal profile", async ({ page }) => {
     await setupPage(page, profileEditorFixtures.minimal)
-    await expect(page.locator("#bio")).toHaveValue("")
-    await expect(page.locator("#phoneNumber")).toHaveValue("")
     await expect(page.locator("#specialties")).toHaveValue("")
   })
 })
 
 // =============================================================================
-// Página Tab
+// Pagina Tab
 // =============================================================================
 
-test.describe("Profile Editor — Página Tab", () => {
-  test("switches to Página tab", async ({ page }) => {
+test.describe("Profile Editor — Pagina Tab", () => {
+  test("switches to Pagina tab", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.locator("#lpTitle")).toBeVisible()
   })
 
   test("shows lpTitle field with existing value", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.locator("#lpTitle")).toHaveValue(profileEditorFixtures.complete.lpTitle!)
   })
 
   test("shows lpSubtitle field with existing value", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.locator("#lpSubtitle")).toHaveValue(profileEditorFixtures.complete.lpSubtitle!)
   })
 
   test("shows lpAboutTitle field with existing value", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.locator("#lpAboutTitle")).toHaveValue(profileEditorFixtures.complete.lpAboutTitle!)
   })
 
   test("shows lpAboutText field with existing value", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.locator("#lpAboutText")).toHaveValue(profileEditorFixtures.complete.lpAboutText!)
   })
 
   test("can edit lpTitle field", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     const field = page.locator("#lpTitle")
     await field.clear()
     await field.fill("Meu novo título incrível")
     await expect(field).toHaveValue("Meu novo título incrível")
   })
 
-  test("shows Salvar rascunho and Publicar buttons in Página tab", async ({ page }) => {
+  test("shows Salvar rascunho and Publicar buttons in Pagina tab", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.getByRole("button", { name: "Salvar rascunho" })).toBeVisible()
     await expect(page.getByRole("button", { name: "Publicar" })).toBeVisible()
   })
 
   test("Publicar button is disabled when no draft exists", async ({ page }) => {
     await setupPage(page, profileEditorFixtures.complete) // lpDraftData: null
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     const publishBtn = page.getByRole("button", { name: "Publicar" })
     await expect(publishBtn).toBeDisabled()
   })
 
   test("shows 'Rascunho pendente' badge when profile has draft", async ({ page }) => {
     await setupPage(page, profileEditorFixtures.withDraft)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.getByText("Rascunho pendente")).toBeVisible()
   })
 
   test("Publicar button is enabled when profile has draft", async ({ page }) => {
     await setupPage(page, profileEditorFixtures.withDraft)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     const publishBtn = page.getByRole("button", { name: "Publicar" })
     await expect(publishBtn).not.toBeDisabled()
   })
 
   test("shows template picker with 4 options", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.getByText("Conversão")).toBeVisible()
     await expect(page.getByText("Autoridade")).toBeVisible()
     await expect(page.getByText("Minimalista")).toBeVisible()
     await expect(page.getByText("Impacto")).toBeVisible()
   })
-
-  test("editing fields in Perfil tab persists when switching to Página tab", async ({ page }) => {
-    await setupPage(page)
-
-    // Edit bio in Perfil tab
-    await page.locator("#bio").clear()
-    await page.locator("#bio").fill("Bio editada")
-
-    // Switch to Página
-    await page.getByRole("tab", { name: "Página" }).click()
-    await expect(page.locator("#lpTitle")).toBeVisible()
-
-    // Switch back to Perfil
-    await page.getByRole("tab", { name: "Perfil" }).click()
-    await expect(page.locator("#bio")).toHaveValue("Bio editada")
-  })
 })
 
 // =============================================================================
-// Save Flow — Profile
+// Save Flow — Aparencia
 // =============================================================================
 
-test.describe("Profile Editor — Save Flow (Perfil)", () => {
+test.describe("Profile Editor — Save Flow (Aparencia)", () => {
   test("Salvar button triggers PUT /profile", async ({ page }) => {
     await injectMockAuth(page)
     await mockGetMyProfileStateful(
@@ -281,12 +231,11 @@ test.describe("Profile Editor — Save Flow (Perfil)", () => {
     const salvarBtn = page.getByRole("button", { name: "Salvar" })
     await salvarBtn.scrollIntoViewIfNeeded()
     await page.waitForTimeout(200)
-    // Use evaluate to dispatch click directly, bypassing Playwright's coverage check
     await salvarBtn.evaluate((el) => (el as HTMLButtonElement).click())
     await expect(page.getByText("Salvando...")).toBeVisible({ timeout: 3000 })
   })
 
-  test("shows success toast after saving profile", async ({ page }) => {
+  test("shows success toast after saving", async ({ page }) => {
     await injectMockAuth(page)
     await mockGetMyProfile(page, profileEditorFixtures.complete)
     await mockUpdateProfile(page, profileEditorFixtures.updated)
@@ -335,7 +284,7 @@ test.describe("Profile Editor — Save Flow (Perfil)", () => {
 // Save Flow — LP Draft / Publish
 // =============================================================================
 
-test.describe("Profile Editor — Save Flow (Página)", () => {
+test.describe("Profile Editor — Save Flow (Pagina)", () => {
   test("Salvar rascunho triggers PUT /profile/lp-draft", async ({ page }) => {
     await injectMockAuth(page)
     await mockGetMyProfile(page, profileEditorFixtures.complete)
@@ -351,7 +300,7 @@ test.describe("Profile Editor — Save Flow (Página)", () => {
       }
     })
 
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await page.getByRole("button", { name: "Salvar rascunho" }).click()
     await page.waitForTimeout(500)
     expect(draftPutCalled).toBe(true)
@@ -365,7 +314,7 @@ test.describe("Profile Editor — Save Flow (Página)", () => {
     await page.goto(PAGE_URL)
     await page.waitForSelector("[role='tablist']", { timeout: 8000 })
 
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await page.getByRole("button", { name: "Salvar rascunho" }).click()
     await expect(page.getByText(/Rascunho salvo/i)).toBeVisible({ timeout: 5000 })
   })
@@ -385,7 +334,7 @@ test.describe("Profile Editor — Save Flow (Página)", () => {
       }
     })
 
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     const publishBtn = page.getByRole("button", { name: "Publicar" })
     await publishBtn.scrollIntoViewIfNeeded()
     await page.waitForTimeout(200)
@@ -405,13 +354,13 @@ test.describe("Profile Editor — Mobile", () => {
   test("renders correctly on mobile", async ({ page }) => {
     await setupPage(page)
     await expect(page.getByRole("heading", { name: "Página Pública" })).toBeVisible()
-    await expect(page.getByRole("tab", { name: "Perfil" })).toBeVisible()
+    await expect(page.getByRole("tab", { name: "Aparencia" })).toBeVisible()
     await expect(page.getByRole("button", { name: "Salvar" })).toBeVisible()
   })
 
   test("tabs work on mobile", async ({ page }) => {
     await setupPage(page)
-    await page.getByRole("tab", { name: "Página" }).click()
+    await page.getByRole("tab", { name: "Pagina" }).click()
     await expect(page.locator("#lpTitle")).toBeVisible()
   })
 })

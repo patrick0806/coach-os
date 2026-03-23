@@ -28,15 +28,7 @@ import { useCreateStudent } from "@/features/students/hooks/useCreateStudent"
 import { useUpdateStudent } from "@/features/students/hooks/useUpdateStudent"
 import type { StudentDetail } from "@/features/students/types/students.types"
 import { servicePlansService } from "@/features/servicePlans/services/servicePlans.service"
-
-// Brazilian phone mask: (XX) XXXXX-XXXX (mobile) or (XX) XXXX-XXXX (landline)
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 11)
-  if (digits.length <= 2) return digits
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
-  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-}
+import { formatPhone } from "@/shared/utils/formatPhone"
 
 const schema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres").optional(),

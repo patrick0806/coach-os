@@ -21,7 +21,7 @@ export function startLandingPageTour() {
         popover: {
           title: '📑 Abas de Configuração',
           description:
-            'A aba "Perfil" controla suas informações e marca. A aba "Página" permite montar sua landing page com textos e imagens.',
+            'A aba "Aparência" controla especialidades e cores da sua marca. A aba "Página" permite montar sua landing page com textos e imagens.',
           side: 'bottom',
         },
       },

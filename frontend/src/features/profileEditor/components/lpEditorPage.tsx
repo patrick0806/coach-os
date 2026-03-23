@@ -29,7 +29,7 @@ export function LpEditorPage() {
   const saveLpDraft = useSaveLpDraft()
   const publishLpDraft = usePublishLpDraft()
 
-  const [activeTab, setActiveTab] = useState<"perfil" | "pagina">("perfil")
+  const [activeTab, setActiveTab] = useState<"aparencia" | "pagina">("aparencia")
   const [profileDraft, setProfileDraft] = useState<ProfileData | null>(null)
   const [lpDraft, setLpDraft] = useState<LpDraftData | null>(null)
 
@@ -66,13 +66,9 @@ export function LpEditorPage() {
     if (!profileDraft) return
 
     const payload: UpdateProfileData = {
-      bio: profileDraft.bio ?? undefined,
-      phoneNumber: profileDraft.phoneNumber ?? undefined,
       specialties: profileDraft.specialties ?? undefined,
       themeColor: profileDraft.themeColor ?? undefined,
       themeColorSecondary: profileDraft.themeColorSecondary ?? undefined,
-      profilePhoto: profileDraft.profilePhoto ?? undefined,
-      logoUrl: profileDraft.logoUrl ?? undefined,
     }
 
     try {
@@ -131,7 +127,7 @@ export function LpEditorPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Página Pública</h1>
           <p className="text-sm text-muted-foreground">
-            Configure seu perfil e sua landing page profissional.
+            Configure a aparencia e conteudo da sua pagina publica.
           </p>
         </div>
         <a
@@ -148,18 +144,18 @@ export function LpEditorPage() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as "perfil" | "pagina")}
+        onValueChange={(v) => setActiveTab(v as "aparencia" | "pagina")}
       >
         {/* Tabs row + context-aware action buttons */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <TabsList data-tour="lp-tabs">
-            <TabsTrigger value="perfil">Perfil</TabsTrigger>
-            <TabsTrigger value="pagina">Página</TabsTrigger>
+            <TabsTrigger value="aparencia">Aparencia</TabsTrigger>
+            <TabsTrigger value="pagina">Pagina</TabsTrigger>
           </TabsList>
 
           {/* Actions — change based on active tab */}
           <div className="flex flex-wrap items-center gap-2">
-            {activeTab === "perfil" && (
+            {activeTab === "aparencia" && (
               <Button
                 size="sm"
                 onClick={handleSaveProfile}
@@ -228,7 +224,7 @@ export function LpEditorPage() {
           </div>
         </div>
 
-        <TabsContent value="perfil" className="mt-6">
+        <TabsContent value="aparencia" className="mt-6">
           <ProfileTab
             data={profileDraft}
             onChange={handleProfileChange}

@@ -2,19 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Input } from "@/shared/ui/input"
-import { Textarea } from "@/shared/ui/textarea"
 import { Field, FieldLabel } from "@/shared/ui/field"
-import { ImageUploadField } from "@/features/profileEditor/components/imageUploadField"
 import type { ProfileData, UpdateProfileData } from "@/features/profileEditor/services/profile.service"
-
-// Brazilian phone mask: (XX) XXXXX-XXXX (mobile) or (XX) XXXX-XXXX (landline)
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 11)
-  if (digits.length <= 2) return digits
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
-  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-}
 
 interface ProfileTabProps {
   data: ProfileData
@@ -34,44 +23,11 @@ export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
   return (
     <div className="space-y-5">
       <div className="flex w-full flex-col gap-5">
-        <ImageUploadField
-          label="Foto de perfil"
-          hint="Recomendado: 400×400px (quadrado). Exibida em círculo na página pública."
-          currentUrl={data.profilePhoto}
-          onUpload={(fileUrl) => onChange({ profilePhoto: fileUrl })}
-          disabled={disabled}
-          shape="circle"
-        />
-
         <Field>
-          <FieldLabel htmlFor="bio">Bio</FieldLabel>
-          <Textarea
-            id="bio"
-            rows={4}
-            placeholder="Escreva sobre você, sua experiência e metodologia..."
-            value={data.bio ?? ""}
-            onChange={(e) => onChange({ bio: e.target.value })}
-            disabled={disabled}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="phoneNumber">Telefone (WhatsApp)</FieldLabel>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            placeholder="(11) 99999-9999"
-            value={data.phoneNumber ?? ""}
-            onChange={(e) => onChange({ phoneNumber: formatPhone(e.target.value) })}
-            disabled={disabled}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="specialties">Especialidades (separadas por vírgula)</FieldLabel>
+          <FieldLabel htmlFor="specialties">Especialidades (separadas por virgula)</FieldLabel>
           <Input
             id="specialties"
-            placeholder="Ex: musculação, emagrecimento, funcional"
+            placeholder="Ex: musculacao, emagrecimento, funcional"
             value={specialtiesText}
             onChange={(e) => setSpecialtiesText(e.target.value)}
             onBlur={() =>
@@ -87,7 +43,7 @@ export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="themeColor">Cor primária</FieldLabel>
+          <FieldLabel htmlFor="themeColor">Cor primaria</FieldLabel>
           <div className="flex items-center gap-3">
             <input
               id="themeColor"
@@ -109,7 +65,7 @@ export function ProfileTab({ data, onChange, disabled }: ProfileTabProps) {
         </Field>
 
         <Field>
-          <FieldLabel htmlFor="themeColorSecondary">Cor secundária (acento)</FieldLabel>
+          <FieldLabel htmlFor="themeColorSecondary">Cor secundaria (acento)</FieldLabel>
           <div className="flex items-center gap-3">
             <input
               id="themeColorSecondary"
