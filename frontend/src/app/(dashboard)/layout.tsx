@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { authStore } from "@/stores/authStore";
+import { getSessionRestorePromise } from "@/providers/appProvider";
 import { LoadingState } from "@/shared/components/loadingState";
 import { Sidebar, MobileSidebarTrigger } from "@/features/dashboard/components/sidebar";
 import { OnboardingHeaderButton } from "@/features/onboarding/components/onboardingHeaderButton";
@@ -56,12 +57,23 @@ export default function DashboardLayout({
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Check initial auth state
-    if (!authStore.isAuthenticated()) {
-      router.replace("/login");
-      return;
+    // Wait for session restore (refresh) to complete before checking auth.
+    // Without this, the layout would redirect to /login before the refresh
+    // call has a chance to restore the access token.
+    const restorePromise = getSessionRestorePromise();
+    const check = () => {
+      if (!authStore.isAuthenticated()) {
+        router.replace("/login");
+        return;
+      }
+      startTransition(() => setChecking(false));
+    };
+
+    if (restorePromise) {
+      restorePromise.then(check);
+    } else {
+      check();
     }
-    startTransition(() => setChecking(false));
 
     // Subscribe to auth changes (e.g., token refresh failure → clear → redirect)
     const unsubscribe = authStore.subscribe((state) => {

@@ -8,9 +8,19 @@ import axios from "axios";
 
 import { authStore } from "@/stores/authStore";
 import { studentAuthStore } from "@/stores/studentAuthStore";
-import type { AuthTokensResponse } from "@/types/auth.types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333";
+
+/**
+ * Global session restore promise.
+ * DashboardLayout awaits this before checking auth state, preventing
+ * a race condition where the layout redirects to /login before refresh completes.
+ */
+let sessionRestorePromise: Promise<void> | null = null;
+
+export function getSessionRestorePromise(): Promise<void> | null {
+  return sessionRestorePromise;
+}
 
 /**
  * Silently restores the auth session on page load.
@@ -34,22 +44,33 @@ function useSessionRestore() {
 
   useEffect(() => {
     const { restored, shouldRefresh } = initRef.current!;
-    if (restored) return;
+    if (restored) {
+      sessionRestorePromise = Promise.resolve();
+      return;
+    }
 
     // Step 2: only call refresh if the user cookie says they were previously logged in.
     // This avoids hitting /auth/refresh on every public page visit (landing page, etc.)
     // for users who have never authenticated.
-    if (!shouldRefresh) return;
+    if (!shouldRefresh) {
+      sessionRestorePromise = Promise.resolve();
+      return;
+    }
 
-    // Step 3: try to refresh using the http-only cookie set by the backend
-    axios
-      .post<{ data: AuthTokensResponse }>(
+    // Step 3: try to refresh using the http-only cookie set by the backend.
+    // The refresh endpoint returns { accessToken } only (no user).
+    // The user data was already restored from the long-lived user cookie in init().
+    sessionRestorePromise = axios
+      .post<{ accessToken: string }>(
         `${BASE_URL}/auth/refresh`,
         {},
         { withCredentials: true }
       )
       .then(({ data }) => {
-        authStore.setAuth(data.data.accessToken, data.data.user);
+        const currentUser = authStore.getUser();
+        if (currentUser) {
+          authStore.setAuth(data.accessToken, currentUser);
+        }
       })
       .catch(() => {
         // Refresh failed — clear stale user cookie and treat as unauthenticated.
@@ -80,7 +101,7 @@ function useStudentSessionRestore() {
 
     // Try to refresh student session using the http-only cookie
     axios
-      .post<{ data: { accessToken: string } }>(
+      .post<{ accessToken: string }>(
         `${BASE_URL}/auth/refresh`,
         {},
         { withCredentials: true }
@@ -88,7 +109,7 @@ function useStudentSessionRestore() {
       .then(({ data }) => {
         const currentUser = studentAuthStore.getUser();
         if (currentUser) {
-          studentAuthStore.setAuth(data.data.accessToken, currentUser);
+          studentAuthStore.setAuth(data.accessToken, currentUser);
         }
       })
       .catch(() => {
