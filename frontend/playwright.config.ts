@@ -46,8 +46,7 @@ export default defineConfig({
     },
 
     // --- Smoke tests (real backend required) ---
-    // Run with: npx playwright test --project=smoke
-    // Workers limited to 2 to avoid hitting rate limits on auth endpoints (3 req/min)
+    // Run with: npm run test:e2e:smoke (uses --workers=1 to avoid 429 on /auth/register)
     {
       name: "smoke",
       use: { ...devices["Desktop Chrome"] },

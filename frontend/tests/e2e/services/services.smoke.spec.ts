@@ -41,7 +41,7 @@ test.describe("Service Plans — Smoke @smoke", () => {
     await expect(page.getByRole("heading", { name: "Novo plano de serviço" })).toBeVisible()
 
     await page.getByLabel("Nome").fill(planName)
-    await page.getByLabel("Preço (R$)").fill("199.90")
+    await page.getByLabel("Preço").fill("199.90")
     await page.getByRole("button", { name: "Salvar" }).click()
 
     await expect(page.getByRole("heading", { name: "Novo plano de serviço" })).not.toBeVisible()

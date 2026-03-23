@@ -39,7 +39,7 @@ test.describe("Progress Checkins — Smoke @smoke", () => {
     await tab.click()
 
     await page.waitForSelector("[data-testid='student-progress-section']", { timeout: 8000 })
-    await expect(page.getByText(/nenhum registro de evolução/i)).toBeVisible()
+    await expect(page.getByText(/nenhum registro de evolução/i).first()).toBeVisible()
   })
 
   test("coach can create a progress checkin with weight metric", async ({ page, request }) => {

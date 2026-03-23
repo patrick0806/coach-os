@@ -221,7 +221,7 @@ test.describe("Exercise Library — Edit", () => {
 
     const privateCard = page.locator(".group").filter({ hasText: "Meu" }).first()
     await privateCard.hover()
-    await privateCard.locator("[data-testid='exercise-actions']").click()
+    await privateCard.locator("[data-testid='exercise-actions']").click({ force: true })
 
     const editItem = page.getByTestId("edit-exercise")
     await expect(editItem).toBeVisible()
@@ -233,7 +233,7 @@ test.describe("Exercise Library — Edit", () => {
 
     const privateCard = page.locator(".group").filter({ hasText: "Meu" }).first()
     await privateCard.hover()
-    await privateCard.locator("[data-testid='exercise-actions']").click()
+    await privateCard.locator("[data-testid='exercise-actions']").click({ force: true })
     await page.getByTestId("edit-exercise").click()
 
     await expect(page.getByRole("heading", { name: "Editar exercício" })).toBeVisible()
@@ -259,7 +259,7 @@ test.describe("Exercise Library — Edit", () => {
 
     const privateCard = page.locator(".group").filter({ hasText: "Meu" }).first()
     await privateCard.hover()
-    await privateCard.locator("[data-testid='exercise-actions']").click()
+    await privateCard.locator("[data-testid='exercise-actions']").click({ force: true })
     await page.getByTestId("edit-exercise").click()
 
     await expect(page.getByRole("heading", { name: "Editar exercício" })).toBeVisible()

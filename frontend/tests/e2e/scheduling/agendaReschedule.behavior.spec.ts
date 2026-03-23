@@ -168,6 +168,7 @@ test.describe("Agenda — Reschedule Appointment", () => {
   })
 
   test("reschedules appointment successfully and shows toast", async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
@@ -194,6 +195,7 @@ test.describe("Agenda — Reschedule Appointment", () => {
   })
 
   test("shows conflict warning when rescheduling causes conflict", async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
@@ -270,6 +272,7 @@ test.describe("Agenda — Training Schedule Detail", () => {
   })
 
   test("skip training succeeds and shows toast", async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
@@ -289,6 +292,7 @@ test.describe("Agenda — Training Schedule Detail", () => {
   })
 
   test("reschedule training succeeds and shows toast", async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
@@ -311,6 +315,7 @@ test.describe("Agenda — Training Schedule Detail", () => {
   })
 
   test("reschedule training shows conflict warning", async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-03-16T10:00:00.000Z"))
     await injectMockAuth(page)
     await mockEnumAttendanceTypes(page)
     await mockCalendar(page, MOCK_CALENDAR_ENTRIES)
