@@ -94,13 +94,13 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <TrialBanner />
-        <header className="flex h-16 items-center gap-3 border-b border-border bg-background px-4 lg:px-8">
+        <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background px-4 lg:px-8">
           <MobileSidebarTrigger />
           <div className="flex items-center gap-3 lg:hidden">
             <Image src="/logo_transparent.png" alt="Coach OS" width={32} height={32} />
@@ -111,7 +111,7 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 p-6 lg:p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
