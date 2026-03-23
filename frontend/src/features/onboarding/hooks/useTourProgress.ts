@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { profileService } from '@/features/profileEditor/services/profile.service';
-import { SHOW_TUTORIAL, type TourPage } from '@/features/onboarding/config';
+import { SHOW_TUTORIAL, TOUR_PAGES, type TourPage } from '@/features/onboarding/config';
+import { authStore } from '@/stores/authStore';
 
 const TOUR_PROGRESS_KEY = ['tour-progress'];
 
@@ -31,6 +32,10 @@ export function useTourProgress() {
     queryFn: async () => {
       const pages = await profileService.getTourProgress();
       writeToLocalStorage(pages);
+      // Sync auth store if all pages are completed but cookie is stale
+      if (pages.length >= TOUR_PAGES.length && !authStore.getUser()?.onboardingCompleted) {
+        authStore.setOnboardingCompleted();
+      }
       return pages;
     },
     // placeholderData shows localStorage cache immediately without blocking the server fetch

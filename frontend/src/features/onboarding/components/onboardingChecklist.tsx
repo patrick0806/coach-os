@@ -34,6 +34,7 @@ export function OnboardingChecklist() {
   if (!SHOW_TUTORIAL) return null
   if (user?.role !== 'PERSONAL') return null
   if (user?.onboardingCompleted) return null
+  if (completedPages.length >= TOUR_PAGES.length) return null
   if (dismissed) return null
 
   const completedCount = completedPages.length

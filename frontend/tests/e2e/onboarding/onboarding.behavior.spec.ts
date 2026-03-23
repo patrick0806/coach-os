@@ -23,6 +23,7 @@ import {
   MOCK_ADMIN_USER,
   MOCK_NO_COMPLETED_PAGES,
   MOCK_PARTIAL_COMPLETED_PAGES,
+  MOCK_ALL_COMPLETED_PAGES,
 } from "../fixtures/onboarding.fixtures"
 
 async function goToDashboard(
@@ -68,6 +69,12 @@ test.describe("Onboarding Checklist — Visibility", () => {
 
   test("hides checklist when onboardingCompleted is true", async ({ page }) => {
     await goToDashboard(page, MOCK_USER_ONBOARDED, MOCK_NO_COMPLETED_PAGES)
+
+    await expect(page.getByTestId("onboarding-checklist")).not.toBeVisible()
+  })
+
+  test("hides checklist when all tour pages are completed even if onboardingCompleted is false", async ({ page }) => {
+    await goToDashboard(page, MOCK_USER_NEW, MOCK_ALL_COMPLETED_PAGES)
 
     await expect(page.getByTestId("onboarding-checklist")).not.toBeVisible()
   })
