@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Loader2 } from "lucide-react"
 import axios from "axios"
 import { toast } from "sonner"
@@ -18,15 +18,12 @@ export function ProfileSettingsSection() {
   const { data: profile, isLoading } = useGetMyProfile()
   const updateProfile = useUpdateProfile()
 
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
-  const [phoneNumber, setPhoneNumber] = useState("")
+  // Local overrides: undefined = not edited yet → fall back to server data
+  const [localPhoto, setLocalPhoto] = useState<string | null | undefined>(undefined)
+  const [localPhone, setLocalPhone] = useState<string | undefined>(undefined)
 
-  useEffect(() => {
-    if (profile) {
-      setProfilePhoto(profile.profilePhoto ?? null)
-      setPhoneNumber(profile.phoneNumber ?? "")
-    }
-  }, [profile])
+  const profilePhoto = localPhoto !== undefined ? localPhoto : (profile?.profilePhoto ?? null)
+  const phoneNumber = localPhone !== undefined ? localPhone : (profile?.phoneNumber ?? "")
 
   async function handleSave() {
     try {
@@ -72,7 +69,7 @@ export function ProfileSettingsSection() {
             label="Foto de perfil"
             hint="Recomendado: 400x400px (quadrado). Exibida em circulo na pagina publica."
             currentUrl={profilePhoto}
-            onUpload={(fileUrl) => setProfilePhoto(fileUrl)}
+            onUpload={(fileUrl) => setLocalPhoto(fileUrl)}
             disabled={updateProfile.isPending}
             shape="circle"
           />
@@ -84,7 +81,7 @@ export function ProfileSettingsSection() {
               type="tel"
               placeholder="(11) 99999-9999"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(formatPhone(e.target.value))}
+              onChange={(e) => setLocalPhone(formatPhone(e.target.value))}
               disabled={updateProfile.isPending}
               data-testid="phone-input"
             />
