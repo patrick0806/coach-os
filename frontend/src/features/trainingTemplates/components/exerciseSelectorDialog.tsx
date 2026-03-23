@@ -131,7 +131,7 @@ export function ExerciseSelectorDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg overflow-hidden">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {step === "select" ? "Selecionar exercício" : "Configurar exercício"}
@@ -139,7 +139,7 @@ export function ExerciseSelectorDialog({
         </DialogHeader>
 
         {step === "select" && (
-          <div className="space-y-4 min-w-0 w-full overflow-hidden">
+          <div className="space-y-4 min-w-0 w-full">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -151,7 +151,7 @@ export function ExerciseSelectorDialog({
               />
             </div>
 
-            <div className="max-h-72 overflow-y-auto overflow-x-hidden space-y-1 rounded-md border p-1">
+            <div className="max-h-72 overflow-y-auto space-y-1 rounded-md border p-1">
               {isLoading && (
                 <div className="space-y-1 p-2">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -205,7 +205,7 @@ export function ExerciseSelectorDialog({
         )}
 
         {step === "params" && selectedExercise && (
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 min-w-0 w-full overflow-hidden">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 min-w-0 w-full">
             <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
               <Dumbbell className="size-4 shrink-0 text-muted-foreground" />
               <div className="min-w-0">
