@@ -21,12 +21,16 @@ import {
 
 // --- Setup helpers ---
 
+// Both student cards (mobile) and table rows (desktop) are always in the DOM.
+// Use state:"attached" so we don't time out waiting for the hidden one to become visible.
 async function setupPage(page: import("@playwright/test").Page, listFixture: object) {
   await injectMockAuth(page)
   await mockStudentsList(page, listFixture)
   await page.goto("/students")
-  // Wait for either table (desktop) or student cards (mobile)
-  await page.locator("table, [data-testid='student-card']").first().waitFor({ state: "visible", timeout: 8000 })
+  await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", {
+    state: "attached",
+    timeout: 8000,
+  })
 }
 
 // =============================================================================
@@ -38,7 +42,7 @@ test.describe("Students — List & Filters", () => {
     await setupPage(page, studentsFixtures.active)
 
     for (const student of activeStudents) {
-      await expect(page.getByText(student.name)).toBeVisible()
+      await expect(page.getByText(student.name).filter({ visible: true }).first()).toBeVisible()
     }
   })
 
@@ -46,9 +50,12 @@ test.describe("Students — List & Filters", () => {
     await injectMockAuth(page)
     await mockStudentsList(page, studentsFixtures.fernandaSearch)
     await page.goto("/students?search=Fernanda")
-    await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", {
+      state: "attached",
+      timeout: 8000,
+    })
 
-    await expect(page.getByText("Fernanda Costa")).toBeVisible()
+    await expect(page.getByText("Fernanda Costa").filter({ visible: true }).first()).toBeVisible()
     await expect(page.getByText("Carlos Mendonça")).not.toBeVisible()
   })
 
@@ -68,7 +75,7 @@ test.describe("Students — List & Filters", () => {
     await page.waitForURL(/status=active/)
 
     for (const student of activeStudents) {
-      await expect(page.getByText(student.name)).toBeVisible()
+      await expect(page.getByText(student.name).filter({ visible: true }).first()).toBeVisible()
     }
   })
 
@@ -76,7 +83,10 @@ test.describe("Students — List & Filters", () => {
     await injectMockAuth(page)
     await mockStudentsList(page, studentsFixtures.archived)
     await page.goto("/students?status=archived")
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 8000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", {
+      state: "attached",
+      timeout: 8000,
+    })
 
     await expect(page.getByText("Nenhum aluno encontrado")).toBeVisible()
   })
@@ -107,7 +117,10 @@ test.describe("Students — Create", () => {
     await mockCreateStudent(page, newStudentFixture)
     await mockServicePlansList(page, [])
     await page.goto("/students")
-    await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", {
+      state: "attached",
+      timeout: 8000,
+    })
 
     await page.getByRole("button", { name: "Novo aluno" }).click()
     await expect(page.getByRole("heading", { name: "Novo aluno" })).toBeVisible()
@@ -121,7 +134,7 @@ test.describe("Students — Create", () => {
     await expect(page.getByRole("heading", { name: "Novo aluno" })).not.toBeVisible()
 
     // New student appears after refetch
-    await expect(page.getByText(newStudentFixture.name)).toBeVisible()
+    await expect(page.getByText(newStudentFixture.name).filter({ visible: true }).first()).toBeVisible()
   })
 })
 
@@ -135,10 +148,14 @@ test.describe("Students — Invite Link", () => {
     await mockStudentsList(page, studentsFixtures.active)
     await mockGenerateStudentAccessLink(page)
     await page.goto("/students")
-    await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", {
+      state: "attached",
+      timeout: 8000,
+    })
 
-    // Open invite dialog via row actions menu (3 dots)
-    await page.locator('[data-tour="student-row-actions"]').first().click()
+    // Use filter({ visible: true }) because RowActions renders in both card (mobile)
+    // and table row (desktop) — only one is visible depending on viewport.
+    await page.locator('[data-tour="student-row-actions"]').filter({ visible: true }).first().click()
     await page.getByRole("menuitem", { name: "Enviar convite" }).click()
     await expect(page.getByRole("heading", { name: /Convidar/i })).toBeVisible()
 
@@ -157,10 +174,12 @@ test.describe("Students — Invite Link", () => {
     await mockStudentsList(page, studentsFixtures.active)
     await mockGenerateStudentAccessLink(page)
     await page.goto("/students")
-    await page.locator("table").waitFor({ state: "visible", timeout: 8000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", {
+      state: "attached",
+      timeout: 8000,
+    })
 
-    // Open invite dialog via row actions menu (3 dots)
-    await page.locator('[data-tour="student-row-actions"]').first().click()
+    await page.locator('[data-tour="student-row-actions"]').filter({ visible: true }).first().click()
     await page.getByRole("menuitem", { name: "Enviar convite" }).click()
     await page.getByRole("button", { name: "Gerar link" }).click()
 
@@ -187,7 +206,7 @@ test.describe("Students — Mobile", () => {
     await expect(page.locator("table")).not.toBeVisible()
 
     // Student data is visible inside the card
-    await expect(page.getByText("Fernanda Costa")).toBeVisible()
+    await expect(page.getByText("Fernanda Costa").filter({ visible: true }).first()).toBeVisible()
   })
 
   test("student card navigates to detail on click", async ({ page }) => {

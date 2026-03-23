@@ -56,17 +56,17 @@ test.describe("Critical — Resilience", () => {
     await mockStudentsList(page, paginated(STUDENTS))
 
     await page.goto("/students")
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 10000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", { state: "attached", timeout: 10000 })
 
     // Verify students are visible
-    await expect(page.getByText("Fernanda Costa")).toBeVisible()
+    await expect(page.getByText("Fernanda Costa").filter({ visible: true }).first()).toBeVisible()
 
     // Reload page
     await page.reload()
 
     // Students should still be there after reload
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 10000 })
-    await expect(page.getByText("Fernanda Costa")).toBeVisible()
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", { state: "attached", timeout: 10000 })
+    await expect(page.getByText("Fernanda Costa").filter({ visible: true }).first()).toBeVisible()
   })
 
   test("profile editor survives reload with data intact", async ({ page }) => {
@@ -104,7 +104,7 @@ test.describe("Critical — Resilience", () => {
 
     // Navigate to students
     await page.goto("/students")
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 10000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", { state: "attached", timeout: 10000 })
 
     // Should still be authenticated (not redirected to login)
     expect(page.url()).toContain("/students")
@@ -119,7 +119,7 @@ test.describe("Critical — Resilience", () => {
     await page.waitForTimeout(2000)
 
     await page.goto("/students")
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 10000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", { state: "attached", timeout: 10000 })
 
     // Go back
     await page.goBack()

@@ -132,7 +132,7 @@ test.describe("Critical — Persistence", () => {
 
     // Navigate with search param
     await page.goto("/students?search=Fernanda")
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 10000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", { state: "attached", timeout: 10000 })
 
     // URL should contain search param
     expect(page.url()).toContain("search=Fernanda")

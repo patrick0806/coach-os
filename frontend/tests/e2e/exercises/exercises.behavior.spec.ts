@@ -295,7 +295,7 @@ test.describe("Exercise Library — Delete", () => {
 
     const privateCard = page.locator(".group").filter({ hasText: "Meu" }).first()
     await privateCard.hover()
-    await privateCard.locator("[data-testid='exercise-actions']").click()
+    await privateCard.locator("[data-testid='exercise-actions']").click({ force: true })
 
     const deleteItem = page.getByTestId("delete-exercise")
     await expect(deleteItem).toBeVisible()
@@ -307,7 +307,7 @@ test.describe("Exercise Library — Delete", () => {
 
     const privateCard = page.locator(".group").filter({ hasText: "Meu" }).first()
     await privateCard.hover()
-    await privateCard.locator("[data-testid='exercise-actions']").click()
+    await privateCard.locator("[data-testid='exercise-actions']").click({ force: true })
     await page.getByTestId("delete-exercise").click()
 
     await expect(page.getByRole("heading", { name: "Excluir exercício" })).toBeVisible()

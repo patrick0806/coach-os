@@ -60,7 +60,7 @@ test.describe("Critical — Idempotency", () => {
     })
 
     await page.goto("/students")
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 10000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", { state: "attached", timeout: 10000 })
 
     // Open create dialog
     await page.getByRole("button", { name: /novo aluno/i }).click()

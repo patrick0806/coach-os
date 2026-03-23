@@ -277,7 +277,7 @@ test.describe("Happy Path — Step 7: Create Student", () => {
     await mockGenerateInviteLink(page)
 
     await page.goto("/students")
-    await page.waitForSelector("[data-slot='empty-state'], table", { timeout: 10000 })
+    await page.waitForSelector("[data-slot='empty-state'], [data-testid='student-card'], tbody tr", { state: "attached", timeout: 10000 })
 
     // Create student
     await page.getByRole("button", { name: /novo aluno/i }).click()
@@ -289,7 +289,7 @@ test.describe("Happy Path — Step 7: Create Student", () => {
     await expect(page.locator("#name")).not.toBeVisible({ timeout: 5000 })
 
     // New student should appear
-    await expect(page.getByText("Happy Path Student")).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText("Happy Path Student").filter({ visible: true }).first()).toBeVisible({ timeout: 5000 })
   })
 })
 
