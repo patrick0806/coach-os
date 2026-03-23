@@ -147,6 +147,47 @@ test.describe("Settings — Save Flow", () => {
 })
 
 // =============================================================================
+// Delete Account
+// =============================================================================
+
+test.describe("Settings — Delete Account", () => {
+  test("renders delete account section", async ({ page }) => {
+    await setupPage(page)
+    await expect(page.getByTestId("delete-account-section")).toBeVisible()
+    await expect(page.getByTestId("open-delete-dialog")).toBeVisible()
+  })
+
+  test("opens confirmation dialog with input", async ({ page }) => {
+    await setupPage(page)
+    await page.getByTestId("open-delete-dialog").click()
+    await expect(page.getByTestId("delete-confirmation-input")).toBeVisible()
+    await expect(page.getByTestId("confirm-delete-button")).toBeDisabled()
+  })
+
+  test("confirm button is disabled until correct text is typed", async ({ page }) => {
+    await setupPage(page)
+    await page.getByTestId("open-delete-dialog").click()
+
+    await expect(page.getByTestId("confirm-delete-button")).toBeDisabled()
+
+    await page.getByTestId("delete-confirmation-input").fill("wrong")
+    await expect(page.getByTestId("confirm-delete-button")).toBeDisabled()
+
+    await page.getByTestId("delete-confirmation-input").fill("EXCLUIR")
+    await expect(page.getByTestId("confirm-delete-button")).toBeEnabled()
+  })
+
+  test("cancel closes dialog", async ({ page }) => {
+    await setupPage(page)
+    await page.getByTestId("open-delete-dialog").click()
+    await expect(page.getByTestId("delete-confirmation-input")).toBeVisible()
+
+    await page.getByRole("button", { name: "Cancelar" }).click()
+    await expect(page.getByTestId("delete-confirmation-input")).not.toBeVisible()
+  })
+})
+
+// =============================================================================
 // Mobile
 // =============================================================================
 

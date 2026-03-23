@@ -3,6 +3,7 @@
 import { PageHeader } from "@/shared/components/pageHeader"
 import { ChangePasswordForm } from "@/features/settings/components/changePasswordForm"
 import { ProfileSettingsSection } from "@/features/settings/components/profileSettingsSection"
+import { DeleteAccountSection } from "@/features/settings/components/deleteAccountSection"
 import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
 import { startProfileTour } from "@/features/onboarding/tours/profile.tour"
 
@@ -23,6 +24,8 @@ export default function SettingsPage() {
       <div data-tour="change-password-form">
         <ChangePasswordForm />
       </div>
+
+      <DeleteAccountSection />
     </div>
   )
 }

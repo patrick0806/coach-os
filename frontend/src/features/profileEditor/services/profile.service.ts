@@ -83,4 +83,8 @@ export const profileService = {
 
   markPageToured: async (page: TourPage): Promise<TourPage[]> =>
     (await api.post<TourPage[]>(`/profile/tour-progress/${page}`)).data,
+
+  deleteAccount: async (): Promise<void> => {
+    await api.delete("/profile/account")
+  },
 }

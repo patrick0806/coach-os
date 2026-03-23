@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
 
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
+import { UsersRepository } from "@shared/repositories/users.repository";
 import { S3Provider } from "@shared/providers/s3.provider";
+import { StripeProvider } from "@shared/providers/stripe.provider";
 
 import { GetProfileController } from "./contexts/getProfile/getProfile.controller";
 import { GetProfileUseCase } from "./contexts/getProfile/getProfile.useCase";
@@ -17,6 +19,8 @@ import { GetTourProgressController } from "./contexts/getTourProgress/getTourPro
 import { GetTourProgressUseCase } from "./contexts/getTourProgress/getTourProgress.useCase";
 import { MarkPageTouredController } from "./contexts/markPageToured/markPageToured.controller";
 import { MarkPageTouredUseCase } from "./contexts/markPageToured/markPageToured.useCase";
+import { DeleteAccountController } from "./contexts/deleteAccount/deleteAccount.controller";
+import { DeleteAccountUseCase } from "./contexts/deleteAccount/deleteAccount.useCase";
 
 @Module({
   controllers: [
@@ -27,10 +31,13 @@ import { MarkPageTouredUseCase } from "./contexts/markPageToured/markPageToured.
     PublishLpDraftController,
     GetTourProgressController,
     MarkPageTouredController,
+    DeleteAccountController,
   ],
   providers: [
     PersonalsRepository,
+    UsersRepository,
     S3Provider,
+    StripeProvider,
     GetProfileUseCase,
     UpdateProfileUseCase,
     RequestPhotoUploadUseCase,
@@ -38,6 +45,7 @@ import { MarkPageTouredUseCase } from "./contexts/markPageToured/markPageToured.
     PublishLpDraftUseCase,
     GetTourProgressUseCase,
     MarkPageTouredUseCase,
+    DeleteAccountUseCase,
   ],
 })
 export class ProfileModule {}
