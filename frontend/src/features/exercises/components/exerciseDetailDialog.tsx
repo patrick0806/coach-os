@@ -64,6 +64,7 @@ export function ExerciseDetailDialog({
                 src={exercise.mediaUrl}
                 alt={exercise.name}
                 fill
+                unoptimized
                 className="object-cover"
               />
             </div>

@@ -36,6 +36,7 @@ export function ExerciseCard({ exercise, onView, onEdit, onDelete }: ExerciseCar
             src={exercise.mediaUrl}
             alt={exercise.name}
             fill
+            unoptimized
             className="object-cover"
           />
         ) : (

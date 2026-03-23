@@ -248,6 +248,7 @@ export function ExerciseFormDialog({ open, onOpenChange, exercise }: ExerciseFor
                         src={mediaPreview}
                         alt="Preview da mídia"
                         fill
+                        unoptimized
                         className="object-cover"
                       />
                     </div>
