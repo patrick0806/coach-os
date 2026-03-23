@@ -105,8 +105,9 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
         </div>
       </div>
 
-      <Tabs defaultValue="info">
-        <TabsList variant="line" className="flex-nowrap overflow-x-auto [&>button]:flex-none">
+      <Tabs defaultValue="info" className="w-full min-w-0">
+        <div className="overflow-x-auto">
+        <TabsList variant="line" className="w-full flex-nowrap [&>button]:flex-none">
           <TabsTrigger value="info">Informações</TabsTrigger>
           <TabsTrigger value="notes">Notas</TabsTrigger>
           <TabsTrigger value="programs">Programas</TabsTrigger>
@@ -114,6 +115,7 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
           <TabsTrigger value="progress">Evolução</TabsTrigger>
           <TabsTrigger value="agenda">Agenda</TabsTrigger>
         </TabsList>
+        </div>
 
         <TabsContent value="info" className="mt-4">
           <div className="grid gap-4 sm:grid-cols-2">
