@@ -57,15 +57,15 @@ export function ExerciseDetailDialog({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-hidden">
           {exercise.mediaUrl && (
-            <div className="relative h-48 w-full overflow-hidden rounded-lg bg-muted">
+            <div className="relative h-48 w-full overflow-hidden rounded-lg bg-muted mx-auto max-w-full">
               <Image
                 src={exercise.mediaUrl}
                 alt={exercise.name}
                 fill
                 unoptimized
-                className="object-cover"
+                className="object-contain"
               />
             </div>
           )}
