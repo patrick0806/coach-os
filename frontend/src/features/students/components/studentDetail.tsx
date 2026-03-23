@@ -13,12 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/shared/ui/tooltip"
 import { LoadingState } from "@/shared/components/loadingState"
 import { StudentStatusBadge } from "@/features/students/components/studentStatusBadge"
 import { StudentFormDialog } from "@/features/students/components/studentFormDialog"
@@ -26,6 +20,7 @@ import { StudentNotes } from "@/features/students/components/studentNotes"
 import { StudentProgramsSection } from "@/features/studentPrograms/components/studentProgramsSection"
 import { StudentContractSection } from "@/features/coachingContracts/components/studentContractSection"
 import { StudentProgressSection } from "@/features/progress/components/studentProgressSection"
+import { StudentScheduleSection } from "@/features/scheduling/components/studentScheduleSection"
 import { useStudent } from "@/features/students/hooks/useStudent"
 import { useUpdateStudentStatus } from "@/features/students/hooks/useUpdateStudentStatus"
 import type { StudentStatus } from "@/features/students/types/students.types"
@@ -111,24 +106,13 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
       </div>
 
       <Tabs defaultValue="info">
-        <TabsList variant="line">
+        <TabsList variant="line" className="flex-nowrap overflow-x-auto [&>button]:flex-none">
           <TabsTrigger value="info">Informações</TabsTrigger>
           <TabsTrigger value="notes">Notas</TabsTrigger>
           <TabsTrigger value="programs">Programas</TabsTrigger>
           <TabsTrigger value="service">Serviço</TabsTrigger>
           <TabsTrigger value="progress">Evolução</TabsTrigger>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="pointer-events-none opacity-40">
-                  <TabsTrigger value="agenda" disabled>
-                    Agenda
-                  </TabsTrigger>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>Em breve</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <TabsTrigger value="agenda">Agenda</TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="mt-4">
@@ -158,6 +142,10 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
 
         <TabsContent value="progress" className="mt-4" data-testid="student-progress-section">
           <StudentProgressSection studentId={studentId} />
+        </TabsContent>
+
+        <TabsContent value="agenda" className="mt-4">
+          <StudentScheduleSection studentId={studentId} />
         </TabsContent>
       </Tabs>
 

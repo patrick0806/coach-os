@@ -172,6 +172,34 @@ export const DAY_OF_WEEK_LABELS = [
 
 export const DAY_OF_WEEK_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const
 
+export interface TrainingScheduleItem {
+  id: string
+  tenantId: string
+  studentId: string
+  studentProgramId: string | null
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  location: string | null
+  isActive: boolean | null
+  createdAt: string
+}
+
+export interface CreateTrainingScheduleRequest {
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  studentProgramId?: string
+  location?: string
+}
+
+export interface UpdateTrainingScheduleRequest {
+  dayOfWeek?: number
+  startTime?: string
+  endTime?: string
+  location?: string | null
+}
+
 export interface RescheduleTrainingRequest {
   originalDate: string
   newDate: string

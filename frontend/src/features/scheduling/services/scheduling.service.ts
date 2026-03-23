@@ -10,6 +10,7 @@ import type {
   CreateAppointmentRequest,
   CreateAvailabilityExceptionRequest,
   CreateAvailabilityRuleRequest,
+  CreateTrainingScheduleRequest,
   ListAppointmentRequestsParams,
   ListAppointmentsParams,
   ListAvailabilityExceptionsParams,
@@ -19,7 +20,9 @@ import type {
   RescheduleTrainingRequest,
   SkipTrainingRequest,
   TrainingScheduleExceptionItem,
+  TrainingScheduleItem,
   UpdateAvailabilityRuleRequest,
+  UpdateTrainingScheduleRequest,
 } from "@/features/scheduling/types/scheduling.types"
 
 export const schedulingService = {
@@ -104,6 +107,26 @@ export const schedulingService = {
 
   deleteAvailabilityException: async (id: string): Promise<void> => {
     await api.delete(`/availability-exceptions/${id}`)
+  },
+
+  // Training Schedules
+  listTrainingSchedules: async (studentId: string): Promise<TrainingScheduleItem[]> =>
+    (await api.get<TrainingScheduleItem[]>(`/students/${studentId}/training-schedules`)).data,
+
+  createTrainingSchedule: async (
+    studentId: string,
+    data: CreateTrainingScheduleRequest
+  ): Promise<TrainingScheduleItem> =>
+    (await api.post<TrainingScheduleItem>(`/students/${studentId}/training-schedules`, data)).data,
+
+  updateTrainingSchedule: async (
+    id: string,
+    data: UpdateTrainingScheduleRequest
+  ): Promise<TrainingScheduleItem> =>
+    (await api.put<TrainingScheduleItem>(`/training-schedules/${id}`, data)).data,
+
+  deleteTrainingSchedule: async (id: string): Promise<void> => {
+    await api.delete(`/training-schedules/${id}`)
   },
 
   // Training Schedule Exceptions
