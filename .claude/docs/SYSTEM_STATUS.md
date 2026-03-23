@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-23
+Last updated: 2026-03-23 (post Milestone 16 — Mobile UX)
 
 ---
 
@@ -39,6 +39,7 @@ All backend modules are **functionally complete** (848 tests passing).
 | **Workout Execution Media** | ok | GIF/image + YouTube link |
 | **Settings / Profile** | ok | |
 | **Training Schedule UI** | ok | Student Agenda tab with CRUD |
+| **Mobile UX** | ok | Sidebar closes on nav, cards on students, tabs scroll fixed, time fields stacked, exercise actions visible, GIF padding, selector dialog overflow |
 | **Notifications** | not started | Backlog (Milestone 14) |
 
 ---
