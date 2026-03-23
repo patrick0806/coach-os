@@ -29,20 +29,34 @@ export default defineConfig({
     },
   },
   projects: [
-    // --- Behavioral tests (API mocked via page.route — no backend required) ---
+    // --- Core behavioral suite: short, high-signal journeys for daily use ---
     {
-      name: "chromium",
+      name: "core-web",
       use: { ...devices["Desktop Chrome"] },
-      // Exclude smoke tests from default runs — they require a live backend
-      testIgnore: ["**/*.smoke.spec.ts"],
+      testMatch: ["**/core/*.behavior.spec.ts"],
     },
     {
-      name: "mobile-android",
+      name: "core-mobile",
       use: {
         ...devices["Pixel 7"],
         browserName: "chromium",
       },
-      testIgnore: ["**/*.smoke.spec.ts"],
+      testMatch: ["**/core/*.mobile.spec.ts"],
+    },
+
+    // --- Full mocked behavioral suite (feature-level detail) ---
+    {
+      name: "full-web",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
+    },
+    {
+      name: "full-mobile",
+      use: {
+        ...devices["Pixel 7"],
+        browserName: "chromium",
+      },
+      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
     },
 
     // --- Smoke tests (real backend required) ---

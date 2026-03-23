@@ -126,7 +126,8 @@ npm run dev            # servidor de desenvolvimento
 npm run build          # build de produção
 npm run lint           # ESLint
 npm run typecheck      # tsc --noEmit
-npm run test:e2e       # testes Playwright comportamentais (sem backend)
+npm run test:e2e       # suíte core: fluxos críticos + sanidade web/mobile
+npm run test:e2e:full  # suíte detalhada mocked por feature
 npm run test:e2e:smoke # smoke tests (requer backend rodando)
 ```
 
