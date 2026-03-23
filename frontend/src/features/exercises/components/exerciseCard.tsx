@@ -64,7 +64,7 @@ export function ExerciseCard({ exercise, onView, onEdit, onDelete }: ExerciseCar
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="size-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity [@media(hover:none)]:opacity-100"
                 data-testid="exercise-actions"
               >
                 <MoreHorizontal className="size-4" />
