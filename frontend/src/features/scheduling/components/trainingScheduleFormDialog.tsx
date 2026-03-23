@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog"
+import { Controller } from "react-hook-form"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/shared/ui/field"
 import { Input } from "@/shared/ui/input"
 import {
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select"
+import { TimeSelect } from "@/shared/ui/time-select"
 import {
   useCreateTrainingSchedule,
   useUpdateTrainingSchedule,
@@ -162,20 +164,24 @@ export function TrainingScheduleFormDialog({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="startTime">Início</FieldLabel>
-                <Input
-                  id="startTime"
-                  type="time"
-                  {...form.register("startTime")}
+                <FieldLabel>Início</FieldLabel>
+                <Controller
+                  name="startTime"
+                  control={form.control}
+                  render={({ field }) => (
+                    <TimeSelect value={field.value} onChange={field.onChange} />
+                  )}
                 />
                 <FieldError errors={[form.formState.errors.startTime]} />
               </Field>
               <Field>
-                <FieldLabel htmlFor="endTime">Fim</FieldLabel>
-                <Input
-                  id="endTime"
-                  type="time"
-                  {...form.register("endTime")}
+                <FieldLabel>Fim</FieldLabel>
+                <Controller
+                  name="endTime"
+                  control={form.control}
+                  render={({ field }) => (
+                    <TimeSelect value={field.value} onChange={field.onChange} />
+                  )}
                 />
                 <FieldError errors={[form.formState.errors.endTime]} />
               </Field>
