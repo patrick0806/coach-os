@@ -50,7 +50,7 @@ receivers:
       disk: {}
       filesystem:
         exclude_mount_points:
-          mount_points: [/dev, /proc, /sys, /run/k3s/containerd, /var/lib/docker]
+          mount_points: [/dev, /proc, /sys, /run/k3s/containerd, /var/lib/docker, /boot, /boot/efi]
           match_type: strict
       load: {}
       memory:
@@ -63,6 +63,7 @@ receivers:
         mute_process_name_error: true
         mute_process_exe_error: true
         mute_process_io_error: true
+        mute_process_user_error: true
         metrics:
           process.cpu.utilization:
             enabled: true
@@ -78,7 +79,7 @@ receivers:
         rule: type == "container" && labels["service"] == "coach-os-backend"
         config:
           include:
-            - "/var/lib/docker/containers/`endpoint.container_id`/*-json.log"
+            - "/var/lib/docker/containers/`container_id`/*-json.log"
           include_file_path: true
           start_at: end
           operators:
@@ -86,7 +87,8 @@ receivers:
             - type: json_parser
               timestamp:
                 parse_from: attributes.time
-                layout: "%Y-%m-%dT%H:%M:%S.%NZ"
+                layout_type: gotime
+                layout: "2006-01-02T15:04:05.999999999Z07:00"
             # Promote the actual log line to body
             - type: move
               from: attributes.log
@@ -104,14 +106,15 @@ receivers:
         rule: type == "container" && labels["service"] == "coach-os-frontend"
         config:
           include:
-            - "/var/lib/docker/containers/`endpoint.container_id`/*-json.log"
+            - "/var/lib/docker/containers/`container_id`/*-json.log"
           include_file_path: true
           start_at: end
           operators:
             - type: json_parser
               timestamp:
                 parse_from: attributes.time
-                layout: "%Y-%m-%dT%H:%M:%S.%NZ"
+                layout_type: gotime
+                layout: "2006-01-02T15:04:05.999999999Z07:00"
             - type: move
               from: attributes.log
               to: body
