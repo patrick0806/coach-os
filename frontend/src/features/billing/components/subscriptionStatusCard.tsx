@@ -19,7 +19,7 @@ interface SubscriptionStatusCardProps {
 
 const STATUS_LABELS: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   active: { label: "Ativo", variant: "default" },
-  trialing: { label: "Trial", variant: "secondary" },
+  trialing: { label: "Em trial", variant: "secondary" },
   past_due: { label: "Pagamento em atraso", variant: "destructive" },
   expired: { label: "Expirado", variant: "destructive" },
   suspended: { label: "Suspenso", variant: "destructive" },
@@ -38,8 +38,20 @@ export function SubscriptionStatusCard({
   onCheckout,
   isOpeningCheckout,
 }: SubscriptionStatusCardProps) {
-  const isTrialing = subscription.accessStatus === "trialing"
-  const statusInfo = STATUS_LABELS[subscription.accessStatus] ?? { label: subscription.accessStatus, variant: "outline" as const }
+  // Use subscriptionStatus (Stripe state) as source of truth for determining if user has an active paid subscription.
+  // accessStatus alone is unreliable because the TenantAccessGuard updates it to "active" even during trial.
+  const hasActivePaidSubscription =
+    subscription.subscriptionStatus === "active" ||
+    subscription.subscriptionStatus === "past_due"
+
+  // Determine trial state from Stripe status or local accessStatus (for accounts without Stripe)
+  const isInTrial =
+    subscription.subscriptionStatus === "trialing" ||
+    (!subscription.subscriptionStatus && subscription.accessStatus === "trialing")
+
+  const statusKey = subscription.subscriptionStatus ?? subscription.accessStatus
+  const statusInfo = STATUS_LABELS[statusKey] ?? { label: statusKey, variant: "outline" as const }
+
   const trialDate = formatDate(subscription.trialEndsAt)
   const expiresDate = formatDate(subscription.subscriptionExpiresAt)
 
@@ -58,7 +70,7 @@ export function SubscriptionStatusCard({
           </div>
           <div>
             <p className="font-semibold">{subscription.plan?.name ?? "Sem plano"}</p>
-            {subscription.plan && (
+            {subscription.plan && Number(subscription.plan.price) > 0 && (
               <p className="text-sm text-muted-foreground">
                 R$ {Number(subscription.plan.price).toFixed(2).replace(".", ",")}/mês
               </p>
@@ -66,39 +78,32 @@ export function SubscriptionStatusCard({
           </div>
         </div>
 
-        {trialDate && subscription.accessStatus === "trialing" && (
+        {trialDate && isInTrial && (
           <p className="text-sm text-muted-foreground">
             Trial até <span className="font-medium text-foreground">{trialDate}</span>
           </p>
         )}
 
-        {expiresDate && subscription.accessStatus !== "trialing" && (
+        {expiresDate && !isInTrial && (
           <p className="text-sm text-muted-foreground">
             {subscription.subscriptionStatus === "canceled" ? "Acesso até" : "Renova em"}{" "}
             <span className="font-medium text-foreground">{expiresDate}</span>
           </p>
         )}
 
-        <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-3">
-          <Users className="size-4 text-muted-foreground" />
-          <span className="text-sm">
-            <span className="font-medium">{subscription.studentsCount}</span>
-            {" de "}
-            <span className="font-medium">{subscription.studentsLimit}</span>
-            {" alunos utilizados"}
-          </span>
-        </div>
+        {subscription.studentsLimit > 0 && (
+          <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-3">
+            <Users className="size-4 text-muted-foreground" />
+            <span className="text-sm">
+              <span className="font-medium">{subscription.studentsCount}</span>
+              {" de "}
+              <span className="font-medium">{subscription.studentsLimit}</span>
+              {" alunos utilizados"}
+            </span>
+          </div>
+        )}
 
-        {isTrialing ? (
-          <Button
-            className="w-full"
-            onClick={onCheckout}
-            disabled={isOpeningCheckout}
-          >
-            <CreditCard className="mr-2 size-4" />
-            {isOpeningCheckout ? "Redirecionando..." : "Assinar agora"}
-          </Button>
-        ) : (
+        {hasActivePaidSubscription ? (
           <Button
             variant="outline"
             className="w-full"
@@ -107,6 +112,15 @@ export function SubscriptionStatusCard({
           >
             <CreditCard className="mr-2 size-4" />
             {isOpeningPortal ? "Abrindo portal..." : "Gerenciar pagamento"}
+          </Button>
+        ) : (
+          <Button
+            className="w-full"
+            onClick={onCheckout}
+            disabled={isOpeningCheckout}
+          >
+            <CreditCard className="mr-2 size-4" />
+            {isOpeningCheckout ? "Redirecionando..." : "Assinar agora"}
           </Button>
         )}
       </CardContent>

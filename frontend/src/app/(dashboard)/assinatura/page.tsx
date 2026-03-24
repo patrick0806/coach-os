@@ -4,10 +4,13 @@ import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import axios from "axios"
 import { toast } from "sonner"
+import { AlertCircle, RefreshCw } from "lucide-react"
 
 import { api } from "@/lib/axios"
+import { authStore } from "@/stores/authStore"
 import { useSubscription } from "@/features/billing/hooks/useSubscription"
 import { subscriptionService } from "@/features/billing/services/subscription.service"
+import type { SubscriptionDetails } from "@/features/billing/services/subscription.service"
 import { SubscriptionStatusCard } from "@/features/billing/components/subscriptionStatusCard"
 import { PlanCard } from "@/features/billing/components/planCard"
 import { ChangePlanDialog } from "@/features/billing/components/changePlanDialog"
@@ -25,6 +28,33 @@ interface PlanListItem {
   benefits?: string[] | null
 }
 
+// Builds a minimal SubscriptionDetails from the auth cookie as a fallback when the API fails.
+// This allows the user to still see their subscription status and use the Stripe buttons.
+function buildFallbackSubscription(plans: PlanListItem[] | undefined): SubscriptionDetails | null {
+  const authSub = authStore.getUser()?.subscription
+  if (!authSub) return null
+
+  const matchedPlan = plans?.find((p) => p.id === authSub.planId) ?? null
+
+  return {
+    plan: matchedPlan
+      ? {
+          id: matchedPlan.id,
+          name: matchedPlan.name,
+          price: matchedPlan.price,
+          maxStudents: matchedPlan.maxStudents,
+          highlighted: matchedPlan.highlighted,
+        }
+      : null,
+    accessStatus: authSub.accessStatus ?? "trialing",
+    subscriptionStatus: authSub.subscriptionStatus,
+    trialEndsAt: authSub.trialEndsAt,
+    subscriptionExpiresAt: authSub.subscriptionExpiresAt,
+    studentsCount: 0,
+    studentsLimit: matchedPlan?.maxStudents ?? 0,
+  }
+}
+
 export default function AssinaturaPage() {
   const queryClient = useQueryClient()
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
@@ -32,7 +62,12 @@ export default function AssinaturaPage() {
   const [changePlanDialogOpen, setChangePlanDialogOpen] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
 
-  const { data: subscription, isLoading: loadingSubscription } = useSubscription()
+  const {
+    data: subscriptionData,
+    isLoading: loadingSubscription,
+    isError: subscriptionError,
+    refetch: refetchSubscription,
+  } = useSubscription()
 
   const { data: plans, isLoading: loadingPlans } = useQuery({
     queryKey: ["plans-list"],
@@ -41,6 +76,10 @@ export default function AssinaturaPage() {
       return response.data
     },
   })
+
+  // Use API data when available, fall back to auth cookie data if API fails
+  const subscription: SubscriptionDetails | undefined | null =
+    subscriptionData ?? (subscriptionError ? buildFallbackSubscription(plans) : undefined)
 
   const changePlanMutation = useMutation({
     mutationFn: (planId: string) => subscriptionService.changePlan(planId),
@@ -92,8 +131,11 @@ export default function AssinaturaPage() {
     try {
       const url = await subscriptionService.getCheckoutUrl()
       window.location.href = url
-    } catch {
-      toast.error("Não foi possível iniciar o checkout")
+    } catch (error: unknown) {
+      const message = axios.isAxiosError(error)
+        ? (error.response?.data?.message ?? "Não foi possível iniciar o checkout")
+        : "Não foi possível iniciar o checkout"
+      toast.error(message)
     } finally {
       setIsOpeningCheckout(false)
     }
@@ -111,12 +153,19 @@ export default function AssinaturaPage() {
     }
   }
 
+  // Only show cancel for users with an active paid Stripe subscription
   const canCancel =
     subscription &&
-    subscription.accessStatus === "active" &&
-    subscription.subscriptionStatus !== "canceled"
+    (subscription.subscriptionStatus === "active") &&
+    subscription.accessStatus !== "expired" &&
+    subscription.accessStatus !== "suspended"
 
-  if (loadingSubscription) {
+  // Determine if user is trialing (for plan card button display)
+  const isTrialing =
+    subscription?.subscriptionStatus === "trialing" ||
+    (!subscription?.subscriptionStatus && subscription?.accessStatus === "trialing")
+
+  if (loadingSubscription && !plans) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <LoadingState variant="page" />
@@ -130,6 +179,24 @@ export default function AssinaturaPage() {
         <h1 className="text-2xl font-bold">Assinatura</h1>
         <p className="text-muted-foreground">Gerencie seu plano e dados de cobrança</p>
       </div>
+
+      {subscriptionError && !subscription && (
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-4 shrink-0" />
+            <span>Não foi possível carregar os dados da assinatura.</span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetchSubscription()}
+            className="shrink-0"
+          >
+            <RefreshCw className="mr-2 size-3" />
+            Tentar novamente
+          </Button>
+        </div>
+      )}
 
       {subscription && (
         <SubscriptionStatusCard
@@ -161,7 +228,7 @@ export default function AssinaturaPage() {
                 highlighted={plan.highlighted}
                 benefits={plan.benefits}
                 isCurrentPlan={plan.id === subscription?.plan?.id}
-                isTrialing={subscription?.accessStatus === "trialing"}
+                isTrialing={isTrialing}
                 onSelect={(id) => handleSelectPlan(id, plan.name)}
                 isLoading={changePlanMutation.isPending && selectedPlanId === plan.id}
               />
