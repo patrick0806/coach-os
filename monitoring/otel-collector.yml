@@ -40,7 +40,7 @@ receivers:
   # ── Host metrics: CPU, memory, disk, network, process-level stats
   # The process scraper leverages /proc (eBPF-mapped on Linux) for per-process data.
   hostmetrics:
-    root_path: /proc
+    root_path: /
     collection_interval: 30s
     scrapers:
       cpu:
@@ -145,9 +145,9 @@ connectors:
     default_pipelines: [logs/infra]
     error_mode: ignore
     table:
-      - statement: route() where resource.attributes["service.name"] == "coach-os-backend"
+      - statement: route() where attributes["service.name"] == "coach-os-backend"
         pipelines: [logs/backend]
-      - statement: route() where resource.attributes["service.name"] == "coach-os-frontend"
+      - statement: route() where attributes["service.name"] == "coach-os-frontend"
         pipelines: [logs/frontend]
 
 exporters:
