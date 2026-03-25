@@ -33,15 +33,6 @@ const createEventSchema = z
   })
   .refine(
     (data) => {
-      if ((data.type === "one_off" || data.type === "override") && !data.studentId) {
-        return false;
-      }
-      return true;
-    },
-    { message: "studentId is required for one_off and override events", path: ["studentId"] },
-  )
-  .refine(
-    (data) => {
       if (data.type === "override" && !data.recurringSlotId) {
         return false;
       }

@@ -36,7 +36,7 @@ import { useStudents } from "@/features/students/hooks/useStudents"
 import { useEnumAttendanceTypes } from "@/features/shared/hooks/useEnumAttendanceTypes"
 
 const schema = z.object({
-  studentId: z.string().min(1, "Selecione um aluno"),
+  studentId: z.string().optional(),
   date: z.string().min(1, "Data obrigatoria"),
   startTime: z.string().min(1, "Horario de inicio obrigatorio"),
   endTime: z.string().min(1, "Horario de termino obrigatorio"),
@@ -114,7 +114,7 @@ export function CreateEventDialog({
     const endAt = `${data.date}T${data.endTime}:00`
     createEvent.createWithConflictCheck({
       type: "one_off",
-      studentId: data.studentId,
+      studentId: data.studentId || undefined,
       startAt,
       endAt,
       appointmentType: data.appointmentType || undefined,
@@ -139,12 +139,12 @@ export function CreateEventDialog({
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="studentId">Aluno</Label>
+              <Label htmlFor="studentId">Aluno (opcional)</Label>
               <Controller
                 name="studentId"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v || undefined)}>
                     <SelectTrigger id="studentId" data-testid="student-select">
                       <SelectValue placeholder="Selecionar aluno..." />
                     </SelectTrigger>
@@ -158,9 +158,6 @@ export function CreateEventDialog({
                   </Select>
                 )}
               />
-              {errors.studentId && (
-                <p className="text-xs text-destructive">{errors.studentId.message}</p>
-              )}
             </div>
 
             <div className="space-y-1.5">

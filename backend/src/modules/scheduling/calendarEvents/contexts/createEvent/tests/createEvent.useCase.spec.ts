@@ -141,19 +141,19 @@ describe("CreateEventUseCase", () => {
     ).rejects.toThrow(BadRequestException);
   });
 
-  it("should throw validation error when studentId missing for one_off", async () => {
-    await expect(
-      useCase.execute(
-        {
-          type: "one_off",
-          startAt: "2026-04-06T10:00:00Z",
-          endAt: "2026-04-06T11:00:00Z",
-          appointmentType: "presential",
-          location: "Academia",
-        },
-        TENANT_ID,
-      ),
-    ).rejects.toThrow();
+  it("should create one_off event without studentId", async () => {
+    const result = await useCase.execute(
+      {
+        type: "one_off",
+        startAt: "2026-04-06T10:00:00Z",
+        endAt: "2026-04-06T11:00:00Z",
+        appointmentType: "presential",
+        location: "Academia",
+      },
+      TENANT_ID,
+    );
+
+    expect(result.id).toBe(EVENT_ID);
   });
 
   it("should throw validation error when recurringSlotId missing for override", async () => {
