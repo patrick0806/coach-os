@@ -1,8 +1,8 @@
 import { DAY_OF_WEEK_LABELS } from "@/features/scheduling/types/scheduling.types"
-import type { PublicAvailabilityRule, OccupiedSlot } from "@/features/publicPage/types/publicPage.types"
+import type { PublicWorkingHours, OccupiedSlot } from "@/features/publicPage/types/publicPage.types"
 
 interface PublicAvailabilityProps {
-  rules: PublicAvailabilityRule[]
+  workingHours: PublicWorkingHours[]
   occupiedSlots: OccupiedSlot[]
 }
 
@@ -67,10 +67,10 @@ function subtractRanges(freeRanges: Range[], occupiedRanges: Range[]): Range[] {
 
 function getFreeRangesForDay(
   day: number,
-  rules: PublicAvailabilityRule[],
+  workingHours: PublicWorkingHours[],
   occupiedSlots: OccupiedSlot[],
 ): Range[] {
-  const dayRules = rules.filter((r) => r.dayOfWeek === day)
+  const dayRules = workingHours.filter((r) => r.dayOfWeek === day)
   if (dayRules.length === 0) return []
 
   const availability = mergeRanges(
@@ -83,11 +83,11 @@ function getFreeRangesForDay(
   return subtractRanges(availability, occupied)
 }
 
-export function PublicAvailability({ rules, occupiedSlots }: PublicAvailabilityProps) {
-  if (!rules?.length) return null
+export function PublicAvailability({ workingHours, occupiedSlots }: PublicAvailabilityProps) {
+  if (!workingHours?.length) return null
 
   const freeByDay = DAY_ORDER.reduce<Record<number, Range[]>>((acc, day) => {
-    const ranges = getFreeRangesForDay(day, rules, occupiedSlots ?? [])
+    const ranges = getFreeRangesForDay(day, workingHours, occupiedSlots ?? [])
     if (ranges.length > 0) acc[day] = ranges
     return acc
   }, {})

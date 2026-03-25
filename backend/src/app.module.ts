@@ -27,17 +27,13 @@ import { ExerciseSetsModule } from "@modules/workoutExecution/exerciseSets/exerc
 import { ProgressRecordsModule } from "@modules/progress/records/records.module";
 import { ProgressPhotosModule } from "@modules/progress/photos/photos.module";
 import { ProgressCheckinsModule } from "@modules/progress/checkins/checkins.module";
-import { AvailabilityModule } from "@modules/scheduling/availability/availability.module";
-import { TrainingSchedulesModule } from "@modules/scheduling/trainingSchedules/trainingSchedules.module";
-import { AppointmentsModule } from "@modules/scheduling/appointments/appointments.module";
-import { CalendarModule } from "@modules/scheduling/calendar/calendar.module";
 import { PublicModule } from "@modules/public/public.module";
 import { CoachingContractsModule } from "@modules/coaching/contracts/contracts.module";
 import { EnumsModule } from "@modules/enums/enums.module";
 import { WebhooksModule } from "@modules/platform/webhooks/webhooks.module";
 import { SubscriptionsModule } from "@modules/platform/subscriptions/subscriptions.module";
 import { AdminModule } from "@modules/platform/admin/admin.module";
-import { SchedulingV2Module } from "@modules/schedulingV2/schedulingV2.module";
+import { SchedulingModule } from "@modules/scheduling/scheduling.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 import { JobsModule } from "./jobs/jobs.module";
@@ -80,17 +76,13 @@ import { JobsModule } from "./jobs/jobs.module";
     ProgressRecordsModule,
     ProgressPhotosModule,
     ProgressCheckinsModule,
-    AvailabilityModule,
-    TrainingSchedulesModule,
-    AppointmentsModule,
-    CalendarModule,
     PublicModule,
     CoachingContractsModule,
     EnumsModule,
     WebhooksModule,
     SubscriptionsModule,
     AdminModule,
-    SchedulingV2Module,
+    SchedulingModule,
     JobsModule,
     RouterModule.register([
       {
@@ -164,10 +156,6 @@ import { JobsModule } from "./jobs/jobs.module";
       {
         path: "exercise-sets",
         module: ExerciseSetsModule,
-      },
-      {
-        path: "calendar",
-        module: CalendarModule,
       },
       {
         path: "public",

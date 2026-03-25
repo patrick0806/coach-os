@@ -1,4 +1,4 @@
-export interface PublicAvailabilityRule {
+export interface PublicWorkingHours {
   id: string
   dayOfWeek: number
   startTime: string
@@ -42,6 +42,6 @@ export interface PublicProfile {
   lpImage2: string | null
   lpImage3: string | null
   servicePlans: PublicServicePlan[]
-  availabilityRules: PublicAvailabilityRule[]
+  workingHours: PublicWorkingHours[]
   occupiedSlots: OccupiedSlot[]
 }

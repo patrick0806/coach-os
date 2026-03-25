@@ -3,7 +3,7 @@ import { and, eq, gte, isNull, lte, or } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
-import { workingHours } from "@config/database/schema/schedulingV2";
+import { workingHours } from "@config/database/schema/scheduling";
 
 export type WorkingHours = InferSelectModel<typeof workingHours>;
 

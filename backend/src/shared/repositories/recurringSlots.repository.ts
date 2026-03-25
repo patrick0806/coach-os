@@ -3,7 +3,7 @@ import { and, eq, gte, isNull, lte, or } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
-import { recurringSlots } from "@config/database/schema/schedulingV2";
+import { recurringSlots } from "@config/database/schema/scheduling";
 
 export type RecurringSlot = InferSelectModel<typeof recurringSlots>;
 

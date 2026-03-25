@@ -3,7 +3,7 @@ import { and, desc, eq, gte, lte, ne, or, sql } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
 import { DrizzleProvider } from "@shared/providers/drizzle.service";
-import { calendarEvents } from "@config/database/schema/schedulingV2";
+import { calendarEvents } from "@config/database/schema/scheduling";
 import { students } from "@config/database/schema/students";
 import { users } from "@config/database/schema/users";
 

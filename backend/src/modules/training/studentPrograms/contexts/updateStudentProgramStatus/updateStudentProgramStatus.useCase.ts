@@ -5,7 +5,7 @@ import {
   StudentProgramsRepository,
   StudentProgram,
 } from "@shared/repositories/studentPrograms.repository";
-import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
+import { RecurringSlotsRepository } from "@shared/repositories/recurringSlots.repository";
 import { validate } from "@shared/utils/validation.util";
 
 const updateStudentProgramStatusSchema = z.object({
@@ -16,7 +16,7 @@ const updateStudentProgramStatusSchema = z.object({
 export class UpdateStudentProgramStatusUseCase {
   constructor(
     private readonly studentProgramsRepository: StudentProgramsRepository,
-    private readonly trainingSchedulesRepository: TrainingSchedulesRepository,
+    private readonly recurringSlotsRepository: RecurringSlotsRepository,
   ) {}
 
   async execute(id: string, body: unknown, tenantId: string): Promise<StudentProgram> {
@@ -39,7 +39,7 @@ export class UpdateStudentProgramStatusUseCase {
     }
 
     if (data.status === "finished" || data.status === "cancelled") {
-      await this.trainingSchedulesRepository.deactivateByProgramId(id, tenantId);
+      await this.recurringSlotsRepository.deactivateByProgramId(id, tenantId);
     }
 
     return updated;

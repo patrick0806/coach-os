@@ -12,5 +12,4 @@ export * from "./training";
 export * from "./workoutExecution";
 export * from "./progress";
 export * from "./scheduling";
-export * from "./schedulingV2";
 export * from "./webhookEvents";

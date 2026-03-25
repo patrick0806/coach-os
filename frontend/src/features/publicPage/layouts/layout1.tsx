@@ -18,7 +18,7 @@ export function Layout1({ profile, slug, hrefPrefix = "" }: Layout1Props) {
       <PublicHero profile={profile} slug={slug} hrefPrefix={hrefPrefix} />
       <PublicAbout profile={profile} />
       <PublicServicePlans plans={profile.servicePlans} phoneNumber={profile.phoneNumber} />
-      <PublicAvailability rules={profile.availabilityRules} occupiedSlots={profile.occupiedSlots} />
+      <PublicAvailability workingHours={profile.workingHours} occupiedSlots={profile.occupiedSlots} />
       <PublicStudentArea slug={slug} hrefPrefix={hrefPrefix} />
     </>
   )

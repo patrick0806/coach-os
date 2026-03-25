@@ -172,7 +172,7 @@ export function Layout2({ profile, slug, hrefPrefix = "" }: Layout2Props) {
         </section>
       )}
 
-      <PublicAvailability rules={profile.availabilityRules} occupiedSlots={profile.occupiedSlots} />
+      <PublicAvailability workingHours={profile.workingHours} occupiedSlots={profile.occupiedSlots} />
       <PublicStudentArea slug={slug} hrefPrefix={hrefPrefix} />
     </>
   )

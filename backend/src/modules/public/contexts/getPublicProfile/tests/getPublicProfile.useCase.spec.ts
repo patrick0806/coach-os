@@ -53,12 +53,32 @@ const makeServicePlan = (overrides = {}) => ({
   ...overrides,
 });
 
-const makeAvailabilityRule = (overrides = {}) => ({
-  id: "rule-id-1",
+const makeWorkingHours = (overrides = {}) => ({
+  id: "wh-id-1",
   tenantId: "tenant-id-1",
   dayOfWeek: 1,
   startTime: "08:00",
   endTime: "12:00",
+  effectiveFrom: "2026-01-01",
+  effectiveTo: null,
+  isActive: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
+const makeRecurringSlot = (overrides = {}) => ({
+  id: "slot-id-1",
+  tenantId: "tenant-id-1",
+  studentId: "student-id-1",
+  studentProgramId: null,
+  type: "booking" as const,
+  dayOfWeek: 1,
+  startTime: "08:00",
+  endTime: "09:00",
+  location: null,
+  effectiveFrom: "2026-01-01",
+  effectiveTo: null,
   isActive: true,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -73,46 +93,31 @@ const makeServicePlansRepository = () => ({
   findActiveByTenantId: vi.fn().mockResolvedValue([makeServicePlan()]),
 });
 
-const makeTrainingSchedule = (overrides = {}) => ({
-  id: "schedule-id-1",
-  tenantId: "tenant-id-1",
-  studentId: "student-id-1",
-  studentProgramId: null,
-  dayOfWeek: 1,
-  startTime: "08:00",
-  endTime: "09:00",
-  location: null,
-  isActive: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  ...overrides,
+const makeWorkingHoursRepository = () => ({
+  findActiveByTenant: vi.fn().mockResolvedValue([makeWorkingHours()]),
 });
 
-const makeAvailabilityRulesRepository = () => ({
-  findByTenantId: vi.fn().mockResolvedValue([makeAvailabilityRule()]),
-});
-
-const makeTrainingSchedulesRepository = () => ({
-  findByTenantId: vi.fn().mockResolvedValue([makeTrainingSchedule()]),
+const makeRecurringSlotsRepository = () => ({
+  findByTenantId: vi.fn().mockResolvedValue([makeRecurringSlot()]),
 });
 
 describe("GetPublicProfileUseCase", () => {
   let useCase: GetPublicProfileUseCase;
   let personalsRepository: ReturnType<typeof makePersonalsRepository>;
   let servicePlansRepository: ReturnType<typeof makeServicePlansRepository>;
-  let availabilityRulesRepository: ReturnType<typeof makeAvailabilityRulesRepository>;
-  let trainingSchedulesRepository: ReturnType<typeof makeTrainingSchedulesRepository>;
+  let workingHoursRepository: ReturnType<typeof makeWorkingHoursRepository>;
+  let recurringSlotsRepository: ReturnType<typeof makeRecurringSlotsRepository>;
 
   beforeEach(() => {
     personalsRepository = makePersonalsRepository();
     servicePlansRepository = makeServicePlansRepository();
-    availabilityRulesRepository = makeAvailabilityRulesRepository();
-    trainingSchedulesRepository = makeTrainingSchedulesRepository();
+    workingHoursRepository = makeWorkingHoursRepository();
+    recurringSlotsRepository = makeRecurringSlotsRepository();
     useCase = new GetPublicProfileUseCase(
       personalsRepository as any,
       servicePlansRepository as any,
-      availabilityRulesRepository as any,
-      trainingSchedulesRepository as any,
+      workingHoursRepository as any,
+      recurringSlotsRepository as any,
     );
   });
 
@@ -165,23 +170,23 @@ describe("GetPublicProfileUseCase", () => {
     expect(result.servicePlans).toHaveLength(0);
   });
 
-  it("should include availability rules in response", async () => {
+  it("should include working hours in response", async () => {
     const result = await useCase.execute("coach-joao");
 
-    expect(result.availabilityRules).toHaveLength(1);
-    expect(result.availabilityRules[0].id).toBe("rule-id-1");
-    expect(availabilityRulesRepository.findByTenantId).toHaveBeenCalledWith("tenant-id-1");
+    expect(result.workingHours).toHaveLength(1);
+    expect(result.workingHours[0].id).toBe("wh-id-1");
+    expect(workingHoursRepository.findActiveByTenant).toHaveBeenCalledWith("tenant-id-1");
   });
 
-  it("should return empty array when there are no availability rules", async () => {
-    availabilityRulesRepository.findByTenantId.mockResolvedValue([]);
+  it("should return empty array when there are no working hours", async () => {
+    workingHoursRepository.findActiveByTenant.mockResolvedValue([]);
 
     const result = await useCase.execute("coach-joao");
 
-    expect(result.availabilityRules).toHaveLength(0);
+    expect(result.workingHours).toHaveLength(0);
   });
 
-  it("should include occupied slots from active training schedules", async () => {
+  it("should include occupied slots from active recurring slots", async () => {
     const result = await useCase.execute("coach-joao");
 
     expect(result.occupiedSlots).toHaveLength(1);
@@ -190,11 +195,11 @@ describe("GetPublicProfileUseCase", () => {
       startTime: "08:00",
       endTime: "09:00",
     });
-    expect(trainingSchedulesRepository.findByTenantId).toHaveBeenCalledWith("tenant-id-1");
+    expect(recurringSlotsRepository.findByTenantId).toHaveBeenCalledWith("tenant-id-1");
   });
 
-  it("should return empty occupiedSlots when there are no training schedules", async () => {
-    trainingSchedulesRepository.findByTenantId.mockResolvedValue([]);
+  it("should return empty occupiedSlots when there are no recurring slots", async () => {
+    recurringSlotsRepository.findByTenantId.mockResolvedValue([]);
 
     const result = await useCase.execute("coach-joao");
 

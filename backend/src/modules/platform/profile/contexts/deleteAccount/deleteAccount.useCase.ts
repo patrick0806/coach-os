@@ -10,12 +10,9 @@ import { logger } from "@config/pino.config";
 
 // Tenant-scoped tables (no cascade from user/personal deletion)
 import {
-  trainingScheduleExceptions,
-  trainingSchedules,
-  appointments,
-  appointmentRequests,
-  availabilityRules,
-  availabilityExceptions,
+  workingHours,
+  recurringSlots,
+  calendarEvents,
 } from "@config/database/schema/scheduling";
 import { workoutSessions } from "@config/database/schema/workoutExecution";
 import {
@@ -122,13 +119,10 @@ export class DeleteAccountUseCase {
 
   private async deleteTenantData(tenantId: string): Promise<void> {
     await this.drizzle.db.transaction(async (tx) => {
-      // Scheduling (exceptions before parent schedules)
-      await tx.delete(trainingScheduleExceptions).where(eq(trainingScheduleExceptions.tenantId, tenantId));
-      await tx.delete(trainingSchedules).where(eq(trainingSchedules.tenantId, tenantId));
-      await tx.delete(appointments).where(eq(appointments.tenantId, tenantId));
-      await tx.delete(appointmentRequests).where(eq(appointmentRequests.tenantId, tenantId));
-      await tx.delete(availabilityRules).where(eq(availabilityRules.tenantId, tenantId));
-      await tx.delete(availabilityExceptions).where(eq(availabilityExceptions.tenantId, tenantId));
+      // Scheduling (events before parent slots)
+      await tx.delete(calendarEvents).where(eq(calendarEvents.tenantId, tenantId));
+      await tx.delete(recurringSlots).where(eq(recurringSlots.tenantId, tenantId));
+      await tx.delete(workingHours).where(eq(workingHours.tenantId, tenantId));
 
       // Workout execution (cascade: sessions → executions → sets)
       await tx.delete(workoutSessions).where(eq(workoutSessions.tenantId, tenantId));

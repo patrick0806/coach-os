@@ -6,7 +6,7 @@ import { ProgramTemplatesRepository } from "@shared/repositories/programTemplate
 import { StudentProgramsRepository } from "@shared/repositories/studentPrograms.repository";
 import { WorkoutDaysRepository } from "@shared/repositories/workoutDays.repository";
 import { StudentExercisesRepository } from "@shared/repositories/studentExercises.repository";
-import { TrainingSchedulesRepository } from "@shared/repositories/trainingSchedules.repository";
+import { RecurringSlotsRepository } from "@shared/repositories/recurringSlots.repository";
 
 import { AssignProgramController } from "./contexts/assignProgram/assignProgram.controller";
 import { AssignProgramUseCase } from "./contexts/assignProgram/assignProgram.useCase";
@@ -34,7 +34,7 @@ import { UpdateStudentProgramStatusUseCase } from "./contexts/updateStudentProgr
     StudentProgramsRepository,
     WorkoutDaysRepository,
     StudentExercisesRepository,
-    TrainingSchedulesRepository,
+    RecurringSlotsRepository,
     AssignProgramUseCase,
     ListStudentProgramsUseCase,
     GetMyProgramsUseCase,
