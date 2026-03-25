@@ -11,11 +11,11 @@ import { AcceptCoachInviteUseCase } from "./acceptCoachInvite.useCase";
 @BypassTenantAccess()
 @Controller({ version: "1" })
 export class AcceptCoachInviteController {
-  constructor(private readonly acceptCoachInviteUseCase: AcceptCoachInviteUseCase) {}
+  constructor(private readonly acceptCoachInviteUseCase: AcceptCoachInviteUseCase) { }
 
   @ApiOperation({ summary: "Accept coach invitation and create account" })
   @ApiCreatedResponse({ description: "Account created successfully" })
-  @Post("auth/accept-coach-invite")
+  @Post("accept-coach-invite")
   @HttpCode(HttpStatus.CREATED)
   async handle(@Body() body: unknown): Promise<{ message: string }> {
     return this.acceptCoachInviteUseCase.execute(body);

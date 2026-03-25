@@ -19,11 +19,11 @@ import { InviteCoachUseCase } from "./inviteCoach.useCase";
 @BypassTenantAccess()
 @Controller({ version: "1" })
 export class InviteCoachController {
-  constructor(private readonly inviteCoachUseCase: InviteCoachUseCase) {}
+  constructor(private readonly inviteCoachUseCase: InviteCoachUseCase) { }
 
   @ApiOperation({ summary: "Invite a coach to the platform (admin)" })
   @ApiCreatedResponse({ description: "Invitation sent successfully" })
-  @Post("admin/coaches/invite")
+  @Post("/coaches/invite")
   @HttpCode(HttpStatus.CREATED)
   async handle(@Body() body: unknown): Promise<{ message: string }> {
     return this.inviteCoachUseCase.execute(body);

@@ -10,9 +10,9 @@ import { ChangePasswordResponseDTO } from "./dtos/response.dto";
 import { ChangePasswordUseCase } from "./changePassword.useCase";
 
 @ApiTags(API_TAGS.AUTH)
-@Controller({ version: "1", path: "auth/change-password" })
+@Controller({ version: "1", path: "change-password" })
 export class ChangePasswordController {
-  constructor(private readonly changePasswordUseCase: ChangePasswordUseCase) {}
+  constructor(private readonly changePasswordUseCase: ChangePasswordUseCase) { }
 
   @ApiOperation({ summary: "Change password for the authenticated user" })
   @ApiOkResponse({ type: ChangePasswordResponseDTO })
