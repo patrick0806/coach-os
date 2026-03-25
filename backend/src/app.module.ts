@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { RouterModule } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { ScheduleModule } from "@nestjs/schedule";
 
 import { JWTAuthGuard, RolesGuard, TenantAccessGuard } from "@shared/guards";
 
@@ -38,9 +39,11 @@ import { SubscriptionsModule } from "@modules/platform/subscriptions/subscriptio
 import { AdminModule } from "@modules/platform/admin/admin.module";
 
 import { DatabaseModule } from "@config/database/database.module";
+import { JobsModule } from "./jobs/jobs.module";
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
       {
         name: "short",
@@ -86,6 +89,7 @@ import { DatabaseModule } from "@config/database/database.module";
     WebhooksModule,
     SubscriptionsModule,
     AdminModule,
+    JobsModule,
     RouterModule.register([
       {
         path: "health",

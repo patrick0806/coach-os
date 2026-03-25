@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { asc, eq, gte, ilike, or, sql } from "drizzle-orm";
+import { and, asc, between, eq, gte, ilike, or, sql } from "drizzle-orm";
+import { startOfDay, endOfDay } from "date-fns";
 
 import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
 import { personals, Personal, LpFields } from "@config/database/schema/personals";
@@ -270,6 +271,26 @@ export class PersonalsRepository {
       .where(eq(personals.id, tenantId));
 
     return updated;
+  }
+
+  async findTrialsEndingOn(date: Date): Promise<Array<{ personalId: string; email: string; name: string; trialEndsAt: Date }>> {
+    const result = await this.drizzle.db
+      .select({
+        personalId: personals.id,
+        email: users.email,
+        name: users.name,
+        trialEndsAt: personals.trialEndsAt,
+      })
+      .from(personals)
+      .innerJoin(users, eq(personals.userId, users.id))
+      .where(
+        and(
+          eq(personals.accessStatus, "trialing"),
+          between(personals.trialEndsAt, startOfDay(date), endOfDay(date)),
+        ),
+      );
+
+    return result as Array<{ personalId: string; email: string; name: string; trialEndsAt: Date }>;
   }
 
   async publishLpDraft(id: string): Promise<void> {
