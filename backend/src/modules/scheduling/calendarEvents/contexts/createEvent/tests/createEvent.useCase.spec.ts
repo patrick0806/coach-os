@@ -186,33 +186,33 @@ describe("CreateEventUseCase", () => {
     ).rejects.toThrow();
   });
 
-  it("should throw validation error when appointmentType missing for one_off", async () => {
-    await expect(
-      useCase.execute(
-        {
-          type: "one_off",
-          startAt: "2026-04-06T10:00:00Z",
-          endAt: "2026-04-06T11:00:00Z",
-          studentId: STUDENT_ID,
-        },
-        TENANT_ID,
-      ),
-    ).rejects.toThrow();
+  it("should create one_off event without appointmentType", async () => {
+    const result = await useCase.execute(
+      {
+        type: "one_off",
+        startAt: "2026-04-06T10:00:00Z",
+        endAt: "2026-04-06T11:00:00Z",
+        studentId: STUDENT_ID,
+      },
+      TENANT_ID,
+    );
+
+    expect(result.id).toBe(EVENT_ID);
   });
 
-  it("should throw validation error when meetingUrl missing for online appointment", async () => {
-    await expect(
-      useCase.execute(
-        {
-          type: "one_off",
-          startAt: "2026-04-06T10:00:00Z",
-          endAt: "2026-04-06T11:00:00Z",
-          studentId: STUDENT_ID,
-          appointmentType: "online",
-        },
-        TENANT_ID,
-      ),
-    ).rejects.toThrow();
+  it("should create online event without meetingUrl", async () => {
+    const result = await useCase.execute(
+      {
+        type: "one_off",
+        startAt: "2026-04-06T10:00:00Z",
+        endAt: "2026-04-06T11:00:00Z",
+        studentId: STUDENT_ID,
+        appointmentType: "online",
+      },
+      TENANT_ID,
+    );
+
+    expect(result.id).toBe(EVENT_ID);
   });
 
   it("should throw HttpException 409 when conflicts detected and forceCreate is false", async () => {

@@ -35,31 +35,16 @@ import { useCreateEvent } from "@/features/scheduling/hooks/useCreateEvent"
 import { useStudents } from "@/features/students/hooks/useStudents"
 import { useEnumAttendanceTypes } from "@/features/shared/hooks/useEnumAttendanceTypes"
 
-const schema = z
-  .object({
-    studentId: z.string().min(1, "Selecione um aluno"),
-    date: z.string().min(1, "Data obrigatoria"),
-    startTime: z.string().min(1, "Horario de inicio obrigatorio"),
-    endTime: z.string().min(1, "Horario de termino obrigatorio"),
-    appointmentType: z.enum(["online", "presential"]),
-    meetingUrl: z.string().optional(),
-    location: z.string().optional(),
-    notes: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.appointmentType === "online") return !!data.meetingUrl
-      return true
-    },
-    { message: "Link da reuniao e obrigatorio para consultas online", path: ["meetingUrl"] }
-  )
-  .refine(
-    (data) => {
-      if (data.appointmentType === "presential") return !!data.location
-      return true
-    },
-    { message: "Local e obrigatorio para consultas presenciais", path: ["location"] }
-  )
+const schema = z.object({
+  studentId: z.string().min(1, "Selecione um aluno"),
+  date: z.string().min(1, "Data obrigatoria"),
+  startTime: z.string().min(1, "Horario de inicio obrigatorio"),
+  endTime: z.string().min(1, "Horario de termino obrigatorio"),
+  appointmentType: z.enum(["online", "presential"]).optional(),
+  meetingUrl: z.string().optional(),
+  location: z.string().optional(),
+  notes: z.string().optional(),
+})
 
 type FormData = z.infer<typeof schema>
 
@@ -101,7 +86,7 @@ export function CreateEventDialog({
       date: defaultDate ?? format(new Date(), "yyyy-MM-dd"),
       startTime: defaultStartTime ?? "08:00",
       endTime: "09:00",
-      appointmentType: "presential",
+      appointmentType: undefined,
       meetingUrl: "",
       location: "",
       notes: "",
@@ -132,9 +117,9 @@ export function CreateEventDialog({
       studentId: data.studentId,
       startAt,
       endAt,
-      appointmentType: data.appointmentType,
-      meetingUrl: data.appointmentType === "online" ? data.meetingUrl : undefined,
-      location: data.appointmentType === "presential" ? data.location : undefined,
+      appointmentType: data.appointmentType || undefined,
+      meetingUrl: data.appointmentType === "online" ? data.meetingUrl || undefined : undefined,
+      location: data.appointmentType === "presential" ? data.location || undefined : undefined,
       notes: data.notes || undefined,
     })
   }
@@ -252,14 +237,14 @@ export function CreateEventDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label>Tipo</Label>
+              <Label>Tipo (opcional)</Label>
               <Controller
                 name="appointmentType"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v || undefined)}>
                     <SelectTrigger data-testid="type-select">
-                      <SelectValue />
+                      <SelectValue placeholder="Selecionar tipo..." />
                     </SelectTrigger>
                     <SelectContent>
                       {attendanceTypes?.map((t) => (

@@ -57,24 +57,6 @@ const createEventSchema = z
       return true;
     },
     { message: "originalStartAt is required for override events", path: ["originalStartAt"] },
-  )
-  .refine(
-    (data) => {
-      if (data.type === "one_off" && !data.appointmentType) {
-        return false;
-      }
-      return true;
-    },
-    { message: "appointmentType is required for one_off events", path: ["appointmentType"] },
-  )
-  .refine(
-    (data) => {
-      if (data.appointmentType === "online" && !data.meetingUrl) {
-        return false;
-      }
-      return true;
-    },
-    { message: "meetingUrl is required for online appointments", path: ["meetingUrl"] },
   );
 
 @Injectable()
