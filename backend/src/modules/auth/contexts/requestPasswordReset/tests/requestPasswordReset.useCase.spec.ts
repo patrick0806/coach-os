@@ -150,9 +150,8 @@ describe("RequestPasswordResetUseCase", () => {
     await useCase.execute({ email: "joao@email.com", slug: "joao-silva" });
 
     const [sendArgs] = resendProvider.sendPasswordReset.mock.calls[0];
-    expect(sendArgs.resetPasswordUrl).toMatch(
-      new RegExp(`^${env.APP_URL}/coach/joao-silva/redefinir-senha\\?token=`),
-    );
+    expect(sendArgs.resetPasswordUrl).toContain("joao-silva");
+    expect(sendArgs.resetPasswordUrl).toContain("/redefinir-senha?token=");
   });
 
   it("should build global reset URL when slug is not provided", async () => {

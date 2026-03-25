@@ -30,7 +30,7 @@ export class AcceptCoachInviteUseCase {
     private readonly plansRepository: PlansRepository,
     private readonly personalsRepository: PersonalsRepository,
     private readonly drizzle: DrizzleProvider,
-  ) {}
+  ) { }
 
   async execute(body: unknown): Promise<{ message: string }> {
     const data = validate(acceptCoachInviteSchema, body);
@@ -48,13 +48,13 @@ export class AcceptCoachInviteUseCase {
     // Check if email is already taken (race condition guard)
     const existingUser = await this.usersRepository.findByEmail(email);
     if (existingUser) {
-      throw new ConflictException("Email already registered");
+      throw new ConflictException("Já existe um registro com esse email");
     }
 
     // Validate plan still exists
     const plan = await this.plansRepository.findById(planId);
     if (!plan) {
-      throw new NotFoundException("Plan not found");
+      throw new NotFoundException("Plano não encontrado");
     }
 
     // Hash password with pepper
@@ -105,6 +105,6 @@ export class AcceptCoachInviteUseCase {
       await this.coachInvitationTokensRepository.markAsUsed(tokenRecord.id, tx);
     });
 
-    return { message: "Account created successfully" };
+    return { message: "Conta criada com sucesso" };
   }
 }

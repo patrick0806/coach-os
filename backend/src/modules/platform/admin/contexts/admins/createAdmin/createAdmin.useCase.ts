@@ -14,14 +14,14 @@ export class CreateAdminUseCase {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly adminsRepository: AdminsRepository,
-  ) {}
+  ) { }
 
   async execute(body: unknown) {
     const data = validate(createAdminSchema, body);
 
     const existing = await this.usersRepository.findByEmail(data.email);
     if (existing) {
-      throw new ConflictException("Email already registered");
+      throw new ConflictException("Já existe um registro com esse email");
     }
 
     const hashedPassword = await argon2.hash(data.password + env.HASH_PEPPER);

@@ -19,7 +19,7 @@ export class ChangePlanUseCase {
     private readonly stripeProvider: StripeProvider,
     private readonly usersRepository: UsersRepository,
     private readonly resendProvider: ResendProvider,
-  ) {}
+  ) { }
 
   async execute(personalId: string, body: unknown): Promise<void> {
     const { planId } = validate(changePlanSchema, body);
@@ -34,7 +34,7 @@ export class ChangePlanUseCase {
     }
 
     if (!newPlan) {
-      throw new NotFoundException("Plan not found");
+      throw new NotFoundException("Plano não encontrado");
     }
 
     if (!newPlan.stripePriceId) {

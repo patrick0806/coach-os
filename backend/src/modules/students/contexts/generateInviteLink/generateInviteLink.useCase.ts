@@ -1,13 +1,13 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { z } from "zod";
 
-import { env } from "@config/env";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
 import { StudentInvitationTokensRepository } from "@shared/repositories/studentInvitationTokens.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { generateSetupToken, expiresInHours } from "@shared/utils/token.util";
+import { buildStudentUrl } from "@shared/utils/studentUrl.util";
 import { validate } from "@shared/utils/validation.util";
 
 const generateInviteLinkSchema = z.object({
@@ -38,7 +38,7 @@ export class GenerateInviteLinkUseCase {
     if (!personal) throw new NotFoundException("Personal not found");
 
     const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
-    if (!plan) throw new NotFoundException("Plan not found");
+    if (!plan) throw new NotFoundException("Plano não encontrado");
 
 
     // Check student limit (skip for whitelisted accounts)
@@ -73,7 +73,7 @@ export class GenerateInviteLinkUseCase {
     });
 
     return {
-      inviteLink: `${env.APP_URL}/accept-invite?token=${raw}`,
+      inviteLink: buildStudentUrl(personal.slug, `/accept-invite?token=${raw}`),
     };
   }
 }

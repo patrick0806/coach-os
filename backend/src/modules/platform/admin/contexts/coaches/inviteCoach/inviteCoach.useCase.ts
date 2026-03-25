@@ -25,7 +25,7 @@ export class InviteCoachUseCase {
     private readonly plansRepository: PlansRepository,
     private readonly coachInvitationTokensRepository: CoachInvitationTokensRepository,
     private readonly resendProvider: ResendProvider,
-  ) {}
+  ) { }
 
   async execute(body: unknown): Promise<{ message: string }> {
     const data = validate(inviteCoachSchema, body);
@@ -33,13 +33,13 @@ export class InviteCoachUseCase {
     // Check if email is already registered
     const existingUser = await this.usersRepository.findByEmail(data.email);
     if (existingUser) {
-      throw new ConflictException("Email already registered");
+      throw new ConflictException("Já existe um registro com esse email");
     }
 
     // Validate plan exists
     const plan = await this.plansRepository.findById(data.planId);
     if (!plan) {
-      throw new NotFoundException("Plan not found");
+      throw new NotFoundException("Plano não encontrado");
     }
 
     // Invalidate previous tokens for this email

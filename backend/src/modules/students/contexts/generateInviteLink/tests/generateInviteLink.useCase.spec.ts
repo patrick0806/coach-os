@@ -17,6 +17,7 @@ const makePersonalsRepository = () => ({
     id: "tenant-id-1",
     userId: "coach-user-id",
     subscriptionPlanId: "plan-id-1",
+    slug: "joao-coach",
     isWhitelisted: false,
   }),
 });
@@ -111,6 +112,7 @@ describe("GenerateInviteLinkUseCase", () => {
       id: "tenant-id-1",
       userId: "coach-user-id",
       subscriptionPlanId: "plan-id-1",
+      slug: "joao-coach",
       isWhitelisted: true,
     });
     studentsRepository.countByTenantId.mockResolvedValue(10); // at the limit

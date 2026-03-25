@@ -102,7 +102,7 @@ describe("AcceptInviteUseCase", () => {
   it("should create account successfully", async () => {
     const result = await useCase.execute(validBody);
 
-    expect(result).toEqual({ message: "Account created successfully" });
+    expect(result).toEqual({ message: "Conta criada com sucesso" });
   });
 
   it("should create user with STUDENT role", async () => {
@@ -192,7 +192,7 @@ describe("AcceptInviteUseCase", () => {
     studentsRepository.countByTenantId.mockResolvedValue(10); // at the limit
 
     const result = await useCase.execute(validBody);
-    expect(result).toEqual({ message: "Account created successfully" });
+    expect(result).toEqual({ message: "Conta criada com sucesso" });
     expect(studentsRepository.countByTenantId).not.toHaveBeenCalled();
   });
 
@@ -212,7 +212,7 @@ describe("AcceptInviteUseCase", () => {
 
     const result = await useCase.execute(validBody);
 
-    expect(result).toEqual({ message: "Account created successfully" });
+    expect(result).toEqual({ message: "Conta criada com sucesso" });
     expect(usersRepository.create).not.toHaveBeenCalled();
     expect(studentsRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: "existing-user-id", tenantId: "tenant-id-1" }),

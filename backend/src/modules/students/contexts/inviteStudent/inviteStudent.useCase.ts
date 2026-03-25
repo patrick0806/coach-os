@@ -1,7 +1,6 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { z } from "zod";
 
-import { env } from "@config/env";
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
@@ -9,6 +8,7 @@ import { StudentInvitationTokensRepository } from "@shared/repositories/studentI
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { generateSetupToken, expiresInHours } from "@shared/utils/token.util";
+import { buildStudentUrl } from "@shared/utils/studentUrl.util";
 import { validate } from "@shared/utils/validation.util";
 
 const inviteStudentSchema = z.object({
@@ -36,7 +36,7 @@ export class InviteStudentUseCase {
     if (!personal) throw new NotFoundException("Personal not found");
 
     const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
-    if (!plan) throw new NotFoundException("Plan not found");
+    if (!plan) throw new NotFoundException("Plano não encontrado");
 
     // Check student limit (skip for whitelisted accounts)
     if (!personal.isWhitelisted) {
@@ -75,7 +75,7 @@ export class InviteStudentUseCase {
     const personalName = coachUser?.name ?? "Seu coach";
 
     // Build invite URL and send email
-    const setupPasswordUrl = `${env.APP_URL}/accept-invite?token=${raw}`;
+    const setupPasswordUrl = buildStudentUrl(personal.slug, `/accept-invite?token=${raw}`);
 
     await this.resendProvider.sendStudentInvite({
       to: data.email,

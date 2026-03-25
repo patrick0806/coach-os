@@ -19,7 +19,7 @@ type: project
 - **SEC-M1-008 (HIGH)**: CORS allows null origin in production (line 87: `if (!origin) return callback(null, true)`). Server-to-server requests and sandboxed iframes send null origin — this bypasses CORS entirely.
 - **SEC-M1-009 (LOW)**: Cookie sameSite is "lax" in production (when COOKIE_DOMAIN is set). Combined with null origin CORS, this increases CSRF risk on state-changing POST endpoints.
 - **SEC-M1-010 (INFO)**: JWT uses HS256 by default (passport-jwt). No explicit algorithm restriction in strategy — though NestJS/passport defaults are sane, explicit `algorithms: ['HS256']` would harden against algorithm confusion.
-- **SEC-M1-011 (MEDIUM)**: `findByEmail` in UsersRepository has no tenantId filter (by design — email is global). But this means email enumeration is possible through ConflictException("Email already registered") in register.useCase.ts line 63.
+- **SEC-M1-011 (MEDIUM)**: `findByEmail` in UsersRepository has no tenantId filter (by design — email is global). But this means email enumeration is possible through ConflictException("Já existe um registro com esse email") in register.useCase.ts line 63.
 
 ### Patterns Observed (Positive)
 - Timing-safe hash comparison in refresh token (crypto.timingSafeEqual)

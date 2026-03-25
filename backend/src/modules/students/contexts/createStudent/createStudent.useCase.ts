@@ -61,7 +61,7 @@ export class CreateStudentUseCase {
     if (!personal) throw new NotFoundException("Personal not found");
 
     const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
-    if (!plan) throw new NotFoundException("Plan not found");
+    if (!plan) throw new NotFoundException("Plano não encontrado");
 
     // Check student limit (skip for whitelisted accounts)
     if (!personal.isWhitelisted) {
@@ -74,7 +74,7 @@ export class CreateStudentUseCase {
     // Check if email is already in use globally
     const existingUser = await this.usersRepository.findByEmail(data.email);
     if (existingUser) {
-      throw new ConflictException("Email already registered in the system");
+      throw new ConflictException("Já existe um registro com esse email in the system");
     }
 
     // Create user with a random password — student cannot login until password is set up

@@ -72,7 +72,7 @@ describe("AcceptCoachInviteUseCase", () => {
 
   it("should create a trialing coach when isWhitelisted=false", async () => {
     const result = await useCase.execute(validBody);
-    expect(result).toEqual({ message: "Account created successfully" });
+    expect(result).toEqual({ message: "Conta criada com sucesso" });
     expect(usersRepository.create).toHaveBeenCalled();
     expect(personalsRepository.create).toHaveBeenCalledWith(
       expect.objectContaining({

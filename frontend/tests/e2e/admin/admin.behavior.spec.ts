@@ -174,7 +174,7 @@ test.describe("Admin — Admins", () => {
         route.fulfill({
           status: 409,
           contentType: "application/json",
-          json: { message: "Email already registered" },
+          json: { message: "Já existe um registro com esse email" },
         })
       } else {
         route.fallback()

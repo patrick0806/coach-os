@@ -51,7 +51,7 @@ export class AcceptInviteUseCase {
     if (!personal) throw new NotFoundException("Personal not found");
 
     const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
-    if (!plan) throw new NotFoundException("Plan not found");
+    if (!plan) throw new NotFoundException("Plano não encontrado");
 
     // Re-check student limit for token's tenant (skip for whitelisted accounts)
     if (!personal.isWhitelisted) {
@@ -94,7 +94,7 @@ export class AcceptInviteUseCase {
         await this.studentInvitationTokensRepository.markAsUsed(tokenRecord.id, tx);
       });
 
-      return { message: "Account created successfully" };
+      return { message: "Conta criada com sucesso" };
     }
 
     // Hash password with pepper
@@ -125,6 +125,6 @@ export class AcceptInviteUseCase {
       await this.studentInvitationTokensRepository.markAsUsed(tokenRecord.id, tx);
     });
 
-    return { message: "Account created successfully" };
+    return { message: "Conta criada com sucesso" };
   }
 }

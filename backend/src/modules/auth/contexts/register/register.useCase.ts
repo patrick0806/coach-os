@@ -64,7 +64,7 @@ export class RegisterUseCase {
     // switching to a "check your email" flow, which changes the registration UX significantly.
     const existingUser = await this.usersRepository.findByEmail(data.email);
     if (existingUser) {
-      throw new ConflictException("Email already registered");
+      throw new ConflictException("Já existe um registro com esse email");
     }
 
     // Find plan
@@ -73,7 +73,7 @@ export class RegisterUseCase {
       : await this.plansRepository.findDefault();
 
     if (!plan) {
-      throw new NotFoundException("Plan not found");
+      throw new NotFoundException("Plano não encontrado");
     }
 
     // Hash password with pepper

@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { z } from "zod";
 
-import { env } from "@config/env";
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { generateSetupToken, expiresInHours } from "@shared/utils/token.util";
+import { buildStudentUrl } from "@shared/utils/studentUrl.util";
 import { validate } from "@shared/utils/validation.util";
 
 const SETUP_TOKEN_EXPIRY_HOURS = 48;
@@ -46,8 +46,8 @@ export class SendStudentAccessUseCase {
       expiresAt: expiresInHours(SETUP_TOKEN_EXPIRY_HOURS),
     });
 
-    // Branded student URL using the coach's slug
-    const accessLink = `${env.APP_URL}/coach/${personal.slug}/configurar-senha?token=${raw}`;
+    // Branded student URL using the coach's subdomain
+    const accessLink = buildStudentUrl(personal.slug, `/configurar-senha?token=${raw}`);
 
     if (validatedMode === "link") {
       return { accessLink };

@@ -58,6 +58,7 @@ const envSchema = z.object({
 
   RESEND_API_KEY: z.string().default(""),
   APP_URL: z.string().default("http://localhost:3000"),
+  STUDENT_BASE_DOMAIN: z.string().default(""),
   SUPPORT_EMAIL: z.string().default("suporte@coachos.com.br"),
 
   STRIPE_SECRET_KEY: z.string().default(""),

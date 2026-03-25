@@ -7,14 +7,14 @@ import { updatePlanSchema } from "./dtos/request.dto";
 
 @Injectable()
 export class UpdatePlanUseCase {
-  constructor(private readonly plansRepository: PlansRepository) {}
+  constructor(private readonly plansRepository: PlansRepository) { }
 
   async execute(id: string, body: unknown) {
     const data = validate(updatePlanSchema, body);
 
     const updated = await this.plansRepository.update(id, data);
     if (!updated) {
-      throw new NotFoundException("Plan not found");
+      throw new NotFoundException("Plano não encontrado");
     }
 
     return updated;

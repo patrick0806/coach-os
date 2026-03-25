@@ -12,7 +12,7 @@ Key findings from Admin + Students module QA analysis:
 
 3. **sendStudentAccess DTO lacks Zod validation**: The `mode` parameter is typed via TypeScript class but has NO runtime validation (no global ValidationPipe, no Zod in use case). Any string value for `mode` will be accepted.
 
-4. **deletePlan has no active-subscription check**: Admin can soft-delete a plan that coaches are currently subscribed to. Since findById filters by isActive=true, subsequent student limit checks will fail with NotFoundException("Plan not found") for those coaches.
+4. **deletePlan has no active-subscription check**: Admin can soft-delete a plan that coaches are currently subscribed to. Since findById filters by isActive=true, subsequent student limit checks will fail with NotFoundException("Plano não encontrado") for those coaches.
 
 5. **deleteAdmin leaves orphan user record**: Only deletes admin profile, leaves users table entry with role=ADMIN intact. Orphaned user can still authenticate.
 

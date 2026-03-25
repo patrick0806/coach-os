@@ -6,6 +6,7 @@ import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.re
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { generateSetupToken, expiresInHours } from "@shared/utils/token.util";
+import { buildStudentUrl } from "@shared/utils/studentUrl.util";
 import { validate } from "@shared/utils/validation.util";
 
 const RESET_TOKEN_EXPIRY_HOURS = 2;
@@ -45,7 +46,7 @@ export class RequestPasswordResetUseCase {
 
     // Branded student URL when slug is provided; global URL for coach/admin
     const resetPasswordUrl = data.slug
-      ? `${env.APP_URL}/coach/${data.slug}/redefinir-senha?token=${raw}`
+      ? buildStudentUrl(data.slug, `/redefinir-senha?token=${raw}`)
       : `${env.APP_URL}/redefinir-senha?token=${raw}`;
 
     await this.resendProvider.sendPasswordReset({
