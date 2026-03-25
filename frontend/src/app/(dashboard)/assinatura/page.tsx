@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import axios from "axios"
 import { toast } from "sonner"
@@ -15,6 +16,7 @@ import { SubscriptionStatusCard } from "@/features/billing/components/subscripti
 import { PlanCard } from "@/features/billing/components/planCard"
 import { ChangePlanDialog } from "@/features/billing/components/changePlanDialog"
 import { CancelSubscriptionDialog } from "@/features/billing/components/cancelSubscriptionDialog"
+import { CheckoutResultDialog } from "@/features/billing/components/checkoutResultDialog"
 import { LoadingState } from "@/shared/components/loadingState"
 import { Button } from "@/shared/ui/button"
 import { Separator } from "@/shared/ui/separator"
@@ -57,10 +59,24 @@ function buildFallbackSubscription(plans: PlanListItem[] | undefined): Subscript
 
 export default function AssinaturaPage() {
   const queryClient = useQueryClient()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null)
   const [selectedPlanName, setSelectedPlanName] = useState<string>("")
   const [changePlanDialogOpen, setChangePlanDialogOpen] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [checkoutResult, setCheckoutResult] = useState<"success" | "cancelled" | null>(null)
+
+  useEffect(() => {
+    const param = searchParams.get("checkout")
+    if (param === "success" || param === "cancelled") {
+      if (param === "success") {
+        queryClient.invalidateQueries({ queryKey: ["subscription"] })
+      }
+      setCheckoutResult(param)
+      router.replace("/assinatura")
+    }
+  }, [searchParams, queryClient, router])
 
   const {
     data: subscriptionData,
@@ -271,6 +287,14 @@ export default function AssinaturaPage() {
         onConfirm={() => cancelMutation.mutate()}
         isLoading={cancelMutation.isPending}
       />
+
+      {checkoutResult && (
+        <CheckoutResultDialog
+          open={true}
+          onOpenChange={(open) => { if (!open) setCheckoutResult(null) }}
+          variant={checkoutResult}
+        />
+      )}
     </div>
   )
 }

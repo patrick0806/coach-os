@@ -91,7 +91,7 @@ describe("CreateCheckoutSessionUseCase", () => {
       customer: "cus_test123",
       line_items: [{ price: "price_test123", quantity: 1 }],
       success_url: "http://localhost:3000/assinatura?checkout=success",
-      cancel_url: "http://localhost:3000/assinatura",
+      cancel_url: "http://localhost:3000/assinatura?checkout=cancelled",
     });
     expect(result).toEqual({ url: "https://checkout.stripe.com/pay/test" });
   });

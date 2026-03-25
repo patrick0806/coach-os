@@ -17,7 +17,7 @@ export class CreateCheckoutSessionUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly plansRepository: PlansRepository,
     private readonly stripeProvider: StripeProvider,
-  ) {}
+  ) { }
 
   async execute(personalId: string): Promise<CreateCheckoutSessionResult> {
     if (!this.stripeProvider.isConfigured()) {
@@ -64,7 +64,7 @@ export class CreateCheckoutSessionUseCase {
     }
 
     const successUrl = `${env.APP_URL}/assinatura?checkout=success`;
-    const cancelUrl = `${env.APP_URL}/assinatura`;
+    const cancelUrl = `${env.APP_URL}/assinatura?checkout=cancelled`;
 
     const session = await this.stripeProvider.client!.checkout.sessions.create({
       mode: "subscription",
