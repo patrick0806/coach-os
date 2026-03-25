@@ -38,10 +38,12 @@ export function SubscriptionStatusCard({
   onCheckout,
   isOpeningCheckout,
 }: SubscriptionStatusCardProps) {
-  // Use subscriptionStatus (Stripe state) as source of truth for determining if user has an active paid subscription.
-  // accessStatus alone is unreliable because the TenantAccessGuard updates it to "active" even during trial.
+  // A user has an active Stripe subscription when subscriptionStatus is present and not canceled.
+  // "trialing" here means they completed checkout and have a real Stripe subscription in trial period —
+  // distinct from the free trial (subscriptionStatus: null, accessStatus: "trialing").
   const hasActivePaidSubscription =
     subscription.subscriptionStatus === "active" ||
+    subscription.subscriptionStatus === "trialing" ||
     subscription.subscriptionStatus === "past_due"
 
   // Determine trial state from Stripe status or local accessStatus (for accounts without Stripe)

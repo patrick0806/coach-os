@@ -169,17 +169,16 @@ export default function AssinaturaPage() {
     }
   }
 
-  // Only show cancel for users with an active paid Stripe subscription
+  // Show cancel for users with a real Stripe subscription (active or in Stripe trial)
   const canCancel =
     subscription &&
-    (subscription.subscriptionStatus === "active") &&
+    (subscription.subscriptionStatus === "active" || subscription.subscriptionStatus === "trialing") &&
     subscription.accessStatus !== "expired" &&
     subscription.accessStatus !== "suspended"
 
-  // Determine if user is trialing (for plan card button display)
-  const isTrialing =
-    subscription?.subscriptionStatus === "trialing" ||
-    (!subscription?.subscriptionStatus && subscription?.accessStatus === "trialing")
+  // isTrialing is only true for the free trial before checkout (no Stripe subscription yet).
+  // After checkout, subscriptionStatus is "trialing" from Stripe but the user can already switch/cancel plans.
+  const isTrialing = !subscription?.subscriptionStatus && subscription?.accessStatus === "trialing"
 
   if (loadingSubscription && !plans) {
     return (
