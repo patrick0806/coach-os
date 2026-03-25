@@ -37,6 +37,7 @@ import { EnumsModule } from "@modules/enums/enums.module";
 import { WebhooksModule } from "@modules/platform/webhooks/webhooks.module";
 import { SubscriptionsModule } from "@modules/platform/subscriptions/subscriptions.module";
 import { AdminModule } from "@modules/platform/admin/admin.module";
+import { SchedulingV2Module } from "@modules/schedulingV2/schedulingV2.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 import { JobsModule } from "./jobs/jobs.module";
@@ -89,6 +90,7 @@ import { JobsModule } from "./jobs/jobs.module";
     WebhooksModule,
     SubscriptionsModule,
     AdminModule,
+    SchedulingV2Module,
     JobsModule,
     RouterModule.register([
       {
