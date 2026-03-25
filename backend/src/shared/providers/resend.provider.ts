@@ -22,7 +22,7 @@ import { CoachInviteEmail } from "@shared/emails/templates/coachInvite.email";
 import { StudentPasswordSetupEmail } from "@shared/emails/templates/studentPasswordSetup.email";
 import { StudentPasswordResetConfirmEmail } from "@shared/emails/templates/studentPasswordResetConfirm.email";
 
-const FROM_ADDRESS = "Coach OS <no-reply@geeknizado.com.br>";
+const FROM_ADDRESS = "Coach OS <no-reply@coachos.com.br>";
 
 // --- Param interfaces ---
 
@@ -165,14 +165,22 @@ export class ResendProvider {
 
     try {
       const html = await render(params.element);
-      await this.client.emails.send({
+      const result = await this.client.emails.send({
         from: FROM_ADDRESS,
         to: params.to,
         subject: params.subject,
         html,
       });
+
+      if (result.error) {
+        LogBuilderService.log(
+          "error",
+          `Resend rejected email to ${params.to}: ${result.error.name} — ${result.error.message}`,
+          result.error,
+        );
+      }
     } catch (error) {
-      LogBuilderService.log("error", `Failed to send email: ${params.subject}`, error);
+      LogBuilderService.log("error", `Failed to send email to ${params.to} (subject: ${params.subject})`, error);
     }
   }
 
