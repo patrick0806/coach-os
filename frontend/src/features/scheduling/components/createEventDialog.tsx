@@ -110,8 +110,8 @@ export function CreateEventDialog({
   }, [createEvent.hasConflicts])
 
   function onSubmit(data: FormData) {
-    const startAt = `${data.date}T${data.startTime}:00`
-    const endAt = `${data.date}T${data.endTime}:00`
+    const startAt = `${data.date}T${data.startTime}:00Z`
+    const endAt = `${data.date}T${data.endTime}:00Z`
     createEvent.createWithConflictCheck({
       type: "one_off",
       studentId: data.studentId || undefined,
