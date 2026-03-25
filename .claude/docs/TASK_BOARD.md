@@ -4,6 +4,21 @@ Last updated: 2026-03-25
 
 ---
 
+## Scheduling Refactoring ✅ COMPLETE (2026-03-25)
+
+Consolidated 6 scheduling tables into 3 (working_hours, recurring_slots, calendar_events).
+
+- [x] Phase 1: New schema + repositories + migration script
+- [x] Phase 2: Backend use cases + API (working hours, recurring slots, calendar events, calendar pipeline, availability)
+- [x] Phase 3: Frontend migration (services, hooks, components, types, student portal, public page)
+- [x] Pre-Phase 4 fixes: axios v1/v2 separation, bulk working hours endpoint, next.config rewrite fix
+- [x] Phase 4: Remove old e2e tests
+- [x] Phase 5: Cleanup — remove old module/repos/schema, rename schedulingV2 → scheduling, update cross-module deps
+- [x] Documentation: SYSTEM_MAP, DOMAIN_MAP, TASK_BOARD, SYSTEM_STATUS updated
+- [ ] Pending: Drop old DB tables via migration (availability_rules, availability_exceptions, appointment_requests, appointments, training_schedules, training_schedule_exceptions)
+
+---
+
 ## Milestone 16 — Mobile UX Fixes ✅ COMPLETE (2026-03-23)
 
 - [x] Sidebar fecha automaticamente ao navegar no mobile

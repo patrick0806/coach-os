@@ -67,18 +67,17 @@ Entities:
 - WorkoutSession
 
 scheduling/
-Responsible for appointment scheduling, availability management, and training schedule integration.
+Responsible for calendar management, working hours, recurring slots, and calendar events.
 
 Entities:
-- AvailabilityRule
-- AvailabilityException
-- TrainingSchedule
-- TrainingScheduleException
-- Appointment
-- AppointmentRequest
+- WorkingHours (coach availability windows with versioning)
+- RecurringSlot (recurring bookings or blocks with versioning)
+- CalendarEvent (one-off events, overrides, and blocks)
 
 Shared utilities:
-- conflictDetection.util.ts (pure function detecting 4 conflict types)
+- calendarPipeline.util.ts (expands recurring slots + applies overrides)
+- availabilityComputation.util.ts (working hours - occupied = free slots)
+- conflictDetectionV2.util.ts (overlap detection with soft model)
 
 coaching/
 Responsible for coach-student relationships.
@@ -145,33 +144,34 @@ Mandatory rules:
 
 # Scheduling Model
 
-Coach availability is defined using recurring rules.
+The scheduling system uses 3 tables as a single source of truth.
 
-AvailabilityRule
+WorkingHours (coach availability windows)
 ↓
-AvailabilityException
+RecurringSlots (recurring bookings or blocks)
 ↓
-TrainingSchedule (recurring presential training blocks)
-↓
-AppointmentRequest
-↓
-Appointment
+CalendarEvents (one-off events, overrides, blocks)
+
+Calendar pipeline (on-demand generation):
+1. Expand recurring_slots by dayOfWeek within date range (respecting effectiveFrom/To)
+2. Apply override events (replace or cancel specific occurrences via recurringSlotId + originalStartAt)
+3. Add one_off and block events
+4. Sort by startAt
+
+Availability computation:
+1. Expand working_hours by dayOfWeek within date range
+2. Subtract: recurring_slots + calendar_events
+3. Return free windows
 
 Conflict detection model (SOFT):
-
-When creating an appointment, the system checks for conflicts against:
-1. Availability exceptions (blocked dates)
-2. Availability rules (outside available hours)
-3. Existing appointments (time overlap)
-4. Training schedules (recurring training blocks)
-
-Conflicts are warnings — coach can override with forceCreate: true.
+- Checks overlap with existing calendar entries + outside working_hours
+- Conflicts are warnings — coach can override with forceCreate: true
 
 Business rules:
 
-- Appointments may be online (meetingUrl required) or presential (location required)
-- Training schedules are deactivated when linked program finishes or is cancelled
-- Calendar view merges appointments, training schedules, and exceptions into unified timeline
+- CalendarEvents may be online (meetingUrl required) or presential (location required)
+- RecurringSlots are deactivated when linked program finishes or is cancelled
+- Calendar view is generated on-demand from recurring_slots + calendar_events
 
 ---
 
@@ -391,271 +391,147 @@ Session marked as finished
 
 # Scheduling Flows
 
-## Define Availability
+## Working Hours
 
-Coach defines recurring schedule
+### Create Working Hours
+
+Coach defines availability window
 ↓
-POST /availability-rules
+POST /v1/working-hours
 ↓
-AvailabilityRule created (dayOfWeek + startTime/endTime)
+WorkingHours created (dayOfWeek + startTime/endTime + effectiveFrom)
+
+### Bulk Create Working Hours
+
+Coach defines multiple availability windows at once (onboarding wizard)
+↓
+POST /v1/working-hours/bulk
+↓
+Validates each item, detects overlaps (existing DB + intra-batch)
+↓
+Returns { created: [], errors: [] }
+
+### Update Working Hours
+
+Coach updates availability window (versioned: sets effectiveTo on old, creates new)
+↓
+PATCH /v1/working-hours/:id
+
+### Delete Working Hours
+
+Coach removes availability window (sets effectiveTo = today)
+↓
+DELETE /v1/working-hours/:id
 
 ---
 
-## Update Availability
+## Recurring Slots
 
-Coach updates availability rule
+### Create Recurring Slot
+
+Coach creates recurring booking or block
 ↓
-PUT /availability-rules/{id}
+POST /v1/recurring-slots
 ↓
-Rule updated (tenant isolation enforced)
-
----
-
-## Delete Availability
-
-Coach removes availability rule
+RecurringSlot created (type=booking with studentId, or type=block)
 ↓
-DELETE /availability-rules/{id}
+Conflict detection runs (soft model)
 
----
+### List Recurring Slots
 
-## Block Date
-
-Coach blocks a specific date
+Coach views recurring slots
 ↓
-POST /availability-exceptions
+GET /v1/recurring-slots?studentId=
+
+### Update Recurring Slot
+
+Coach updates recurring slot (versioned)
 ↓
-AvailabilityException created (date + optional reason)
+PATCH /v1/recurring-slots/:id
 
-Rule: cannot block past dates.
+### Delete Recurring Slot
 
----
-
-## List Availability Exceptions
-
-Coach views blocked dates
+Coach removes recurring slot
 ↓
-GET /availability-exceptions?startDate&endDate
-↓
-Filtered by date range
+DELETE /v1/recurring-slots/:id
 
----
-
-## Delete Availability Exception
-
-Coach unblocks a date
-↓
-DELETE /availability-exceptions/{id}
-
----
-
-# Training Schedule Flows
-
-## Create Training Schedule
-
-Coach sets recurring training time for student
-↓
-POST /students/{studentId}/training-schedules
-↓
-TrainingSchedule created (dayOfWeek + startTime/endTime + optional location)
-↓
-Blocks coach calendar on that day/time
-
----
-
-## List Training Schedules
-
-Coach or student views training schedules
-↓
-GET /students/{studentId}/training-schedules
-↓
-Returns active schedules only
-
----
-
-## Update Training Schedule
-
-Coach updates training time
-↓
-PUT /training-schedules/{id}
-
----
-
-## Delete Training Schedule
-
-Coach removes training schedule
-↓
-DELETE /training-schedules/{id}
-
----
-
-## Reschedule Training Occurrence
-
-Coach moves a specific occurrence of a recurring training to another day/time
-↓
-POST /training-schedules/{id}/reschedule
-↓
-Validates: schedule exists, originalDate matches dayOfWeek, newDate in same week, no duplicate exception
-↓
-Conflict detection runs (same soft model as appointments)
-↓
-If conflicts found → returns conflict list (unless forceCreate: true)
-↓
-TrainingScheduleException created with action "reschedule"
-
-Rule: newDate must be in the same Monday–Sunday week as originalDate.
-
----
-
-## Skip Training Occurrence
-
-Coach skips a specific occurrence of a recurring training
-↓
-POST /training-schedules/{id}/skip
-↓
-Validates: schedule exists, originalDate matches dayOfWeek, no duplicate exception
-↓
-TrainingScheduleException created with action "skip"
-
----
-
-## Delete Training Exception
-
-Coach undoes a reschedule or skip
-↓
-DELETE /training-schedule-exceptions/{id}
-↓
-Exception removed, original training occurrence restored in calendar
-
----
-
-## Auto-Deactivate Training Schedules
+### Auto-Deactivate Recurring Slots
 
 Student program status changes to finished or cancelled
 ↓
 PATCH /student-programs/{id}/status
 ↓
-All training schedules linked to that program are deactivated
+All recurring slots linked to that program are deactivated (effectiveTo = today, isActive = false)
+
+### Student Views Recurring Slots
+
+Student views their recurring training schedule
+↓
+GET /v1/me/recurring-slots
 
 ---
 
-# Appointment Flows
+## Calendar Events
 
-## Coach Creates Appointment
+### Create Event
 
-Coach manually schedules appointment
+Coach creates one-off event, override, or block
 ↓
-POST /appointments
+POST /v1/events
 ↓
-Conflict detection runs (checks availability rules, exceptions, existing appointments, training schedules)
+type: one_off | override | block
 ↓
-If conflicts found → returns conflict list (unless forceCreate: true)
+For overrides: recurringSlotId + originalStartAt to replace specific occurrence
 ↓
-Appointment created with status "scheduled"
+Conflict detection runs (soft model)
 
-Rule: online type requires meetingUrl, presential requires location.
+### Update Event
+
+Coach updates event details
+↓
+PATCH /v1/events/:id
+
+### Cancel Event
+
+Coach cancels event
+↓
+PATCH /v1/events/:id/cancel
+↓
+Status set to cancelled, cancelledAt + cancellationReason recorded
+
+### Complete Event
+
+Coach marks event as completed
+↓
+PATCH /v1/events/:id/complete
+
+### Student Views Events
+
+Student views their events
+↓
+GET /v1/me/events
 
 ---
 
-## List Appointments
+## Calendar
 
-Coach views appointments
+### Get Calendar
+
+Coach views unified calendar (generated on-demand)
 ↓
-GET /appointments?startDate&endDate&status&studentId
+GET /v2/calendar?start=&end=
 ↓
-Paginated with filters
-
----
-
-## Get Appointment
-
-Coach or student views appointment details
+Pipeline: expand recurring_slots + apply overrides + add one_off/block events
 ↓
-GET /appointments/{id}
+Sorted by startAt
 
----
+### Get Availability
 
-## Cancel Appointment
-
-Coach or student cancels appointment
+Coach or public page views free time slots
 ↓
-PATCH /appointments/{id}/cancel
-
----
-
-## Complete Appointment
-
-Coach marks appointment as completed
+GET /v2/availability?start=&end=
 ↓
-PATCH /appointments/{id}/complete
-
----
-
-## Reschedule Appointment
-
-Coach reschedules an existing appointment
-↓
-PATCH /appointments/{id}/reschedule
-↓
-Validates: appointment exists, status === "scheduled", startAt < endAt
-↓
-Conflict detection runs (excludes self from overlap check)
-↓
-If conflicts found → returns conflict list (unless forceCreate: true)
-↓
-Appointment updated with new date/time/type/location
-
-Rule: only scheduled appointments can be rescheduled.
-
----
-
-## Request Appointment
-
-Student requests appointment
-↓
-POST /appointment-requests
-↓
-AppointmentRequest created with status "pending"
-
----
-
-## Approve Appointment Request
-
-Coach approves request
-↓
-PATCH /appointment-requests/{id}/approve
-↓
-Conflict detection runs
-↓
-Request status updated to "approved"
-↓
-Appointment created automatically
-
----
-
-## Reject Appointment Request
-
-Coach rejects request
-↓
-PATCH /appointment-requests/{id}/reject
-↓
-Request status updated to "rejected"
-
----
-
-# Calendar Flow
-
-## Get Calendar
-
-Coach views unified calendar
-↓
-GET /calendar?startDate&endDate
-↓
-Merges: appointments + training schedules (expanded by dayOfWeek, with exceptions applied) + availability exceptions
-↓
-Training schedule exceptions: skip → entry removed, reschedule → entry moved to new date/time with isRescheduled flag
-↓
-Sorted by date and startTime
+Computation: expand working_hours - (recurring_slots + calendar_events) = free windows
 
 ---
 

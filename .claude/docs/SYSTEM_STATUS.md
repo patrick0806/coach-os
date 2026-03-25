@@ -1,12 +1,12 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-25 (post Admin Invite Coach feature)
+Last updated: 2026-03-25 (post Scheduling Refactoring)
 
 ---
 
 ## Backend Status
 
-All backend modules are **functionally complete** (903 tests passing).
+All backend modules are **functionally complete** (878 tests passing — reduced from 903 due to old scheduling tests removed).
 
 | Module | Status | Notes |
 |--------|--------|-------|
@@ -15,13 +15,13 @@ All backend modules are **functionally complete** (903 tests passing).
 | platform/subscriptions | minor issues | Remaining: checkout session.url non-null assertion |
 | platform/webhooks | ok | |
 | platform/tenants | ok | |
-| training | ok | |
-| scheduling | ok | |
+| training | ok | studentPrograms uses RecurringSlotsRepository |
+| scheduling | ok | **Refactored**: 3 tables (working_hours, recurring_slots, calendar_events). Old 6-table model removed. |
 | coaching | ok | |
 | students | ok | TOCTOU race condition accepted risk |
 | workoutExecution | ok | |
 | progress | ok | |
-| public | ok | |
+| public | ok | Uses WorkingHoursRepository + RecurringSlotsRepository |
 
 ---
 
@@ -33,12 +33,11 @@ All backend modules are **functionally complete** (903 tests passing).
 | **Onboarding Tutorial** | ok | |
 | **Subdomain routing** | ok | |
 | **Progress charts** | ok | LineChart + CombinedProgressChart |
-| **Reschedule appointments** | ok | |
-| **Reschedule training** | ok | |
-| **Student Portal** | ok | Login, training, progress, calendar |
+| **Scheduling (calendar)** | ok | Refactored: working hours, recurring slots, calendar events, calendar pipeline |
+| **Student Portal** | ok | Login, training, progress, calendar (uses /me/events + /me/recurring-slots) |
 | **Workout Execution Media** | ok | GIF/image + YouTube link |
 | **Settings / Profile** | ok | |
-| **Training Schedule UI** | ok | Student Agenda tab with CRUD |
+| **Recurring Slots UI** | ok | Student Agenda tab with CRUD (replaces Training Schedule UI) |
 | **Mobile UX** | ok | Sidebar closes on nav, cards on students, tabs scroll fixed, time fields stacked, exercise actions visible, GIF padding, selector dialog overflow |
 | **Notifications** | not started | Backlog (Milestone 14) |
 

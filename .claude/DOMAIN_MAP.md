@@ -395,9 +395,9 @@ Photos are ordered chronologically.
 
 # Scheduling System
 
-## AvailabilityRule
+## WorkingHours
 
-Represents recurring availability for a coach.
+Represents recurring availability windows for a coach, with versioning support.
 
 **Attributes:**
 
@@ -405,6 +405,8 @@ Represents recurring availability for a coach.
 -   dayOfWeek (0=Sunday...6=Saturday)
 -   startTime (HH:MM format)
 -   endTime (HH:MM format)
+-   effectiveFrom (date)
+-   effectiveTo (date, nullable — null means indefinite)
 -   isActive
 
 Examples:
@@ -416,136 +418,67 @@ Examples:
 
 -   startTime must be before endTime
 -   no overlapping rules on the same day
+-   updates create new version (effectiveTo set on old record, new record created)
+-   used to compute free time slots (working_hours - occupied = available)
 
 ------------------------------------------------------------------------
 
-## AvailabilityException
+## RecurringSlot
 
-Represents a date when the coach is not available.
+Represents a recurring booking or block in the coach's calendar, with versioning support.
+
+Replaces the old TrainingSchedule and adds support for generic blocks.
 
 **Attributes:**
 
 -   tenantId
--   date (YYYY-MM-DD)
--   reason (optional)
-
-Examples:
-
--   vacation
--   holidays
--   blocked schedule
-
-**Business rules:**
-
--   cannot create exceptions for past dates
-
-------------------------------------------------------------------------
-
-## TrainingSchedule
-
-Represents a recurring presential training schedule for a student.
-
-Bridges the training and scheduling domains — allows training schedules
-to block coach availability without manual appointment creation.
-
-**Attributes:**
-
--   tenantId
--   studentId
--   studentProgramId (optional, links to active program)
+-   studentId (nullable — null for blocks)
+-   studentProgramId (nullable — links to active program)
+-   type (`booking` | `block`)
 -   dayOfWeek (0=Sunday...6=Saturday)
 -   startTime (HH:MM format)
 -   endTime (HH:MM format)
 -   location (optional)
+-   effectiveFrom (date)
+-   effectiveTo (date, nullable)
 -   isActive
 
 **Business rules:**
 
 -   deactivated automatically when linked student program is finished or cancelled
--   appears as blocking entries in conflict detection
--   expanded into calendar entries by dayOfWeek within date ranges
+-   expanded into calendar entries by dayOfWeek within date ranges (respecting effectiveFrom/To)
+-   conflict detection runs when creating (soft model)
 
 ------------------------------------------------------------------------
 
-## TrainingScheduleException
+## CalendarEvent
 
-Represents a one-time override for a specific occurrence of a recurring training schedule.
-
-Allows coaches to reschedule or skip individual training occurrences without modifying the recurring rule.
+Represents a specific event in the coach's calendar. Replaces the old Appointment, AvailabilityException, and TrainingScheduleException entities.
 
 **Attributes:**
 
 -   tenantId
--   trainingScheduleId
--   originalDate (the date being overridden)
--   action (`skip` | `reschedule`)
--   newDate (when action = reschedule)
--   newStartTime (when action = reschedule)
--   newEndTime (when action = reschedule)
--   newLocation (optional)
--   reason (optional)
--   createdAt
-
-**Business rules:**
-
--   `skip` — training occurrence on originalDate does not happen
--   `reschedule` — training occurrence moved to newDate/newStartTime/newEndTime
--   newDate must be in the same week (Monday–Sunday) as originalDate
--   no duplicate exceptions for same trainingScheduleId + originalDate
--   conflict detection runs for rescheduled occurrences (same soft model as appointments)
--   exceptions are applied during calendar expansion
-
-------------------------------------------------------------------------
-
-## AppointmentRequest
-
-Represents a request created by a student for an appointment.
-
-**Attributes:**
-
--   tenantId
--   studentId
--   requestedStartAt (UTC timestamp)
--   requestedEndAt (UTC timestamp)
--   type (online or presential)
--   status (pending, approved, rejected)
--   notes (optional)
-
-Used when students request sessions with the coach.
-
-**Business rules:**
-
--   only pending requests can be approved or rejected
--   approving a request creates an appointment automatically
-
-------------------------------------------------------------------------
-
-## Appointment
-
-Represents a confirmed meeting between coach and student.
-
-**Attributes:**
-
--   tenantId
--   studentId
+-   studentId (nullable)
 -   startAt (UTC timestamp)
 -   endAt (UTC timestamp)
--   type (online or presential)
--   status (scheduled, completed, cancelled)
-
-Online appointments include:
-
--   meetingUrl
-
-Presential appointments include:
-
--   location
+-   type (`one_off` | `override` | `block`)
+-   recurringSlotId (nullable — for overrides of recurring slots)
+-   originalStartAt (nullable — the original occurrence being overridden)
+-   status (`scheduled` | `cancelled` | `completed` | `no_show`)
+-   appointmentType (`online` | `presential`, nullable)
+-   meetingUrl (nullable)
+-   location (nullable)
+-   notes (nullable)
+-   cancelledAt (nullable)
+-   cancellationReason (nullable)
 
 **Business rules:**
 
--   Conflict detection checks: existing appointments, training schedules, availability rules, and exceptions
--   Conflicts are SOFT — coach is warned but can override with forceCreate
--   Coaches cannot have overlapping appointments (unless forced)
+-   `one_off` — standalone event (replaces old Appointment)
+-   `override` — replaces or cancels a specific occurrence of a recurring slot
+-   `block` — blocks time (replaces old AvailabilityException)
+-   Conflict detection is SOFT — coach is warned but can override with forceCreate
+-   Online events require meetingUrl, presential require location
 
 ------------------------------------------------------------------------
 
@@ -616,11 +549,9 @@ Notes are ordered chronologically.
      ├ CoachStudentRelations
      ├ ProgramTemplates
      ├ Exercises (private)
-     ├ AvailabilityRules
-     ├ AvailabilityExceptions
-     ├ Appointments
-     ├ TrainingSchedules
-     │    └ TrainingScheduleExceptions
+     ├ WorkingHours
+     ├ RecurringSlots
+     ├ CalendarEvents
      ├ ServicePlans
      └ StudentInvitationTokens
 
@@ -629,8 +560,8 @@ Notes are ordered chronologically.
      ├ WorkoutSessions
      ├ ProgressRecords
      ├ ProgressPhotos
-     ├ TrainingSchedules
-     ├ AppointmentRequests
+     ├ RecurringSlots (as booking target)
+     ├ CalendarEvents (as event participant)
      └ Notes
 
     ProgramTemplate
@@ -651,8 +582,9 @@ Notes are ordered chronologically.
 
 -   A student program is independent from the template used to create
     it.
--   A coach cannot have overlapping appointments (soft conflict model — override with forceCreate).
+-   A coach cannot have overlapping events (soft conflict model — override with forceCreate).
 -   Private exercises are visible only to their creator.
 -   Students may have historical relationships with multiple coaches.
--   Training schedules are deactivated when their linked program is finished or cancelled.
--   Conflict detection checks availability rules, exceptions, appointments, and training schedules.
+-   Recurring slots are deactivated when their linked program is finished or cancelled.
+-   Conflict detection checks working hours, recurring slots, and calendar events.
+-   Calendar is generated on-demand from recurring_slots + calendar_events (no materialized view).
