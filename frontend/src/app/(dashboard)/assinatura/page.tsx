@@ -54,6 +54,7 @@ function buildFallbackSubscription(plans: PlanListItem[] | undefined): Subscript
     subscriptionExpiresAt: authSub.subscriptionExpiresAt,
     studentsCount: 0,
     studentsLimit: matchedPlan?.maxStudents ?? 0,
+    isWhitelisted: false,
   }
 }
 
@@ -184,6 +185,22 @@ export default function AssinaturaPage() {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <LoadingState variant="page" />
+      </div>
+    )
+  }
+
+  if (subscription?.isWhitelisted) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold">Assinatura</h1>
+          <p className="text-muted-foreground">Gerencie seu plano e dados de cobrança</p>
+        </div>
+        <div className="rounded-lg border bg-muted/30 p-8 text-center">
+          <p className="text-muted-foreground">
+            Sua conta possui acesso completo à plataforma sem necessidade de assinatura.
+          </p>
+        </div>
       </div>
     )
   }

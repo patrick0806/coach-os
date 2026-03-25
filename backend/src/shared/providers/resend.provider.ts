@@ -18,6 +18,7 @@ import { PaymentFailedEmail } from "@shared/emails/templates/paymentFailed.email
 import { PaymentRetryEmail } from "@shared/emails/templates/paymentRetry.email";
 import { TrialEndingSoonEmail } from "@shared/emails/templates/trialEndingSoon.email";
 import { StudentInviteEmail } from "@shared/emails/templates/studentInvite.email";
+import { CoachInviteEmail } from "@shared/emails/templates/coachInvite.email";
 import { StudentPasswordSetupEmail } from "@shared/emails/templates/studentPasswordSetup.email";
 import { StudentPasswordResetConfirmEmail } from "@shared/emails/templates/studentPasswordResetConfirm.email";
 
@@ -125,6 +126,12 @@ export interface SendStudentPasswordSetupConfirmParams {
 export interface SendStudentPasswordResetConfirmParams {
   to: string;
   studentName: string;
+}
+
+export interface SendCoachInviteParams {
+  to: string;
+  coachName: string;
+  setupPasswordUrl: string;
 }
 
 @Injectable()
@@ -342,6 +349,21 @@ export class ResendProvider {
       });
     } catch (error) {
       LogBuilderService.log("error", `Failed to send email: ${params.studentName}`, error);
+    }
+  }
+
+  async sendCoachInvite(params: SendCoachInviteParams): Promise<void> {
+    try {
+      await this.sendWithTemplate({
+        to: params.to,
+        subject: "Você foi convidado para o Coach OS",
+        element: React.createElement(CoachInviteEmail, {
+          coachName: params.coachName,
+          setupPasswordUrl: params.setupPasswordUrl,
+        }),
+      });
+    } catch (error) {
+      LogBuilderService.log("error", `Failed to send coach invite email: ${params.to}`, error);
     }
   }
 

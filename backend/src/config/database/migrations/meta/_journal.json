@@ -71,6 +71,13 @@
       "when": 1774149416075,
       "tag": "0009_white_morbius",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774453153289,
+      "tag": "0010_shiny_winter_soldier",
+      "breakpoints": true
     }
   ]
 }

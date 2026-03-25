@@ -47,6 +47,10 @@ export const authService = {
     await api.post("/auth/password-setup", data);
   },
 
+  async acceptCoachInvite(data: { token: string; password: string }): Promise<void> {
+    await api.post("/auth/accept-coach-invite", data);
+  },
+
   async changePassword(data: { currentPassword: string; newPassword: string }): Promise<void> {
     await api.patch("/auth/change-password", data);
   },

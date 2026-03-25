@@ -4,6 +4,7 @@ import type {
   AdminPlan,
   AdminTenantDetail,
   AdminAdmin,
+  InviteCoachRequest,
   WhitelistedCoach,
   ListTenantsResponse,
 } from "../types/admin.types";
@@ -104,5 +105,10 @@ export const adminService = {
 
   async updateTenantStatus(id: string, accessStatus: string): Promise<void> {
     await api.patch(`/admin/tenants/${id}/status`, { accessStatus });
+  },
+
+  async inviteCoach(data: InviteCoachRequest): Promise<{ message: string }> {
+    const res = await api.post<{ message: string }>("/admin/coaches/invite", data);
+    return res.data;
   },
 };

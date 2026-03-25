@@ -58,6 +58,13 @@ export interface WhitelistedCoach {
   isWhitelisted: boolean;
 }
 
+export interface InviteCoachRequest {
+  name: string;
+  email: string;
+  planId: string;
+  isWhitelisted: boolean;
+}
+
 export interface ListTenantsResponse {
   content: AdminTenant[];
   page: number;

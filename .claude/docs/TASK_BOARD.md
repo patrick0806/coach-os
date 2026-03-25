@@ -1,6 +1,6 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-23
+Last updated: 2026-03-25
 
 ---
 
@@ -14,6 +14,21 @@ Last updated: 2026-03-23
 - [x] Modal de exercício: padding/containment do GIF corrigido
 - [x] Modal de seleção de exercícios: overflow corrigido no mobile e na web (badge e footer cortados)
 - [x] Testes comportamentais atualizados: cards mobile em students, botão de ações em exercises
+
+---
+
+## Admin Invite Coach ✅ COMPLETE (2026-03-25)
+
+- [x] Schema `coachInvitationTokens` + migration
+- [x] Repository `CoachInvitationTokensRepository`
+- [x] Backend: `POST /v1/admin/coaches/invite` (admin only)
+- [x] Backend: `POST /v1/auth/accept-coach-invite` (public)
+- [x] Email template `coachInvite.email.tsx` + ResendProvider
+- [x] `getSubscription` response includes `isWhitelisted`
+- [x] Frontend: `InviteCoachDialog` + hook + service
+- [x] Frontend: `/aceitar-convite-coach` page
+- [x] Frontend: `/assinatura` hides billing for whitelisted coaches
+- [x] 15 unit tests (903 total passing)
 
 ---
 

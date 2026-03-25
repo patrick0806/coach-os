@@ -1,17 +1,17 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-23 (post Milestone 16 — Mobile UX)
+Last updated: 2026-03-25 (post Admin Invite Coach feature)
 
 ---
 
 ## Backend Status
 
-All backend modules are **functionally complete** (848 tests passing).
+All backend modules are **functionally complete** (903 tests passing).
 
 | Module | Status | Notes |
 |--------|--------|-------|
-| platform/auth | ok | |
-| platform/admins | minor issues | Remaining: no min password length |
+| platform/auth | ok | +acceptCoachInvite endpoint |
+| platform/admins | ok | +inviteCoach endpoint, coach invitation tokens |
 | platform/subscriptions | minor issues | Remaining: checkout session.url non-null assertion |
 | platform/webhooks | ok | |
 | platform/tenants | ok | |

@@ -7,6 +7,7 @@ import { env } from "@config/env";
 import { ResendProvider } from "@shared/providers/resend.provider";
 import { StripeProvider } from "@shared/providers/stripe.provider";
 import { AdminsRepository } from "@shared/repositories/admins.repository";
+import { CoachInvitationTokensRepository } from "@shared/repositories/coachInvitationTokens.repository";
 import { PasswordTokensRepository } from "@shared/repositories/passwordTokens.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
@@ -27,6 +28,8 @@ import { SetupPasswordController } from "./contexts/setupPassword/setupPassword.
 import { SetupPasswordUseCase } from "./contexts/setupPassword/setupPassword.useCase";
 import { ChangePasswordController } from "./contexts/changePassword/changePassword.controller";
 import { ChangePasswordUseCase } from "./contexts/changePassword/changePassword.useCase";
+import { AcceptCoachInviteController } from "./contexts/acceptCoachInvite/acceptCoachInvite.controller";
+import { AcceptCoachInviteUseCase } from "./contexts/acceptCoachInvite/acceptCoachInvite.useCase";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 
 @Module({
@@ -45,6 +48,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     ResetPasswordController,
     SetupPasswordController,
     ChangePasswordController,
+    AcceptCoachInviteController,
   ],
   providers: [
     JwtStrategy,
@@ -63,6 +67,8 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     ResetPasswordUseCase,
     SetupPasswordUseCase,
     ChangePasswordUseCase,
+    AcceptCoachInviteUseCase,
+    CoachInvitationTokensRepository,
   ],
   exports: [JwtModule, PersonalsRepository],
 })

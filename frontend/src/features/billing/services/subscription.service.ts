@@ -16,6 +16,7 @@ export interface SubscriptionDetails {
   subscriptionExpiresAt: string | null;
   studentsCount: number;
   studentsLimit: number;
+  isWhitelisted: boolean;
 }
 
 export const subscriptionService = {

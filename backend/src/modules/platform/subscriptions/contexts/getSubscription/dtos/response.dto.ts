@@ -14,4 +14,5 @@ export interface GetSubscriptionResponseDTO {
   subscriptionExpiresAt: string | null;
   studentsCount: number;
   studentsLimit: number;
+  isWhitelisted: boolean;
 }

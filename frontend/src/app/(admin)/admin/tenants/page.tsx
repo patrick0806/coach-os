@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { PageHeader } from "@/shared/components/pageHeader";
 import { Input } from "@/shared/ui/input";
@@ -17,6 +18,7 @@ import {
   TableRow,
 } from "@/shared/ui/table";
 import { useAdminTenants } from "@/features/admin/hooks/useAdminTenants";
+import { InviteCoachDialog } from "@/features/admin/components/inviteCoachDialog";
 
 const statusColors: Record<
   string,
@@ -33,6 +35,8 @@ export default function AdminTenantsPage() {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const qc = useQueryClient();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -53,6 +57,18 @@ export default function AdminTenantsPage() {
       <PageHeader
         title="Tenants"
         description="Todos os coaches cadastrados na plataforma."
+        actions={
+          <Button size="sm" onClick={() => setInviteDialogOpen(true)}>
+            <UserPlus className="size-4 mr-2" />
+            Convidar Personal
+          </Button>
+        }
+      />
+
+      <InviteCoachDialog
+        open={inviteDialogOpen}
+        onOpenChange={setInviteDialogOpen}
+        onSuccess={() => qc.invalidateQueries({ queryKey: ["admin", "tenants"] })}
       />
 
       <div className="relative max-w-sm">

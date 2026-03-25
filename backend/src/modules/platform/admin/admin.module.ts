@@ -1,8 +1,10 @@
 import { Module } from "@nestjs/common";
 
 import { AdminsRepository } from "@shared/repositories/admins.repository";
+import { CoachInvitationTokensRepository } from "@shared/repositories/coachInvitationTokens.repository";
 import { PersonalsRepository } from "@shared/repositories/personals.repository";
 import { PlansRepository } from "@shared/repositories/plans.repository";
+import { ResendProvider } from "@shared/providers/resend.provider";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 
@@ -39,6 +41,9 @@ import { GetTenantUseCase } from "./contexts/tenants/getTenant/getTenant.useCase
 import { UpdateTenantStatusController } from "./contexts/tenants/updateTenantStatus/updateTenantStatus.controller";
 import { UpdateTenantStatusUseCase } from "./contexts/tenants/updateTenantStatus/updateTenantStatus.useCase";
 
+import { InviteCoachController } from "./contexts/coaches/inviteCoach/inviteCoach.controller";
+import { InviteCoachUseCase } from "./contexts/coaches/inviteCoach/inviteCoach.useCase";
+
 @Module({
   controllers: [
     GetDashboardStatsController,
@@ -55,6 +60,7 @@ import { UpdateTenantStatusUseCase } from "./contexts/tenants/updateTenantStatus
     ListTenantsController,
     GetTenantController,
     UpdateTenantStatusController,
+    InviteCoachController,
   ],
   providers: [
     AdminsRepository,
@@ -76,6 +82,9 @@ import { UpdateTenantStatusUseCase } from "./contexts/tenants/updateTenantStatus
     ListTenantsUseCase,
     GetTenantUseCase,
     UpdateTenantStatusUseCase,
+    InviteCoachUseCase,
+    CoachInvitationTokensRepository,
+    ResendProvider,
   ],
 })
 export class AdminModule {}

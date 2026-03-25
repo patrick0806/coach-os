@@ -44,6 +44,7 @@ export class GetSubscriptionUseCase {
       subscriptionExpiresAt: personal.subscriptionExpiresAt?.toISOString() ?? null,
       studentsCount,
       studentsLimit: plan?.maxStudents ?? 0,
+      isWhitelisted: personal.isWhitelisted,
     };
   }
 }

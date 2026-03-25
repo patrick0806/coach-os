@@ -4,6 +4,7 @@ export * from "./admins";
 export * from "./personals";
 export * from "./passwordTokens";
 export * from "./studentInvitationTokens";
+export * from "./coachInvitationTokens";
 export * from "./students";
 export * from "./exercises";
 export * from "./coaching";

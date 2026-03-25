@@ -47,6 +47,7 @@ export class PersonalsRepository {
     slug: string;
     accessStatus: "active" | "suspended" | "trialing" | "expired" | "past_due";
     subscriptionPlanId: string;
+    isWhitelisted?: boolean;
     trialStartedAt?: Date;
     trialEndsAt?: Date;
     stripeCustomerId?: string;
