@@ -13,20 +13,13 @@ interface CalendarEventProps {
 }
 
 function getEventStyles(entry: UnifiedCalendarEntry) {
-  if (entry.type === "block") {
-    return "bg-destructive/10 border-destructive text-destructive-foreground"
-  }
-  if (entry.type === "booking") {
-    return "bg-blue-500/15 border-blue-500 text-blue-700 dark:text-blue-300"
-  }
-  // one_off or override
   if (entry.status === "completed") {
     return "bg-muted border-border text-muted-foreground"
   }
   if (entry.status === "cancelled") {
     return "bg-muted/50 border-border text-muted-foreground opacity-50"
   }
-  return "bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300"
+  return "bg-blue-500/15 border-blue-500 text-blue-700 dark:text-blue-300"
 }
 
 function getTimeStr(isoString: string): string {
