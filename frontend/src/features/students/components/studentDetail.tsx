@@ -20,7 +20,7 @@ import { StudentNotes } from "@/features/students/components/studentNotes"
 import { StudentProgramsSection } from "@/features/studentPrograms/components/studentProgramsSection"
 import { StudentContractSection } from "@/features/coachingContracts/components/studentContractSection"
 import { StudentProgressSection } from "@/features/progress/components/studentProgressSection"
-import { StudentScheduleSection } from "@/features/scheduling/components/studentScheduleSection"
+import { StudentRecurringSlotsSection } from "@/features/scheduling/components/studentRecurringSlotsSection"
 import { useStudent } from "@/features/students/hooks/useStudent"
 import { useUpdateStudentStatus } from "@/features/students/hooks/useUpdateStudentStatus"
 import type { StudentStatus } from "@/features/students/types/students.types"
@@ -147,7 +147,7 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
         </TabsContent>
 
         <TabsContent value="agenda" className="mt-4">
-          <StudentScheduleSection studentId={studentId} />
+          <StudentRecurringSlotsSection studentId={studentId} />
         </TabsContent>
       </Tabs>
 

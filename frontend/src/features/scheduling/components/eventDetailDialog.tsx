@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { format, parseISO } from "date-fns"
+import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { MapPin, Video, ExternalLink } from "lucide-react"
 
@@ -14,56 +14,58 @@ import {
   DialogFooter,
 } from "@/shared/ui/dialog"
 import { Badge } from "@/shared/ui/badge"
-import { useCancelAppointment } from "@/features/scheduling/hooks/useCancelAppointment"
-import { useCompleteAppointment } from "@/features/scheduling/hooks/useCompleteAppointment"
-import { RescheduleAppointmentDialog } from "@/features/scheduling/components/rescheduleAppointmentDialog"
-import type { AppointmentItem } from "@/features/scheduling/types/scheduling.types"
+import { useCancelEvent } from "@/features/scheduling/hooks/useCancelEvent"
+import { useCompleteEvent } from "@/features/scheduling/hooks/useCompleteEvent"
+import { RescheduleEventDialog } from "./rescheduleEventDialog"
+import type { UnifiedCalendarEntry } from "@/features/scheduling/types/scheduling.types"
 
-interface AppointmentDetailDialogProps {
+interface EventDetailDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  appointment: AppointmentItem | null
+  entry: UnifiedCalendarEntry | null
 }
 
 const statusLabel: Record<string, string> = {
   scheduled: "Agendado",
-  completed: "Concluído",
+  completed: "Concluido",
   cancelled: "Cancelado",
+  no_show: "Nao compareceu",
 }
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   scheduled: "default",
   completed: "secondary",
   cancelled: "destructive",
+  no_show: "outline",
 }
 
-export function AppointmentDetailDialog({
+export function EventDetailDialog({
   open,
   onOpenChange,
-  appointment,
-}: AppointmentDetailDialogProps) {
+  entry,
+}: EventDetailDialogProps) {
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
-  const cancel = useCancelAppointment({ onSuccess: () => onOpenChange(false) })
-  const complete = useCompleteAppointment({ onSuccess: () => onOpenChange(false) })
+  const cancel = useCancelEvent({ onSuccess: () => onOpenChange(false) })
+  const complete = useCompleteEvent({ onSuccess: () => onOpenChange(false) })
 
-  if (!appointment) return null
+  if (!entry) return null
 
-  const start = parseISO(appointment.startAt)
-  const end = parseISO(appointment.endAt)
+  const start = new Date(entry.startAt)
+  const end = new Date(entry.endAt)
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Detalhes do agendamento</DialogTitle>
+            <DialogTitle>Detalhes do evento</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-medium">{appointment.studentName}</span>
-              <Badge variant={statusVariant[appointment.status] ?? "secondary"}>
-                {statusLabel[appointment.status] ?? appointment.status}
+              <span className="font-medium">{entry.studentName ?? "Evento"}</span>
+              <Badge variant={statusVariant[entry.status] ?? "secondary"}>
+                {statusLabel[entry.status] ?? entry.status}
               </Badge>
             </div>
 
@@ -73,62 +75,63 @@ export function AppointmentDetailDialog({
                 {format(start, "PPP", { locale: ptBR })}
               </p>
               <p>
-                <span className="font-medium text-foreground">Horário:</span>{" "}
+                <span className="font-medium text-foreground">Horario:</span>{" "}
                 {format(start, "HH:mm")} – {format(end, "HH:mm")}
               </p>
-              <p className="flex items-center gap-1">
-                <span className="font-medium text-foreground">Tipo:</span>{" "}
-                {appointment.type === "online" ? (
-                  <>
-                    <Video className="size-3.5" /> Online
-                  </>
-                ) : (
-                  <>
-                    <MapPin className="size-3.5" /> Presencial
-                  </>
-                )}
-              </p>
-              {appointment.location && (
-                <p>
-                  <span className="font-medium text-foreground">Local:</span> {appointment.location}
+              {entry.appointmentType && (
+                <p className="flex items-center gap-1">
+                  <span className="font-medium text-foreground">Tipo:</span>{" "}
+                  {entry.appointmentType === "online" ? (
+                    <>
+                      <Video className="size-3.5" /> Online
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="size-3.5" /> Presencial
+                    </>
+                  )}
                 </p>
               )}
-              {appointment.meetingUrl && (
+              {entry.location && (
+                <p>
+                  <span className="font-medium text-foreground">Local:</span> {entry.location}
+                </p>
+              )}
+              {entry.meetingUrl && (
                 <p>
                   <span className="font-medium text-foreground">Link:</span>{" "}
                   <a
-                    href={appointment.meetingUrl}
+                    href={entry.meetingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary underline-offset-4 hover:underline flex items-center gap-1 inline-flex"
+                    className="text-primary underline-offset-4 hover:underline inline-flex items-center gap-1"
                   >
                     Abrir link <ExternalLink className="size-3" />
                   </a>
                 </p>
               )}
-              {appointment.notes && (
+              {entry.notes && (
                 <p>
-                  <span className="font-medium text-foreground">Observações:</span>{" "}
-                  {appointment.notes}
+                  <span className="font-medium text-foreground">Observacoes:</span>{" "}
+                  {entry.notes}
                 </p>
               )}
             </div>
           </div>
 
-          {appointment.status === "scheduled" && (
+          {entry.status === "scheduled" && (
             <DialogFooter className="gap-2">
               <Button
                 variant="outline"
-                onClick={() => cancel.mutate(appointment.id)}
+                onClick={() => cancel.mutate({ id: entry.id })}
                 disabled={cancel.isPending || complete.isPending}
               >
-                {cancel.isPending ? "Cancelando..." : "Cancelar sessão"}
+                {cancel.isPending ? "Cancelando..." : "Cancelar sessao"}
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => {
                   onOpenChange(false)
-                  // Delay opening the reschedule dialog until detail dialog closes
                   setTimeout(() => setRescheduleOpen(true), 150)
                 }}
                 disabled={cancel.isPending || complete.isPending}
@@ -137,20 +140,20 @@ export function AppointmentDetailDialog({
                 Reagendar
               </Button>
               <Button
-                onClick={() => complete.mutate(appointment.id)}
+                onClick={() => complete.mutate(entry.id)}
                 disabled={cancel.isPending || complete.isPending}
               >
-                {complete.isPending ? "Concluindo..." : "Marcar como concluído"}
+                {complete.isPending ? "Concluindo..." : "Marcar como concluido"}
               </Button>
             </DialogFooter>
           )}
         </DialogContent>
       </Dialog>
 
-      <RescheduleAppointmentDialog
+      <RescheduleEventDialog
         open={rescheduleOpen}
         onOpenChange={setRescheduleOpen}
-        appointment={appointment}
+        entry={entry}
       />
     </>
   )

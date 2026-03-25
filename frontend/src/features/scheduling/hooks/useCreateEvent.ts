@@ -8,30 +8,28 @@ import { toast } from "sonner"
 import { schedulingService } from "@/features/scheduling/services/scheduling.service"
 import type {
   ConflictDetail,
-  RescheduleTrainingRequest,
+  CreateEventRequest,
 } from "@/features/scheduling/types/scheduling.types"
 
-interface UseRescheduleTrainingOptions {
-  onSuccess?: () => void
+interface UseCreateEventOptions {
+  onOpenChange?: (open: boolean) => void
 }
 
-export function useRescheduleTraining({
-  onSuccess,
-}: UseRescheduleTrainingOptions = {}) {
+export function useCreateEvent({ onOpenChange }: UseCreateEventOptions = {}) {
   const queryClient = useQueryClient()
-  const [pendingData, setPendingData] =
-    useState<{ scheduleId: string; data: RescheduleTrainingRequest } | null>(null)
+  const [pendingConflictData, setPendingConflictData] =
+    useState<CreateEventRequest | null>(null)
   const [conflicts, setConflicts] = useState<ConflictDetail[]>([])
 
   const mutation = useMutation({
-    mutationFn: ({ scheduleId, data }: { scheduleId: string; data: RescheduleTrainingRequest }) =>
-      schedulingService.rescheduleTrainingOccurrence(scheduleId, data),
+    mutationFn: (data: CreateEventRequest) => schedulingService.createEvent(data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["calendar"] })
-      toast.success("Treino reagendado com sucesso!")
-      setPendingData(null)
+      await queryClient.invalidateQueries({ queryKey: ["availability"] })
+      toast.success("Evento criado com sucesso!")
+      onOpenChange?.(false)
+      setPendingConflictData(null)
       setConflicts([])
-      onSuccess?.()
     },
     onError: (error: unknown) => {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -49,28 +47,25 @@ export function useRescheduleTraining({
     },
   })
 
-  function rescheduleWithConflictCheck(scheduleId: string, data: RescheduleTrainingRequest) {
-    setPendingData({ scheduleId, data })
-    mutation.mutate({ scheduleId, data })
+  function createWithConflictCheck(data: CreateEventRequest) {
+    setPendingConflictData(data)
+    mutation.mutate(data)
   }
 
-  function forceReschedule() {
-    if (!pendingData) return
-    mutation.mutate({
-      scheduleId: pendingData.scheduleId,
-      data: { ...pendingData.data, forceCreate: true },
-    })
+  function forceCreate() {
+    if (!pendingConflictData) return
+    mutation.mutate({ ...pendingConflictData, forceCreate: true })
   }
 
   function clearConflicts() {
     setConflicts([])
-    setPendingData(null)
+    setPendingConflictData(null)
   }
 
   return {
     ...mutation,
-    rescheduleWithConflictCheck,
-    forceReschedule,
+    createWithConflictCheck,
+    forceCreate,
     conflicts,
     hasConflicts: conflicts.length > 0,
     clearConflicts,

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { format } from "date-fns"
 import { Plus, Trash2, ChevronRight, ChevronLeft } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
@@ -24,7 +25,7 @@ import {
 import { TimeSelect } from "@/shared/ui/time-select"
 import { cn } from "@/lib/utils"
 import { schedulingService } from "@/features/scheduling/services/scheduling.service"
-import { useAvailabilityRules } from "@/features/scheduling/hooks/useAvailabilityRules"
+import { useWorkingHours } from "@/features/scheduling/hooks/useWorkingHours"
 import { DAY_OF_WEEK_SHORT } from "@/features/scheduling/types/scheduling.types"
 
 interface Break {
@@ -52,7 +53,6 @@ function minutesToTime(minutes: number): string {
 function generatePeriods(start: string, end: string, breaks: Break[]): GeneratedPeriod[] {
   const startMin = timeToMinutes(start)
   const endMin = timeToMinutes(end)
-
   if (endMin <= startMin) return []
 
   const validBreaks = breaks
@@ -69,18 +69,11 @@ function generatePeriods(start: string, end: string, breaks: Break[]): Generated
 
   const periods: GeneratedPeriod[] = []
   let cursor = startMin
-
   for (const br of validBreaks) {
-    if (br.start > cursor) {
-      periods.push({ start: minutesToTime(cursor), end: minutesToTime(br.start) })
-    }
+    if (br.start > cursor) periods.push({ start: minutesToTime(cursor), end: minutesToTime(br.start) })
     cursor = Math.max(cursor, br.end)
   }
-
-  if (cursor < endMin) {
-    periods.push({ start: minutesToTime(cursor), end: minutesToTime(endMin) })
-  }
-
+  if (cursor < endMin) periods.push({ start: minutesToTime(cursor), end: minutesToTime(endMin) })
   return periods
 }
 
@@ -97,24 +90,22 @@ function splitPeriodsIntoSlots(periods: GeneratedPeriod[], durationMin: number):
   return slots
 }
 
-type SlotClassification = "available" | "conflict_rule"
-
 interface ClassifiedSlot {
   dayOfWeek: number
   start: string
   end: string
-  status: SlotClassification
+  status: "available" | "conflict_rule"
   reason?: string
 }
 
-interface AvailabilityWizardProps {
+interface WorkingHoursWizardProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardProps) {
+export function WorkingHoursWizard({ open, onOpenChange }: WorkingHoursWizardProps) {
   const queryClient = useQueryClient()
-  const { data: existingRules = [] } = useAvailabilityRules()
+  const { data: existingWH = [] } = useWorkingHours()
 
   const [step, setStep] = useState(1)
   const [selectedDays, setSelectedDays] = useState<number[]>([])
@@ -127,24 +118,23 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
   const periods = generatePeriods(periodStart, periodEnd, breaks)
   const slots = splitPeriodsIntoSlots(periods, slotDuration)
 
-  // Classify slots against existing rules
   const classifiedSlots: ClassifiedSlot[] = selectedDays.flatMap((day) =>
     slots.map((slot) => {
       const slotStart = timeToMinutes(slot.start)
       const slotEnd = timeToMinutes(slot.end)
-      const conflictRule = existingRules.find((r) => {
-        if (r.dayOfWeek !== day) return false
-        const rStart = timeToMinutes(r.startTime)
-        const rEnd = timeToMinutes(r.endTime)
+      const conflict = existingWH.find((wh) => {
+        if (wh.dayOfWeek !== day || !wh.isActive) return false
+        const rStart = timeToMinutes(wh.startTime)
+        const rEnd = timeToMinutes(wh.endTime)
         return slotStart < rEnd && slotEnd > rStart
       })
-      if (conflictRule) {
+      if (conflict) {
         return {
           dayOfWeek: day,
           start: slot.start,
           end: slot.end,
           status: "conflict_rule" as const,
-          reason: `Conflita com ${conflictRule.startTime}–${conflictRule.endTime}`,
+          reason: `Conflita com ${conflict.startTime}–${conflict.endTime}`,
         }
       }
       return { dayOfWeek: day, start: slot.start, end: slot.end, status: "available" as const }
@@ -154,7 +144,7 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
   const availableSlots = classifiedSlots.filter((s) => s.status === "available")
   const conflictSlots = classifiedSlots.filter((s) => s.status !== "available")
 
-  function reset() {
+  function resetWizard() {
     setStep(1)
     setSelectedDays([])
     setPeriodStart("08:00")
@@ -165,7 +155,7 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
   }
 
   function handleClose(v: boolean) {
-    if (!v) reset()
+    if (!v) resetWizard()
     onOpenChange(v)
   }
 
@@ -176,10 +166,7 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
   }
 
   function addBreak() {
-    setBreaks((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), start: "12:00", end: "13:00" },
-    ])
+    setBreaks((prev) => [...prev, { id: crypto.randomUUID(), start: "12:00", end: "13:00" }])
   }
 
   function removeBreak(id: string) {
@@ -194,32 +181,40 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
     if (availableSlots.length === 0) return
     setIsSubmitting(true)
 
-    const { created, conflicts } = await schedulingService.bulkCreateAvailabilityRules({
-      rules: availableSlots.map((slot) => ({
+    try {
+      const today = format(new Date(), "yyyy-MM-dd")
+      const items = availableSlots.map((slot) => ({
         dayOfWeek: slot.dayOfWeek,
         startTime: slot.start,
         endTime: slot.end,
-      })),
-    })
+        effectiveFrom: today,
+      }))
 
-    await queryClient.invalidateQueries({ queryKey: ["availability-rules"] })
-    await queryClient.invalidateQueries({ queryKey: ["calendar"] })
+      const result = await schedulingService.bulkCreateWorkingHours(items)
 
-    setIsSubmitting(false)
-    handleClose(false)
+      await queryClient.invalidateQueries({ queryKey: ["working-hours"] })
+      await queryClient.invalidateQueries({ queryKey: ["calendar"] })
+      await queryClient.invalidateQueries({ queryKey: ["availability"] })
 
-    const succeeded = created.length
-    if (conflicts === 0) {
-      toast.success(`${succeeded} ${succeeded === 1 ? "regra criada" : "regras criadas"} com sucesso!`)
-    } else {
-      toast.warning(`${succeeded} criadas, ${conflicts} conflitos ignorados.`)
+      handleClose(false)
+
+      const created = result.created.length
+      const errors = result.errors.length
+
+      if (errors === 0) {
+        toast.success(`${created} ${created === 1 ? "horario criado" : "horarios criados"} com sucesso!`)
+      } else {
+        toast.warning(`${created} criados, ${errors} com erro.`)
+      }
+    } catch {
+      toast.error("Erro ao criar horarios.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const step1Valid = selectedDays.length > 0
   const step2Valid = slots.length > 0
-
-  // Day order: Mon–Sun for display (1..6, then 0)
   const displayOrder = [1, 2, 3, 4, 5, 6, 0]
 
   return (
@@ -229,7 +224,6 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
           <DialogTitle>Configurar disponibilidade em lote</DialogTitle>
         </DialogHeader>
 
-        {/* Step indicator */}
         <div className="flex items-center gap-2 text-sm mb-2">
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2">
@@ -250,12 +244,11 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
           ))}
           <span className="ml-1 text-muted-foreground">
             {step === 1 && "Dias da semana"}
-            {step === 2 && "Horários e pausas"}
+            {step === 2 && "Horarios e pausas"}
             {step === 3 && "Confirmar"}
           </span>
         </div>
 
-        {/* Step 1 — Day selection */}
         {step === 1 && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
@@ -287,21 +280,19 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
           </div>
         )}
 
-        {/* Step 2 — Hours + breaks */}
         {step === 2 && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Início do período</Label>
+                <Label>Inicio do periodo</Label>
                 <TimeSelect value={periodStart} onChange={setPeriodStart} />
               </div>
               <div className="space-y-1.5">
-                <Label>Fim do período</Label>
+                <Label>Fim do periodo</Label>
                 <TimeSelect value={periodEnd} onChange={setPeriodEnd} />
               </div>
             </div>
 
-            {/* Breaks */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Pausas</Label>
@@ -310,7 +301,6 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
                   Adicionar pausa
                 </Button>
               </div>
-
               {breaks.map((br) => (
                 <div key={br.id} className="flex items-center gap-2">
                   <div className="grid grid-cols-2 gap-2 flex-1">
@@ -330,27 +320,20 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
               ))}
             </div>
 
-            {/* Slot duration */}
             <div className="space-y-1.5">
-              <Label className="text-sm">Duração do slot</Label>
-              <Select
-                value={String(slotDuration)}
-                onValueChange={(v) => setSlotDuration(Number(v))}
-              >
+              <Label className="text-sm">Duracao do slot</Label>
+              <Select value={String(slotDuration)} onValueChange={(v) => setSlotDuration(Number(v))}>
                 <SelectTrigger data-testid="slot-duration-select">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {[30, 45, 60, 90, 120].map((d) => (
-                    <SelectItem key={d} value={String(d)}>
-                      {d} minutos
-                    </SelectItem>
+                    <SelectItem key={d} value={String(d)}>{d} minutos</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Preview */}
             {slots.length > 0 && (
               <div className="space-y-1.5">
                 <Label className="text-sm text-muted-foreground">Slots resultantes</Label>
@@ -366,36 +349,23 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
                 </div>
               </div>
             )}
-
-            {periods.length > 0 && slots.length === 0 && (
-              <p className="text-xs text-destructive">
-                O período não comporta nenhum slot de {slotDuration} minutos.
-              </p>
-            )}
-
-            {periods.length === 0 && (
-              <p className="text-xs text-destructive">
-                O período definido não gera nenhum intervalo válido.
-              </p>
-            )}
           </div>
         )}
 
-        {/* Step 3 — Confirmation with conflict pre-check */}
         {step === 3 && (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
               {availableSlots.length > 0 ? (
                 <>
                   <span className="font-medium text-foreground">{availableSlots.length}</span>
-                  {" "}{availableSlots.length === 1 ? "slot será criado" : "slots serão criados"}
+                  {" "}{availableSlots.length === 1 ? "slot sera criado" : "slots serao criados"}
                   {conflictSlots.length > 0 && (
                     <>, <span className="font-medium text-amber-600 dark:text-amber-400">{conflictSlots.length}</span>
-                      {" "}{conflictSlots.length === 1 ? "ignorado por conflito" : "ignorados por conflito"}(Já existem na agenda de treinos)</>
+                      {" "}{conflictSlots.length === 1 ? "ignorado por conflito" : "ignorados por conflito"}</>
                   )}
                 </>
               ) : (
-                <span className="text-destructive">Todos os slots possuem conflitos. Nenhum será criado.</span>
+                <span className="text-destructive">Todos os slots possuem conflitos.</span>
               )}
             </p>
             <div className="rounded-lg border border-border overflow-hidden max-h-60 overflow-y-auto">
@@ -450,13 +420,8 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
             disabled={isSubmitting}
           >
             {step > 1 ? (
-              <>
-                <ChevronLeft className="size-4 mr-1" />
-                Voltar
-              </>
-            ) : (
-              "Cancelar"
-            )}
+              <><ChevronLeft className="size-4 mr-1" /> Voltar</>
+            ) : "Cancelar"}
           </Button>
 
           {step < 3 ? (
@@ -466,7 +431,7 @@ export function AvailabilityWizard({ open, onOpenChange }: AvailabilityWizardPro
               disabled={(step === 1 && !step1Valid) || (step === 2 && !step2Valid)}
               data-testid="wizard-next-btn"
             >
-              Próximo
+              Proximo
               <ChevronRight className="size-4 ml-1" />
             </Button>
           ) : (

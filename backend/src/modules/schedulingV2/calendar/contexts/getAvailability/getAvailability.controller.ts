@@ -10,11 +10,11 @@ import { GetAvailabilityUseCase } from "./getAvailability.useCase";
 
 @ApiTags(API_TAGS.CALENDAR)
 @Roles(ApplicationRoles.PERSONAL)
-@Controller({ version: "1", path: "availability" })
+@Controller({ version: "2", path: "availability" })
 export class GetAvailabilityController {
   constructor(
     private readonly getAvailabilityUseCase: GetAvailabilityUseCase,
-  ) {}
+  ) { }
 
   @ApiOperation({ summary: "Get available time slots for a date range" })
   @ApiOkResponse({ description: "Available time slots" })

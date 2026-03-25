@@ -5,8 +5,8 @@ import { Wand2 } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/components/pageHeader"
-import { AvailabilitySection } from "@/features/scheduling/components/availabilitySection"
-import { AvailabilityWizard } from "@/features/scheduling/components/availabilityWizard"
+import { WorkingHoursSection } from "@/features/scheduling/components/workingHoursSection"
+import { WorkingHoursWizard } from "@/features/scheduling/components/workingHoursWizard"
 import { PageTourInitializer } from "@/features/onboarding/components/pageTourInitializer"
 import { startAvailabilityTour } from "@/features/onboarding/tours/availability.tour"
 
@@ -19,7 +19,7 @@ export default function DisponibilidadePage() {
 
       <PageHeader
         title="Disponibilidade"
-        description="Configure seus horários de atendimento e bloqueie datas indisponíveis."
+        description="Configure seus horarios de atendimento."
         actions={
           <Button variant="outline" onClick={() => setWizardOpen(true)} data-testid="open-wizard-btn">
             <Wand2 className="size-4 mr-2" />
@@ -28,9 +28,9 @@ export default function DisponibilidadePage() {
         }
       />
 
-      <AvailabilitySection />
+      <WorkingHoursSection />
 
-      <AvailabilityWizard open={wizardOpen} onOpenChange={setWizardOpen} />
+      <WorkingHoursWizard open={wizardOpen} onOpenChange={setWizardOpen} />
     </div>
   )
 }

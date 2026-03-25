@@ -5,21 +5,20 @@ import axios from "axios"
 import { toast } from "sonner"
 
 import { schedulingService } from "@/features/scheduling/services/scheduling.service"
-import type { SkipTrainingRequest } from "@/features/scheduling/types/scheduling.types"
 
-interface UseSkipTrainingOptions {
+interface UseCompleteEventOptions {
   onSuccess?: () => void
 }
 
-export function useSkipTraining({ onSuccess }: UseSkipTrainingOptions = {}) {
+export function useCompleteEvent({ onSuccess }: UseCompleteEventOptions = {}) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ scheduleId, data }: { scheduleId: string; data: SkipTrainingRequest }) =>
-      schedulingService.skipTrainingOccurrence(scheduleId, data),
+    mutationFn: (id: string) => schedulingService.completeEvent(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["calendar"] })
-      toast.success("Treino pulado com sucesso!")
+      await queryClient.invalidateQueries({ queryKey: ["availability"] })
+      toast.success("Evento concluido com sucesso!")
       onSuccess?.()
     },
     onError: (error: unknown) => {

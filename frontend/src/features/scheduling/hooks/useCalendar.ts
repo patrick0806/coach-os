@@ -14,3 +14,13 @@ export function useCalendar(startDate: Date, endDate: Date) {
     queryFn: () => schedulingService.getCalendar(start, end),
   })
 }
+
+export function useAvailability(startDate: Date, endDate: Date) {
+  const start = format(startDate, "yyyy-MM-dd")
+  const end = format(endDate, "yyyy-MM-dd")
+
+  return useQuery({
+    queryKey: ["availability", start, end],
+    queryFn: () => schedulingService.getAvailability(start, end),
+  })
+}

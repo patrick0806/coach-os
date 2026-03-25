@@ -8,33 +8,29 @@ import { toast } from "sonner"
 import { schedulingService } from "@/features/scheduling/services/scheduling.service"
 import type {
   ConflictDetail,
-  CreateAppointmentRequest,
+  UpdateEventRequest,
 } from "@/features/scheduling/types/scheduling.types"
 
-interface UseCreateAppointmentOptions {
-  onOpenChange?: (open: boolean) => void
-  onConflicts?: (conflicts: ConflictDetail[], pendingData: CreateAppointmentRequest) => void
+interface UseUpdateEventOptions {
+  onSuccess?: () => void
 }
 
-export function useCreateAppointment({
-  onOpenChange,
-  onConflicts,
-}: UseCreateAppointmentOptions = {}) {
+export function useUpdateEvent({ onSuccess }: UseUpdateEventOptions = {}) {
   const queryClient = useQueryClient()
-  const [pendingConflictData, setPendingConflictData] =
-    useState<CreateAppointmentRequest | null>(null)
+  const [pendingData, setPendingData] =
+    useState<{ id: string; data: UpdateEventRequest } | null>(null)
   const [conflicts, setConflicts] = useState<ConflictDetail[]>([])
 
   const mutation = useMutation({
-    mutationFn: (data: CreateAppointmentRequest) =>
-      schedulingService.createAppointment(data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateEventRequest }) =>
+      schedulingService.updateEvent(id, data),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["calendar"] })
-      await queryClient.invalidateQueries({ queryKey: ["appointments"] })
-      toast.success("Agendamento criado com sucesso!")
-      onOpenChange?.(false)
-      setPendingConflictData(null)
+      await queryClient.invalidateQueries({ queryKey: ["availability"] })
+      toast.success("Evento atualizado com sucesso!")
+      setPendingData(null)
       setConflicts([])
+      onSuccess?.()
     },
     onError: (error: unknown) => {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
@@ -52,28 +48,30 @@ export function useCreateAppointment({
     },
   })
 
-  function createWithConflictCheck(data: CreateAppointmentRequest) {
-    setPendingConflictData(data)
-    mutation.mutate(data)
+  function updateWithConflictCheck(id: string, data: UpdateEventRequest) {
+    setPendingData({ id, data })
+    mutation.mutate({ id, data })
   }
 
-  function forceCreate() {
-    if (!pendingConflictData) return
-    mutation.mutate({ ...pendingConflictData, forceCreate: true })
+  function forceUpdate() {
+    if (!pendingData) return
+    mutation.mutate({
+      id: pendingData.id,
+      data: { ...pendingData.data, forceCreate: true },
+    })
   }
 
   function clearConflicts() {
     setConflicts([])
-    setPendingConflictData(null)
+    setPendingData(null)
   }
 
   return {
     ...mutation,
-    createWithConflictCheck,
-    forceCreate,
+    updateWithConflictCheck,
+    forceUpdate,
     conflicts,
     hasConflicts: conflicts.length > 0,
     clearConflicts,
-    onConflicts,
   }
 }

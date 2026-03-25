@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
     return isDev ? [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+        destination: `http://localhost:3333/:path*`,
       },
     ] : [];
   },

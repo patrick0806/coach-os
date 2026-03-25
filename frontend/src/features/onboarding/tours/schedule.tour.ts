@@ -34,15 +34,6 @@ export function startScheduleTour() {
           side: 'left',
         },
       },
-      {
-        element: '[data-tour="pending-requests-btn"]',
-        popover: {
-          title: '🔔 Solicitações Pendentes',
-          description:
-            'Alunos podem solicitar horários. Revise aqui as solicitações pendentes para aprovar ou recusar.',
-          side: 'left',
-        },
-      },
     ],
   })
 

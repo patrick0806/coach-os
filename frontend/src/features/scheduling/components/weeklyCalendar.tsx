@@ -18,29 +18,44 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/shared/ui/button"
 import { cn } from "@/lib/utils"
 import { CalendarDayColumn, HOUR_START, HOUR_END, HOUR_HEIGHT_PX } from "./calendarDayColumn"
-import { AppointmentDetailDialog } from "./appointmentDetailDialog"
-import { TrainingScheduleDetailDialog } from "./trainingScheduleDetailDialog"
+import { EventDetailDialog } from "./eventDetailDialog"
+import { RecurringSlotDetailDialog } from "./recurringSlotDetailDialog"
 import { useCalendar } from "@/features/scheduling/hooks/useCalendar"
-import { useAppointments } from "@/features/scheduling/hooks/useAppointments"
-import type { AvailabilityRuleItem, CalendarEntry, AppointmentItem } from "@/features/scheduling/types/scheduling.types"
+import { useWorkingHours } from "@/features/scheduling/hooks/useWorkingHours"
+import type { UnifiedCalendarEntry, WorkingHoursItem } from "@/features/scheduling/types/scheduling.types"
 
 const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i)
 
 interface WeeklyCalendarProps {
   onSlotClick?: (date: string, time: string) => void
-  availabilityRules?: AvailabilityRuleItem[]
-  exceptionDates?: string[]
 }
 
-export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionDates = [] }: WeeklyCalendarProps) {
+function getDateStr(isoString: string): string {
+  const d = new Date(isoString)
+  const y = d.getUTCFullYear()
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0")
+  const day = String(d.getUTCDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+
+function getWorkingHoursForDay(workingHours: WorkingHoursItem[], dayOfWeek: number, dateStr: string): WorkingHoursItem[] {
+  return workingHours.filter((wh) => {
+    if (wh.dayOfWeek !== dayOfWeek || !wh.isActive) return false
+    if (wh.effectiveFrom > dateStr) return false
+    if (wh.effectiveTo && wh.effectiveTo < dateStr) return false
+    return true
+  })
+}
+
+export function WeeklyCalendar({ onSlotClick }: WeeklyCalendarProps) {
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   )
   const [mobileDay, setMobileDay] = useState(() => new Date())
-  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentItem | null>(null)
-  const [detailOpen, setDetailOpen] = useState(false)
-  const [selectedTraining, setSelectedTraining] = useState<CalendarEntry | null>(null)
-  const [trainingDetailOpen, setTrainingDetailOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<UnifiedCalendarEntry | null>(null)
+  const [eventDetailOpen, setEventDetailOpen] = useState(false)
+  const [selectedSlot, setSelectedSlot] = useState<UnifiedCalendarEntry | null>(null)
+  const [slotDetailOpen, setSlotDetailOpen] = useState(false)
 
   const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn: 1 })
   const days = eachDayOfInterval({ start: currentWeekStart, end: weekEnd })
@@ -48,7 +63,7 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
   const mobileDayEnd = addDays(mobileDay, 1)
   const { data: calendarEntries = [], isLoading } = useCalendar(currentWeekStart, weekEnd)
   const { data: mobileEntries = [], isLoading: mobileLoading } = useCalendar(mobileDay, mobileDayEnd)
-  const { data: appointmentsData } = useAppointments({ size: 100 })
+  const { data: workingHours = [] } = useWorkingHours()
 
   function goToPrevWeek() { setCurrentWeekStart((w) => subWeeks(w, 1)) }
   function goToNextWeek() { setCurrentWeekStart((w) => addWeeks(w, 1)) }
@@ -59,52 +74,44 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
   function goToPrevDay() { setMobileDay((d) => subDays(d, 1)) }
   function goToNextDay() { setMobileDay((d) => addDays(d, 1)) }
 
-  function getEntriesForDay(day: Date): CalendarEntry[] {
+  function getEntriesForDay(day: Date): UnifiedCalendarEntry[] {
     const dayStr = format(day, "yyyy-MM-dd")
-    return calendarEntries.filter((e) => e.date === dayStr)
+    return calendarEntries.filter((e) => getDateStr(e.startAt) === dayStr)
   }
 
-  function getMobileEntriesForDay(): CalendarEntry[] {
+  function getMobileEntriesForDay(): UnifiedCalendarEntry[] {
     const dayStr = format(mobileDay, "yyyy-MM-dd")
-    return mobileEntries.filter((e) => e.date === dayStr)
+    return mobileEntries.filter((e) => getDateStr(e.startAt) === dayStr)
   }
 
-  function handleEventClick(entry: CalendarEntry) {
-    if (entry.type === "appointment") {
-      const appointment = appointmentsData?.content.find((a) => a.id === entry.sourceId)
-      if (appointment) {
-        setSelectedAppointment(appointment)
-        setDetailOpen(true)
-      }
-    } else if (entry.type === "training_schedule") {
-      setSelectedTraining(entry)
-      setTrainingDetailOpen(true)
+  function handleEventClick(entry: UnifiedCalendarEntry) {
+    if (entry.source === "recurring_slot") {
+      setSelectedSlot(entry)
+      setSlotDetailOpen(true)
+    } else {
+      setSelectedEvent(entry)
+      setEventDetailOpen(true)
     }
   }
 
   const weekLabel = `${format(currentWeekStart, "d MMM", { locale: ptBR })} – ${format(weekEnd, "d MMM yyyy", { locale: ptBR })}`
   const mobileDayLabel = format(mobileDay, "EEEE, d 'de' MMMM", { locale: ptBR })
-
   const mobileDayStr = format(mobileDay, "yyyy-MM-dd")
   const mobileDayOfWeek = mobileDay.getDay()
-  const mobileRules = availabilityRules.filter((r) => r.dayOfWeek === mobileDayOfWeek && r.isActive)
-  const isMobileExceptionDay = exceptionDates.includes(mobileDayStr)
+  const mobileWH = getWorkingHoursForDay(workingHours, mobileDayOfWeek, mobileDayStr)
 
-  // Count scheduled appointments this week for the badge
-  const weekAppointmentCount = calendarEntries.filter(
-    (e) => e.type === "appointment" && e.status !== "cancelled"
+  const weekEventCount = calendarEntries.filter(
+    (e) => (e.type === "one_off" || e.type === "booking") && e.status !== "cancelled"
   ).length
 
-  // Count scheduled mobile-day appointments
-  const mobileDayAppointmentCount = getMobileEntriesForDay().filter(
-    (e) => e.type === "appointment" && e.status !== "cancelled"
+  const mobileDayEventCount = getMobileEntriesForDay().filter(
+    (e) => (e.type === "one_off" || e.type === "booking") && e.status !== "cancelled"
   ).length
 
   return (
     <>
-      {/* ── MOBILE VIEW ── */}
+      {/* MOBILE VIEW */}
       <div className="sm:hidden overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xl">
-        {/* Header with day navigation */}
         <div className="flex items-center justify-between border-b border-border/60 bg-primary/5 px-4 py-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
@@ -114,10 +121,10 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
             <p className="text-sm font-semibold capitalize truncate">{mobileDayLabel}</p>
           </div>
           <div className="flex items-center gap-1 shrink-0 ml-2">
-            {mobileDayAppointmentCount > 0 && (
+            {mobileDayEventCount > 0 && (
               <div className="flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 mr-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                <span className="text-[10px] font-medium text-primary">{mobileDayAppointmentCount}</span>
+                <span className="text-[10px] font-medium text-primary">{mobileDayEventCount}</span>
               </div>
             )}
             <Button variant="ghost" size="icon" onClick={goToPrevDay} className="size-8">
@@ -132,17 +139,8 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
           </div>
         </div>
 
-        {/* Exception indicator */}
-        {isMobileExceptionDay && (
-          <div className="flex items-center gap-2 border-b border-destructive/20 bg-destructive/5 px-4 py-2">
-            <span className="text-xs font-medium text-destructive">Dia bloqueado</span>
-          </div>
-        )}
-
-        {/* Time grid */}
         <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 260px)" }}>
           <div className="grid grid-cols-[44px_1fr]">
-            {/* Time labels */}
             <div>
               {HOURS.map((h) => (
                 <div
@@ -154,7 +152,6 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
                 </div>
               ))}
             </div>
-            {/* Day column */}
             <div className="border-l border-border/30 relative">
               {HOURS.map((h) => (
                 <div
@@ -169,9 +166,8 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
               <div className="absolute inset-0 pointer-events-none">
                 <div className="pointer-events-auto">
                   <CalendarDayColumn
-                    entries={getMobileEntriesForDay().filter((e) => e.startTime && e.endTime)}
-                    availabilityRules={mobileRules}
-                    isExceptionDay={isMobileExceptionDay}
+                    entries={getMobileEntriesForDay()}
+                    workingHours={mobileWH}
                     onEventClick={handleEventClick}
                   />
                 </div>
@@ -181,9 +177,8 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
         </div>
       </div>
 
-      {/* ── DESKTOP VIEW (weekly) ── */}
+      {/* DESKTOP VIEW */}
       <div className="hidden sm:block overflow-hidden rounded-2xl border border-border/60 bg-card shadow-xl">
-        {/* Header with week navigation */}
         <div className="flex items-center justify-between border-b border-border/60 bg-primary/5 px-4 py-3">
           <div>
             <div className="flex items-center gap-2">
@@ -193,11 +188,11 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
             <p className="text-sm font-semibold capitalize">{weekLabel}</p>
           </div>
           <div className="flex items-center gap-1.5">
-            {weekAppointmentCount > 0 && (
+            {weekEventCount > 0 && (
               <div className="flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-1 mr-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 <span className="text-xs font-medium text-primary">
-                  {weekAppointmentCount} aula{weekAppointmentCount !== 1 ? "s" : ""}
+                  {weekEventCount} aula{weekEventCount !== 1 ? "s" : ""}
                 </span>
               </div>
             )}
@@ -213,7 +208,6 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
           </div>
         </div>
 
-        {/* Day headers */}
         <div className="grid grid-cols-[48px_repeat(7,1fr)] border-b border-border/60 bg-muted/30">
           <div className="p-2" />
           {days.map((day) => (
@@ -240,10 +234,8 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
           ))}
         </div>
 
-        {/* Time grid */}
         <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
           <div className="grid grid-cols-[48px_repeat(7,1fr)]">
-            {/* Time labels */}
             <div>
               {HOURS.map((h) => (
                 <div
@@ -256,13 +248,11 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
               ))}
             </div>
 
-            {/* Day columns */}
             {days.map((day) => {
               const entries = getEntriesForDay(day)
               const dayStr = format(day, "yyyy-MM-dd")
               const dayOfWeek = day.getDay()
-              const rulesForDay = availabilityRules.filter((r) => r.dayOfWeek === dayOfWeek && r.isActive)
-              const isExceptionDay = exceptionDates.includes(dayStr)
+              const dayWH = getWorkingHoursForDay(workingHours, dayOfWeek, dayStr)
               return (
                 <div
                   key={day.toISOString()}
@@ -281,9 +271,8 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
                   <div className="absolute inset-0 pointer-events-none">
                     <div className="pointer-events-auto">
                       <CalendarDayColumn
-                        entries={entries.filter((e) => e.startTime && e.endTime)}
-                        availabilityRules={rulesForDay}
-                        isExceptionDay={isExceptionDay}
+                        entries={entries}
+                        workingHours={dayWH}
                         onEventClick={handleEventClick}
                       />
                     </div>
@@ -295,16 +284,16 @@ export function WeeklyCalendar({ onSlotClick, availabilityRules = [], exceptionD
         </div>
       </div>
 
-      <AppointmentDetailDialog
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        appointment={selectedAppointment}
+      <EventDetailDialog
+        open={eventDetailOpen}
+        onOpenChange={setEventDetailOpen}
+        entry={selectedEvent}
       />
 
-      <TrainingScheduleDetailDialog
-        open={trainingDetailOpen}
-        onOpenChange={setTrainingDetailOpen}
-        entry={selectedTraining}
+      <RecurringSlotDetailDialog
+        open={slotDetailOpen}
+        onOpenChange={setSlotDetailOpen}
+        entry={selectedSlot}
       />
     </>
   )

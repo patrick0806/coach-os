@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { format } from "date-fns"
 
 import { Button } from "@/shared/ui/button"
 import {
@@ -23,34 +24,33 @@ import {
 } from "@/shared/ui/select"
 import { TimeSelect } from "@/shared/ui/time-select"
 import { DAY_OF_WEEK_LABELS } from "@/features/scheduling/types/scheduling.types"
-import { useCreateAvailabilityRule } from "@/features/scheduling/hooks/useCreateAvailabilityRule"
-import { useUpdateAvailabilityRule } from "@/features/scheduling/hooks/useUpdateAvailabilityRule"
-import type { AvailabilityRuleItem } from "@/features/scheduling/types/scheduling.types"
+import { useCreateWorkingHours, useUpdateWorkingHours } from "@/features/scheduling/hooks/useWorkingHours"
+import type { WorkingHoursItem } from "@/features/scheduling/types/scheduling.types"
 
 const schema = z.object({
   dayOfWeek: z.number().min(0).max(6),
-  startTime: z.string().min(1, "Horário de início obrigatório"),
-  endTime: z.string().min(1, "Horário de término obrigatório"),
+  startTime: z.string().min(1, "Horario de inicio obrigatorio"),
+  endTime: z.string().min(1, "Horario de termino obrigatorio"),
 })
 
 type FormData = z.infer<typeof schema>
 
-interface AvailabilityRuleFormDialogProps {
+interface WorkingHoursFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  rule?: AvailabilityRuleItem
+  item?: WorkingHoursItem
   defaultDayOfWeek?: number
 }
 
-export function AvailabilityRuleFormDialog({
+export function WorkingHoursFormDialog({
   open,
   onOpenChange,
-  rule,
+  item,
   defaultDayOfWeek,
-}: AvailabilityRuleFormDialogProps) {
-  const isEdit = !!rule
-  const create = useCreateAvailabilityRule({ onOpenChange })
-  const update = useUpdateAvailabilityRule({ onOpenChange })
+}: WorkingHoursFormDialogProps) {
+  const isEdit = !!item
+  const create = useCreateWorkingHours()
+  const update = useUpdateWorkingHours()
 
   const {
     handleSubmit,
@@ -61,29 +61,32 @@ export function AvailabilityRuleFormDialog({
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      dayOfWeek: rule?.dayOfWeek ?? defaultDayOfWeek ?? 1,
-      startTime: rule?.startTime ?? "08:00",
-      endTime: rule?.endTime ?? "17:00",
+      dayOfWeek: item?.dayOfWeek ?? defaultDayOfWeek ?? 1,
+      startTime: item?.startTime ?? "08:00",
+      endTime: item?.endTime ?? "17:00",
     },
   })
 
   useEffect(() => {
-    if (open && rule) {
-      setValue("dayOfWeek", rule.dayOfWeek)
-      setValue("startTime", rule.startTime)
-      setValue("endTime", rule.endTime)
+    if (open && item) {
+      setValue("dayOfWeek", item.dayOfWeek)
+      setValue("startTime", item.startTime)
+      setValue("endTime", item.endTime)
     } else if (open && defaultDayOfWeek !== undefined) {
       reset({ dayOfWeek: defaultDayOfWeek, startTime: "08:00", endTime: "17:00" })
     } else if (!open) {
       reset({ dayOfWeek: defaultDayOfWeek ?? 1, startTime: "08:00", endTime: "17:00" })
     }
-  }, [open, rule, defaultDayOfWeek, setValue, reset])
+  }, [open, item, defaultDayOfWeek, setValue, reset])
 
   function onSubmit(data: FormData) {
-    if (isEdit && rule) {
-      update.mutate({ id: rule.id, data })
+    if (isEdit && item) {
+      update.mutate({ id: item.id, data }, { onSuccess: () => onOpenChange(false) })
     } else {
-      create.mutate(data)
+      create.mutate(
+        { ...data, effectiveFrom: format(new Date(), "yyyy-MM-dd") },
+        { onSuccess: () => onOpenChange(false) },
+      )
     }
   }
 
@@ -93,7 +96,7 @@ export function AvailabilityRuleFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar horário" : "Adicionar horário"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Editar horario" : "Adicionar horario"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -124,7 +127,7 @@ export function AvailabilityRuleFormDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Início</Label>
+              <Label>Inicio</Label>
               <Controller
                 name="startTime"
                 control={control}
@@ -137,7 +140,7 @@ export function AvailabilityRuleFormDialog({
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>Término</Label>
+              <Label>Termino</Label>
               <Controller
                 name="endTime"
                 control={control}

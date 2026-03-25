@@ -4,6 +4,8 @@ import { WorkingHoursRepository } from "@shared/repositories/workingHours.reposi
 
 import { CreateWorkingHoursController } from "./contexts/createWorkingHours/createWorkingHours.controller";
 import { CreateWorkingHoursUseCase } from "./contexts/createWorkingHours/createWorkingHours.useCase";
+import { BulkCreateWorkingHoursController } from "./contexts/bulkCreateWorkingHours/bulkCreateWorkingHours.controller";
+import { BulkCreateWorkingHoursUseCase } from "./contexts/bulkCreateWorkingHours/bulkCreateWorkingHours.useCase";
 import { ListWorkingHoursController } from "./contexts/listWorkingHours/listWorkingHours.controller";
 import { ListWorkingHoursUseCase } from "./contexts/listWorkingHours/listWorkingHours.useCase";
 import { UpdateWorkingHoursController } from "./contexts/updateWorkingHours/updateWorkingHours.controller";
@@ -14,6 +16,7 @@ import { DeleteWorkingHoursUseCase } from "./contexts/deleteWorkingHours/deleteW
 @Module({
   controllers: [
     CreateWorkingHoursController,
+    BulkCreateWorkingHoursController,
     ListWorkingHoursController,
     UpdateWorkingHoursController,
     DeleteWorkingHoursController,
@@ -21,6 +24,7 @@ import { DeleteWorkingHoursUseCase } from "./contexts/deleteWorkingHours/deleteW
   providers: [
     WorkingHoursRepository,
     CreateWorkingHoursUseCase,
+    BulkCreateWorkingHoursUseCase,
     ListWorkingHoursUseCase,
     UpdateWorkingHoursUseCase,
     DeleteWorkingHoursUseCase,

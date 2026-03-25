@@ -6,7 +6,7 @@ import { studentAuthStore } from "@/stores/studentAuthStore"
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3333"
 
 export const studentApi = axios.create({
-  baseURL: BASE_URL,
+  baseURL: `${BASE_URL}/v1`,
   withCredentials: true, // sends http-only refresh cookie automatically
   headers: { "Content-Type": "application/json" },
 })
@@ -80,7 +80,7 @@ studentApi.interceptors.response.use(
     try {
       // Use a plain axios call (not the studentApi instance) to avoid interceptor loops.
       const { data } = await axios.post<{ accessToken: string }>(
-        `${BASE_URL}/auth/refresh`,
+        `${BASE_URL}/v1/auth/refresh`,
         {},
         { withCredentials: true }
       )

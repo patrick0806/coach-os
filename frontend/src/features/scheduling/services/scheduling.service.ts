@@ -1,154 +1,87 @@
-import { api } from "@/lib/axios"
+import { api, apiV2 } from "@/lib/axios"
 import type {
-  AppointmentItem,
-  ApproveAppointmentRequestRequest,
-  AvailabilityExceptionItem,
-  AvailabilityRuleItem,
-  BulkCreateAvailabilityRulesRequest,
-  BulkCreateAvailabilityRulesResponse,
-  CalendarEntry,
-  CreateAppointmentRequest,
-  CreateAvailabilityExceptionRequest,
-  CreateAvailabilityRuleRequest,
-  CreateTrainingScheduleRequest,
-  ListAppointmentRequestsParams,
-  ListAppointmentsParams,
-  ListAvailabilityExceptionsParams,
-  PaginatedAppointmentRequests,
-  PaginatedAppointments,
-  RescheduleAppointmentRequest,
-  RescheduleTrainingRequest,
-  SkipTrainingRequest,
-  TrainingScheduleExceptionItem,
-  TrainingScheduleItem,
-  UpdateAvailabilityRuleRequest,
-  UpdateTrainingScheduleRequest,
+  WorkingHoursItem,
+  CreateWorkingHoursRequest,
+  UpdateWorkingHoursRequest,
+  RecurringSlotItem,
+  CreateRecurringSlotRequest,
+  UpdateRecurringSlotRequest,
+  CalendarEventItem,
+  CreateEventRequest,
+  UpdateEventRequest,
+  CancelEventRequest,
+  UnifiedCalendarEntry,
+  AvailabilitySlot,
+  BulkCreateWorkingHoursResponse,
 } from "@/features/scheduling/types/scheduling.types"
 
 export const schedulingService = {
-  // Calendar
-  getCalendar: async (startDate: string, endDate: string): Promise<CalendarEntry[]> =>
-    (await api.get<CalendarEntry[]>("/calendar", { params: { startDate, endDate } })).data,
+  // --- Calendar (V2) ---
 
-  // Appointments
-  listAppointments: async (params?: ListAppointmentsParams): Promise<PaginatedAppointments> =>
-    (await api.get<PaginatedAppointments>("/appointments", { params })).data,
+  getCalendar: async (start: string, end: string): Promise<UnifiedCalendarEntry[]> =>
+    (await apiV2.get<UnifiedCalendarEntry[]>("/calendar", { params: { start, end } })).data,
 
-  getAppointment: async (id: string): Promise<AppointmentItem> =>
-    (await api.get<AppointmentItem>(`/appointments/${id}`)).data,
+  getAvailability: async (start: string, end: string): Promise<AvailabilitySlot[]> =>
+    (await apiV2.get<AvailabilitySlot[]>("/availability", { params: { start, end } })).data,
 
-  createAppointment: async (data: CreateAppointmentRequest): Promise<AppointmentItem> =>
-    (await api.post<AppointmentItem>("/appointments", data)).data,
+  // --- Working Hours ---
 
-  cancelAppointment: async (id: string): Promise<void> => {
-    await api.patch(`/appointments/${id}/cancel`)
-  },
+  listWorkingHours: async (): Promise<WorkingHoursItem[]> =>
+    (await api.get<WorkingHoursItem[]>("/working-hours")).data,
 
-  completeAppointment: async (id: string): Promise<void> => {
-    await api.patch(`/appointments/${id}/complete`)
-  },
+  createWorkingHours: async (data: CreateWorkingHoursRequest): Promise<WorkingHoursItem> =>
+    (await api.post<WorkingHoursItem>("/working-hours", data)).data,
 
-  rescheduleAppointment: async (
+  bulkCreateWorkingHours: async (
+    items: CreateWorkingHoursRequest[],
+  ): Promise<BulkCreateWorkingHoursResponse> =>
+    (await api.post<BulkCreateWorkingHoursResponse>("/working-hours/bulk", { items })).data,
+
+  updateWorkingHours: async (
     id: string,
-    data: RescheduleAppointmentRequest,
-  ): Promise<AppointmentItem> =>
-    (await api.patch<AppointmentItem>(`/appointments/${id}/reschedule`, data)).data,
+    data: UpdateWorkingHoursRequest,
+  ): Promise<WorkingHoursItem> =>
+    (await api.patch<WorkingHoursItem>(`/working-hours/${id}`, data)).data,
 
-  // Appointment Requests
-  listAppointmentRequests: async (
-    params?: ListAppointmentRequestsParams
-  ): Promise<PaginatedAppointmentRequests> =>
-    (await api.get<PaginatedAppointmentRequests>("/appointment-requests", { params })).data,
+  deleteWorkingHours: async (id: string): Promise<void> => {
+    await api.delete(`/working-hours/${id}`)
+  },
 
-  approveAppointmentRequest: async (
+  // --- Recurring Slots ---
+
+  listRecurringSlots: async (studentId?: string): Promise<RecurringSlotItem[]> =>
+    (
+      await api.get<RecurringSlotItem[]>("/recurring-slots", {
+        params: studentId ? { studentId } : undefined,
+      })
+    ).data,
+
+  createRecurringSlot: async (data: CreateRecurringSlotRequest): Promise<RecurringSlotItem> =>
+    (await api.post<RecurringSlotItem>("/recurring-slots", data)).data,
+
+  updateRecurringSlot: async (
     id: string,
-    data?: ApproveAppointmentRequestRequest
-  ): Promise<AppointmentItem> =>
-    (await api.patch<AppointmentItem>(`/appointment-requests/${id}/approve`, data ?? {})).data,
+    data: UpdateRecurringSlotRequest,
+  ): Promise<RecurringSlotItem> =>
+    (await api.patch<RecurringSlotItem>(`/recurring-slots/${id}`, data)).data,
 
-  rejectAppointmentRequest: async (id: string): Promise<void> => {
-    await api.patch(`/appointment-requests/${id}/reject`)
+  deleteRecurringSlot: async (id: string): Promise<void> => {
+    await api.delete(`/recurring-slots/${id}`)
   },
 
-  // Availability Rules
-  listAvailabilityRules: async (): Promise<AvailabilityRuleItem[]> =>
-    (await api.get<AvailabilityRuleItem[]>("/availability-rules")).data,
+  // --- Calendar Events ---
 
-  createAvailabilityRule: async (
-    data: CreateAvailabilityRuleRequest
-  ): Promise<AvailabilityRuleItem> =>
-    (await api.post<AvailabilityRuleItem>("/availability-rules", data)).data,
+  createEvent: async (data: CreateEventRequest): Promise<CalendarEventItem> =>
+    (await api.post<CalendarEventItem>("/events", data)).data,
 
-  bulkCreateAvailabilityRules: async (
-    data: BulkCreateAvailabilityRulesRequest
-  ): Promise<BulkCreateAvailabilityRulesResponse> =>
-    (await api.post<BulkCreateAvailabilityRulesResponse>("/availability-rules/bulk", data)).data,
+  updateEvent: async (id: string, data: UpdateEventRequest): Promise<CalendarEventItem> =>
+    (await api.patch<CalendarEventItem>(`/events/${id}`, data)).data,
 
-  updateAvailabilityRule: async (
-    id: string,
-    data: UpdateAvailabilityRuleRequest
-  ): Promise<AvailabilityRuleItem> =>
-    (await api.put<AvailabilityRuleItem>(`/availability-rules/${id}`, data)).data,
-
-  deleteAvailabilityRule: async (id: string): Promise<void> => {
-    await api.delete(`/availability-rules/${id}`)
+  cancelEvent: async (id: string, data?: CancelEventRequest): Promise<void> => {
+    await api.patch(`/events/${id}/cancel`, data ?? {})
   },
 
-  // Availability Exceptions
-  listAvailabilityExceptions: async (
-    params?: ListAvailabilityExceptionsParams
-  ): Promise<AvailabilityExceptionItem[]> =>
-    (await api.get<AvailabilityExceptionItem[]>("/availability-exceptions", { params })).data,
-
-  createAvailabilityException: async (
-    data: CreateAvailabilityExceptionRequest
-  ): Promise<AvailabilityExceptionItem> =>
-    (await api.post<AvailabilityExceptionItem>("/availability-exceptions", data)).data,
-
-  deleteAvailabilityException: async (id: string): Promise<void> => {
-    await api.delete(`/availability-exceptions/${id}`)
-  },
-
-  // Training Schedules
-  listTrainingSchedules: async (studentId: string): Promise<TrainingScheduleItem[]> =>
-    (await api.get<TrainingScheduleItem[]>(`/students/${studentId}/training-schedules`)).data,
-
-  createTrainingSchedule: async (
-    studentId: string,
-    data: CreateTrainingScheduleRequest
-  ): Promise<TrainingScheduleItem> =>
-    (await api.post<TrainingScheduleItem>(`/students/${studentId}/training-schedules`, data)).data,
-
-  updateTrainingSchedule: async (
-    id: string,
-    data: UpdateTrainingScheduleRequest
-  ): Promise<TrainingScheduleItem> =>
-    (await api.put<TrainingScheduleItem>(`/training-schedules/${id}`, data)).data,
-
-  deleteTrainingSchedule: async (id: string): Promise<void> => {
-    await api.delete(`/training-schedules/${id}`)
-  },
-
-  // Training Schedule Exceptions
-  rescheduleTrainingOccurrence: async (
-    scheduleId: string,
-    data: RescheduleTrainingRequest,
-  ): Promise<TrainingScheduleExceptionItem> =>
-    (await api.post<TrainingScheduleExceptionItem>(
-      `/training-schedules/${scheduleId}/reschedule`,
-      data,
-    )).data,
-
-  skipTrainingOccurrence: async (
-    scheduleId: string,
-    data: SkipTrainingRequest,
-  ): Promise<TrainingScheduleExceptionItem> =>
-    (await api.post<TrainingScheduleExceptionItem>(
-      `/training-schedules/${scheduleId}/skip`,
-      data,
-    )).data,
-
-  deleteTrainingException: async (id: string): Promise<void> => {
-    await api.delete(`/training-schedule-exceptions/${id}`)
+  completeEvent: async (id: string): Promise<void> => {
+    await api.patch(`/events/${id}/complete`)
   },
 }

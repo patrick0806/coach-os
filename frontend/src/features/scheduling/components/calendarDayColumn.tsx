@@ -1,7 +1,7 @@
 "use client"
 
 import { CalendarEvent } from "./calendarEvent"
-import type { AvailabilityRuleItem, CalendarEntry } from "@/features/scheduling/types/scheduling.types"
+import type { UnifiedCalendarEntry, WorkingHoursItem } from "@/features/scheduling/types/scheduling.types"
 
 const HOUR_START = 6
 const HOUR_END = 22
@@ -13,14 +13,18 @@ function timeToMinutes(time: string): number {
   return h * 60 + m
 }
 
-function getTopPx(time: string): number {
-  const minutes = timeToMinutes(time)
+function isoToMinutes(isoString: string): number {
+  const d = new Date(isoString)
+  return d.getUTCHours() * 60 + d.getUTCMinutes()
+}
+
+function getTopPx(minutes: number): number {
   const baseMinutes = HOUR_START * 60
   return ((minutes - baseMinutes) / 60) * HOUR_HEIGHT_PX
 }
 
-function getHeightPx(startTime: string, endTime: string): number {
-  const diff = timeToMinutes(endTime) - timeToMinutes(startTime)
+function getHeightPx(startMinutes: number, endMinutes: number): number {
+  const diff = endMinutes - startMinutes
   const minHeight = (30 / 60) * HOUR_HEIGHT_PX
   return Math.max((diff / 60) * HOUR_HEIGHT_PX, minHeight)
 }
@@ -54,25 +58,20 @@ function subtractRanges(base: MinuteRange, occupied: MinuteRange[]): MinuteRange
   return gaps
 }
 
-function minutesToTimeStr(minutes: number): string {
-  return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`
-}
-
-function detectOverlaps(entries: CalendarEntry[]): Set<string> {
+function detectOverlaps(entries: UnifiedCalendarEntry[]): Set<string> {
   const overlapping = new Set<string>()
-  const timed = entries.filter((e) => e.startTime && e.endTime)
 
-  for (let i = 0; i < timed.length; i++) {
-    for (let j = i + 1; j < timed.length; j++) {
-      const a = timed[i]
-      const b = timed[j]
-      const aStart = timeToMinutes(a.startTime!)
-      const aEnd = timeToMinutes(a.endTime!)
-      const bStart = timeToMinutes(b.startTime!)
-      const bEnd = timeToMinutes(b.endTime!)
+  for (let i = 0; i < entries.length; i++) {
+    for (let j = i + 1; j < entries.length; j++) {
+      const a = entries[i]
+      const b = entries[j]
+      const aStart = isoToMinutes(a.startAt)
+      const aEnd = isoToMinutes(a.endAt)
+      const bStart = isoToMinutes(b.startAt)
+      const bEnd = isoToMinutes(b.endAt)
       if (aStart < bEnd && aEnd > bStart) {
-        overlapping.add(a.sourceId)
-        overlapping.add(b.sourceId)
+        overlapping.add(a.id)
+        overlapping.add(b.id)
       }
     }
   }
@@ -81,82 +80,55 @@ function detectOverlaps(entries: CalendarEntry[]): Set<string> {
 }
 
 interface CalendarDayColumnProps {
-  entries: CalendarEntry[]
-  availabilityRules?: AvailabilityRuleItem[]
-  isExceptionDay?: boolean
-  onEventClick?: (entry: CalendarEntry) => void
+  entries: UnifiedCalendarEntry[]
+  workingHours?: WorkingHoursItem[]
+  onEventClick?: (entry: UnifiedCalendarEntry) => void
 }
 
 export function CalendarDayColumn({
   entries,
-  availabilityRules = [],
-  isExceptionDay = false,
+  workingHours = [],
   onEventClick,
 }: CalendarDayColumnProps) {
   const totalHeight = TOTAL_HOURS * HOUR_HEIGHT_PX
   const overlapping = detectOverlaps(entries)
 
-  const allDayEntries = entries.filter((e) => !e.startTime || !e.endTime)
-  const timedEntries = entries.filter((e) => e.startTime && e.endTime)
-
   return (
     <div className="relative flex-1 min-w-0">
-      {/* All-day events (exceptions without time) */}
-      {allDayEntries.map((entry) => (
-        <CalendarEvent
-          key={entry.sourceId}
-          entry={entry}
-          hasOverlap={overlapping.has(entry.sourceId)}
-          style={{ position: "relative", marginBottom: 2 }}
-          onClick={() => onEventClick?.(entry)}
-        />
-      ))}
-
-      {/* Timed events + availability zones */}
       <div className="relative" style={{ height: totalHeight }}>
-        {/* Exception day — full-day blocked background */}
-        {isExceptionDay && (
-          <div
-            className="absolute inset-0 bg-destructive/8 border-l-2 border-destructive/20 pointer-events-none z-0"
-          />
-        )}
-
-        {/* Availability rule zones (subtracted around training schedules) */}
-        {!isExceptionDay && availabilityRules.map((rule) => {
-          const clampedStart = Math.max(timeToMinutes(rule.startTime), HOUR_START * 60)
-          const clampedEnd = Math.min(timeToMinutes(rule.endTime), HOUR_END * 60)
+        {/* Working hours zones (subtracted around booking entries) */}
+        {workingHours.map((wh) => {
+          const clampedStart = Math.max(timeToMinutes(wh.startTime), HOUR_START * 60)
+          const clampedEnd = Math.min(timeToMinutes(wh.endTime), HOUR_END * 60)
           if (clampedEnd <= clampedStart) return null
 
-          const occupiedRanges: MinuteRange[] = timedEntries
-            .filter((e) => e.type === "training_schedule" && e.startTime && e.endTime)
-            .map((e) => ({ start: timeToMinutes(e.startTime!), end: timeToMinutes(e.endTime!) }))
+          const occupiedRanges: MinuteRange[] = entries
+            .filter((e) => e.type === "booking" && e.status !== "cancelled")
+            .map((e) => ({ start: isoToMinutes(e.startAt), end: isoToMinutes(e.endAt) }))
 
           const fragments = subtractRanges({ start: clampedStart, end: clampedEnd }, occupiedRanges)
 
-          return fragments.map((frag, i) => {
-            const fragStartStr = minutesToTimeStr(frag.start)
-            const fragEndStr = minutesToTimeStr(frag.end)
-            const top = getTopPx(fragStartStr)
-            const height = getHeightPx(fragStartStr, fragEndStr)
-            return (
-              <div
-                key={`${rule.id}-${i}`}
-                className="absolute left-0 right-0 bg-emerald-500/[0.08] dark:bg-emerald-500/10 border-l-2 border-emerald-500/40 pointer-events-none z-0"
-                style={{ top, height }}
-              />
-            )
-          })
+          return fragments.map((frag, i) => (
+            <div
+              key={`${wh.id}-${i}`}
+              className="absolute left-0 right-0 bg-emerald-500/[0.08] dark:bg-emerald-500/10 border-l-2 border-emerald-500/40 pointer-events-none z-0"
+              style={{ top: getTopPx(frag.start), height: getHeightPx(frag.start, frag.end) }}
+            />
+          ))
         })}
 
-        {timedEntries.map((entry) => {
-          const top = getTopPx(entry.startTime!)
-          const height = getHeightPx(entry.startTime!, entry.endTime!)
+        {entries.map((entry) => {
+          if (entry.status === "cancelled") return null
+          const startMin = isoToMinutes(entry.startAt)
+          const endMin = isoToMinutes(entry.endAt)
+          const top = getTopPx(startMin)
+          const height = getHeightPx(startMin, endMin)
 
           return (
             <CalendarEvent
-              key={entry.sourceId}
+              key={entry.id}
               entry={entry}
-              hasOverlap={overlapping.has(entry.sourceId)}
+              hasOverlap={overlapping.has(entry.id)}
               style={{ top, height, minHeight: 20 }}
               onClick={() => onEventClick?.(entry)}
             />

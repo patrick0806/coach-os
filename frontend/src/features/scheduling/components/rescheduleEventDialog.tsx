@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { format, parseISO } from "date-fns"
+import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { CalendarIcon } from "lucide-react"
 
@@ -32,15 +32,15 @@ import { Calendar } from "@/shared/ui/calendar"
 import { TimeSelect } from "@/shared/ui/time-select"
 import { cn } from "@/lib/utils"
 import { ConflictWarningDialog } from "./conflictWarningDialog"
-import { useRescheduleAppointment } from "@/features/scheduling/hooks/useRescheduleAppointment"
+import { useUpdateEvent } from "@/features/scheduling/hooks/useUpdateEvent"
 import { useEnumAttendanceTypes } from "@/features/shared/hooks/useEnumAttendanceTypes"
-import type { AppointmentItem } from "@/features/scheduling/types/scheduling.types"
+import type { UnifiedCalendarEntry } from "@/features/scheduling/types/scheduling.types"
 
 const schema = z
   .object({
-    date: z.string().min(1, "Data obrigatória"),
-    startTime: z.string().min(1, "Horário de início obrigatório"),
-    endTime: z.string().min(1, "Horário de término obrigatório"),
+    date: z.string().min(1, "Data obrigatoria"),
+    startTime: z.string().min(1, "Horario de inicio obrigatorio"),
+    endTime: z.string().min(1, "Horario de termino obrigatorio"),
     appointmentType: z.enum(["online", "presential"]),
     meetingUrl: z.string().optional(),
     location: z.string().optional(),
@@ -51,41 +51,41 @@ const schema = z
       if (data.appointmentType === "online") return !!data.meetingUrl
       return true
     },
-    { message: "Link da reunião é obrigatório para consultas online", path: ["meetingUrl"] }
+    { message: "Link da reuniao e obrigatorio para consultas online", path: ["meetingUrl"] }
   )
   .refine(
     (data) => {
       if (data.appointmentType === "presential") return !!data.location
       return true
     },
-    { message: "Local é obrigatório para consultas presenciais", path: ["location"] }
+    { message: "Local e obrigatorio para consultas presenciais", path: ["location"] }
   )
 
 type FormData = z.infer<typeof schema>
 
-interface RescheduleAppointmentDialogProps {
+interface RescheduleEventDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  appointment: AppointmentItem
+  entry: UnifiedCalendarEntry
 }
 
-export function RescheduleAppointmentDialog({
+export function RescheduleEventDialog({
   open,
   onOpenChange,
-  appointment,
-}: RescheduleAppointmentDialogProps) {
+  entry,
+}: RescheduleEventDialogProps) {
   const [conflictOpen, setConflictOpen] = useState(false)
   const { data: attendanceTypes } = useEnumAttendanceTypes()
 
-  const reschedule = useRescheduleAppointment({
+  const update = useUpdateEvent({
     onSuccess: () => {
       onOpenChange(false)
       setConflictOpen(false)
     },
   })
 
-  const originalStart = parseISO(appointment.startAt)
-  const originalEnd = parseISO(appointment.endAt)
+  const originalStart = new Date(entry.startAt)
+  const originalEnd = new Date(entry.endAt)
 
   const {
     register,
@@ -100,10 +100,10 @@ export function RescheduleAppointmentDialog({
       date: format(originalStart, "yyyy-MM-dd"),
       startTime: format(originalStart, "HH:mm"),
       endTime: format(originalEnd, "HH:mm"),
-      appointmentType: appointment.type,
-      meetingUrl: appointment.meetingUrl ?? "",
-      location: appointment.location ?? "",
-      notes: appointment.notes ?? "",
+      appointmentType: (entry.appointmentType as "online" | "presential") ?? "presential",
+      meetingUrl: entry.meetingUrl ?? "",
+      location: entry.location ?? "",
+      notes: entry.notes ?? "",
     },
   })
 
@@ -115,39 +115,37 @@ export function RescheduleAppointmentDialog({
         date: format(originalStart, "yyyy-MM-dd"),
         startTime: format(originalStart, "HH:mm"),
         endTime: format(originalEnd, "HH:mm"),
-        appointmentType: appointment.type,
-        meetingUrl: appointment.meetingUrl ?? "",
-        location: appointment.location ?? "",
-        notes: appointment.notes ?? "",
+        appointmentType: (entry.appointmentType as "online" | "presential") ?? "presential",
+        meetingUrl: entry.meetingUrl ?? "",
+        location: entry.location ?? "",
+        notes: entry.notes ?? "",
       })
-      reschedule.clearConflicts()
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset dialog state when opening
+      update.clearConflicts()
       setConflictOpen(false)
     }
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (reschedule.hasConflicts) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync conflict dialog with hook state
+    if (update.hasConflicts) {
       setConflictOpen(true)
     }
-  }, [reschedule.hasConflicts])
+  }, [update.hasConflicts])
 
   function onSubmit(data: FormData) {
     const startAt = `${data.date}T${data.startTime}:00`
     const endAt = `${data.date}T${data.endTime}:00`
-    reschedule.rescheduleWithConflictCheck(appointment.id, {
+    update.updateWithConflictCheck(entry.id, {
       startAt,
       endAt,
-      appointmentType: data.appointmentType !== appointment.type ? data.appointmentType : undefined,
+      appointmentType: data.appointmentType,
       meetingUrl: data.appointmentType === "online" ? data.meetingUrl : undefined,
       location: data.appointmentType === "presential" ? data.location : undefined,
       notes: data.notes || undefined,
     })
   }
 
-  function handleForceReschedule() {
-    reschedule.forceReschedule()
+  function handleForceUpdate() {
+    update.forceUpdate()
     setConflictOpen(false)
   }
 
@@ -158,21 +156,20 @@ export function RescheduleAppointmentDialog({
           <DialogHeader>
             <DialogTitle>Reagendar</DialogTitle>
             <DialogDescription>
-              Agendamento original: {format(originalStart, "PPP", { locale: ptBR })},{" "}
-              {format(originalStart, "HH:mm")} – {format(originalEnd, "HH:mm")} com{" "}
-              {appointment.studentName}
+              Evento original: {format(originalStart, "PPP", { locale: ptBR })},{" "}
+              {format(originalStart, "HH:mm")} – {format(originalEnd, "HH:mm")}
+              {entry.studentName && ` com ${entry.studentName}`}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Date */}
             <div className="space-y-1.5">
               <Label>Data</Label>
               <Controller
                 name="date"
                 control={control}
                 render={({ field }) => {
-                  const selectedDate = field.value ? parseISO(field.value) : undefined
+                  const selectedDate = field.value ? new Date(field.value + "T12:00:00") : undefined
                   return (
                     <Popover>
                       <PopoverTrigger asChild>
@@ -210,10 +207,9 @@ export function RescheduleAppointmentDialog({
               )}
             </div>
 
-            {/* Times */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Início</Label>
+                <Label>Inicio</Label>
                 <Controller
                   name="startTime"
                   control={control}
@@ -226,7 +222,7 @@ export function RescheduleAppointmentDialog({
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label>Término</Label>
+                <Label>Termino</Label>
                 <Controller
                   name="endTime"
                   control={control}
@@ -240,7 +236,6 @@ export function RescheduleAppointmentDialog({
               </div>
             </div>
 
-            {/* Type */}
             <div className="space-y-1.5">
               <Label>Tipo</Label>
               <Controller
@@ -263,10 +258,9 @@ export function RescheduleAppointmentDialog({
               />
             </div>
 
-            {/* Meeting URL or location */}
             {appointmentType === "online" && (
               <div className="space-y-1.5">
-                <Label htmlFor="reschedule-meetingUrl">Link da reunião</Label>
+                <Label htmlFor="reschedule-meetingUrl">Link da reuniao</Label>
                 <Input
                   id="reschedule-meetingUrl"
                   placeholder="https://meet.google.com/..."
@@ -292,9 +286,8 @@ export function RescheduleAppointmentDialog({
               </div>
             )}
 
-            {/* Notes */}
             <div className="space-y-1.5">
-              <Label htmlFor="reschedule-notes">Observações (opcional)</Label>
+              <Label htmlFor="reschedule-notes">Observacoes (opcional)</Label>
               <Textarea
                 id="reschedule-notes"
                 placeholder="..."
@@ -308,16 +301,16 @@ export function RescheduleAppointmentDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={reschedule.isPending}
+                disabled={update.isPending}
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                disabled={reschedule.isPending}
+                disabled={update.isPending}
                 data-testid="reschedule-submit"
               >
-                {reschedule.isPending ? "Reagendando..." : "Reagendar"}
+                {update.isPending ? "Reagendando..." : "Reagendar"}
               </Button>
             </DialogFooter>
           </form>
@@ -327,9 +320,9 @@ export function RescheduleAppointmentDialog({
       <ConflictWarningDialog
         open={conflictOpen}
         onOpenChange={setConflictOpen}
-        conflicts={reschedule.conflicts}
-        onForceCreate={handleForceReschedule}
-        isPending={reschedule.isPending}
+        conflicts={update.conflicts}
+        onForceCreate={handleForceUpdate}
+        isPending={update.isPending}
       />
     </>
   )

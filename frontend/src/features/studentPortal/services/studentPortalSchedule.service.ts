@@ -1,24 +1,22 @@
 import { studentApi } from "@/lib/studentAxios"
 import type {
-  PaginatedStudentAppointments,
-  StudentTrainingSchedule,
-  ListMyAppointmentsParams,
+  StudentCalendarEvent,
+  StudentRecurringSlot,
+  ListMyEventsParams,
 } from "@/features/studentPortal/types/studentPortalSchedule.types"
 
 export const studentPortalScheduleService = {
-  listMyAppointments: async (
-    params?: ListMyAppointmentsParams,
-  ): Promise<PaginatedStudentAppointments> => {
-    const response = await studentApi.get<PaginatedStudentAppointments>(
-      "/me/appointments",
+  listMyEvents: async (params: ListMyEventsParams): Promise<StudentCalendarEvent[]> => {
+    const response = await studentApi.get<StudentCalendarEvent[]>(
+      "/me/events",
       { params },
     )
     return response.data
   },
 
-  listMyTrainingSchedules: async (): Promise<StudentTrainingSchedule[]> => {
-    const response = await studentApi.get<StudentTrainingSchedule[]>(
-      "/me/training-schedules",
+  listMyRecurringSlots: async (): Promise<StudentRecurringSlot[]> => {
+    const response = await studentApi.get<StudentRecurringSlot[]>(
+      "/me/recurring-slots",
     )
     return response.data
   },

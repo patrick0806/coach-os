@@ -10,9 +10,9 @@ import { GetCalendarUseCase } from "./getCalendar.useCase";
 
 @ApiTags(API_TAGS.CALENDAR)
 @Roles(ApplicationRoles.PERSONAL)
-@Controller({ version: "1", path: "calendar" })
+@Controller({ version: "2", path: "calendar" })
 export class GetCalendarController {
-  constructor(private readonly getCalendarUseCase: GetCalendarUseCase) {}
+  constructor(private readonly getCalendarUseCase: GetCalendarUseCase) { }
 
   @ApiOperation({ summary: "Get unified calendar for a date range" })
   @ApiOkResponse({ description: "Calendar entries" })

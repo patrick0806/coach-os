@@ -31,16 +31,16 @@ import { Calendar } from "@/shared/ui/calendar"
 import { TimeSelect } from "@/shared/ui/time-select"
 import { cn } from "@/lib/utils"
 import { ConflictWarningDialog } from "./conflictWarningDialog"
-import { useCreateAppointment } from "@/features/scheduling/hooks/useCreateAppointment"
+import { useCreateEvent } from "@/features/scheduling/hooks/useCreateEvent"
 import { useStudents } from "@/features/students/hooks/useStudents"
 import { useEnumAttendanceTypes } from "@/features/shared/hooks/useEnumAttendanceTypes"
 
 const schema = z
   .object({
     studentId: z.string().min(1, "Selecione um aluno"),
-    date: z.string().min(1, "Data obrigatória"),
-    startTime: z.string().min(1, "Horário de início obrigatório"),
-    endTime: z.string().min(1, "Horário de término obrigatório"),
+    date: z.string().min(1, "Data obrigatoria"),
+    startTime: z.string().min(1, "Horario de inicio obrigatorio"),
+    endTime: z.string().min(1, "Horario de termino obrigatorio"),
     appointmentType: z.enum(["online", "presential"]),
     meetingUrl: z.string().optional(),
     location: z.string().optional(),
@@ -51,36 +51,36 @@ const schema = z
       if (data.appointmentType === "online") return !!data.meetingUrl
       return true
     },
-    { message: "Link da reunião é obrigatório para consultas online", path: ["meetingUrl"] }
+    { message: "Link da reuniao e obrigatorio para consultas online", path: ["meetingUrl"] }
   )
   .refine(
     (data) => {
       if (data.appointmentType === "presential") return !!data.location
       return true
     },
-    { message: "Local é obrigatório para consultas presenciais", path: ["location"] }
+    { message: "Local e obrigatorio para consultas presenciais", path: ["location"] }
   )
 
 type FormData = z.infer<typeof schema>
 
-interface CreateAppointmentDialogProps {
+interface CreateEventDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   defaultDate?: string
   defaultStartTime?: string
 }
 
-export function CreateAppointmentDialog({
+export function CreateEventDialog({
   open,
   onOpenChange,
   defaultDate,
   defaultStartTime,
-}: CreateAppointmentDialogProps) {
+}: CreateEventDialogProps) {
   const [conflictOpen, setConflictOpen] = useState(false)
   const { data: studentsData } = useStudents({ size: 100, status: "active" })
   const { data: attendanceTypes } = useEnumAttendanceTypes()
 
-  const createAppointment = useCreateAppointment({
+  const createEvent = useCreateEvent({
     onOpenChange: (val) => {
       onOpenChange(val)
       if (!val) setConflictOpen(false)
@@ -113,21 +113,22 @@ export function CreateAppointmentDialog({
   useEffect(() => {
     if (!open) {
       reset()
-      createAppointment.clearConflicts()
+      createEvent.clearConflicts()
       setConflictOpen(false)
     }
   }, [open, reset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (createAppointment.hasConflicts) {
+    if (createEvent.hasConflicts) {
       setConflictOpen(true)
     }
-  }, [createAppointment.hasConflicts])
+  }, [createEvent.hasConflicts])
 
   function onSubmit(data: FormData) {
     const startAt = `${data.date}T${data.startTime}:00`
     const endAt = `${data.date}T${data.endTime}:00`
-    createAppointment.createWithConflictCheck({
+    createEvent.createWithConflictCheck({
+      type: "one_off",
       studentId: data.studentId,
       startAt,
       endAt,
@@ -139,7 +140,7 @@ export function CreateAppointmentDialog({
   }
 
   function handleForceCreate() {
-    createAppointment.forceCreate()
+    createEvent.forceCreate()
     setConflictOpen(false)
   }
 
@@ -152,7 +153,6 @@ export function CreateAppointmentDialog({
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Student */}
             <div className="space-y-1.5">
               <Label htmlFor="studentId">Aluno</Label>
               <Controller
@@ -178,7 +178,6 @@ export function CreateAppointmentDialog({
               )}
             </div>
 
-            {/* Date */}
             <div className="space-y-1.5">
               <Label>Data</Label>
               <Controller
@@ -223,10 +222,9 @@ export function CreateAppointmentDialog({
               )}
             </div>
 
-            {/* Times */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Início</Label>
+                <Label>Inicio</Label>
                 <Controller
                   name="startTime"
                   control={control}
@@ -239,7 +237,7 @@ export function CreateAppointmentDialog({
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label>Término</Label>
+                <Label>Termino</Label>
                 <Controller
                   name="endTime"
                   control={control}
@@ -253,7 +251,6 @@ export function CreateAppointmentDialog({
               </div>
             </div>
 
-            {/* Type */}
             <div className="space-y-1.5">
               <Label>Tipo</Label>
               <Controller
@@ -276,10 +273,9 @@ export function CreateAppointmentDialog({
               />
             </div>
 
-            {/* Meeting URL or location */}
             {appointmentType === "online" && (
               <div className="space-y-1.5">
-                <Label htmlFor="meetingUrl">Link da reunião</Label>
+                <Label htmlFor="meetingUrl">Link da reuniao</Label>
                 <Input
                   id="meetingUrl"
                   placeholder="https://meet.google.com/..."
@@ -305,9 +301,8 @@ export function CreateAppointmentDialog({
               </div>
             )}
 
-            {/* Notes */}
             <div className="space-y-1.5">
-              <Label htmlFor="notes">Observações (opcional)</Label>
+              <Label htmlFor="notes">Observacoes (opcional)</Label>
               <Textarea
                 id="notes"
                 placeholder="..."
@@ -321,16 +316,16 @@ export function CreateAppointmentDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={createAppointment.isPending}
+                disabled={createEvent.isPending}
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                disabled={createAppointment.isPending}
+                disabled={createEvent.isPending}
                 data-testid="create-appointment-submit"
               >
-                {createAppointment.isPending ? "Criando..." : "Criar agendamento"}
+                {createEvent.isPending ? "Criando..." : "Criar agendamento"}
               </Button>
             </DialogFooter>
           </form>
@@ -340,9 +335,9 @@ export function CreateAppointmentDialog({
       <ConflictWarningDialog
         open={conflictOpen}
         onOpenChange={setConflictOpen}
-        conflicts={createAppointment.conflicts}
+        conflicts={createEvent.conflicts}
         onForceCreate={handleForceCreate}
-        isPending={createAppointment.isPending}
+        isPending={createEvent.isPending}
       />
     </>
   )

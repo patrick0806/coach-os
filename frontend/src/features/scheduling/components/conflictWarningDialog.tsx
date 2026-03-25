@@ -22,10 +22,8 @@ interface ConflictWarningDialogProps {
 }
 
 const conflictTypeLabel: Record<string, string> = {
-  appointment: "Agendamento existente",
-  training_schedule: "Treino agendado",
-  outside_availability: "Fora do horário disponível",
-  exception: "Data bloqueada",
+  overlap: "Conflito de horario",
+  outside_working_hours: "Fora do horario de trabalho",
 }
 
 export function ConflictWarningDialog({
@@ -44,7 +42,7 @@ export function ConflictWarningDialog({
             Conflitos detectados
           </DialogTitle>
           <DialogDescription>
-            Foram encontrados os seguintes conflitos neste horário. Você pode criar assim mesmo ou
+            Foram encontrados os seguintes conflitos neste horario. Voce pode criar assim mesmo ou
             cancelar.
           </DialogDescription>
         </DialogHeader>

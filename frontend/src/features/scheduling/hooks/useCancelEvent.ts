@@ -5,16 +5,23 @@ import axios from "axios"
 import { toast } from "sonner"
 
 import { schedulingService } from "@/features/scheduling/services/scheduling.service"
+import type { CancelEventRequest } from "@/features/scheduling/types/scheduling.types"
 
-export function useDeleteAvailabilityException() {
+interface UseCancelEventOptions {
+  onSuccess?: () => void
+}
+
+export function useCancelEvent({ onSuccess }: UseCancelEventOptions = {}) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => schedulingService.deleteAvailabilityException(id),
+    mutationFn: ({ id, data }: { id: string; data?: CancelEventRequest }) =>
+      schedulingService.cancelEvent(id, data),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["availability-exceptions"] })
       await queryClient.invalidateQueries({ queryKey: ["calendar"] })
-      toast.success("Data desbloqueada.")
+      await queryClient.invalidateQueries({ queryKey: ["availability"] })
+      toast.success("Evento cancelado.")
+      onSuccess?.()
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)
