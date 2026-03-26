@@ -128,7 +128,11 @@ jobs:
             docker compose pull backend frontend
 
             # Recreate containers with zero-downtime rolling restart
-            docker compose up -d --remove-orphans --no-build
+            docker compose up -d --remove-orphans --no-build || {
+              echo "❌ Deployment failed — migration logs:"
+              docker logs coach-os-migrate-1 2>&1 || true
+              exit 1
+            }
 
             # Clean up dangling images to save disk space
             docker image prune -f
