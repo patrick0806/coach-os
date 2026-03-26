@@ -47,6 +47,10 @@ export const studentsService = {
 
   generateAccessLink: async (studentId: string): Promise<{ accessLink: string }> =>
     (await api.post<{ accessLink: string }>(`/students/${studentId}/send-access`, { mode: "link" })).data,
+
+  acceptInvite: async (data: { token: string; name: string; password: string }): Promise<void> => {
+    await api.post("/students/accept-invite", data)
+  },
 }
 
 export const notesService = {
