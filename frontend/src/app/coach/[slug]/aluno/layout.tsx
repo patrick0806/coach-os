@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode, type CSSProperties } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -9,12 +9,14 @@ import { CalendarDays, Dumbbell, LogOut, TrendingUp } from "lucide-react"
 import { studentAuthStore } from "@/stores/studentAuthStore"
 import { studentAuthService } from "@/features/studentAuth/services/studentAuth.service"
 import { useCoachHref } from "@/lib/useCoachHref"
+import { getContrastColor } from "@/lib/colorContrast"
 import { Button } from "@/shared/ui/button"
 import { cn } from "@/lib/utils"
 
 interface CoachBranding {
   coachName: string
   logoUrl: string | null
+  themeColor: string | null
 }
 
 interface StudentLayoutProps {
@@ -63,6 +65,7 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
           setBranding({
             coachName: profile.coachName,
             logoUrl: profile.logoUrl ?? null,
+            themeColor: profile.themeColor ?? null,
           })
         }
       })
@@ -85,8 +88,14 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
     router.push(href("/"))
   }
 
+  const primaryHex = branding?.themeColor ?? "#6366f1"
+  const brandVars: CSSProperties = {
+    "--primary": primaryHex,
+    "--primary-foreground": getContrastColor(primaryHex),
+  } as CSSProperties
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={brandVars}>
       {/* Mobile header */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-card">
         <div className="flex h-14 items-center justify-between px-4">
