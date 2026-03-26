@@ -13,7 +13,7 @@ export function startAvailabilityTour() {
         popover: {
           title: '⏰ Disponibilidade',
           description:
-            'Configure seus horários de atendimento recorrentes e bloqueie datas em que não estará disponível.',
+            'Configure seus horários de atendimento recorrentes. Você chegou aqui pela Agenda — use o botão "Voltar para agenda" para retornar quando terminar.',
         },
       },
       {
@@ -31,15 +31,6 @@ export function startAvailabilityTour() {
           title: '➕ Adicionar Horário',
           description:
             'Defina horários recorrentes por dia da semana — ex: Segunda-feira, 08h às 12h. Esses horários são visíveis para seus alunos.',
-          side: 'bottom',
-        },
-      },
-      {
-        element: '[data-testid="add-exception-btn"]',
-        popover: {
-          title: '🚫 Bloquear Data',
-          description:
-            'Bloqueie datas específicas como feriados ou férias. Esses dias não aparecerão como disponíveis para agendamento.',
           side: 'bottom',
         },
       },

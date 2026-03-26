@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Plus } from "lucide-react"
+import Link from "next/link"
+import { Clock, Plus } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/components/pageHeader"
@@ -35,10 +36,18 @@ export default function AgendaPage() {
         title="Agenda"
         description="Visualize e gerencie seus agendamentos da semana."
         actions={
-          <Button onClick={handleCreateNew} data-testid="new-appointment-btn">
-            <Plus className="size-4 mr-2" />
-            Novo agendamento
-          </Button>
+          <>
+            <Button variant="outline" asChild data-testid="configure-availability-btn">
+              <Link href="/disponibilidade">
+                <Clock className="size-4 mr-2" />
+                Configurar disponibilidade
+              </Link>
+            </Button>
+            <Button onClick={handleCreateNew} data-testid="new-appointment-btn">
+              <Plus className="size-4 mr-2" />
+              Novo agendamento
+            </Button>
+          </>
         }
       />
 

@@ -26,6 +26,15 @@ export function startScheduleTour() {
         },
       },
       {
+        element: '[data-testid="configure-availability-btn"]',
+        popover: {
+          title: '⏰ Configurar Disponibilidade',
+          description:
+            'Defina seus horários de atendimento recorrentes. Esses horários determinam quando você aparece como disponível para agendamentos.',
+          side: 'left',
+        },
+      },
+      {
         element: '[data-testid="new-appointment-btn"]',
         popover: {
           title: '➕ Novo Agendamento',

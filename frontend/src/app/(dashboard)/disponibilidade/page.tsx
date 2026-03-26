@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Wand2 } from "lucide-react"
+import Link from "next/link"
+import { ArrowLeft, Wand2 } from "lucide-react"
 
 import { Button } from "@/shared/ui/button"
 import { PageHeader } from "@/shared/components/pageHeader"
@@ -21,10 +22,18 @@ export default function DisponibilidadePage() {
         title="Disponibilidade"
         description="Configure seus horarios de atendimento."
         actions={
-          <Button variant="outline" onClick={() => setWizardOpen(true)} data-testid="open-wizard-btn">
-            <Wand2 className="size-4 mr-2" />
-            Configurar em lote
-          </Button>
+          <>
+            <Button variant="ghost" asChild>
+              <Link href="/agenda">
+                <ArrowLeft className="size-4 mr-2" />
+                Voltar para agenda
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={() => setWizardOpen(true)} data-testid="open-wizard-btn">
+              <Wand2 className="size-4 mr-2" />
+              Configurar em lote
+            </Button>
+          </>
         }
       />
 
