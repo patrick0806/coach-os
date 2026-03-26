@@ -1,8 +1,5 @@
 "use client"
 
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
-
 import { Button } from "@/shared/ui/button"
 import {
   Dialog,
@@ -12,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/ui/dialog"
+import { formatLongDate } from "@/shared/utils/formatDate"
 
 interface CancelSubscriptionDialogProps {
   open: boolean
@@ -29,7 +27,7 @@ export function CancelSubscriptionDialog({
   isLoading,
 }: CancelSubscriptionDialogProps) {
   const expiresFormatted = subscriptionExpiresAt
-    ? format(new Date(subscriptionExpiresAt), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+    ? formatLongDate(subscriptionExpiresAt)
     : null
 
   return (

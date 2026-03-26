@@ -1,6 +1,7 @@
 "use client"
 
 import { Check, Star } from "lucide-react"
+import { formatMoney } from "@/lib/formatMoney"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card"
@@ -45,7 +46,7 @@ export function PlanCard({
           <CardTitle className="text-lg">{name}</CardTitle>
           <div className="mt-2">
             <span className="text-3xl font-bold">
-              R$ {Number(price).toFixed(2).replace(".", ",")}
+              {formatMoney(Number(price))}
             </span>
             <span className="text-muted-foreground">/mês</span>
           </div>

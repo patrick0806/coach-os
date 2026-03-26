@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { format, parseISO } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { ChevronDown, ChevronUp, ImageIcon } from "lucide-react"
 
 import { Card, CardContent, CardHeader } from "@/shared/ui/card"
@@ -10,6 +8,7 @@ import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import type { StudentCheckin } from "@/features/studentPortal/types/studentPortalCheckins.types"
 import { METRIC_TYPE_LABELS } from "@/features/progress/types/progress.types"
+import { formatLongDate } from "@/shared/utils/formatDate"
 
 function formatMetricLabel(metricType: string): string {
   return METRIC_TYPE_LABELS[metricType as keyof typeof METRIC_TYPE_LABELS] ?? metricType
@@ -22,9 +21,7 @@ interface CheckinCardProps {
 export function CheckinCard({ checkin }: CheckinCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const formattedDate = format(parseISO(checkin.checkinDate), "dd 'de' MMMM 'de' yyyy", {
-    locale: ptBR,
-  })
+  const formattedDate = formatLongDate(checkin.checkinDate)
 
   const totalItems = checkin.records.length + checkin.photos.length
 

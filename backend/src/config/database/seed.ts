@@ -20,11 +20,9 @@ import {
   programTemplates,
   workoutTemplates,
   exerciseTemplates,
-  availabilityRules,
   studentPrograms,
   workoutDays,
   studentExercises,
-  trainingSchedules,
   progressCheckins,
   progressRecords,
   progressPhotos,
@@ -32,11 +30,11 @@ import {
   exerciseExecutions,
   exerciseSets,
   studentNotes,
-  appointments,
-  appointmentRequests,
-  availabilityExceptions,
   studentInvitationTokens,
   admins,
+  workingHours,
+  recurringSlots,
+  calendarEvents,
 } from "./schema";
 
 // Drizzle ORM type inference excludes optional/defaulted columns from insert types.
@@ -91,26 +89,16 @@ async function clean(db: ReturnType<typeof drizzle>) {
         .delete(programTemplates)
         .where(eq(programTemplates.tenantId, demoPersonal.id));
 
-      // Availability rules and exceptions
+      // Calendar events, recurring slots and working hours
       await db
-        .delete(availabilityRules)
-        .where(eq(availabilityRules.tenantId, demoPersonal.id));
+        .delete(calendarEvents)
+        .where(eq(calendarEvents.tenantId, demoPersonal.id));
       await db
-        .delete(availabilityExceptions)
-        .where(eq(availabilityExceptions.tenantId, demoPersonal.id));
-
-      // Training schedules
+        .delete(recurringSlots)
+        .where(eq(recurringSlots.tenantId, demoPersonal.id));
       await db
-        .delete(trainingSchedules)
-        .where(eq(trainingSchedules.tenantId, demoPersonal.id));
-
-      // Appointments and requests
-      await db
-        .delete(appointments)
-        .where(eq(appointments.tenantId, demoPersonal.id));
-      await db
-        .delete(appointmentRequests)
-        .where(eq(appointmentRequests.tenantId, demoPersonal.id));
+        .delete(workingHours)
+        .where(eq(workingHours.tenantId, demoPersonal.id));
 
       // Workout execution data (exercise_sets → exercise_executions → workout_sessions)
       const demoSessionIds = await db
@@ -467,28 +455,28 @@ async function seed(db: ReturnType<typeof drizzle>) {
       console.log("✓ Service plans already exist, skipping");
     }
 
-    // ─── Availability Rules ────────────────────────────────────────────────────
+    // ─── Working Hours ─────────────────────────────────────────────────────────
     // 3x/week plan: Mon(1), Wed(3), Fri(5) 08:00–09:00
     // 5x/week plan: Mon(1)–Fri(5) 16:00–17:00
-    const existingRules = await db
+    const existingWorkingHours = await db
       .select()
-      .from(availabilityRules)
-      .where(eq(availabilityRules.tenantId, demoPersonal.id));
+      .from(workingHours)
+      .where(eq(workingHours.tenantId, demoPersonal.id));
 
-    if (existingRules.length === 0) {
-      await db.insert(availabilityRules).values(sv([
-        { tenantId: demoPersonal.id, dayOfWeek: 1, startTime: "08:00", endTime: "09:00", isActive: true },
-        { tenantId: demoPersonal.id, dayOfWeek: 3, startTime: "08:00", endTime: "09:00", isActive: true },
-        { tenantId: demoPersonal.id, dayOfWeek: 5, startTime: "08:00", endTime: "09:00", isActive: true },
-        { tenantId: demoPersonal.id, dayOfWeek: 1, startTime: "16:00", endTime: "17:00", isActive: true },
-        { tenantId: demoPersonal.id, dayOfWeek: 2, startTime: "16:00", endTime: "17:00", isActive: true },
-        { tenantId: demoPersonal.id, dayOfWeek: 3, startTime: "16:00", endTime: "17:00", isActive: true },
-        { tenantId: demoPersonal.id, dayOfWeek: 4, startTime: "16:00", endTime: "17:00", isActive: true },
-        { tenantId: demoPersonal.id, dayOfWeek: 5, startTime: "16:00", endTime: "17:00", isActive: true },
+    if (existingWorkingHours.length === 0) {
+      await db.insert(workingHours).values(sv([
+        { tenantId: demoPersonal.id, dayOfWeek: 1, startTime: "08:00", endTime: "09:00", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, dayOfWeek: 3, startTime: "08:00", endTime: "09:00", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, dayOfWeek: 5, startTime: "08:00", endTime: "09:00", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, dayOfWeek: 1, startTime: "16:00", endTime: "17:00", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, dayOfWeek: 2, startTime: "16:00", endTime: "17:00", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, dayOfWeek: 3, startTime: "16:00", endTime: "17:00", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, dayOfWeek: 4, startTime: "16:00", endTime: "17:00", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, dayOfWeek: 5, startTime: "16:00", endTime: "17:00", effectiveFrom: "2026-01-01", isActive: true },
       ]));
-      console.log("✓ 8 availability rules seeded");
+      console.log("✓ 8 working hours seeded");
     } else {
-      console.log("✓ Availability rules already exist, skipping");
+      console.log("✓ Working hours already exist, skipping");
     }
 
     // ─── Fetch exercise IDs by name ────────────────────────────────────────────
@@ -1098,11 +1086,11 @@ async function seed(db: ReturnType<typeof drizzle>) {
         }));
       }
 
-      // Training schedule: Mon/Wed/Fri 08:00–09:00 (matches coach availability)
-      await db.insert(trainingSchedules).values(sv([
-        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, dayOfWeek: 1, startTime: "08:00", endTime: "09:00", location: "Academia Central", isActive: true },
-        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, dayOfWeek: 3, startTime: "08:00", endTime: "09:00", location: "Academia Central", isActive: true },
-        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, dayOfWeek: 5, startTime: "08:00", endTime: "09:00", location: "Academia Central", isActive: true },
+      // Recurring slots: Mon/Wed/Fri 08:00–09:00 (matches coach working hours)
+      await db.insert(recurringSlots).values(sv([
+        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, type: "booking", dayOfWeek: 1, startTime: "08:00", endTime: "09:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, type: "booking", dayOfWeek: 3, startTime: "08:00", endTime: "09:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, studentId: carlos.id, studentProgramId: carlosProgram.id, type: "booking", dayOfWeek: 5, startTime: "08:00", endTime: "09:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
       ]));
 
       // ── Student 3: Ana Paula Silva — Presencial 5x por Semana ───────────────
@@ -1128,16 +1116,16 @@ async function seed(db: ReturnType<typeof drizzle>) {
         }));
       }
 
-      // Training schedule: Mon–Fri 16:00–17:00 (matches coach availability)
-      await db.insert(trainingSchedules).values(sv([
-        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 1, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
-        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 2, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
-        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 3, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
-        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 4, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
-        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, dayOfWeek: 5, startTime: "16:00", endTime: "17:00", location: "Academia Central", isActive: true },
+      // Recurring slots: Mon–Fri 16:00–17:00 (matches coach working hours)
+      await db.insert(recurringSlots).values(sv([
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, type: "booking", dayOfWeek: 1, startTime: "16:00", endTime: "17:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, type: "booking", dayOfWeek: 2, startTime: "16:00", endTime: "17:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, type: "booking", dayOfWeek: 3, startTime: "16:00", endTime: "17:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, type: "booking", dayOfWeek: 4, startTime: "16:00", endTime: "17:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
+        { tenantId: demoPersonal.id, studentId: ana.id, studentProgramId: anaProgram.id, type: "booking", dayOfWeek: 5, startTime: "16:00", endTime: "17:00", location: "Academia Central", effectiveFrom: "2026-01-01", isActive: true },
       ]));
 
-      console.log("✓ 3 demo students seeded with programs, training schedules and coaching contracts");
+      console.log("✓ 3 demo students seeded with programs, recurring slots and coaching contracts");
     } else {
       console.log(`✓ Demo students already exist (${existingStudents.length}), skipping`);
     }

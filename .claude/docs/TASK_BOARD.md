@@ -1,6 +1,19 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-25
+Last updated: 2026-03-26
+
+---
+
+## Code Quality Refactoring ✅ COMPLETE (2026-03-26)
+
+Refatoracao de qualidade de codigo sem mudancas de comportamento. 878 testes backend + build frontend passando.
+
+- [x] Fase 1: Consolidar formatMoney — 12 arquivos usando utilitario compartilhado `@/lib/formatMoney`
+- [x] Fase 2: Criar utilitario `formatDate` — novo `shared/utils/formatDate.ts` + 11 arquivos atualizados
+- [x] Fase 3: Extrair logica de limite de alunos — novo `shared/utils/studentLimit.util.ts`, 3 use cases simplificados
+- [x] Fase 4: Batch inserts — `createMany` no ExerciseTemplatesRepository, usado no duplicateProgramTemplate
+- [x] Fase 5: Otimizar reorder — `Promise.all` em exerciseTemplates e workoutTemplates repositories
+- [x] Seed atualizado — removidas entidades antigas do scheduling (availabilityRules, trainingSchedules, etc.)
 
 ---
 

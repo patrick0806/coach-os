@@ -5,10 +5,7 @@ import type { PublicProfile } from "@/features/publicPage/types/publicPage.types
 import { PublicAbout } from "@/features/publicPage/components/publicAbout"
 import { PublicAvailability } from "@/features/publicPage/components/publicAvailability"
 import { PublicStudentArea } from "@/features/publicPage/components/publicStudentArea"
-
-function formatPrice(price: string): string {
-  return parseFloat(price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-}
+import { formatMoney } from "@/lib/formatMoney"
 
 interface Layout2Props {
   profile: PublicProfile
@@ -139,7 +136,7 @@ export function Layout2({ profile, slug, hrefPrefix = "" }: Layout2Props) {
                       </span>
                     </div>
                     <p className="text-2xl font-bold" style={{ color: "var(--brand-color, hsl(var(--primary)))" }}>
-                      {formatPrice(plan.price)}
+                      {formatMoney(Number(plan.price))}
                       <span className="text-sm font-normal text-muted-foreground">/mês</span>
                     </p>
                     {plan.sessionsPerWeek && (

@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import * as argon2 from "argon2";
 import { randomBytes } from "crypto";
 import { z } from "zod";
@@ -11,6 +11,7 @@ import { PlansRepository } from "@shared/repositories/plans.repository";
 import { ServicePlansRepository } from "@shared/repositories/servicePlans.repository";
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
+import { enforceStudentLimit } from "@shared/utils/studentLimit.util";
 import { validate } from "@shared/utils/validation.util";
 
 const createStudentSchema = z.object({
@@ -57,19 +58,12 @@ export class CreateStudentUseCase {
       ? data.phoneNumber.replace(/\D/g, "") || undefined
       : undefined;
 
-    const personal = await this.personalsRepository.findById(tenantId);
-    if (!personal) throw new NotFoundException("Personal not found");
-
-    const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
-    if (!plan) throw new NotFoundException("Plano não encontrado");
-
-    // Check student limit (skip for whitelisted accounts)
-    if (!personal.isWhitelisted) {
-      const count = await this.studentsRepository.countByTenantId(tenantId);
-      if (count >= plan.maxStudents) {
-        throw new ForbiddenException("Student limit reached for your current plan");
-      }
-    }
+    await enforceStudentLimit(
+      tenantId,
+      this.personalsRepository,
+      this.plansRepository,
+      this.studentsRepository,
+    );
 
     // Check if email is already in use globally
     const existingUser = await this.usersRepository.findByEmail(data.email);

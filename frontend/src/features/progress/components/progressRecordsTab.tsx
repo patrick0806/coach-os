@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { BarChart3, Pencil, Trash2, Plus } from "lucide-react"
 
 import {
@@ -27,6 +25,7 @@ import { ProgressRecordFormDialog } from "@/features/progress/components/progres
 import { useProgressChartData } from "@/features/progress/hooks/useProgressChartData"
 import { ProgressChart } from "@/features/progress/components/progressChart"
 import { CombinedProgressChart } from "@/features/progress/components/combinedProgressChart"
+import { formatShortDate } from "@/shared/utils/formatDate"
 import {
   METRIC_TYPES,
   METRIC_TYPE_LABELS,
@@ -147,7 +146,7 @@ export function ProgressRecordsTab({ studentId }: ProgressRecordsTabProps) {
                       {record.value} {METRIC_TYPE_UNITS[record.metricType as MetricType]}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      {format(new Date(record.recordedAt), "dd/MM/yyyy", { locale: ptBR })}
+                      {formatShortDate(record.recordedAt)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">

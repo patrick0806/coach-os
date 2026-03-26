@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { ClipboardList, Clock, Repeat, XCircle } from "lucide-react"
 
 import { Badge } from "@/shared/ui/badge"
@@ -14,19 +12,16 @@ import { useStudentContracts } from "@/features/coachingContracts/hooks/useStude
 import { useCancelContract } from "@/features/coachingContracts/hooks/useCancelContract"
 import { AssignPlanDialog } from "@/features/coachingContracts/components/assignPlanDialog"
 import type { CoachingContractItem } from "@/features/coachingContracts/types/coachingContracts.types"
+import { formatMoney } from "@/lib/formatMoney"
+import { formatShortDate } from "@/shared/utils/formatDate"
 
 interface StudentContractSectionProps {
   studentId: string
 }
 
-function formatPrice(price: string): string {
-  const num = parseFloat(price)
-  return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-}
-
 function formatDate(date: string | null | undefined): string {
   if (!date) return "—"
-  return format(new Date(date), "dd/MM/yyyy", { locale: ptBR })
+  return formatShortDate(date)
 }
 
 function ContractStatusBadge({ status }: { status: CoachingContractItem["status"] }) {
@@ -110,7 +105,7 @@ export function StudentContractSection({ studentId }: StudentContractSectionProp
                   </div>
 
                   <p className="text-2xl font-bold">
-                    {formatPrice(activeContract.servicePlan.price)}
+                    {formatMoney(Number(activeContract.servicePlan.price))}
                   </p>
 
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -184,7 +179,7 @@ export function StudentContractSection({ studentId }: StudentContractSectionProp
                       </p>
                     </div>
                     <p className="text-sm font-semibold shrink-0">
-                      {formatPrice(contract.servicePlan.price)}
+                      {formatMoney(Number(contract.servicePlan.price))}
                     </p>
                   </div>
                 </CardContent>

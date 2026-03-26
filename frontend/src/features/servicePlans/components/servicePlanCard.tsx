@@ -13,16 +13,12 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu"
 import type { ServicePlanItem } from "@/features/servicePlans/types/servicePlans.types"
+import { formatMoney } from "@/lib/formatMoney"
 
 interface ServicePlanCardProps {
   plan: ServicePlanItem
   onEdit: (plan: ServicePlanItem) => void
   onDelete: (plan: ServicePlanItem) => void
-}
-
-function formatPrice(price: string): string {
-  const num = parseFloat(price)
-  return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
 export function ServicePlanCard({ plan, onEdit, onDelete }: ServicePlanCardProps) {
@@ -54,7 +50,7 @@ export function ServicePlanCard({ plan, onEdit, onDelete }: ServicePlanCardProps
               <p className="text-xs text-muted-foreground line-clamp-2">{plan.description}</p>
             )}
 
-            <p className="text-lg font-bold text-foreground">{formatPrice(plan.price)}</p>
+            <p className="text-lg font-bold text-foreground">{formatMoney(Number(plan.price))}</p>
 
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               {plan.sessionsPerWeek != null && (

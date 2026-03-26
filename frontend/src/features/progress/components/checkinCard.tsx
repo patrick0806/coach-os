@@ -1,7 +1,5 @@
 "use client"
 
-import { format, parseISO } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { Trash2 } from "lucide-react"
 import Image from "next/image"
 
@@ -25,6 +23,7 @@ import {
   type MetricType,
 } from "@/features/progress/types/progress.types"
 import type { ProgressCheckin } from "@/features/progress/types/progressCheckins.types"
+import { formatLongDate } from "@/shared/utils/formatDate"
 
 interface CheckinCardProps {
   checkin: ProgressCheckin
@@ -32,11 +31,7 @@ interface CheckinCardProps {
 }
 
 export function CheckinCard({ checkin, onDelete }: CheckinCardProps) {
-  const formattedDate = format(
-    parseISO(checkin.checkinDate),
-    "d 'de' MMMM 'de' yyyy",
-    { locale: ptBR },
-  )
+  const formattedDate = formatLongDate(checkin.checkinDate)
 
   return (
     <Card data-testid="checkin-card">

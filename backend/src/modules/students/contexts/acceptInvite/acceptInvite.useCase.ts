@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import * as argon2 from "argon2";
 import { z } from "zod";
 
@@ -12,6 +12,7 @@ import { StudentInvitationTokensRepository } from "@shared/repositories/studentI
 import { StudentsRepository } from "@shared/repositories/students.repository";
 import { UsersRepository } from "@shared/repositories/users.repository";
 import { hashToken } from "@shared/utils/token.util";
+import { enforceStudentLimit } from "@shared/utils/studentLimit.util";
 import { validate } from "@shared/utils/validation.util";
 
 const acceptInviteSchema = z.object({
@@ -47,19 +48,12 @@ export class AcceptInviteUseCase {
 
     const { tenantId, email } = tokenRecord;
 
-    const personal = await this.personalsRepository.findById(tenantId);
-    if (!personal) throw new NotFoundException("Personal not found");
-
-    const plan = await this.plansRepository.findById(personal.subscriptionPlanId);
-    if (!plan) throw new NotFoundException("Plano não encontrado");
-
-    // Re-check student limit for token's tenant (skip for whitelisted accounts)
-    if (!personal.isWhitelisted) {
-      const count = await this.studentsRepository.countByTenantId(tenantId);
-      if (count >= plan.maxStudents) {
-        throw new ForbiddenException("Student limit reached for this coach");
-      }
-    }
+    await enforceStudentLimit(
+      tenantId,
+      this.personalsRepository,
+      this.plansRepository,
+      this.studentsRepository,
+    );
 
     // CHK-010: Check if user already exists (multi-tenant student)
     const existingUser = await this.usersRepository.findByEmail(email);

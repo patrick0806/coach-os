@@ -1,12 +1,12 @@
 "use client"
 
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { CreditCard, Users } from "lucide-react"
 
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card"
+import { formatMoney } from "@/lib/formatMoney"
+import { formatLongDate } from "@/shared/utils/formatDate"
 import type { SubscriptionDetails } from "@/features/billing/services/subscription.service"
 
 interface SubscriptionStatusCardProps {
@@ -28,7 +28,7 @@ const STATUS_LABELS: Record<string, { label: string; variant: "default" | "secon
 
 function formatDate(iso: string | null): string | null {
   if (!iso) return null
-  return format(new Date(iso), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+  return formatLongDate(iso)
 }
 
 export function SubscriptionStatusCard({
@@ -74,7 +74,7 @@ export function SubscriptionStatusCard({
             <p className="font-semibold">{subscription.plan?.name ?? "Sem plano"}</p>
             {subscription.plan && Number(subscription.plan.price) > 0 && (
               <p className="text-sm text-muted-foreground">
-                R$ {Number(subscription.plan.price).toFixed(2).replace(".", ",")}/mês
+                {formatMoney(Number(subscription.plan.price))}/mês
               </p>
             )}
           </div>

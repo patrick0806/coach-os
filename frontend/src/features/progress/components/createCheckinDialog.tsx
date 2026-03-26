@@ -33,6 +33,7 @@ import {
 } from "@/features/progress/types/progress.types"
 import { progressService } from "@/features/progress/services/progress.service"
 import { useCreateCheckin } from "@/features/progress/hooks/useCreateCheckin"
+import { formatLongDate } from "@/shared/utils/formatDate"
 
 interface PhotoPreview {
   file: File
@@ -166,7 +167,7 @@ export function CreateCheckinDialog({
                     disabled={isPending}
                   >
                     <CalendarIcon className="mr-2 size-4 shrink-0" />
-                    {format(selectedDate, "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    {formatLongDate(selectedDate)}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">

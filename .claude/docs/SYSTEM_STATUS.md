@@ -1,6 +1,6 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-25 (post Scheduling Refactoring)
+Last updated: 2026-03-26 (post Code Quality Refactoring)
 
 ---
 
@@ -15,10 +15,10 @@ All backend modules are **functionally complete** (878 tests passing — reduced
 | platform/subscriptions | minor issues | Remaining: checkout session.url non-null assertion |
 | platform/webhooks | ok | |
 | platform/tenants | ok | |
-| training | ok | studentPrograms uses RecurringSlotsRepository |
+| training | ok | studentPrograms uses RecurringSlotsRepository. Batch inserts + parallel reorder optimized |
 | scheduling | ok | **Refactored**: 3 tables (working_hours, recurring_slots, calendar_events). Old 6-table model removed. |
 | coaching | ok | |
-| students | ok | TOCTOU race condition accepted risk |
+| students | ok | TOCTOU accepted risk. Student limit logic extracted to `shared/utils/studentLimit.util.ts` |
 | workoutExecution | ok | |
 | progress | ok | |
 | public | ok | Uses WorkingHoursRepository + RecurringSlotsRepository |
@@ -39,6 +39,7 @@ All backend modules are **functionally complete** (878 tests passing — reduced
 | **Settings / Profile** | ok | |
 | **Recurring Slots UI** | ok | Student Agenda tab with CRUD (replaces Training Schedule UI) |
 | **Mobile UX** | ok | Sidebar closes on nav, cards on students, tabs scroll fixed, time fields stacked, exercise actions visible, GIF padding, selector dialog overflow |
+| **Shared utils** | ok | `formatMoney` (lib), `formatDate` (shared/utils), `formatPhone` (shared/utils) consolidated |
 | **Notifications** | not started | Backlog (Milestone 14) |
 
 ---

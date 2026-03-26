@@ -32,12 +32,10 @@ import {
   useDeletePlan,
 } from "@/features/admin/hooks/useAdminPlans";
 import type { AdminPlan } from "@/features/admin/types/admin.types";
+import { formatMoney } from "@/lib/formatMoney";
 
 function formatCents(cents: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(cents / 100);
+  return formatMoney(cents / 100);
 }
 
 function priceToCents(price: string): number {

@@ -43,8 +43,8 @@ export class DuplicateProgramTemplateUseCase {
           order: workout.order,
         }, tx);
 
-        for (const exercise of workout.exerciseTemplates) {
-          await this.exerciseTemplatesRepository.create({
+        await this.exerciseTemplatesRepository.createMany(
+          workout.exerciseTemplates.map((exercise) => ({
             workoutTemplateId: newWorkout.id,
             exerciseId: exercise.exerciseId,
             sets: exercise.sets,
@@ -53,8 +53,9 @@ export class DuplicateProgramTemplateUseCase {
             duration: exercise.duration ?? undefined,
             order: exercise.order,
             notes: exercise.notes ?? undefined,
-          }, tx);
-        }
+          })),
+          tx,
+        );
       }
     });
 

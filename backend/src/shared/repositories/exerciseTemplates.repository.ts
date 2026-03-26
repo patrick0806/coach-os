@@ -37,6 +37,24 @@ export class ExerciseTemplatesRepository {
     return result[0];
   }
 
+  async createMany(data: {
+    workoutTemplateId: string;
+    exerciseId: string;
+    sets: number;
+    repetitions?: number;
+    restSeconds?: number;
+    duration?: string;
+    order: number;
+    notes?: string;
+  }[], tx?: DbTransaction): Promise<ExerciseTemplate[]> {
+    if (data.length === 0) return [];
+    const result = await (tx ?? this.drizzle.db)
+      .insert(exerciseTemplates)
+      .values(data)
+      .returning();
+    return result;
+  }
+
   async findById(id: string): Promise<ExerciseTemplate | undefined> {
     const result = await this.drizzle.db
       .select()
@@ -115,18 +133,21 @@ export class ExerciseTemplatesRepository {
   }
 
   async reorder(workoutTemplateId: string, items: { id: string; order: number }[]): Promise<void> {
+    if (items.length === 0) return;
     await this.drizzle.db.transaction(async (tx) => {
-      for (const item of items) {
-        await tx
-          .update(exerciseTemplates)
-          .set({ order: item.order })
-          .where(
-            and(
-              eq(exerciseTemplates.id, item.id),
-              eq(exerciseTemplates.workoutTemplateId, workoutTemplateId),
+      await Promise.all(
+        items.map((item) =>
+          tx
+            .update(exerciseTemplates)
+            .set({ order: item.order })
+            .where(
+              and(
+                eq(exerciseTemplates.id, item.id),
+                eq(exerciseTemplates.workoutTemplateId, workoutTemplateId),
+              ),
             ),
-          );
-      }
+        ),
+      );
     });
   }
 }

@@ -29,6 +29,7 @@ import { useUpdateStudent } from "@/features/students/hooks/useUpdateStudent"
 import type { StudentDetail } from "@/features/students/types/students.types"
 import { servicePlansService } from "@/features/servicePlans/services/servicePlans.service"
 import { formatPhone } from "@/shared/utils/formatPhone"
+import { formatMoney } from "@/lib/formatMoney"
 
 const schema = z.object({
   name: z.string().min(2, "Nome deve ter ao menos 2 caracteres").optional(),
@@ -168,7 +169,7 @@ export function StudentFormDialog({ open, onOpenChange, student }: StudentFormDi
                         <SelectItem value="none">Nenhum</SelectItem>
                         {activePlans.map((plan) => (
                           <SelectItem key={plan.id} value={plan.id}>
-                            {plan.name} — R$ {Number(plan.price).toFixed(2).replace(".", ",")}
+                            {plan.name} — {formatMoney(Number(plan.price))}
                           </SelectItem>
                         ))}
                       </SelectContent>

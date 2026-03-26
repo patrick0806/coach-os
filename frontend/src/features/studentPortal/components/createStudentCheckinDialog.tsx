@@ -32,6 +32,7 @@ import {
 } from "@/features/progress/types/progress.types"
 import { studentPortalCheckinsService } from "@/features/studentPortal/services/studentPortalCheckins.service"
 import { useCreateMyCheckin } from "@/features/studentPortal/hooks/useCreateMyCheckin"
+import { formatLongDate } from "@/shared/utils/formatDate"
 
 interface PhotoPreview {
   file: File
@@ -158,7 +159,7 @@ export function CreateStudentCheckinDialog({
                     disabled={isPending}
                   >
                     <CalendarIcon className="mr-2 size-4 shrink-0" />
-                    {format(selectedDate, "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    {formatLongDate(selectedDate)}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">

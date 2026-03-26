@@ -69,7 +69,7 @@ const makeWorkoutTemplatesRepository = () => ({
 });
 
 const makeExerciseTemplatesRepository = () => ({
-  create: vi.fn().mockResolvedValue({
+  createMany: vi.fn().mockResolvedValue([{
     id: "new-exercise-template-id",
     workoutTemplateId: "new-workout-id",
     exerciseId: "exercise-id-1",
@@ -81,7 +81,7 @@ const makeExerciseTemplatesRepository = () => ({
     notes: null,
     createdAt: new Date(),
     updatedAt: new Date(),
-  }),
+  }]),
 });
 
 const mockTx = { isTx: true };
@@ -150,14 +150,14 @@ describe("DuplicateProgramTemplateUseCase", () => {
     await useCase.execute("template-id-1", tenantId);
 
     expect(workoutTemplatesRepository.create).toHaveBeenCalledTimes(1);
-    expect(exerciseTemplatesRepository.create).toHaveBeenCalledTimes(1);
+    expect(exerciseTemplatesRepository.createMany).toHaveBeenCalledTimes(1);
 
-    expect(exerciseTemplatesRepository.create).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(exerciseTemplatesRepository.createMany).toHaveBeenCalledWith(
+      [expect.objectContaining({
         exerciseId: "exercise-id-1",
         sets: 3,
         repetitions: 10,
-      }),
+      })],
       mockTx,
     );
   });
@@ -173,8 +173,8 @@ describe("DuplicateProgramTemplateUseCase", () => {
       expect.any(Object),
       mockTx,
     );
-    expect(exerciseTemplatesRepository.create).toHaveBeenCalledWith(
-      expect.any(Object),
+    expect(exerciseTemplatesRepository.createMany).toHaveBeenCalledWith(
+      expect.any(Array),
       mockTx,
     );
   });

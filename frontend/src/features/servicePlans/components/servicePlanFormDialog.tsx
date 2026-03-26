@@ -27,13 +27,11 @@ import { useCreateServicePlan } from "@/features/servicePlans/hooks/useCreateSer
 import { useUpdateServicePlan } from "@/features/servicePlans/hooks/useUpdateServicePlan"
 import { type ServicePlanItem } from "@/features/servicePlans/types/servicePlans.types"
 import { useEnumAttendanceTypes } from "@/features/shared/hooks/useEnumAttendanceTypes"
+import { formatMoney } from "@/lib/formatMoney"
 
 // Formats an integer (cents) as BRL currency string
 function formatCents(cents: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(cents / 100)
+  return formatMoney(cents / 100)
 }
 
 // Converts a decimal price string (e.g. "299.90") to integer cents

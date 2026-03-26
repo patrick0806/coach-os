@@ -1,14 +1,10 @@
 import { MessageCircle } from "lucide-react"
 import type { PublicServicePlan } from "@/features/publicPage/types/publicPage.types"
+import { formatMoney } from "@/lib/formatMoney"
 
 interface PublicServicePlansProps {
   plans: PublicServicePlan[]
   phoneNumber: string | null
-}
-
-function formatPrice(price: string): string {
-  const num = parseFloat(price)
-  return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
 export function PublicServicePlans({ plans, phoneNumber }: PublicServicePlansProps) {
@@ -46,7 +42,7 @@ export function PublicServicePlans({ plans, phoneNumber }: PublicServicePlansPro
                 </div>
 
                 <p className="text-2xl font-bold" style={{ color: "var(--brand-color, hsl(var(--primary)))" }}>
-                  {formatPrice(plan.price)}
+                  {formatMoney(Number(plan.price))}
                   <span className="text-sm font-normal text-muted-foreground">/mês</span>
                 </p>
 

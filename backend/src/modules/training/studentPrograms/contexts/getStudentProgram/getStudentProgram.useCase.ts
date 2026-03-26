@@ -9,13 +9,13 @@ import {
 export class GetStudentProgramUseCase {
   constructor(
     private readonly studentProgramsRepository: StudentProgramsRepository,
-  ) {}
+  ) { }
 
   async execute(id: string, tenantId: string): Promise<StudentProgramWithTree> {
     const program = await this.studentProgramsRepository.findByIdWithTree(id, tenantId);
 
     if (!program) {
-      throw new NotFoundException("Student program not found");
+      throw new NotFoundException("Programa de treinamento do aluno não encontrado");
     }
 
     return program;

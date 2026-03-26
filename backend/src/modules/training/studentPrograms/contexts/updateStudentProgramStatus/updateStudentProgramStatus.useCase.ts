@@ -17,7 +17,7 @@ export class UpdateStudentProgramStatusUseCase {
   constructor(
     private readonly studentProgramsRepository: StudentProgramsRepository,
     private readonly recurringSlotsRepository: RecurringSlotsRepository,
-  ) {}
+  ) { }
 
   async execute(id: string, body: unknown, tenantId: string): Promise<StudentProgram> {
     const data = validate(updateStudentProgramStatusSchema, body);
@@ -25,7 +25,7 @@ export class UpdateStudentProgramStatusUseCase {
     const program = await this.studentProgramsRepository.findById(id, tenantId);
 
     if (!program) {
-      throw new NotFoundException("Student program not found");
+      throw new NotFoundException("Programa de treinamento do aluno não encontrado");
     }
 
     const updated = await this.studentProgramsRepository.updateStatus(
@@ -35,7 +35,7 @@ export class UpdateStudentProgramStatusUseCase {
     );
 
     if (!updated) {
-      throw new NotFoundException("Student program not found");
+      throw new NotFoundException("Programa de treinamento do aluno não encontrado");
     }
 
     if (data.status === "finished" || data.status === "cancelled") {

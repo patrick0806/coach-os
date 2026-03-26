@@ -1,7 +1,5 @@
 "use client"
 
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { MoreHorizontal } from "lucide-react"
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
@@ -27,6 +25,7 @@ import { StudentStatusBadge } from "@/features/students/components/studentStatus
 import { useUpdateStudentStatus } from "@/features/students/hooks/useUpdateStudentStatus"
 import type { StudentItem, StudentStatus } from "@/features/students/types/students.types"
 import { fadeIn } from "@/lib/animations"
+import { formatShortDate } from "@/shared/utils/formatDate"
 
 interface StudentTableProps {
   students: StudentItem[]
@@ -162,7 +161,7 @@ export function StudentTable({ students, onEdit, onInvite }: StudentTableProps) 
                 </TableCell>
                 <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                   {student.createdAt
-                    ? format(new Date(student.createdAt), "dd/MM/yyyy", { locale: ptBR })
+                    ? formatShortDate(student.createdAt)
                     : "—"}
                 </TableCell>
                 <TableCell>

@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 import { Camera, X, Plus } from "lucide-react"
 import Image from "next/image"
 
@@ -23,6 +21,7 @@ import { useProgressPhotos } from "@/features/progress/hooks/useProgressPhotos"
 import { useDeleteProgressPhoto } from "@/features/progress/hooks/useDeleteProgressPhoto"
 import { UploadProgressPhotoDialog } from "@/features/progress/components/uploadProgressPhotoDialog"
 import type { ProgressPhoto } from "@/features/progress/types/progress.types"
+import { formatShortDate } from "@/shared/utils/formatDate"
 
 interface ProgressPhotosTabProps {
   studentId: string
@@ -101,7 +100,7 @@ export function ProgressPhotosTab({ studentId }: ProgressPhotosTabProps) {
                 </div>
                 <div className="p-2">
                   <p className="text-xs text-muted-foreground">
-                    {format(new Date(photo.createdAt), "dd/MM/yyyy", { locale: ptBR })}
+                    {formatShortDate(photo.createdAt)}
                   </p>
                   {photo.notes && (
                     <p className="text-xs text-foreground mt-0.5 truncate">{photo.notes}</p>

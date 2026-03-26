@@ -3,9 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { MoreHorizontal, ChevronRight } from "lucide-react"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
-
 import { Card, CardContent } from "@/shared/ui/card"
 import { Button } from "@/shared/ui/button"
 import {
@@ -17,6 +14,7 @@ import {
 import { StudentProgramStatusBadge } from "@/features/studentPrograms/components/studentProgramStatusBadge"
 import { UpdateProgramStatusDialog } from "@/features/studentPrograms/components/updateProgramStatusDialog"
 import type { StudentProgramItem } from "@/features/studentPrograms/types/studentPrograms.types"
+import { formatLongDate } from "@/shared/utils/formatDate"
 
 interface StudentProgramCardProps {
   program: StudentProgramItem
@@ -47,7 +45,7 @@ export function StudentProgramCard({ program, studentId }: StudentProgramCardPro
             {program.startedAt && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 Iniciado em{" "}
-                {format(new Date(program.startedAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                {formatLongDate(program.startedAt)}
               </p>
             )}
           </div>

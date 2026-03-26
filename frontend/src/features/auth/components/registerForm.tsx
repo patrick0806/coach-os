@@ -17,6 +17,7 @@ import {
   FieldError,
   FieldGroup,
 } from "@/shared/ui/field";
+import { formatMoney } from "@/lib/formatMoney";
 import type { Plan } from "@/features/marketing/services/plans.service";
 
 const registerSchema = z
@@ -61,10 +62,6 @@ const strengthConfig = {
   2: { label: "Média", color: "bg-warning" },
   3: { label: "Forte", color: "bg-success" },
 } as const;
-
-function formatMoney(value: number) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
 
 export function RegisterForm({ planId, selectedPlan, onBack }: RegisterFormProps) {
   const [showPassword, setShowPassword] = useState(false);
