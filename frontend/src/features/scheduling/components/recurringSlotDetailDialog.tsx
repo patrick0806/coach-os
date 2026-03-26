@@ -64,11 +64,6 @@ export function RecurringSlotDetailDialog({
     setConflictOpen(false)
   }
 
-  if (!entry) return null
-
-  const start = new Date(entry.startAt)
-  const end = new Date(entry.endAt)
-
   function handleSkip() {
     if (!entry) return
     skipEvent.createWithConflictCheck({
@@ -85,8 +80,8 @@ export function RecurringSlotDetailDialog({
   function handleReschedule() {
     if (!entry || !newDate) return
     const dateStr = format(newDate, "yyyy-MM-dd")
-    const startAt = `${dateStr}T${newStartTime}:00`
-    const endAt = `${dateStr}T${newEndTime}:00`
+    const startAt = `${dateStr}T${newStartTime}:00Z`
+    const endAt = `${dateStr}T${newEndTime}:00Z`
     rescheduleEvent.createWithConflictCheck({
       type: "override",
       recurringSlotId: entry.recurringSlotId ?? entry.id,
@@ -108,6 +103,11 @@ export function RecurringSlotDetailDialog({
       setConflictOpen(true)
     }
   }, [rescheduleEvent.hasConflicts])
+
+  if (!entry) return null
+
+  const start = new Date(entry.startAt)
+  const end = new Date(entry.endAt)
 
   return (
     <>
