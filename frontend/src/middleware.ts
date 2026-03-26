@@ -105,13 +105,25 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Redirect already authenticated coaches away from auth pages
+  // Redirect already authenticated users away from auth pages
   if (
     hasToken &&
     (pathname === "/login" ||
       pathname === "/cadastro" ||
       pathname === "/esqueci-senha")
   ) {
+    // Admins go to admin dashboard, coaches go to coach dashboard
+    const userCookieValue = request.cookies.get(AUTH_USER_COOKIE)?.value
+    if (userCookieValue) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userCookieValue))
+        if (user?.role === "ADMIN") {
+          return NextResponse.redirect(new URL("/admin/dashboard", request.url))
+        }
+      } catch {
+        // Malformed cookie — fall through to default redirect
+      }
+    }
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 

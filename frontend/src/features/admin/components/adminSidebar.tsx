@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, CreditCard, LogOut, Shield, Users, List } from "lucide-react";
+import { BarChart3, CreditCard, LogOut, Menu, Shield, Users, List } from "lucide-react";
 
 import { authStore } from "@/stores/authStore";
 import { Button } from "@/shared/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/shared/ui/sheet";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -17,7 +19,7 @@ const navItems = [
   { label: "Tenants", href: "/admin/tenants", icon: List },
 ];
 
-export function AdminSidebar() {
+function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const user = authStore.getUser();
@@ -32,7 +34,7 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-sidebar-border lg:flex lg:flex-col bg-sidebar text-sidebar-foreground">
+    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-6">
         <Image src="/logo_transparent.png" alt="Coach OS" width={32} height={32} />
         <div>
@@ -49,6 +51,7 @@ export function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 active
@@ -82,6 +85,32 @@ export function AdminSidebar() {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function AdminSidebar() {
+  return (
+    <aside className="hidden h-screen w-64 shrink-0 border-r border-sidebar-border lg:flex lg:flex-col">
+      <AdminSidebarContent />
     </aside>
+  );
+}
+
+export function MobileAdminSidebarTrigger() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="size-8 lg:hidden">
+          <Menu className="size-5" />
+          <span className="sr-only">Abrir menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-64 p-0">
+        <AdminSidebarContent onNavigate={() => setOpen(false)} />
+      </SheetContent>
+    </Sheet>
   );
 }
