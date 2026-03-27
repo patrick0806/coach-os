@@ -38,6 +38,18 @@ function slugify(value: string): string {
     .replace(/^-|-$/g, "")
 }
 
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || "coachos.com.br"
+
+function getPublicPageUrl(slug: string): string {
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname
+    if (hostname.endsWith(BASE_DOMAIN)) {
+      return `https://${slug}.${BASE_DOMAIN}`
+    }
+  }
+  return `/coach/${slug}`
+}
+
 export function LpEditorPage() {
   const { data: profile, isLoading } = useGetMyProfile()
   const updateProfile = useUpdateProfile()
@@ -156,7 +168,7 @@ export function LpEditorPage() {
           </p>
         </div>
         <a
-          href={`/coach/${slug || profileDraft.slug}`}
+          href={getPublicPageUrl(slug || profileDraft.slug)}
           target="_blank"
           rel="noopener noreferrer"
           data-tour="view-page-link"
