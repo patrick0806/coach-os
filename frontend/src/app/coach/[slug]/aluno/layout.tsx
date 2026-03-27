@@ -116,7 +116,7 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
                 />
                 {branding.coachName && (
                   <span className="text-[10px] text-muted-foreground leading-none mt-0.5">
-                    Treinando com {branding.coachName}
+                    Treinando com {branding.coachName} · via Coach OS
                   </span>
                 )}
               </div>
@@ -130,7 +130,7 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
                 </div>
                 {branding?.coachName && (
                   <span className="text-[10px] text-muted-foreground leading-none mt-0.5">
-                    Treinando com {branding.coachName}
+                    Treinando com {branding.coachName} · via Coach OS
                   </span>
                 )}
               </div>
@@ -154,8 +154,7 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
 
       {/* Bottom navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/60 bg-card">
-        <div className="mx-auto flex max-w-2xl flex-col items-center px-4 pt-2 pb-1">
-          <div className="flex w-full items-center justify-around">
+        <div className="mx-auto flex max-w-2xl items-center justify-around px-4 py-2">
             {navItems.map(({ path, label, icon: Icon }) => {
               const fullHref = href(path)
               const isActive = pathname === fullHref || pathname.startsWith(fullHref + "/")
@@ -178,10 +177,6 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
                 </Link>
               )
             })}
-          </div>
-          <p className="text-[10px] text-center text-muted-foreground pb-0.5">
-            {branding?.coachName ? `${branding.coachName} · via Coach OS` : "Coach OS"}
-          </p>
         </div>
       </nav>
     </div>
