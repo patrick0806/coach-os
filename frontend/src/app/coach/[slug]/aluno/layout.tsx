@@ -57,7 +57,7 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
     const brandingSlug = slug || studentAuthStore.getUser()?.personalSlug
     if (!brandingSlug) return
 
-    fetch(`${BASE_URL}/public/${brandingSlug}`)
+    fetch(`${BASE_URL}/v1/public/${brandingSlug}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         const profile = json?.data ?? json
@@ -88,11 +88,16 @@ export default function StudentLayout({ children, params }: StudentLayoutProps) 
     router.push(href("/"))
   }
 
-  const primaryHex = branding?.themeColor ?? "#6366f1"
-  const brandVars: CSSProperties = {
-    "--primary": primaryHex,
-    "--primary-foreground": getContrastColor(primaryHex),
-  } as CSSProperties
+  // Only override --primary when branding is loaded with a custom color.
+  // Before loading, do nothing — the parent CoachSlugLayout (Server Component) already
+  // sets --primary correctly via SSR. Tailwind v4 compiles bg-primary as var(--primary),
+  // not var(--color-primary), so --primary must be set.
+  const brandVars: CSSProperties = branding?.themeColor
+    ? ({
+        "--primary": branding.themeColor,
+        "--primary-foreground": getContrastColor(branding.themeColor),
+      } as CSSProperties)
+    : {}
 
   return (
     <div className="min-h-screen bg-background" style={brandVars}>

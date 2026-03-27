@@ -27,9 +27,11 @@ export default async function CoachSlugLayout({ children, params }: LayoutProps)
     "--brand-color-secondary": secondaryHex,
     "--brand-text-color": getContrastColor(primaryHex),
     "--brand-text-color-secondary": getContrastColor(secondaryHex),
-    // Override Tailwind primary so bg-primary/text-primary respect the coach brand color
-    "--color-primary": primaryHex,
-    "--color-primary-foreground": getContrastColor(primaryHex),
+    // Override Tailwind primary so bg-primary/text-primary respect the coach brand color.
+    // Tailwind v4 compiles bg-primary as var(--primary), NOT var(--color-primary),
+    // so we must set --primary directly.
+    "--primary": primaryHex,
+    "--primary-foreground": getContrastColor(primaryHex),
   } as CSSProperties
 
   return (
