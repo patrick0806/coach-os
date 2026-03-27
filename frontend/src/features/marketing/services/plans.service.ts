@@ -17,7 +17,7 @@ function mapPlan(raw: PlanApiResponse): Plan {
 }
 
 export async function listPlans(): Promise<Plan[]> {
-  const raw = await publicServerFetch<PlanApiResponse[]>("/plans", {
+  const raw = await publicServerFetch<PlanApiResponse[]>("/v1/plans", {
     revalidate: 300,
     tags: ["plans"],
   });
