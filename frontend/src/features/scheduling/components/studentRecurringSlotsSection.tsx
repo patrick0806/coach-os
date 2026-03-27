@@ -123,7 +123,7 @@ export function StudentRecurringSlotsSection({ studentId }: StudentRecurringSlot
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="group inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-sm"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-sm"
                       data-testid="recurring-slot-item"
                     >
                       <span className="font-medium">
@@ -135,7 +135,7 @@ export function StudentRecurringSlotsSection({ studentId }: StudentRecurringSlot
                           {item.location}
                         </span>
                       )}
-                      <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex gap-0.5 shrink-0">
                         <button
                           type="button"
                           className="p-0.5 rounded hover:bg-muted"
