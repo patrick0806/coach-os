@@ -18,7 +18,7 @@ interface PageProps {
 
 export default async function StudentLoginPage({ params }: PageProps) {
   const { slug } = await params
-  const coach = await publicServerFetch<CoachPublicProfile>(`/public/${slug}`)
+  const coach = await publicServerFetch<CoachPublicProfile>(`/v1/public/${slug}`)
   if (!coach) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">

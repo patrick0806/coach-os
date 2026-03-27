@@ -13,7 +13,7 @@ interface PageProps {
 
 export default async function EsqueciSenhaPage({ params }: PageProps) {
   const { slug } = await params
-  const coach = await publicServerFetch<CoachPublicProfile>(`/public/${slug}`)
+  const coach = await publicServerFetch<CoachPublicProfile>(`/v1/public/${slug}`)
 
   if (!coach) {
     return (

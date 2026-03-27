@@ -24,7 +24,7 @@ function getCanonicalUrl(slug: string): string {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const profile = await publicServerFetch<PublicProfile>(`/public/${slug}`, { revalidate: 60 })
+  const profile = await publicServerFetch<PublicProfile>(`/v1/public/${slug}`, { revalidate: 60 })
 
   if (!profile) return { title: "Personal não encontrado" }
 
@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CoachPublicPage({ params }: PageProps) {
   const { slug } = await params
-  const profile = await publicServerFetch<PublicProfile>(`/public/${slug}`, { revalidate: 60 })
+  const profile = await publicServerFetch<PublicProfile>(`/v1/public/${slug}`, { revalidate: 60 })
 
   if (!profile) notFound()
 
