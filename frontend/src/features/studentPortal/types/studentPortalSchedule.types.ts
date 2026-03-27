@@ -52,3 +52,25 @@ export interface ListMyEventsParams {
   endDate: string
   status?: CalendarEventStatus
 }
+
+export interface ListMyCalendarParams {
+  start: string
+  end: string
+}
+
+export interface StudentUnifiedCalendarEntry {
+  id: string
+  source: "recurring_slot" | "calendar_event"
+  startAt: string
+  endAt: string
+  studentId: string | null
+  studentName: string | null
+  type: "booking" | "block" | "one_off" | "override"
+  status: "scheduled" | "cancelled" | "completed" | "no_show"
+  appointmentType: string | null
+  meetingUrl: string | null
+  location: string | null
+  notes: string | null
+  recurringSlotId: string | null
+  isOverride?: boolean
+}

@@ -4,7 +4,7 @@ import { addDays, format } from "date-fns"
 import { CalendarDays } from "lucide-react"
 
 import { useStudentMyRecurringSlots } from "@/features/studentPortal/hooks/useStudentTrainingSchedules"
-import { useStudentMyEvents } from "@/features/studentPortal/hooks/useStudentMyAppointments"
+import { useStudentMyCalendar } from "@/features/studentPortal/hooks/useStudentMyAppointments"
 import { AgendaCard } from "@/features/studentPortal/components/agendaCard"
 import { WeeklyScheduleView } from "@/features/studentPortal/components/weeklyScheduleView"
 import { AppointmentListItem } from "@/features/studentPortal/components/appointmentListItem"
@@ -18,14 +18,16 @@ export default function StudentAgendaPage() {
   const { data: slotsData, isLoading: slotsLoading } =
     useStudentMyRecurringSlots()
 
-  const { data: eventsData, isLoading: eventsLoading } =
-    useStudentMyEvents({
-      startDate: format(today, "yyyy-MM-dd"),
-      endDate: format(thirtyDaysLater, "yyyy-MM-dd"),
+  const { data: calendarData, isLoading: calendarLoading } =
+    useStudentMyCalendar({
+      start: format(today, "yyyy-MM-dd"),
+      end: format(thirtyDaysLater, "yyyy-MM-dd"),
     })
 
   const slots = slotsData ?? []
-  const events = (eventsData ?? []).filter((e) => e.status !== "cancelled")
+  const events = (calendarData ?? []).filter(
+    (e) => e.status !== "cancelled" && e.type !== "block",
+  )
 
   return (
     <div className="space-y-6" data-testid="agenda-page">
@@ -51,7 +53,7 @@ export default function StudentAgendaPage() {
       {/* Upcoming events section */}
       <section>
         <h2 className="text-lg font-semibold mb-3">Proximas Aulas</h2>
-        {eventsLoading ? (
+        {calendarLoading ? (
           <LoadingState variant="list" />
         ) : events.length === 0 ? (
           <EmptyState

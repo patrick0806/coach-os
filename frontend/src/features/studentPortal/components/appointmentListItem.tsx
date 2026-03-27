@@ -5,10 +5,10 @@ import { ptBR } from "date-fns/locale"
 import { ExternalLink, MapPin, Video } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import type { StudentCalendarEvent } from "@/features/studentPortal/types/studentPortalSchedule.types"
+import type { StudentUnifiedCalendarEntry } from "@/features/studentPortal/types/studentPortalSchedule.types"
 
 interface AppointmentListItemProps {
-  event: StudentCalendarEvent
+  event: StudentUnifiedCalendarEntry
 }
 
 const STATUS_LABELS: Record<string, string> = {

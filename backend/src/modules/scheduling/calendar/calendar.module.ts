@@ -9,12 +9,15 @@ import { GetCalendarController } from "./contexts/getCalendar/getCalendar.contro
 import { GetCalendarUseCase } from "./contexts/getCalendar/getCalendar.useCase";
 import { GetAvailabilityController } from "./contexts/getAvailability/getAvailability.controller";
 import { GetAvailabilityUseCase } from "./contexts/getAvailability/getAvailability.useCase";
+import { GetMyCalendarController } from "./contexts/getMyCalendar/getMyCalendar.controller";
+import { GetMyCalendarUseCase } from "./contexts/getMyCalendar/getMyCalendar.useCase";
 
 @Module({
-  controllers: [GetCalendarController, GetAvailabilityController],
+  controllers: [GetCalendarController, GetAvailabilityController, GetMyCalendarController],
   providers: [
     GetCalendarUseCase,
     GetAvailabilityUseCase,
+    GetMyCalendarUseCase,
     WorkingHoursRepository,
     RecurringSlotsRepository,
     CalendarEventsRepository,
