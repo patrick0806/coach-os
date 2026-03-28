@@ -20,7 +20,7 @@ type FilterTab = "all" | StudentProgramStatus
 
 export function StudentProgramsSection({ studentId }: StudentProgramsSectionProps) {
   const [assignOpen, setAssignOpen] = useState(false)
-  const [filter, setFilter] = useState<FilterTab>("all")
+  const [filter, setFilter] = useState<FilterTab>("active")
 
   const params = filter !== "all" ? { status: filter as StudentProgramStatus } : undefined
   const { data, isLoading } = useStudentPrograms(studentId, params)
