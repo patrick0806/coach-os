@@ -29,7 +29,7 @@ export default defineConfig({
     },
   },
   projects: [
-    // --- Core behavioral suite: short, high-signal journeys for daily use ---
+    // --- Core behavioral suite: ~45 high-signal tests for daily CI ---
     {
       name: "core-web",
       use: { ...devices["Desktop Chrome"] },
@@ -44,36 +44,6 @@ export default defineConfig({
       testMatch: ["**/core/*.mobile.spec.ts"],
     },
 
-    // --- Full mocked behavioral suite (feature-level detail) ---
-    {
-      name: "full-web",
-      use: { ...devices["Desktop Chrome"] },
-      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
-    },
-    {
-      name: "full-mobile",
-      use: {
-        ...devices["Pixel 7"],
-        browserName: "chromium",
-      },
-      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
-    },
-
-    // --- Legacy aliases kept for compatibility with older commands ---
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
-    },
-    {
-      name: "mobile-android",
-      use: {
-        ...devices["Pixel 7"],
-        browserName: "chromium",
-      },
-      testIgnore: ["**/*.smoke.spec.ts", "**/core/**"],
-    },
-
     // --- Smoke tests (real backend required) ---
     // Run with: npm run test:e2e:smoke (uses --workers=1 to avoid 429 on /auth/register)
     {
@@ -82,16 +52,5 @@ export default defineConfig({
       testMatch: ["**/*.smoke.spec.ts"],
       fullyParallel: false,
     },
-
-    // webkit (Safari) requires a separate installation: npx playwright install webkit
-    // Disabled until webkit is installed in the environment
-    // {
-    //   name: "mobile-iphone-se",
-    //   use: { ...devices["iPhone SE"] },
-    // },
-    // {
-    //   name: "mobile-iphone-max",
-    //   use: { ...devices["iPhone 14 Pro Max"] },
-    // },
   ],
 });

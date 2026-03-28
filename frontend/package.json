@@ -9,7 +9,6 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test --project=core-web --project=core-mobile",
-    "test:e2e:full": "playwright test --project=full-web --project=full-mobile",
     "test:e2e:smoke": "playwright test --project=smoke --workers=1"
   },
   "dependencies": {
