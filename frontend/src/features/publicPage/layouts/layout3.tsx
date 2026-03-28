@@ -28,33 +28,21 @@ export function Layout3({ profile, slug, hrefPrefix = "" }: Layout3Props) {
       {/* Hero — minimal, no background */}
       <section className="px-4 pb-20 pt-24">
         <div className="mx-auto max-w-3xl space-y-8 text-center">
-          {profile.logoUrl ? (
-            <div className="mx-auto h-14 max-w-[180px]">
+          <div className="mx-auto size-20 overflow-hidden rounded-full border-2">
+            {profile.profilePhoto ? (
               <Image
-                src={profile.logoUrl}
-                alt={`Logo de ${profile.coachName}`}
-                width={180}
-                height={56}
-                className="h-full w-auto object-contain"
+                src={profile.profilePhoto}
+                alt={profile.coachName}
+                width={80}
+                height={80}
+                className="size-full object-cover"
               />
-            </div>
-          ) : (
-            <div className="mx-auto size-20 overflow-hidden rounded-full border-2">
-              {profile.profilePhoto ? (
-                <Image
-                  src={profile.profilePhoto}
-                  alt={profile.coachName}
-                  width={80}
-                  height={80}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <div className="flex size-full items-center justify-center bg-muted">
-                  <Dumbbell className="size-8 text-muted-foreground" />
-                </div>
-              )}
-            </div>
-          )}
+            ) : (
+              <div className="flex size-full items-center justify-center bg-muted">
+                <Dumbbell className="size-8 text-muted-foreground" />
+              </div>
+            )}
+          </div>
 
           <div className="space-y-4">
             <h1 className="text-5xl font-extrabold tracking-tighter md:text-7xl">{title}</h1>

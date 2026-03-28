@@ -9,6 +9,7 @@ interface CoachPublicProfile {
   slug: string
   bio: string | null
   profilePhoto: string | null
+  logoUrl: string | null
   specialties: string[] | null
 }
 
@@ -38,7 +39,7 @@ export default async function StudentLoginPage({ params }: PageProps) {
   return (
     <StudentLoginForm
       coachName={coach.coachName}
-      coachLogoUrl={coach.profilePhoto}
+      coachLogoUrl={coach.logoUrl}
       slug={slug}
       hrefPrefix={hrefPrefix}
     />

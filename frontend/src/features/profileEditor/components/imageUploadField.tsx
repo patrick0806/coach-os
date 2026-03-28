@@ -15,8 +15,8 @@ interface ImageUploadFieldProps {
   currentUrl: string | null | undefined
   onUpload: (fileUrl: string) => void
   disabled?: boolean
-  /** "circle" renders a fixed-size circle preview matching the public page hero; "banner" (default) renders a full-width rectangle */
-  shape?: "circle" | "banner"
+  /** "circle" renders a fixed-size circle preview; "banner" (default) renders a full-width rectangle; "logo" renders a compact rectangle (200x64) */
+  shape?: "circle" | "banner" | "logo"
 }
 
 export function ImageUploadField({ label, hint, currentUrl, onUpload, disabled, shape = "banner" }: ImageUploadFieldProps) {
@@ -83,6 +83,28 @@ export function ImageUploadField({ label, hint, currentUrl, onUpload, disabled, 
               {isUploading ? <Loader2 className="size-3.5 animate-spin" /> : "Trocar foto"}
             </Button>
           </div>
+        ) : shape === "logo" ? (
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-[200px] shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+              <Image
+                src={currentUrl}
+                alt={label}
+                width={200}
+                height={64}
+                className="h-full w-auto object-contain"
+                unoptimized
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isDisabled}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isUploading ? <Loader2 className="size-3.5 animate-spin" /> : "Trocar"}
+            </Button>
+          </div>
         ) : (
           <div className="overflow-hidden rounded-lg border bg-muted">
             <div className="relative h-32 w-full">
@@ -130,6 +152,22 @@ export function ImageUploadField({ label, hint, currentUrl, onUpload, disabled, 
               {isUploading ? "Enviando..." : "Clique no círculo para selecionar"}
             </p>
           </div>
+        ) : shape === "logo" ? (
+          <button
+            type="button"
+            disabled={isDisabled}
+            onClick={() => fileInputRef.current?.click()}
+            className="flex h-16 w-[200px] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted transition-colors hover:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isUploading ? (
+              <Loader2 className="size-4 animate-spin text-muted-foreground" />
+            ) : (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Upload className="size-4" />
+                Selecionar logo
+              </div>
+            )}
+          </button>
         ) : (
           <Button
             type="button"

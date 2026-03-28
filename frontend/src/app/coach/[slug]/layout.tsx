@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import type { Metadata } from "next"
 
 import { publicServerFetch } from "@/lib/serverFetch"
 import { getContrastColor } from "@/lib/colorContrast"
@@ -6,11 +7,24 @@ import { getContrastColor } from "@/lib/colorContrast"
 interface CoachTheme {
   themeColor: string | null
   themeColorSecondary: string | null
+  logoUrl: string | null
 }
 
 interface LayoutProps {
   children: React.ReactNode
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
+  const { slug } = await params
+  const profile = await publicServerFetch<CoachTheme>(`/v1/public/${slug}`, { revalidate: 60 })
+  if (!profile?.logoUrl) return {}
+  return {
+    icons: {
+      icon: [{ url: profile.logoUrl }],
+      apple: [{ url: profile.logoUrl }],
+    },
+  }
 }
 
 export default async function CoachSlugLayout({ children, params }: LayoutProps) {

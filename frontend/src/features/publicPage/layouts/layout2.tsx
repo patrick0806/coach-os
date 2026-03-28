@@ -31,18 +31,6 @@ export function Layout2({ profile, slug, hrefPrefix = "" }: Layout2Props) {
           <div className="flex flex-col items-center gap-12 md:flex-row md:gap-16">
             {/* Left: text */}
             <div className="flex-1 space-y-6 text-left">
-              {profile.logoUrl && (
-                <div className="h-12 max-w-[160px]">
-                  <Image
-                    src={profile.logoUrl}
-                    alt={`Logo de ${profile.coachName}`}
-                    width={160}
-                    height={48}
-                    className="h-full w-auto object-contain"
-                  />
-                </div>
-              )}
-
               <div className="space-y-3">
                 <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
                   {title}

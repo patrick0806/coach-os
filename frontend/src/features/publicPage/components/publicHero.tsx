@@ -40,34 +40,22 @@ export function PublicHero({ profile, slug: _slug, hrefPrefix = "" }: PublicHero
       )}
 
       <div className="relative z-10 flex flex-col items-center gap-6">
-        {/* Logo or coach photo */}
-        {profile.logoUrl ? (
-          <div className="h-16 max-w-[200px]">
+        {/* Coach photo */}
+        <div className="size-24 overflow-hidden rounded-full border-4 border-white/30 shadow-lg">
+          {profile.profilePhoto ? (
             <Image
-              src={profile.logoUrl}
-              alt={`Logo de ${profile.coachName}`}
-              width={200}
-              height={64}
-              className="h-full w-auto object-contain drop-shadow-md"
+              src={profile.profilePhoto}
+              alt={profile.coachName}
+              width={96}
+              height={96}
+              className="size-full object-cover"
             />
-          </div>
-        ) : (
-          <div className="size-24 overflow-hidden rounded-full border-4 border-white/30 shadow-lg">
-            {profile.profilePhoto ? (
-              <Image
-                src={profile.profilePhoto}
-                alt={profile.coachName}
-                width={96}
-                height={96}
-                className="size-full object-cover"
-              />
-            ) : (
-              <div className="flex size-full items-center justify-center bg-muted">
-                <Dumbbell className="size-10 text-muted-foreground" />
-              </div>
-            )}
-          </div>
-        )}
+          ) : (
+            <div className="flex size-full items-center justify-center bg-muted">
+              <Dumbbell className="size-10 text-muted-foreground" />
+            </div>
+          )}
+        </div>
 
         <div className="max-w-2xl space-y-3 text-center">
           <h1

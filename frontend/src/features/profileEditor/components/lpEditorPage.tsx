@@ -196,11 +196,11 @@ export function LpEditorPage() {
 
           <ImageUploadField
             label="Logo"
-            hint="Exibido no portal do aluno e como favicon da sua página pública."
+            hint="Recomendado: 200x64px (retangular). Exibido no portal do aluno e como favicon."
             currentUrl={logoUrl}
             onUpload={(fileUrl) => setLogoUrl(fileUrl)}
             disabled={updateProfile.isPending}
-            shape="banner"
+            shape="logo"
           />
 
           <Field>

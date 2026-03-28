@@ -42,33 +42,21 @@ export function Layout4({ profile, slug, hrefPrefix = "" }: Layout4Props) {
         />
 
         <div className="relative z-10 flex flex-col items-center gap-8">
-          {profile.logoUrl ? (
-            <div className="h-16 max-w-[200px]">
+          <div className="size-24 overflow-hidden rounded-full border-4 border-white/30 shadow-xl">
+            {profile.profilePhoto ? (
               <Image
-                src={profile.logoUrl}
-                alt={`Logo de ${profile.coachName}`}
-                width={200}
-                height={64}
-                className="h-full w-auto object-contain brightness-0 invert"
+                src={profile.profilePhoto}
+                alt={profile.coachName}
+                width={96}
+                height={96}
+                className="size-full object-cover"
               />
-            </div>
-          ) : (
-            <div className="size-24 overflow-hidden rounded-full border-4 border-white/30 shadow-xl">
-              {profile.profilePhoto ? (
-                <Image
-                  src={profile.profilePhoto}
-                  alt={profile.coachName}
-                  width={96}
-                  height={96}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <div className="flex size-full items-center justify-center bg-white/20">
-                  <Dumbbell className="size-10 text-white" />
-                </div>
-              )}
-            </div>
-          )}
+            ) : (
+              <div className="flex size-full items-center justify-center bg-white/20">
+                <Dumbbell className="size-10 text-white" />
+              </div>
+            )}
+          </div>
 
           <div className="max-w-3xl space-y-4">
             <h1 className="text-5xl font-black tracking-tight md:text-7xl" style={{ color: "var(--brand-text-color, white)" }}>{title}</h1>
