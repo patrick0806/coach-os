@@ -4,9 +4,18 @@ import { StudentExercisesRepository } from "@shared/repositories/studentExercise
 
 import { UpdateStudentExerciseController } from "./contexts/updateStudentExercise/updateStudentExercise.controller";
 import { UpdateStudentExerciseUseCase } from "./contexts/updateStudentExercise/updateStudentExercise.useCase";
+import { DeleteStudentExerciseController } from "./contexts/deleteStudentExercise/deleteStudentExercise.controller";
+import { DeleteStudentExerciseUseCase } from "./contexts/deleteStudentExercise/deleteStudentExercise.useCase";
 
 @Module({
-  controllers: [UpdateStudentExerciseController],
-  providers: [StudentExercisesRepository, UpdateStudentExerciseUseCase],
+  controllers: [
+    UpdateStudentExerciseController,
+    DeleteStudentExerciseController,
+  ],
+  providers: [
+    StudentExercisesRepository,
+    UpdateStudentExerciseUseCase,
+    DeleteStudentExerciseUseCase,
+  ],
 })
 export class StudentExercisesModule {}

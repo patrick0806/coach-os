@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 import type { InferSelectModel } from "drizzle-orm";
 
 import { DbTransaction, DrizzleProvider } from "@shared/providers/drizzle.service";
@@ -72,7 +72,7 @@ export class StudentExercisesRepository {
       order: number;
     }>,
   ): Promise<StudentExercise | undefined> {
-     
+
     const result = await this.drizzle.db
       .update(studentExercises)
       .set(data as any)
@@ -80,5 +80,39 @@ export class StudentExercisesRepository {
       .returning();
 
     return result[0];
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.drizzle.db
+      .delete(studentExercises)
+      .where(eq(studentExercises.id, id));
+  }
+
+  async findMaxOrderByWorkoutDayId(workoutDayId: string): Promise<number> {
+    const result = await this.drizzle.db
+      .select({ maxOrder: max(studentExercises.order) })
+      .from(studentExercises)
+      .where(eq(studentExercises.workoutDayId, workoutDayId));
+
+    return result[0]?.maxOrder ?? -1;
+  }
+
+  async reorder(workoutDayId: string, items: { id: string; order: number }[]): Promise<void> {
+    if (items.length === 0) return;
+    await this.drizzle.db.transaction(async (tx) => {
+      await Promise.all(
+        items.map((item) =>
+          tx
+            .update(studentExercises)
+            .set({ order: item.order })
+            .where(
+              and(
+                eq(studentExercises.id, item.id),
+                eq(studentExercises.workoutDayId, workoutDayId),
+              ),
+            ),
+        ),
+      );
+    });
   }
 }

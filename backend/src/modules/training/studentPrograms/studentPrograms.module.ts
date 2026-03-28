@@ -18,6 +18,10 @@ import { GetStudentProgramController } from "./contexts/getStudentProgram/getStu
 import { GetStudentProgramUseCase } from "./contexts/getStudentProgram/getStudentProgram.useCase";
 import { UpdateStudentProgramStatusController } from "./contexts/updateStudentProgramStatus/updateStudentProgramStatus.controller";
 import { UpdateStudentProgramStatusUseCase } from "./contexts/updateStudentProgramStatus/updateStudentProgramStatus.useCase";
+import { AddWorkoutDayController } from "./contexts/addWorkoutDay/addWorkoutDay.controller";
+import { AddWorkoutDayUseCase } from "./contexts/addWorkoutDay/addWorkoutDay.useCase";
+import { ReorderWorkoutDaysController } from "./contexts/reorderWorkoutDays/reorderWorkoutDays.controller";
+import { ReorderWorkoutDaysUseCase } from "./contexts/reorderWorkoutDays/reorderWorkoutDays.useCase";
 
 @Module({
   controllers: [
@@ -26,6 +30,8 @@ import { UpdateStudentProgramStatusUseCase } from "./contexts/updateStudentProgr
     GetMyProgramsController,
     GetStudentProgramController,
     UpdateStudentProgramStatusController,
+    AddWorkoutDayController,
+    ReorderWorkoutDaysController,
   ],
   providers: [
     DrizzleProvider,
@@ -40,6 +46,8 @@ import { UpdateStudentProgramStatusUseCase } from "./contexts/updateStudentProgr
     GetMyProgramsUseCase,
     GetStudentProgramUseCase,
     UpdateStudentProgramStatusUseCase,
+    AddWorkoutDayUseCase,
+    ReorderWorkoutDaysUseCase,
   ],
   exports: [StudentProgramsRepository, WorkoutDaysRepository, StudentExercisesRepository],
 })

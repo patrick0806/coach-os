@@ -1,6 +1,22 @@
 # TASK_BOARD.md — Coach OS
 
-Last updated: 2026-03-26
+Last updated: 2026-03-27
+
+---
+
+## Student Program Full Editing ✅ COMPLETE (2026-03-27)
+
+Alunos agora podem ter seus programas totalmente editados pelo personal: adicionar/remover/reordenar dias de treino e exercícios. 907 testes backend + build frontend passando.
+
+- [x] Backend: `workoutDays.repository` + `studentExercises.repository` com métodos delete/reorder/findMaxOrder
+- [x] Backend: use cases addWorkoutDay, reorderWorkoutDays (studentPrograms module)
+- [x] Backend: use cases deleteWorkoutDay, addStudentExercise, reorderStudentExercises (workoutDays module)
+- [x] Backend: use case deleteStudentExercise (studentExercises module)
+- [x] Backend: 29 novos testes unitários
+- [x] Frontend: service methods + types + 6 hooks
+- [x] Frontend: AddWorkoutDayDialog + AddStudentExerciseDialog
+- [x] Frontend: WorkoutDayCard e StudentExerciseItem com controles ▲▼ e deletar
+- [x] Frontend: página de detalhe do programa com botão "Adicionar dia"
 
 ---
 

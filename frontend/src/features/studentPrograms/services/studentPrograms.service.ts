@@ -1,13 +1,18 @@
 import { api } from "@/lib/axios"
 import type {
+  AddStudentExerciseRequest,
+  AddWorkoutDayRequest,
   AssignProgramRequest,
   ListStudentProgramsParams,
   PaginatedStudentPrograms,
+  ReorderItemsRequest,
+  StudentExerciseItem,
   StudentProgramDetail,
   StudentProgramItem,
   UpdateStudentExerciseRequest,
   UpdateStudentProgramStatusRequest,
   UpdateWorkoutDayRequest,
+  WorkoutDayItem,
 } from "@/features/studentPrograms/types/studentPrograms.types"
 
 export const studentProgramsService = {
@@ -37,5 +42,27 @@ export const studentProgramsService = {
 
   updateStudentExercise: async (id: string, data: UpdateStudentExerciseRequest): Promise<void> => {
     await api.put(`/student-exercises/${id}`, data)
+  },
+
+  addWorkoutDay: async (programId: string, data: AddWorkoutDayRequest): Promise<WorkoutDayItem> =>
+    (await api.post<WorkoutDayItem>(`/student-programs/${programId}/workout-days`, data)).data,
+
+  deleteWorkoutDay: async (id: string): Promise<void> => {
+    await api.delete(`/workout-days/${id}`)
+  },
+
+  reorderWorkoutDays: async (programId: string, data: ReorderItemsRequest): Promise<void> => {
+    await api.patch(`/student-programs/${programId}/workout-days/reorder`, data)
+  },
+
+  addStudentExercise: async (workoutDayId: string, data: AddStudentExerciseRequest): Promise<StudentExerciseItem> =>
+    (await api.post<StudentExerciseItem>(`/workout-days/${workoutDayId}/exercises`, data)).data,
+
+  deleteStudentExercise: async (id: string): Promise<void> => {
+    await api.delete(`/student-exercises/${id}`)
+  },
+
+  reorderStudentExercises: async (workoutDayId: string, data: ReorderItemsRequest): Promise<void> => {
+    await api.patch(`/workout-days/${workoutDayId}/exercises/reorder`, data)
   },
 }

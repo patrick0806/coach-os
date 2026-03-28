@@ -82,3 +82,22 @@ export interface UpdateStudentExerciseRequest {
   duration?: string | null
   notes?: string | null
 }
+
+export interface AddWorkoutDayRequest {
+  name: string
+  description?: string
+}
+
+export interface AddStudentExerciseRequest {
+  exerciseId: string
+  sets: number
+  repetitions?: number
+  plannedWeight?: string
+  restSeconds?: number
+  duration?: string
+  notes?: string
+}
+
+export interface ReorderItemsRequest {
+  items: { id: string; order: number }[]
+}

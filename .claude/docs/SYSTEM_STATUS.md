@@ -1,12 +1,12 @@
 # SYSTEM_STATUS.md — Coach OS
 
-Last updated: 2026-03-26 (post Code Quality Refactoring)
+Last updated: 2026-03-27 (student program full editing)
 
 ---
 
 ## Backend Status
 
-All backend modules are **functionally complete** (878 tests passing — reduced from 903 due to old scheduling tests removed).
+All backend modules are **functionally complete** (907 tests passing).
 
 | Module | Status | Notes |
 |--------|--------|-------|
@@ -15,7 +15,7 @@ All backend modules are **functionally complete** (878 tests passing — reduced
 | platform/subscriptions | minor issues | Remaining: checkout session.url non-null assertion |
 | platform/webhooks | ok | |
 | platform/tenants | ok | |
-| training | ok | studentPrograms uses RecurringSlotsRepository. Batch inserts + parallel reorder optimized |
+| training | ok | studentPrograms fully editable: add/delete/reorder workout days and exercises |
 | scheduling | ok | **Refactored**: 3 tables (working_hours, recurring_slots, calendar_events). Old 6-table model removed. |
 | coaching | ok | |
 | students | ok | TOCTOU accepted risk. Student limit logic extracted to `shared/utils/studentLimit.util.ts` |
