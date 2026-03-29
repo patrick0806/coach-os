@@ -13,12 +13,15 @@ export const studentApi = axios.create({
 
 // --- Request interceptor: attach student access token ---
 
+// Single correlation ID per browser tab — traces the full student session flow.
+const sessionCorrelationId = crypto.randomUUID()
+
 studentApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = studentAuthStore.getToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-  config.headers["x-correlation-id"] = crypto.randomUUID()
+  config.headers["x-correlation-id"] = sessionCorrelationId
   return config
 })
 

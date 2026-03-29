@@ -20,12 +20,16 @@ export const apiV2 = axios.create({
 
 // --- Shared interceptor setup ---
 
+// Single correlation ID per browser tab — all requests share it so we can
+// trace the full user session flow in Better Stack.
+const sessionCorrelationId = crypto.randomUUID();
+
 function attachAuthToken(config: InternalAxiosRequestConfig) {
   const token = authStore.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  config.headers["x-correlation-id"] = crypto.randomUUID();
+  config.headers["x-correlation-id"] = sessionCorrelationId;
   return config;
 }
 
