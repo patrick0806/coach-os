@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/formatMoney";
+import { isRegistrationOpen } from "@/lib/featureFlags";
 import type { Plan } from "../types/plans.types";
 
 interface PlanCardProps {
@@ -47,7 +48,7 @@ export function PlanCard({ plan }: PlanCardProps) {
       </ul>
 
       <Link
-        href={`/cadastro?plan=${plan.id}`}
+        href={isRegistrationOpen ? `/cadastro?plan=${plan.id}` : "#lista-de-espera"}
         className={cn(
           "mt-8 block rounded-xl py-3 text-center text-sm font-semibold transition-colors",
           plan.highlighted
@@ -55,7 +56,9 @@ export function PlanCard({ plan }: PlanCardProps) {
             : "border border-border bg-card text-foreground hover:bg-muted"
         )}
       >
-        {plan.hasTrial ? "Começar 14 dias grátis" : "Começar agora"}
+        {isRegistrationOpen
+          ? (plan.hasTrial ? "Começar 14 dias grátis" : "Começar agora")
+          : "Em breve"}
       </Link>
     </div>
   );

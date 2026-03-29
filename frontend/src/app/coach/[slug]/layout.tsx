@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 
 import { publicServerFetch } from "@/lib/serverFetch"
 import { getContrastColor } from "@/lib/colorContrast"
+import { UnderConstructionBanner } from "@/features/marketing/components/underConstructionBanner"
 
 interface CoachTheme {
   themeColor: string | null
@@ -50,6 +51,7 @@ export default async function CoachSlugLayout({ children, params }: LayoutProps)
 
   return (
     <div style={cssVars}>
+      <UnderConstructionBanner />
       {children}
     </div>
   )

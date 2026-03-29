@@ -34,6 +34,7 @@ import { WebhooksModule } from "@modules/platform/webhooks/webhooks.module";
 import { SubscriptionsModule } from "@modules/platform/subscriptions/subscriptions.module";
 import { AdminModule } from "@modules/platform/admin/admin.module";
 import { SchedulingModule } from "@modules/scheduling/scheduling.module";
+import { WaitlistModule } from "@modules/platform/waitlist/waitlist.module";
 
 import { DatabaseModule } from "@config/database/database.module";
 import { JobsModule } from "./jobs/jobs.module";
@@ -83,6 +84,7 @@ import { JobsModule } from "./jobs/jobs.module";
     SubscriptionsModule,
     AdminModule,
     SchedulingModule,
+    WaitlistModule,
     JobsModule,
     RouterModule.register([
       {
@@ -176,6 +178,10 @@ import { JobsModule } from "./jobs/jobs.module";
       {
         path: "admin",
         module: AdminModule,
+      },
+      {
+        path: "waitlist",
+        module: WaitlistModule,
       },
     ]),
   ],

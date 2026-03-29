@@ -9,6 +9,7 @@ import {
   Settings2,
   BarChart3,
   Zap,
+  Mail,
 } from "lucide-react";
 
 import { listPlans } from "@/features/marketing/services/plans.service";
@@ -16,6 +17,8 @@ import { Navbar } from "@/features/marketing/components/navbar";
 import { Footer } from "@/features/marketing/components/footer";
 import { FeatureBlock } from "@/features/marketing/components/featureBlock";
 import { PlanCard } from "@/features/marketing/components/planCard";
+import { WaitlistForm } from "@/features/marketing/components/waitlistForm";
+import { isRegistrationOpen } from "@/lib/featureFlags";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +68,7 @@ export default async function HomePage() {
 
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
-                href="/cadastro"
+                href={isRegistrationOpen ? "/cadastro" : "#lista-de-espera"}
                 className="group flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-primary/30"
               >
                 Começar 14 dias grátis
@@ -80,7 +83,9 @@ export default async function HomePage() {
             </div>
 
             <p className="mt-4 text-sm text-muted-foreground">
-              Não precisa de cartão de crédito para começar.
+              {isRegistrationOpen
+                ? "Não precisa de cartão de crédito para começar."
+                : "Em breve! Entre na lista de espera para garantir acesso antecipado."}
             </p>
 
             {/* Positioning pills */}
@@ -260,6 +265,29 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Waitlist Section */}
+        {!isRegistrationOpen && (
+          <section id="lista-de-espera" className="relative overflow-hidden px-6 py-24 sm:py-32">
+            <div className="absolute left-1/2 top-1/2 -z-10 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-[120px]" />
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+                <Mail className="h-3.5 w-3.5" />
+                Lista de espera
+              </div>
+              <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+                Entre na lista de espera
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Seja notificado quando abrirmos novas vagas. Os primeiros da lista
+                terão acesso antecipado com condições especiais.
+              </p>
+              <div className="mt-10">
+                <WaitlistForm variant="full" />
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* CTA Section */}
         <section className="px-6 py-20 md:py-32">
           <div className="mx-auto max-w-5xl overflow-hidden rounded-3xl bg-primary px-8 py-16 text-center text-primary-foreground shadow-2xl shadow-primary/20">
@@ -281,10 +309,10 @@ export default async function HomePage() {
 
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
-                href="/cadastro"
+                href={isRegistrationOpen ? "/cadastro" : "#lista-de-espera"}
                 className="group flex items-center gap-2 rounded-xl bg-background px-8 py-4 text-lg font-bold text-foreground shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
               >
-                Criar minha conta agora
+                {isRegistrationOpen ? "Criar minha conta agora" : "Entrar na lista de espera"}
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link

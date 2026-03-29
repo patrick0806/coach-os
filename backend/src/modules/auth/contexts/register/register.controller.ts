@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
+import { Body, Controller, ForbiddenException, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { FastifyReply } from "fastify";
@@ -31,6 +31,10 @@ export class RegisterController {
     @Body() body: RegisterRequestDTO,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
+    if (!env.REGISTRATION_ENABLED) {
+      throw new ForbiddenException("Registration is currently closed");
+    }
+
     const result = await this.registerUseCase.execute(body);
 
     reply.setCookie("refreshToken", `${result.user.id}.${result.refreshToken}`, {

@@ -5,13 +5,19 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/shared/ui/sheet";
+import { UnderConstructionBanner } from "@/features/marketing/components/underConstructionBanner";
+import { isRegistrationOpen } from "@/lib/featureFlags";
 
 export function Navbar() {
+  const ctaHref = isRegistrationOpen ? "/cadastro" : "/#lista-de-espera";
+  const ctaText = isRegistrationOpen ? "Começar grátis" : "Lista de espera";
+
   return (
     <header
       data-slot="navbar"
       className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg"
     >
+      <UnderConstructionBanner />
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
           <Image src="/logo_transparent.png" alt="Coach OS" width={28} height={28} />
@@ -48,10 +54,10 @@ export function Navbar() {
             Entrar
           </Link>
           <Link
-            href="/cadastro"
+            href={ctaHref}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Começar grátis
+            {ctaText}
           </Link>
 
           {/* Mobile hamburger */}
@@ -100,10 +106,10 @@ export function Navbar() {
                     Entrar
                   </Link>
                   <Link
-                    href="/cadastro"
+                    href={ctaHref}
                     className="rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                   >
-                    Começar grátis
+                    {ctaText}
                   </Link>
                 </div>
               </div>

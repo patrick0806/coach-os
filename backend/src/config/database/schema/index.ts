@@ -13,3 +13,4 @@ export * from "./workoutExecution";
 export * from "./progress";
 export * from "./scheduling";
 export * from "./webhookEvents";
+export * from "./waitlist";

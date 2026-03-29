@@ -73,6 +73,11 @@ const envSchema = z.object({
     .string()
     .transform((val) => val === "true")
     .default(false),
+
+  REGISTRATION_ENABLED: z
+    .string()
+    .transform((val) => val === "true")
+    .default(false),
 });
 
 const parsed = envSchema.safeParse(process.env);
