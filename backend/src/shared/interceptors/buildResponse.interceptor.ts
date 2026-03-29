@@ -7,10 +7,8 @@ import {
 import { FastifyRequest } from "fastify";
 import { map, Observable } from "rxjs";
 
-import { HEADERS } from "@shared/constants";
 import { LogBuilderService } from "@shared/providers";
-import { getHeader } from "@shared/utils";
-import { env } from "@config/env";
+import { getRequestContext } from "@shared/utils";
 
 @Injectable()
 export class BuildResponseInterceptor implements NestInterceptor {
@@ -28,13 +26,17 @@ export class BuildResponseInterceptor implements NestInterceptor {
         const duration = Date.now() - startTime;
 
         if (!request.url.includes("health")) {
+          const ctx = getRequestContext(request);
+
           LogBuilderService.build({
             level: "info",
             message: params?.message || "Request completed successfully",
             method: request.method,
             path: request.url,
             statusCode: 200,
-            transactionId: getHeader(request.headers, HEADERS.TRANSACTION_ID),
+            correlationId: ctx.correlationId,
+            userId: ctx.userId,
+            tenantId: ctx.tenantId,
             duration,
             code: params?.code,
             details: params?.details,

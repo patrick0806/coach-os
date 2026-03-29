@@ -9,7 +9,7 @@ import {
 
 import { SwaggerConfig } from "@config/swagger/swagger.config";
 
-import { API_BASE_PATH } from "@shared/constants";
+import { API_BASE_PATH, HEADERS } from "@shared/constants";
 import { logger } from "@config/pino.config";
 import {
   AllExceptionsFilter,
@@ -18,13 +18,16 @@ import {
 } from "@shared/filters";
 import { BuildResponseInterceptor } from "@shared/interceptors";
 
+import { randomUUID } from "node:crypto";
+
 import { AppModule } from "./app.module";
 import { env } from "@config/env";
 
-// Extend FastifyRequest to carry the raw body buffer for webhook signature validation
+// Extend FastifyRequest to carry the raw body buffer and correlation ID
 declare module "fastify" {
   interface FastifyRequest {
     rawBody?: Buffer;
+    correlationId: string;
   }
 }
 
@@ -67,6 +70,16 @@ async function bootstrap() {
     },
   );
 
+  // Correlation ID: use incoming header or generate a new one
+  app.getHttpAdapter().getInstance().addHook(
+    "onRequest",
+    async (req: import("fastify").FastifyRequest, reply: import("fastify").FastifyReply) => {
+      const incoming = req.headers[HEADERS.CORRELATION_ID] as string | undefined;
+      req.correlationId = incoming || randomUUID();
+      reply.header(HEADERS.CORRELATION_ID, req.correlationId);
+    },
+  );
+
   app.setGlobalPrefix(API_BASE_PATH);
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: "1" });
 
@@ -90,7 +103,7 @@ async function bootstrap() {
       },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
-    exposedHeaders: ["Access-Token", "Refresh-Token"],
+    exposedHeaders: ["Access-Token", "Refresh-Token", "x-correlation-id"],
   });
 
   await app.register(helmet, {

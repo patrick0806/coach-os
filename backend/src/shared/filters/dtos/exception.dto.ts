@@ -16,7 +16,7 @@ export class ExceptionDTO {
   status: number;
   error: string;
   path: string;
-  transactionId: string | null;
+  correlationId: string | null;
   message: string;
   code?: string;
   details?: ExceptionDetail[];
@@ -25,7 +25,7 @@ export class ExceptionDTO {
     status: number,
     error: string,
     path: string,
-    transactionId: string,
+    correlationId: string | null,
     message: string,
     details?: ExceptionDetail[],
   ) {
@@ -33,7 +33,7 @@ export class ExceptionDTO {
     this.status = status;
     this.error = error;
     this.path = path;
-    this.transactionId = transactionId;
+    this.correlationId = correlationId;
     this.message = message;
     this.details = details;
   }

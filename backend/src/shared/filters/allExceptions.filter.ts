@@ -6,9 +6,8 @@ import {
 } from "@nestjs/common";
 import { FastifyRequest, FastifyReply } from "fastify";
 
-import { HEADERS } from "@shared/constants";
 import { LogBuilderService } from "@shared/providers";
-import { getHeader, getRequestDuration } from "@shared/utils";
+import { getRequestContext, getRequestDuration } from "@shared/utils";
 
 import { ExceptionDTO } from "./dtos/exception.dto";
 
@@ -18,7 +17,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const request = context.getRequest<FastifyRequest>();
     const response = context.getResponse<FastifyReply>();
-    const transactionId = getHeader(request.headers, HEADERS.TRANSACTION_ID);
+    const ctx = getRequestContext(request);
     const duration = getRequestDuration(request);
 
     const message =
@@ -28,7 +27,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       HttpStatus.INTERNAL_SERVER_ERROR,
       "Internal Server Error",
       request.url,
-      transactionId,
+      ctx.correlationId,
       message,
     );
 
@@ -38,7 +37,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       method: request.method,
       path: request.url,
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      transactionId,
+      correlationId: ctx.correlationId,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
       duration,
       error: exception instanceof Error ? exception : new Error(String(exception)),
     });

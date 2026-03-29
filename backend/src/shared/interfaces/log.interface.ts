@@ -7,11 +7,12 @@ export interface ILogParams {
   path: string;
   statusCode: number;
   code?: string;
-  transactionId?: string | null;
+  correlationId?: string | null;
   details?: any;
   error?: any;
   duration?: number;
-  userId?: string | number;
+  userId?: string;
+  tenantId?: string;
 }
 export interface IStructuredLog {
   timestamp: string;
@@ -21,9 +22,10 @@ export interface IStructuredLog {
     method: string;
     path: string;
     statusCode: number;
-    transactionId?: string | null;
+    correlationId?: string | null;
     duration?: number;
-    userId?: string | number;
+    userId?: string;
+    tenantId?: string;
   };
   code?: string;
   details?: any;

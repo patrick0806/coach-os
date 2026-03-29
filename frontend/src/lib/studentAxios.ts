@@ -18,6 +18,7 @@ studentApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  config.headers["x-correlation-id"] = crypto.randomUUID()
   return config
 })
 

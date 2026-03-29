@@ -6,10 +6,9 @@ import {
 } from "@nestjs/common";
 import { FastifyRequest, FastifyReply } from "fastify";
 
-import { HEADERS } from "@shared/constants";
 import { ValidationException } from "@shared/exceptions";
 import { LogBuilderService } from "@shared/providers";
-import { getHeader, getRequestDuration } from "@shared/utils";
+import { getRequestContext, getRequestDuration } from "@shared/utils";
 
 import { ExceptionDetail, ExceptionDTO } from "./dtos/exception.dto";
 
@@ -19,7 +18,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const request = context.getRequest<FastifyRequest>();
     const response = context.getResponse<FastifyReply>();
-    const transactionId = getHeader(request.headers, HEADERS.TRANSACTION_ID);
+    const ctx = getRequestContext(request);
     const duration = getRequestDuration(request);
 
     const exceptionDeatils = new ExceptionDetail(
@@ -30,7 +29,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
       HttpStatus.BAD_REQUEST,
       "Bad Request",
       request.url,
-      transactionId,
+      ctx.correlationId,
       "Invalid fields send in request",
       [exceptionDeatils]
     );
@@ -42,7 +41,9 @@ export class ValidationExceptionFilter implements ExceptionFilter {
       path: request.url,
       statusCode: HttpStatus.BAD_REQUEST,
       code: exception.error,
-      transactionId,
+      correlationId: ctx.correlationId,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
       duration,
       details: exceptionDeatils,
     });

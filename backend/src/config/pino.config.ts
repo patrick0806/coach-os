@@ -23,7 +23,8 @@ export const pinoConfig = {
     },
   },
   timestamp: pino.stdTimeFunctions.isoTime,
-  base: undefined, // Remove pid and hostname
+  base: { service: 'coach-os-backend' },
+  redact: ['*.password', '*.token', '*.accessToken', '*.refreshToken'],
 };
 
 export const logger = pino(pinoConfig);

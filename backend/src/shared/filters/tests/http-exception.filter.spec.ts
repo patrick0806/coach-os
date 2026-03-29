@@ -7,11 +7,11 @@ import { HttpExceptionFilter } from "../httpException.filter";
 const makeMockHost = (overrides: {
   url?: string;
   method?: string;
-  headers?: Record<string, string>;
-  statusCode?: number;
+  correlationId?: string | null;
   startTime?: number;
+  user?: { sub?: string; personalId?: string };
 }) => {
-  const { url = "/api/test", method = "GET", headers = {}, startTime } = overrides;
+  const { url = "/api/test", method = "GET", correlationId = null, startTime, user } = overrides;
   const mockSend = vi.fn();
   const mockCode = vi.fn().mockReturnValue({ send: mockSend });
 
@@ -23,8 +23,9 @@ const makeMockHost = (overrides: {
         getRequest: () => ({
           url,
           method,
-          headers,
+          correlationId,
           startTime,
+          user,
         }),
         getResponse: () => ({
           code: mockCode,
@@ -88,27 +89,42 @@ describe("HttpExceptionFilter", () => {
       );
     });
 
-    it("should include transactionId from request headers when present", () => {
+    it("should include correlationId from request when present", () => {
       const exception = new HttpException("Bad Request", HttpStatus.BAD_REQUEST);
-      // getHeader splits by space and returns index 1 (e.g. "Bearer txn-abc" → "txn-abc")
       const { mockSend, host } = makeMockHost({
-        headers: { transactionId: "Bearer txn-abc-123" },
+        correlationId: "corr-abc-123",
       });
 
       filter.catch(exception as any, host);
 
       const responseBody = mockSend.mock.calls[0][0];
-      expect(responseBody.transactionId).toBe("txn-abc-123");
+      expect(responseBody.correlationId).toBe("corr-abc-123");
     });
 
-    it("should set transactionId as null when header is absent", () => {
+    it("should set correlationId as null when not present on request", () => {
       const exception = new HttpException("Not Found", HttpStatus.NOT_FOUND);
-      const { mockSend, host } = makeMockHost({ headers: {} });
+      const { mockSend, host } = makeMockHost({});
 
       filter.catch(exception as any, host);
 
       const responseBody = mockSend.mock.calls[0][0];
-      expect(responseBody.transactionId).toBeNull();
+      expect(responseBody.correlationId).toBeNull();
+    });
+
+    it("should include userId and tenantId from request.user in logs", () => {
+      const exception = new HttpException("Forbidden", HttpStatus.FORBIDDEN);
+      const { host } = makeMockHost({
+        user: { sub: "user-42", personalId: "tenant-7" },
+      });
+
+      filter.catch(exception as any, host);
+
+      expect(buildSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: "user-42",
+          tenantId: "tenant-7",
+        }),
+      );
     });
   });
 });

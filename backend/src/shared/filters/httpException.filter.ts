@@ -7,9 +7,8 @@ import {
 } from "@nestjs/common";
 import { FastifyRequest, FastifyReply } from "fastify";
 
-import { HEADERS } from "@shared/constants";
 import { LogBuilderService } from "@shared/providers";
-import { getHeader, getRequestDuration } from "@shared/utils";
+import { getRequestContext, getRequestDuration } from "@shared/utils";
 
 import { ExceptionDTO } from "./dtos/exception.dto";
 
@@ -24,14 +23,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = context.getResponse<FastifyReply>();
     const statusCode =
       Number(exception.getStatus()) || HttpStatus.INTERNAL_SERVER_ERROR;
-    const transactionId = getHeader(request.headers, HEADERS.TRANSACTION_ID);
+    const ctx = getRequestContext(request);
     const duration = getRequestDuration(request);
 
     const exceptionResponse = new ExceptionDTO(
       statusCode,
       exception.error ?? HttpStatus[statusCode],
       request.url,
-      transactionId,
+      ctx.correlationId,
       exception.message
     );
     exceptionResponse.code = exception.code;
@@ -43,7 +42,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       path: request.url,
       statusCode,
       code: exception.error,
-      transactionId,
+      correlationId: ctx.correlationId,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
       duration,
       details: exceptionResponse,
     });

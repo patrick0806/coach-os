@@ -3,8 +3,7 @@ import { HttpStatus, ArgumentsHost } from "@nestjs/common";
 
 import { AllExceptionsFilter } from "../allExceptions.filter";
 import { LogBuilderService } from "@shared/providers";
-import { getHeader, getRequestDuration } from "@shared/utils";
-import { HEADERS } from "@shared/constants";
+import { getRequestDuration } from "@shared/utils";
 
 vi.mock("@shared/providers", () => ({
     LogBuilderService: {
@@ -13,7 +12,11 @@ vi.mock("@shared/providers", () => ({
 }));
 
 vi.mock("@shared/utils", () => ({
-    getHeader: vi.fn(),
+    getRequestContext: vi.fn().mockReturnValue({
+        correlationId: "corr-123",
+        userId: "user-1",
+        tenantId: "tenant-1",
+    }),
     getRequestDuration: vi.fn(),
 }));
 
@@ -30,6 +33,7 @@ describe("AllExceptionsFilter", () => {
             url: "/test",
             method: "GET",
             headers: {},
+            correlationId: "corr-123",
         };
 
         reply = {
@@ -37,7 +41,6 @@ describe("AllExceptionsFilter", () => {
             send: vi.fn(),
         };
 
-        (getHeader as any).mockReturnValue("tx-123");
         (getRequestDuration as any).mockReturnValue(120);
     });
 
@@ -61,7 +64,9 @@ describe("AllExceptionsFilter", () => {
                 method: "GET",
                 path: "/test",
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-                transactionId: "tx-123",
+                correlationId: "corr-123",
+                userId: "user-1",
+                tenantId: "tenant-1",
                 duration: 120,
                 error,
             }),
@@ -74,7 +79,7 @@ describe("AllExceptionsFilter", () => {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 error: "Internal Server Error",
                 path: "/test",
-                transactionId: "tx-123",
+                correlationId: "corr-123",
                 message: "boom",
             }),
         );
@@ -91,15 +96,6 @@ describe("AllExceptionsFilter", () => {
         );
 
         expect(reply.send).toHaveBeenCalled();
-    });
-
-    it("should read transaction id header", () => {
-        filter.catch(new Error("boom"), createHost());
-
-        expect(getHeader).toHaveBeenCalledWith(
-            request.headers,
-            HEADERS.TRANSACTION_ID,
-        );
     });
 
     it("should calculate request duration", () => {
