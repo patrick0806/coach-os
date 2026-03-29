@@ -51,7 +51,6 @@ export default async function CoachSlugLayout({ children, params }: LayoutProps)
 
   return (
     <div style={cssVars}>
-      <UnderConstructionBanner />
       {children}
     </div>
   )
