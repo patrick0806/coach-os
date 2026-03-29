@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Construction } from "lucide-react";
+import { X } from "lucide-react";
 import Link from "next/link";
 
 import { isRegistrationOpen } from "@/lib/featureFlags";
@@ -24,16 +24,14 @@ export function UnderConstructionBanner() {
 
   return (
     <div className="flex items-center justify-center gap-2 border-b border-primary/20 bg-primary/10 px-4 py-2 text-center text-sm text-foreground">
-      <Construction className="hidden size-4 text-primary sm:block" />
       <span>
-        Estamos em construção!{" "}
+        Seja notificado quando o cadastro estiver disponível!{" "}
         <Link
           href="/#lista-de-espera"
           className="font-semibold text-primary underline underline-offset-2 hover:text-primary/80"
         >
-          Deixe seu email para ser notificado
-        </Link>{" "}
-        quando estivermos prontos.
+          Inscreva-se na lista de espera
+        </Link>
       </span>
       <button
         onClick={handleDismiss}

@@ -30,7 +30,7 @@ export default async function CadastroPage({ searchParams }: PageProps) {
         </h1>
         <p className="mt-4 max-w-md text-muted-foreground">
           No momento, o cadastro está disponível apenas por convite. Deixe seu
-          email na lista de espera para ser notificado quando abrirmos novas vagas.
+          email para ser notificado quando o cadastro estiver disponível.
         </p>
         <div className="mt-8 w-full max-w-md">
           <WaitlistForm variant="full" />

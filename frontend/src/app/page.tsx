@@ -71,7 +71,7 @@ export default async function HomePage() {
                 href={isRegistrationOpen ? "/cadastro" : "#lista-de-espera"}
                 className="group flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-primary/30"
               >
-                Começar 14 dias grátis
+                {isRegistrationOpen ? "Começar 14 dias grátis" : "Inscreva-se na lista de espera"}
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
@@ -85,7 +85,7 @@ export default async function HomePage() {
             <p className="mt-4 text-sm text-muted-foreground">
               {isRegistrationOpen
                 ? "Não precisa de cartão de crédito para começar."
-                : "Em breve! Entre na lista de espera para garantir acesso antecipado."}
+                : "Inscreva-se para ser notificado quando o cadastro estiver disponível."}
             </p>
 
             {/* Positioning pills */}
@@ -275,11 +275,10 @@ export default async function HomePage() {
                 Lista de espera
               </div>
               <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-                Entre na lista de espera
+                Lista de espera
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Seja notificado quando abrirmos novas vagas. Os primeiros da lista
-                terão acesso antecipado com condições especiais.
+                Seja notificado quando o cadastro estiver disponível.
               </p>
               <div className="mt-10">
                 <WaitlistForm variant="full" />
