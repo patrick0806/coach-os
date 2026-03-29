@@ -45,7 +45,7 @@ export function AuthBrandingPanel() {
           <span className="text-primary">personal trainer</span>
         </h2>
         <p className="text-base text-muted-foreground">
-          A plataforma completa para coaches que levam o seu trabalho a sério.
+          A plataforma completa para personais que levam o seu trabalho a sério.
         </p>
       </div>
 

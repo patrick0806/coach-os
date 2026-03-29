@@ -50,7 +50,7 @@ export default async function HomePage() {
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
               <Zap className="h-3.5 w-3.5" />
-              Para coaches online e presencial
+              Para personais online e presencial
             </div>
 
             <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl">
