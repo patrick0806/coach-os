@@ -29,7 +29,7 @@ export function PageHeader({
           <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className="flex flex-col sm:flex-row sm:items-center gap-2">{actions}</div>}
     </div>
   );
 }

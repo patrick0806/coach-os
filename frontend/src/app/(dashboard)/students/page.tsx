@@ -24,7 +24,7 @@ function StudentsContent() {
   const [createOpen, setCreateOpen] = useState(false)
   const [inviteOpen, setInviteOpen] = useState(false)
   const [inviteStudent, setInviteStudent] = useState<StudentItem | null>(null)
-  const [editStudent, setEditStudent] = useState<StudentItem | null>(null)
+
 
   function openInviteForStudent(student: StudentItem) {
     setInviteStudent(student)
@@ -101,7 +101,6 @@ function StudentsContent() {
         <>
           <StudentTable
             students={data.content}
-            onEdit={(s) => setEditStudent(s)}
             onInvite={openInviteForStudent}
           />
           {data.totalPages > 1 && (
@@ -134,14 +133,6 @@ function StudentsContent() {
         open={createOpen}
         onOpenChange={setCreateOpen}
       />
-
-      {editStudent && (
-        <StudentFormDialog
-          open={!!editStudent}
-          onOpenChange={(open) => !open && setEditStudent(null)}
-          student={editStudent}
-        />
-      )}
 
       <InviteStudentDialog
         open={inviteOpen}

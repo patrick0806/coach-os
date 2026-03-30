@@ -29,7 +29,6 @@ import { formatShortDate } from "@/shared/utils/formatDate"
 
 interface StudentTableProps {
   students: StudentItem[]
-  onEdit: (student: StudentItem) => void
   onInvite: (student: StudentItem) => void
 }
 
@@ -56,11 +55,10 @@ const statusActions: Record<StudentStatus, { label: string; next: StudentStatus 
 
 interface RowActionsProps {
   student: StudentItem
-  onEdit: (student: StudentItem) => void
   onInvite: (student: StudentItem) => void
 }
 
-function RowActions({ student, onEdit, onInvite }: RowActionsProps) {
+function RowActions({ student, onInvite }: RowActionsProps) {
   const router = useRouter()
   const updateStatus = useUpdateStudentStatus(student.id)
   const actions = statusActions[student.status]
@@ -77,7 +75,6 @@ function RowActions({ student, onEdit, onInvite }: RowActionsProps) {
         <DropdownMenuItem onClick={() => router.push(`/students/${student.id}`)}>
           Ver detalhes
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onEdit(student)}>Editar</DropdownMenuItem>
         <DropdownMenuItem onClick={() => onInvite(student)}>Enviar convite</DropdownMenuItem>
         <DropdownMenuSeparator />
         {actions.map((action) => (
@@ -93,7 +90,7 @@ function RowActions({ student, onEdit, onInvite }: RowActionsProps) {
   )
 }
 
-function StudentCard({ student, onEdit, onInvite }: { student: StudentItem; onEdit: (s: StudentItem) => void; onInvite: (s: StudentItem) => void }) {
+function StudentCard({ student, onInvite }: { student: StudentItem; onInvite: (s: StudentItem) => void }) {
   const router = useRouter()
 
   return (
@@ -113,19 +110,19 @@ function StudentCard({ student, onEdit, onInvite }: { student: StudentItem; onEd
         </div>
       </div>
       <div onClick={(e) => e.stopPropagation()}>
-        <RowActions student={student} onEdit={onEdit} onInvite={onInvite} />
+        <RowActions student={student} onInvite={onInvite} />
       </div>
     </div>
   )
 }
 
-export function StudentTable({ students, onEdit, onInvite }: StudentTableProps) {
+export function StudentTable({ students, onInvite }: StudentTableProps) {
   return (
     <motion.div variants={fadeIn} initial="hidden" animate="visible">
       {/* Mobile: vertical cards */}
       <div className="sm:hidden space-y-2">
         {students.map((student) => (
-          <StudentCard key={student.id} student={student} onEdit={onEdit} onInvite={onInvite} />
+          <StudentCard key={student.id} student={student} onInvite={onInvite} />
         ))}
       </div>
 
@@ -165,7 +162,7 @@ export function StudentTable({ students, onEdit, onInvite }: StudentTableProps) 
                     : "—"}
                 </TableCell>
                 <TableCell>
-                  <RowActions student={student} onEdit={onEdit} onInvite={onInvite} />
+                  <RowActions student={student} onInvite={onInvite} />
                 </TableCell>
               </TableRow>
             ))}
