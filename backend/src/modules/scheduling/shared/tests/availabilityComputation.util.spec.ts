@@ -144,6 +144,36 @@ describe("computeAvailability", () => {
     expect(result[1].endAt).toEqual(new Date("2026-04-06T18:00:00Z"));
   });
 
+  it("should handle effectiveFrom as Date object (defense-in-depth)", () => {
+    const result = computeAvailability(
+      makeInput({
+        workingHours: [
+          makeWH({ effectiveFrom: new Date("2026-01-01T00:00:00Z") as any }),
+        ],
+      }),
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].startAt).toEqual(new Date("2026-04-06T08:00:00Z"));
+    expect(result[0].endAt).toEqual(new Date("2026-04-06T12:00:00Z"));
+  });
+
+  it("should handle effectiveTo as Date object (defense-in-depth)", () => {
+    const result = computeAvailability(
+      makeInput({
+        workingHours: [
+          makeWH({
+            effectiveFrom: new Date("2026-01-01T00:00:00Z") as any,
+            effectiveTo: new Date("2026-04-05T00:00:00Z") as any,
+          }),
+        ],
+      }),
+    );
+
+    // effectiveTo is April 5, query date is April 6 → excluded
+    expect(result).toHaveLength(0);
+  });
+
   it("should handle entry that fully covers working hours", () => {
     const result = computeAvailability(
       makeInput({

@@ -1,6 +1,11 @@
-import { Pool, PoolConfig } from "pg";
+import { Pool, PoolConfig, types } from "pg";
 
 import { env } from "../env";
+
+// Override pg's default date parser (OID 1082) to return raw "YYYY-MM-DD"
+// strings instead of JavaScript Date objects. Without this, Drizzle's date()
+// columns return Date objects at runtime despite being typed as string.
+types.setTypeParser(1082, (val: string) => val);
 
 export const getDatabaseConfig = (): PoolConfig => {
   const config: PoolConfig = {

@@ -20,10 +20,19 @@ function toDateStr(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+function normalizeToDateStr(value: string | Date): string {
+  if (value instanceof Date) return toDateStr(value);
+  return value.substring(0, 10);
+}
+
 function isWorkingHoursActiveOnDate(wh: WorkingHours, dateStr: string): boolean {
   if (!wh.isActive) return false;
-  if (wh.effectiveFrom > dateStr) return false;
-  if (wh.effectiveTo && wh.effectiveTo < dateStr) return false;
+  const from = normalizeToDateStr(wh.effectiveFrom);
+  if (from > dateStr) return false;
+  if (wh.effectiveTo) {
+    const to = normalizeToDateStr(wh.effectiveTo);
+    if (to < dateStr) return false;
+  }
   return true;
 }
 

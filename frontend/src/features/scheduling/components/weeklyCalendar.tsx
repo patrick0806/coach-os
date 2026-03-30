@@ -41,8 +41,12 @@ function getDateStr(isoString: string): string {
 function getWorkingHoursForDay(workingHours: WorkingHoursItem[], dayOfWeek: number, dateStr: string): WorkingHoursItem[] {
   return workingHours.filter((wh) => {
     if (wh.dayOfWeek !== dayOfWeek || !wh.isActive) return false
-    if (wh.effectiveFrom > dateStr) return false
-    if (wh.effectiveTo && wh.effectiveTo < dateStr) return false
+    const from = wh.effectiveFrom.substring(0, 10)
+    if (from > dateStr) return false
+    if (wh.effectiveTo) {
+      const to = wh.effectiveTo.substring(0, 10)
+      if (to < dateStr) return false
+    }
     return true
   })
 }

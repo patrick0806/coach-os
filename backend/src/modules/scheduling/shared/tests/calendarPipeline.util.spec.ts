@@ -223,6 +223,73 @@ describe("buildCalendar", () => {
     expect(result[1].startAt).toEqual(new Date("2026-04-06T14:00:00Z")); // one_off
   });
 
+  it("should expand recurring slot across multiple weeks", () => {
+    const result = buildCalendar(
+      makeInput({
+        recurringSlots: [makeSlot({ dayOfWeek: 1 })], // Monday
+        startDate: new Date("2026-04-06T00:00:00Z"), // Monday
+        endDate: new Date("2026-04-26T23:59:59Z"), // Sunday, 3 weeks
+      }),
+    );
+
+    expect(result).toHaveLength(3);
+    expect(result[0].startAt).toEqual(new Date("2026-04-06T10:00:00Z"));
+    expect(result[1].startAt).toEqual(new Date("2026-04-13T10:00:00Z"));
+    expect(result[2].startAt).toEqual(new Date("2026-04-20T10:00:00Z"));
+  });
+
+  it("should handle effectiveFrom as Date object (defense-in-depth)", () => {
+    const result = buildCalendar(
+      makeInput({
+        recurringSlots: [
+          makeSlot({
+            dayOfWeek: 1,
+            effectiveFrom: new Date("2026-01-01T00:00:00Z") as any,
+          }),
+        ],
+      }),
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].startAt).toEqual(new Date("2026-04-06T10:00:00Z"));
+  });
+
+  it("should handle effectiveTo as Date object (defense-in-depth)", () => {
+    const result = buildCalendar(
+      makeInput({
+        recurringSlots: [
+          makeSlot({
+            dayOfWeek: 1,
+            effectiveFrom: new Date("2026-01-01T00:00:00Z") as any,
+            effectiveTo: new Date("2026-04-10T00:00:00Z") as any,
+          }),
+        ],
+        startDate: new Date("2026-04-06T00:00:00Z"),
+        endDate: new Date("2026-04-26T23:59:59Z"),
+      }),
+    );
+
+    // Only April 6 is within range (effectiveTo April 10 excludes April 13+)
+    expect(result).toHaveLength(1);
+    expect(result[0].startAt).toEqual(new Date("2026-04-06T10:00:00Z"));
+  });
+
+  it("should handle effectiveFrom as ISO timestamp string", () => {
+    const result = buildCalendar(
+      makeInput({
+        recurringSlots: [
+          makeSlot({
+            dayOfWeek: 1,
+            effectiveFrom: "2026-01-01T03:00:00.000Z" as any,
+          }),
+        ],
+      }),
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].startAt).toEqual(new Date("2026-04-06T10:00:00Z"));
+  });
+
   it("should resolve student names from map", () => {
     const studentNames = new Map([["student-1", "João Silva"]]);
 

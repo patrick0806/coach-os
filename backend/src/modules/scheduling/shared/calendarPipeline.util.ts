@@ -33,10 +33,19 @@ function toDateStr(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+function normalizeToDateStr(value: string | Date): string {
+  if (value instanceof Date) return toDateStr(value);
+  return value.substring(0, 10);
+}
+
 function isSlotActiveOnDate(slot: RecurringSlot, dateStr: string): boolean {
   if (!slot.isActive) return false;
-  if (slot.effectiveFrom > dateStr) return false;
-  if (slot.effectiveTo && slot.effectiveTo < dateStr) return false;
+  const from = normalizeToDateStr(slot.effectiveFrom);
+  if (from > dateStr) return false;
+  if (slot.effectiveTo) {
+    const to = normalizeToDateStr(slot.effectiveTo);
+    if (to < dateStr) return false;
+  }
   return true;
 }
 
